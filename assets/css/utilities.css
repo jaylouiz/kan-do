@@ -1,0 +1,123 @@
+/**
+ * Cross-cutting typography utilities (text-2xs, font-display, tracking-display) and the named
+ * `section-heading` / `focus-ring` utilities (#556).
+ * Imported by main.css; lives in the utilities layer exactly as before the split (#43).
+ */
+
+@layer utilities {
+  /* === Typography === */
+  :where(.text-2xs) { font-size: 0.6875rem; line-height: 1rem; }
+
+  :where(.font-display) { font-family: var(--font-display); font-weight: 600; }
+
+  /* Slight negative tracking for the large display step (column names, welcome hero). */
+  .tracking-display { letter-spacing: -0.015em; }
+
+  /* viewport-fit=cover (#257): sticky page chrome keeps clear of the status bar / notch; 0 without insets */
+  .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+  .top-safe-3 { top: calc(0.75rem + env(safe-area-inset-top, 0px)); }
+  .px-safe { padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px); }
+}
+
+/* Document scroll bar (#669, #580). Classic bars take width from the layout, so a page that starts or stops scrolling
+   (a stack expands, the statistics page is taller than the board) used to shift everything sideways. `scrollbar-gutter:
+   stable` reserves the bar's space for good: nothing moves when it comes or goes. It is set only while a classic bar
+   exists (`html.kando-classic-scrollbar`, plugins/scrollbar-gutter.client.ts): overlay bars (macOS trackpad, touch)
+   take no width and nothing shifted there before; Chromium reserves a gutter even where it hides the bars (headless
+   test browsers), so the property unguarded would shift those layouts. No CSS can force an overlay bar
+   where the OS draws classic ones, and `scrollbar-width` / `scrollbar-color` would make Chrome ignore
+   `::-webkit-scrollbar`, which the E2E specs use to force a classic bar (#612): leave both alone.
+
+   Scrollbar lock (#580): an open overlay removes a classic document scrollbar (Reka's body scroll lock) and pads the body
+   by its width, so the board does not move. Elements outside the body flow (fixed, or absolute against the viewport)
+   would jump by that width: they subtract `--scrollbar-width`, which Reka sets on <html> only while the lock removes a
+   scrollbar (unset otherwise, and on overlay scrollbars, so the fallback 0 applies). Also: `.titlebar` (app.vue) and
+   `.background-img` (board.css). With the gutter the lock removes nothing, but Reka still reads `innerWidth -
+   clientWidth` (the gutter) and would compensate a second time: the block below zeroes both writes, where the gutter
+   exists only (an engine without it keeps the compensation). `tests/e2e/scrollbar-shift.spec.ts` measures every element
+   for the lock, `tests/e2e/scrollbar-gutter.spec.ts` for the bar coming and going. */
+@supports (scrollbar-gutter: stable) {
+  html.kando-classic-scrollbar {
+    scrollbar-gutter: stable;
+    /* beats Reka's inline value (an !important stylesheet declaration wins over a normal inline one) */
+    --scrollbar-width: 0px !important;
+  }
+  html.kando-classic-scrollbar body {
+    padding-right: 0 !important;
+  }
+}
+
+.kando-toaster {
+  margin-right: var(--scrollbar-width, 0px);
+}
+
+/* Feedback element picker (#227): the whole window reads as "point at something" while picking. */
+html.kando-picking,
+html.kando-picking * {
+  cursor: crosshair !important;
+}
+html.kando-picking [data-feedback-picker],
+html.kando-picking [data-feedback-picker] * {
+  cursor: default !important;
+}
+
+/*
+ * Feedback screenshot (#247, ADR 014): `useScreenshotCapture` sets `kando-capture-mask` on <html> for the
+ * instant of the native snapshot only. Private task text (title, notes, topic, custom values) is hidden
+ * behind the ink token; the live DOM is masked because the native snapshot has no clone to edit.
+ */
+html.kando-capture-mask [data-private],
+html.kando-capture-mask [data-private] * {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  text-shadow: none !important;
+  caret-color: transparent !important;
+}
+html.kando-capture-mask [data-private] ::placeholder {
+  color: transparent !important;
+}
+html.kando-capture-mask [data-private] {
+  background-color: var(--color-custom-ink-900) !important;
+  border-radius: 0.25rem;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/*
+ * `section-heading` (#556): the page/section heading of the settings, updates and data pages and the
+ * What's New dialog: display face, display tracking, headline step, tight leading, highlighted ink.
+ * Replaces the five-class string `font-display tracking-display text-headline leading-(--lh-tight)
+ * text-highlighted`; values are the ones those classes resolve to. The `id` / `aria-labelledby` wiring
+ * stays in each template.
+ */
+@utility section-heading {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  font-size: var(--text-headline);
+  line-height: var(--lh-tight);
+  color: var(--ui-text-highlighted);
+}
+
+/*
+ * `focus-ring` (#556): DESIGN.md "a solid 2px ink ring with an offset on every control", for hand-rolled
+ * controls (buttons and links Nuxt UI does not render). Replaces `focus-visible:outline-2
+ * focus-visible:outline-offset-2 focus-visible:outline-primary`; `app.config.ts` carries the same ring
+ * for Nuxt UI buttons.
+ */
+@utility focus-ring {
+  &:focus-visible {
+    outline-style: solid;
+    outline-width: 2px;
+    outline-offset: 2px;
+    outline-color: var(--ui-primary);
+  }
+}
+
+/* Desktop app (#614): no rubber-band bounce past the top or bottom, as in an installed Mac app. `plugins/desktop-shell.client.ts`
+   sets the marker. `overscroll-behavior` is not inherited, so every nested scroller (columns, sheets, dialogs) needs it too;
+   the web build keeps the browser's scrolling. Mobile board pages keep their own `contain` (board.css, an id selector wins). */
+html[data-shell="desktop"],
+html[data-shell="desktop"] * {
+  overscroll-behavior: none;
+}

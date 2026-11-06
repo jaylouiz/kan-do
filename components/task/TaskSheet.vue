@@ -1,0 +1,175 @@
+<!--
+@component TaskSheet
+@description Responsive sheet that hosts the nested task routes (/tasks/:id, /tasks/add)
+@usage Mounted once in pages/tasks.vue. `open` is driven by the route; closing animates first, then `after-leave` fires so the host can navigate to /tasks.
+@responsibility
+- Hosted by ResponsiveOverlay: a slideover (side right) at >=768px and a bottom drawer below; the shell owns the breakpoint, the frozen variant and the open/close echo guard
+- Focus on open (the drawer: ResponsiveOverlay moves it in, #566), focus trap and focus return come from reka's FocusScope
+- Keeps Escape inside an active inline editor (and the topic editor, #430) from closing the sheet
+- Falls back to the board when there is no trigger to return focus to (deep link)
+- After adding a task, focus goes to the saved card instead of the add slot (#125)
+-->
+
+<template>
+  <ResponsiveOverlay
+    :open="open"
+    :title="title"
+    desktop="slideover"
+    :close-button="false"
+    :content-props="contentProps"
+    :desktop-ui="desktopUi"
+    :mobile-ui="mobileUi"
+    @update:open="emit('update:open', $event)"
+    @after-leave="emit('after-leave')"
+  >
+    <template #title>
+      <span :class="titleClass">{{ title }}</span>
+    </template>
+    <template #body>
+      <slot />
+    </template>
+    <template v-if="$slots.footer" #footer>
+      <slot name="footer" />
+    </template>
+  </ResponsiveOverlay>
+</template>
+
+<script setup lang="ts">
+import { computed, watch } from 'vue';
+import { SHEET_WIDTH } from '~/utils/modalSizes';
+import { useTaskSheet } from '~/composables/useTaskSheet';
+import { findSavedCardElement } from '~/utils/focusRecovery';
+import ResponsiveOverlay from '~/components/ui/ResponsiveOverlay.vue';
+
+defineOptions({ name: 'TaskSheet' });
+
+// Transparent on purpose: the board-side backdrop (sheet.css) darkens instead. Must beat the global `overlay` variant scrim (app.config.ts).
+const SHEET_OVERLAY_CLASS = 'task-sheet bg-transparent';
+
+interface Props {
+  /** Whether the sheet is open (driven by the route in the host). */
+  open: boolean;
+  /** Dialog title. Visible on the add route, screen-reader only on the detail route. */
+  title: string;
+  /** Detail route: the title is the inline-editable field in the body, so the dialog title is visually hidden. */
+  hideTitle?: boolean;
+  /** Body padding is owned by the hosted content (detail route). */
+  flushBody?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), { hideTitle: false, flushBody: false });
+const { takeReturnFocusTaskId } = useTaskSheet();
+
+const emit = defineEmits<{
+  'update:open': [value: boolean];
+  'after-leave': [];
+}>();
+
+defineSlots<{
+  default(): unknown;
+  footer?(): unknown;
+}>();
+
+// The sheet header stays font-semibold (DESIGN.md, #220): it labels the add-task sheet. Only the task's own title is regular weight, and that lives in TaskDetailContent.
+const titleClass = computed(() => (props.hideTitle ? 'sr-only' : 'font-display text-lg font-semibold tracking-tight text-highlighted'));
+/** Detail route: the header would only hold the visually hidden title, so it takes no space. */
+const headerClass = computed(() => (props.hideTitle ? 'sr-only' : undefined));
+const bodyClass = computed(() => (props.flushBody ? 'p-0 sm:p-0 min-h-0 overflow-y-auto overscroll-contain' : 'min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6'));
+/**
+ * Desktop detail: the hosted content owns its scrolling (rows scroll, the metadata is pinned to the
+ * bottom edge, #386), so the body is a clipped flex column instead of the scroll container.
+ */
+const slideoverBodyClass = computed(() => (props.flushBody ? 'p-0 sm:p-0 min-h-0 flex flex-col overflow-hidden' : bodyClass.value));
+
+const desktopUi = computed(() => ({
+  overlay: SHEET_OVERLAY_CLASS,
+  content: `task-sheet ${SHEET_WIDTH}${props.hideTitle ? ' divide-y-0' : ''}`,
+  header: headerClass.value,
+  body: slideoverBodyClass.value,
+  footer: 'sheet-footer',
+}));
+const mobileUi = computed(() => ({
+  overlay: SHEET_OVERLAY_CLASS,
+  content: 'task-sheet',
+  header: props.hideTitle ? 'sr-only' : 'px-4 pb-2',
+  body: bodyClass.value,
+  footer: 'sheet-footer border-t border-default p-4',
+}));
+
+/**
+ * Escape inside a text field cancels that field only when there is something to lose:
+ * an active inline editor (detail route) or a field with a typed draft (add route).
+ * reka listens on the document, so stopPropagation in the field is too late;
+ * the field's own keydown handler still runs because we only veto the dialog's dismissal.
+ */
+const isGuardedField = (target: EventTarget | null): boolean => {
+  if (!(target instanceof HTMLElement)) return false;
+  const field = target.closest<HTMLElement>('input, textarea, [contenteditable="true"]');
+  if (!field) return false;
+  if (field.closest('[data-inline-editable]')) return true;
+  const value = field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement ? field.value : field.textContent;
+  return (value ?? '').trim() !== '';
+};
+
+const onEscapeKeyDown = (event: KeyboardEvent) => {
+  // The topic editor (#430) handles Escape itself: it closes, the sheet stays
+  if (isGuardedField(event.target) || (event.target instanceof HTMLElement && event.target.closest('[data-topic-editor]'))) event.preventDefault();
+};
+
+const findSavedCard = findSavedCardElement; // shared with the in-card add flow (#649)
+
+/**
+ * Focus returns to the card that opened the sheet (reka's FocusScope remembers it).
+ * A deep link has no such trigger: send focus to the board instead of letting it fall to <body>.
+ * The temporary tabindex is removed on blur, so the board does not stay a click-focus target.
+ */
+let opener: Element | null = null;
+watch(() => props.open, (isOpen) => {
+  if (!isOpen) return;
+  opener = document.activeElement;
+  // A save target left over from a close that never reached onCloseAutoFocus must not steer this one
+  takeReturnFocusTaskId();
+}, { flush: 'sync' });
+
+const onCloseAutoFocus = (event: Event) => {
+  // After a save, focus goes to the card that was just added (#125): the new card in Offen,
+  // the current card in Jetzt.
+  const savedTaskId = takeReturnFocusTaskId();
+  const savedCard = savedTaskId ? findSavedCard(savedTaskId) : null;
+  if (savedCard) {
+    event.preventDefault();
+    savedCard.focus({ preventScroll: true });
+    return;
+  }
+  // An add slot that re-rendered while the form was open (#110, #125) leaves the remembered opener
+  // detached: focus the slot of the same column instead.
+  if (opener instanceof HTMLElement && !opener.isConnected && opener.classList.contains('add-task-button')) {
+    const replacement = document.querySelector<HTMLElement>(`.add-task-button[data-add-slot="${opener.dataset.addSlot ?? ''}"]`);
+    if (replacement) {
+      event.preventDefault();
+      replacement.focus({ preventScroll: true });
+      return;
+    }
+  }
+  if (opener instanceof HTMLElement && opener !== document.body && opener.isConnected) return;
+  const board = document.querySelector<HTMLElement>('[data-task-sheet-return]');
+  if (!board) return;
+  event.preventDefault();
+  board.setAttribute('tabindex', '-1');
+  board.addEventListener('blur', () => board.removeAttribute('tabindex'), { once: true });
+  board.focus({ preventScroll: true });
+};
+
+/**
+ * Detail route: focus the sheet itself instead of the first control (the inline title),
+ * so opening does not drop straight into an edit trigger with a focus ring. Tab starts at the title.
+ * The add route keeps the default, its form focuses the title field.
+ */
+const onOpenAutoFocus = (event: Event) => {
+  if (!props.hideTitle) return;
+  event.preventDefault();
+  if (event.target instanceof HTMLElement) event.target.focus({ preventScroll: true });
+};
+
+const contentProps = { onOpenAutoFocus, onEscapeKeyDown, onCloseAutoFocus };
+</script>

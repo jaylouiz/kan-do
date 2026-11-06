@@ -1,0 +1,7 @@
+- group "Neue Aufgabe":
+  - group "Notiz?":
+    - button "Zurück"
+    - paragraph: Notiz?
+    - textbox "Notiz":
+      - /placeholder: Kurze Notiz …
+    - button "Aufgabe speichern"

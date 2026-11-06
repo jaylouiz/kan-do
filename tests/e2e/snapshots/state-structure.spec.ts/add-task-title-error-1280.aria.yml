@@ -1,0 +1,22 @@
+- dialog "Neue Aufgabe erstellen":
+  - paragraph
+  - heading "Neue Aufgabe erstellen" [level=2]
+  - textbox "Aufgabe benennen…" [invalid]
+  - alert: Gib der Aufgabe einen Titel.
+  - text: Priorität
+  - 'button "Priorität: Normal"'
+  - text: Thema
+  - 'button "Thema: Auswählen…"'
+  - text: Aktivität
+  - 'button "Aktivität: Auswählen…"'
+  - text: Timebox
+  - spinbutton "Timebox"
+  - text: min Geplante Dauer in Minuten
+  - button /\d+ min/
+  - button /\d+ min/
+  - button /\d+ min/
+  - region "Notiz":
+    - heading "Notiz" [level=3]
+    - textbox "Weitere Details oder Kontext…"
+  - button "Abbrechen"
+  - button "Aufgabe erstellen"

@@ -1,0 +1,79 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "kan-do",
+  "version": "0.11.0",
+  "identifier": "com.julius.kan-do",
+  "build": {
+    "frontendDist": "../.output/public",
+    "devUrl": "http://localhost:3000",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run generate"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Kan-Do - Today's Tasks",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 800,
+        "minHeight": 600,
+        "resizable": true,
+        "fullscreen": false,
+        "center": true,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true,
+        "trafficLightPosition": { "x": 20, "y": 30 }
+      }
+    ],
+    "security": {
+      "csp": {
+        "default-src": "'self'",
+        "script-src": "'self'",
+        "style-src": "'self' 'unsafe-inline'",
+        "font-src": "'self'",
+        "img-src": "'self'",
+        "connect-src": "'self' ipc: http://ipc.localhost https://api.todoist.com",
+        "object-src": "'none'",
+        "base-uri": "'none'",
+        "frame-ancestors": "'none'",
+        "form-action": "'none'"
+      },
+      "devCsp": {
+        "default-src": "'self'",
+        "script-src": "'self' 'unsafe-inline'",
+        "style-src": "'self' 'unsafe-inline'",
+        "font-src": "'self'",
+        "img-src": "'self'",
+        "connect-src": "'self' ipc: http://ipc.localhost https://api.todoist.com http://localhost:* ws://localhost:*",
+        "object-src": "'none'",
+        "base-uri": "'none'",
+        "frame-ancestors": "'none'",
+        "form-action": "'none'"
+      },
+      "dangerousDisableAssetCspModification": ["style-src"]
+    }
+  },
+  "bundle": {
+    "active": true,
+    "createUpdaterArtifacts": true,
+    "targets": ["app", "dmg"],
+    "macOS": {
+      "signingIdentity": "-",
+      "hardenedRuntime": true,
+      "entitlements": "entitlements.plist"
+    },
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEJBMDk4MTFBMkY1MjgwRDgKUldUWWdGSXZHb0VKdXRUQVBPblBUUGE5ekNnWjdvTnlOK2psRytkT2c3QWJWNnlueitxN0c1WHEK",
+      "requireSignedVersion": true
+    }
+  }
+}

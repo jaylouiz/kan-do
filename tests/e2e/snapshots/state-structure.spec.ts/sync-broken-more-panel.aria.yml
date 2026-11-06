@@ -1,0 +1,17 @@
+- region "Ansicht":
+  - heading "Ansicht" [level=2]
+  - switch "Karten stapeln"
+  - text: Karten stapeln Stapelt ähnliche Aufgaben in den Spalten Offen, Wartet und Erledigt.
+- separator
+- button "Tag abschließen"
+- separator
+- link "Papierkorb":
+  - /url: /trash
+- link "Einstellungen":
+  - /url: /settings
+- separator
+- paragraph: "Notion: Verbindung prüfen"
+- paragraph: Der Zugriff wurde abgelehnt, oder das Token fehlt. Änderungen bleiben lokal gespeichert.
+- link "Notion-Verbindung reparieren":
+  - /url: /settings?tab=sources
+- button "Jetzt synchronisieren Noch nicht aktualisiert"

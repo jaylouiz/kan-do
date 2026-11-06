@@ -1,0 +1,61 @@
+[package]
+name = "app"
+version = "0.11.0"
+description = "A Tauri App"
+authors = ["Julius Wüstefeld"]
+license = "MIT"
+repository = "https://github.com/jaylouiz/kan-do"
+edition = "2021"
+rust-version = "1.77.2"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.3.1", features = [] }
+
+[dependencies]
+# `preserve_order` keeps the key order of the file across a load/write round trip, `float_roundtrip`
+# keeps f64 values bit-exact (both make the file diffable and match the web build).
+serde_json = { version = "1.0", features = ["preserve_order", "float_roundtrip"] }
+serde = { version = "1.0", features = ["derive"] }
+log = "0.4"
+tauri = { version = "2.7.0", features = ["devtools"] }
+tauri-plugin-log = "2"
+tauri-plugin-http = "2.8"
+tauri-plugin-opener = "2"
+tauri-plugin-dialog = "2"
+sha2 = "0.10"
+uuid = { version = "1", features = ["v4"] }
+# Timestamps for the updater state (#225); `time` and `tokio` are already in the tree via Tauri.
+time = { version = "0.3", features = ["formatting"] }
+tokio = { version = "1", features = ["time", "sync"] }
+
+# Local UTC offset for "one daily backup per local day" (#224); already part of the lockfile via tauri.
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+# Keychain access is macOS-only (#223); other targets answer `Unsupported`.
+[target.'cfg(target_os = "macos")'.dependencies]
+keyring-core = "1"
+apple-native-keyring-store = { version = "1", features = ["keychain"] }
+# Native web view snapshot for the feedback screenshot (#247); `NSURL` reads the iCloud upload state of the data
+# file (#271). Same versions as the tree already holds
+# through Tauri/wry, so no new package enters the lockfile.
+objc2 = "0.6"
+objc2-foundation = { version = "0.3", default-features = false, features = ["std", "NSArray", "NSData", "NSDictionary", "NSError", "NSString", "NSURL", "NSValue"] }
+objc2-app-kit = { version = "0.3", default-features = false, features = ["std", "NSImage", "NSImageRep", "NSBitmapImageRep"] }
+objc2-web-kit = { version = "0.3", default-features = false, features = ["std", "WKWebView", "WKSnapshotConfiguration", "block2"] }
+block2 = "0.6"
+
+# A second launch focuses the running window instead of starting another instance (#222).
+# The self-updater (#225) is desktop-only too; JS gets no `updater:*` permission, Rust drives it.
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-single-instance = "2"
+tauri-plugin-updater = "2"
+
+[dev-dependencies]
+tempfile = "3"

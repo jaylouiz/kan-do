@@ -1,0 +1,138 @@
+mod capture;
+mod data_file;
+mod github;
+mod logging;
+mod menu;
+mod secrets;
+mod updater;
+
+use std::ffi::OsStr;
+use tauri::{Manager, RunEvent, WindowEvent};
+
+/// Agent sandbox runs (docs/testing/tauri-dev-sandbox.md, #623) set `KANDO_SANDBOX_BACKGROUND`. Empty and `0` count as
+/// unset, so `KANDO_SANDBOX_BACKGROUND=0` is a way to turn it off. The value is only read by debug builds.
+fn background_requested(value: Option<&OsStr>) -> bool {
+  value.is_some_and(|v| !v.is_empty() && v != OsStr::new("0"))
+}
+
+/// True in a debug build started with `KANDO_SANDBOX_BACKGROUND`: the app must neither activate nor bring a window forward.
+fn sandbox_background() -> bool {
+  cfg!(debug_assertions) && background_requested(std::env::var_os("KANDO_SANDBOX_BACKGROUND").as_deref())
+}
+
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+  let builder = tauri::Builder::default();
+
+  // Agent sandbox runs (docs/testing/tauri-dev-sandbox.md, #623) must not take the user's focus: tao activates the app at
+  // launch unless told otherwise, and no window config can turn that off. Debug builds only, never set in a real run.
+  #[cfg(all(target_os = "macos", debug_assertions))]
+  let builder = if sandbox_background() {
+    builder.activate_ignoring_other_apps(false)
+  } else {
+    builder
+  };
+
+  // Registered first: a second launch hands over to the running instance and exits (#222).
+  #[cfg(desktop)]
+  let builder = builder.plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+    // A second sandbox run that reaches this callback (same identifier, same socket) must not show or focus the window
+    // of the first one; the recipe gives each run its own identifier, this is the second line of defence (#623).
+    if sandbox_background() {
+      return;
+    }
+    if let Some(window) = app.get_webview_window("main") {
+      let _ = window.unminimize();
+      let _ = window.show();
+      let _ = window.set_focus();
+    }
+  }));
+
+  // Driven from Rust only: the capabilities carry no `updater:*` permission, so JS cannot call the plugin (#225).
+  #[cfg(desktop)]
+  let builder = builder.plugin(tauri_plugin_updater::Builder::new().build());
+
+  let app = builder
+    .plugin(tauri_plugin_http::init())
+    .plugin(tauri_plugin_opener::init())
+    .plugin(tauri_plugin_dialog::init())
+    .manage(secrets::Secrets::native())
+    .manage(updater::UpdaterState::default())
+    .invoke_handler(tauri::generate_handler![
+      secrets::secret_set,
+      secrets::secret_delete,
+      secrets::secret_status,
+      secrets::secret_get,
+      github::github_request,
+      capture::feedback_capture,
+      data_file::data_load,
+      data_file::data_set,
+      data_file::data_flush,
+      data_file::data_status,
+      data_file::data_init,
+      data_file::data_inspect_folder,
+      data_file::data_set_location,
+      data_file::data_reveal,
+      updater::update_check,
+      updater::update_install,
+      updater::update_state,
+      menu::menu_install,
+      logging::log_location,
+      logging::log_reveal,
+      logging::log_tail,
+      data_file::data_backup,
+      data_file::data_backup_list,
+      data_file::data_restore,
+      data_file::data_resolve_conflict,
+      data_file::data_scan_conflict_copies,
+      data_file::data_file_to_backups,
+      data_file::data_retry,
+      data_file::data_export,
+      data_file::data_import_read,
+      data_file::data_import_apply,
+    ])
+    .on_menu_event(menu::on_menu_event)
+    .on_window_event(|window, event| {
+      match event {
+        // Closing the window flushes pending edits; the debounce would otherwise hold them for 400 ms.
+        WindowEvent::CloseRequested { .. } => window.state::<data_file::DataFile>().flush_on_exit(false),
+        // A change made on another device is usually noticed before the next edit (#224).
+        WindowEvent::Focused(true) => window.state::<data_file::DataFile>().poke(),
+        _ => {}
+      }
+    })
+    .setup(|app| {
+      app.manage(data_file::DataFile::for_app(app.handle()));
+      app.state::<data_file::DataFile>().start_watcher();
+      app.handle().plugin(logging::plugin())?;
+      Ok(())
+    })
+    .build(tauri::generate_context!())
+    .expect("error while building tauri application");
+
+  app.run(|handle, event| match event {
+    // Cmd+Q and the last window closing both pass here; Exit is the final word.
+    RunEvent::ExitRequested { .. } => handle.state::<data_file::DataFile>().flush_on_exit(false),
+    RunEvent::Exit => handle.state::<data_file::DataFile>().flush_on_exit(true),
+    _ => {}
+  });
+}
+
+#[cfg(test)]
+mod tests {
+  use super::background_requested;
+  use std::ffi::OsStr;
+
+  #[test]
+  fn background_is_off_when_unset_empty_or_zero() {
+    assert!(!background_requested(None));
+    assert!(!background_requested(Some(OsStr::new(""))));
+    assert!(!background_requested(Some(OsStr::new("0"))));
+  }
+
+  #[test]
+  fn background_is_on_for_any_other_value() {
+    assert!(background_requested(Some(OsStr::new("1"))));
+    assert!(background_requested(Some(OsStr::new("true"))));
+  }
+}

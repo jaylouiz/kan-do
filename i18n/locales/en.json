@@ -1,0 +1,1506 @@
+{
+  "common": {
+    "back": "Back",
+    "completed": "Done",
+    "settings": "Settings",
+    "clickToEdit": "Click to edit",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "close": "Close",
+    "today": "Today",
+    "apply": "Apply",
+    "undo": "Undo",
+    "choose": "Choose…",
+    "save": "Save"
+  },
+  "board": {
+    "pageHeading": "Today",
+    "columns": {
+      "open": "Open",
+      "progress": "Now",
+      "waiting": "Waiting",
+      "done": "Done"
+    },
+    "dnd": {
+      "roleDescription": "Draggable task",
+      "instructions": "Press Enter to open details. Press Space to pick up, arrow keys to move, Space to drop, Escape to cancel.",
+      "pickedUp": "Picked up “{title}” in column {column}, position {position}.",
+      "movedTo": "“{title}” moved to column {column}, position {position}.",
+      "dropped": "“{title}” dropped in column {column}, position {position}.",
+      "cancelled": "Move canceled. “{title}” stays in column {column}.",
+      "stackRoleDescription": "Draggable stack",
+      "stackInstructions": "Press Enter to open the stack. Press Space to pick up the whole stack, arrow keys to move it, Space to drop, Escape to cancel.",
+      "pickedUpStack": "Picked up stack “{title}” in column {column}, position {position}. It moves with all its tasks."
+    },
+    "quickAdd": {
+      "label": "New task",
+      "titleLabel": "Title",
+      "confirmTitle": "Confirm title",
+      "questionTopic": "Topic?",
+      "questionActivity": "Activity?",
+      "questionTimebox": "Timebox?",
+      "questionNotes": "Note?",
+      "notesPlaceholder": "Short note …",
+      "save": "Save task",
+      "back": "Back",
+      "skip": "Skip",
+      "allOptions": "All options",
+      "added": "Task added",
+      "details": "Details",
+      "saveNowHint": "Save now: ⌘↵ or Ctrl+↵",
+      "draftDeleted": "Draft deleted"
+    },
+    "draftCard": "Draft of the new task",
+    "addTask": "Add task",
+    "emptyWaitingSuffix": "?",
+    "dropToComplete": "Drop here to mark the task as done",
+    "stack": {
+      "caption": "{group} · {n} task | {group} · {n} tasks",
+      "label": "{title}, {group}, {n} task | {title}, {group}, {n} tasks",
+      "labelUntitled": "{group}, {n} task | {group}, {n} tasks",
+      "closeLabel": "Close group {group}",
+      "opened": "Stack {group} opened, {count} tasks. Esc closes.",
+      "openedPointer": "Stack {group} opened, {count} tasks. Use Close to collapse.",
+      "memberPosition": "{n} of {total} in {group}",
+      "closed": "Stack {group} closed.",
+      "checkboxYes": "{property}: Yes",
+      "checkboxNo": "{property}: No"
+    },
+    "yesterday": {
+      "headingYesterday": "Done yesterday",
+      "headingWeekday": "Done on {weekday}",
+      "headingRecent": "Done recently",
+      "more": "+ {n} more",
+      "ack": "Seen",
+      "ackLabel": "Seen, put {n} done task away | Seen, put {n} done tasks away"
+    },
+    "sync": {
+      "stackCards": "Stack cards",
+      "stackHelp": "Stacks similar tasks in the Open, Waiting and Done columns.",
+      "groupBy": "Group by",
+      "stackHint": "Click a stack to expand all cards.",
+      "sourceOffline": "{source} offline – sync will continue",
+      "sourceBroken": "{source}: check the connection",
+      "sourceDegraded": "{source}: sync failed",
+      "offlineHint": "Changes stay saved and are sent as soon as {source} is reachable again.",
+      "brokenHint": "Access was rejected, or the token is missing. Changes stay saved locally.",
+      "degradedHint": "The last sync could not be completed. Changes stay saved locally.",
+      "repair": "Repair {source} connection"
+    },
+    "grouping": {
+      "activity": "Activity",
+      "priority": "Priority",
+      "topic": "Topic"
+    },
+    "sort": {
+      "manual": "Manual",
+      "priority": "Priority",
+      "created": "Created",
+      "default": "Sorting",
+      "groupLabel": "Sort by",
+      "completedFirst": "Done first",
+      "completedLast": "Done last",
+      "longestWait": "Longest wait",
+      "shortestWait": "Shortest wait",
+      "highestFirst": "highest first",
+      "newestFirst": "newest first",
+      "oldestFirst": "oldest first",
+      "newestOnTop": "newest on top",
+      "oldestOnTop": "oldest on top"
+    },
+    "wip": {
+      "refusedTitle": "This task cannot be moved",
+      "refusedReason": "Now holds at most one task. Move the current one to Waiting or Done first."
+    }
+  },
+  "nav": {
+    "label": "Main navigation",
+    "brand": "kan-do",
+    "today": "Today",
+    "statistics": "Statistics",
+    "more": "More",
+    "moreProblem": "More, connection problem",
+    "commands": "Commands",
+    "moreWithCommands": "More · {commands}",
+    "view": "View",
+    "dayClose": "Close the day",
+    "trash": "Trash",
+    "trashCount": "Trash ({n})",
+    "settings": "Settings",
+    "appUpdate": "App update",
+    "syncNow": "Sync now",
+    "syncing": "Syncing…"
+  },
+  "menu": {
+    "app": "Kan-Do",
+    "about": "About Kan-Do",
+    "checkUpdates": "Check for updates…",
+    "settings": "Settings…",
+    "services": "Services",
+    "hide": "Hide Kan-Do",
+    "hideOthers": "Hide others",
+    "showAll": "Show all",
+    "quit": "Quit Kan-Do",
+    "file": "File",
+    "newTask": "New task",
+    "dayClose": "Close the day…",
+    "closeWindow": "Close window",
+    "edit": "Edit",
+    "undo": "Undo",
+    "redo": "Redo",
+    "cut": "Cut",
+    "copy": "Copy",
+    "paste": "Paste",
+    "selectAll": "Select all",
+    "view": "View",
+    "today": "Today",
+    "statistics": "Statistics",
+    "trash": "Trash",
+    "fullscreen": "Enter full screen",
+    "window": "Window",
+    "minimize": "Minimize",
+    "zoom": "Zoom",
+    "help": "Help",
+    "feedback": "Send feedback…",
+    "whatsNew": "What's new"
+  },
+  "task": {
+    "delete": {
+      "local": "Delete",
+      "notion": "Delete, also in Notion",
+      "todoist": "Delete, also in Todoist"
+    },
+    "timeboxBasedOnSimilar": "Based on {n} similar task | Based on {n} similar tasks",
+    "timeboxBasedOnSimilarWithActivity": "Based on {n} similar task with “{activity}” | Based on {n} similar tasks with “{activity}”",
+    "createAdHoc": "Start a new task now",
+    "createNew": "Create new task",
+    "fallbackTitle": "Task",
+    "move": {
+      "done": "Moved to {source}",
+      "failed": "Move failed",
+      "failedDescription": "“{title}” stays in {source}.",
+      "retry": "Try again",
+      "hintLost": "{n} field is lost | {n} fields are lost",
+      "hintAttention": "Check connection · saved later",
+      "hintPending": "Saving"
+    },
+    "completed": "Done",
+    "completedMany": "{n} task done | {n} tasks done",
+    "notFoundTitle": "Task not found",
+    "notFoundMessage": "The requested task does not exist or has been deleted.",
+    "timebox": "Timebox",
+    "timeboxNudge": {
+      "question": "Add a timebox?",
+      "preset": "{minutes} min",
+      "custom": "Custom duration",
+      "minutes": "Minutes",
+      "unit": "min",
+      "apply": "Apply"
+    },
+    "priorityTooltip": "Priority",
+    "progressAria": "Timebox progress",
+    "timeboxProgressAria": "Timebox: {spent} of {box}",
+    "progressRunning": "Timebox progress, timer running, {time} spent",
+    "elapsedAria": "Time spent: {time}",
+    "savePending": "Not saved to {source} yet. The change is safe locally.",
+    "underOneMinute": "<1",
+    "field": {
+      "title": "Title",
+      "topic": "Topic",
+      "topicSearch": "Search topic…",
+      "activity": "Activity",
+      "activitySearch": "Search activity…",
+      "notes": "Note",
+      "properties": "Properties",
+      "status": "Status",
+      "priority": "Priority"
+    },
+    "datePicker": {
+      "set": "+ Set date"
+    },
+    "detail": {
+      "moreActions": "More actions",
+      "notesEmpty": "Add a note…",
+      "notesPlaceholder": "Add a note…",
+      "notesHint": "Markdown supported • {shortcut} to save",
+      "metadata": "Metadata",
+      "sourceLocal": "Local",
+      "created": "Created: {date}",
+      "copied": "Copied",
+      "copyId": "Copy ID",
+      "openIn": "Open in {source}"
+    },
+    "timeStats": {
+      "spent": "{time} worked",
+      "remaining": "{time} left"
+    },
+    "form": {
+      "titlePlaceholder": "Name your task…",
+      "titleRequired": "Give the task a title.",
+      "priorityHint": "How important is this task?",
+      "durationHint": "Planned duration in minutes",
+      "notesPlaceholder": "More details or context…",
+      "choose": "Select…",
+      "submit": "Create task",
+      "start": "Start",
+      "saveIn": "Save to",
+      "saveInDefault": "Default",
+      "saveInAttention": "Check connection · saved later"
+    },
+    "contextMenu": {
+      "openDetails": "Open details",
+      "markPlanned": "Mark as planned",
+      "markUnplanned": "Mark as unplanned",
+      "changeStatus": "Change status",
+      "changePriority": "Change priority",
+      "setTimebox": "Set timebox",
+      "moveToSource": "Move to …",
+      "customTime": "Custom time…",
+      "removeTimebox": "Remove timebox",
+      "customPrompt": "Enter a custom timebox in minutes.",
+      "minutesUnit": "minutes",
+      "presetMinutes": "{n} minute | {n} minutes",
+      "maxReached": "{label} (max. reached)",
+      "moveTo": {
+        "open": "Today",
+        "progress": "Now",
+        "waiting": "Waiting",
+        "done": "Done"
+      }
+    },
+    "carryOver": {
+      "label": "Day {n} on the board",
+      "nudgeTitle": "Still here: day {n} on the board.",
+      "nudgeHint": "Does this task still belong to today?",
+      "keep": "Keep",
+      "smaller": "Make smaller",
+      "smallerHint": "What is the first small step?"
+    },
+    "property": {
+      "setValue": "+ add",
+      "clear": "Remove {field}",
+      "suggest": "Suggestion {n} min"
+    }
+  },
+  "source": {
+    "name": {
+      "local": "Local",
+      "notion": "Notion",
+      "todoist": "Todoist"
+    }
+  },
+  "statistics": {
+    "taskCount": "{n} task | {n} tasks",
+    "pageTitle": "Statistics",
+    "headTitle": "Statistics {'|'} Kan-Do",
+    "backfillAdded": "{n} archived task added to statistics. | {n} archived tasks added to statistics.",
+    "notAvailable": "N/A",
+    "noTopic": "No topic",
+    "noActivity": "No activity",
+    "cards": {
+      "timeInvested": "Time spent",
+      "avgAccuracy": "Avg. estimation accuracy"
+    },
+    "accuracy": {
+      "yes": "Yes",
+      "almost": "Almost",
+      "no": "No",
+      "noTimebox": "No timebox"
+    },
+    "accuracyLabel": {
+      "excellent": "Excellent",
+      "good": "Good",
+      "okay": "Okay",
+      "poor": "Poor",
+      "needsImprovement": "Needs improvement"
+    },
+    "table": {
+      "task": "Task",
+      "completedAt": "Done on",
+      "timeSpent": "Time spent",
+      "plannedTime": "Planned time",
+      "accuracy": "Accuracy",
+      "inTimebox": "Within timebox?",
+      "unplanned": "Unplanned",
+      "scrollRegionLabel": "Table of tasks done, scrollable",
+      "empty": "No tasks in the selected period"
+    },
+    "question": {
+      "q1": "Am I working well?",
+      "q2": "How am I developing?",
+      "q3": "Where do I misjudge?",
+      "q4": "What do I spend my time on?",
+      "q5": "When do I work?"
+    },
+    "verdict": {
+      "caption": "Last 7 days, compared with your 4 weeks before",
+      "headline": {
+        "better": "Things are going better than usual.",
+        "usual": "Things are going as usual.",
+        "harder": "Things are more demanding than usual.",
+        "thin": "Not enough history to compare yet.",
+        "empty": "Nothing to compare yet.",
+        "quiet": "No task was done in the last 7 days."
+      },
+      "line": {
+        "full": "{n} task done, {share}% of them in the timebox (usually {usual}%). | {n} tasks done, {share}% of them in the timebox (usually {usual}%).",
+        "noUsual": "{n} task done, {share}% of them in the timebox. | {n} tasks done, {share}% of them in the timebox.",
+        "noTimebox": "{n} task done. | {n} tasks done.",
+        "thin": "In the {baselineDays} days before the last {windowDays} days: {n} task done. A comparison starts with {days} days of history and at least {tasks} done tasks before. | In the {baselineDays} days before the last {windowDays} days: {n} tasks done. A comparison starts with {days} days of history and at least {tasks} done tasks before.",
+        "empty": "Done tasks with a timebox fill this page.",
+        "quiet": "In the weeks before it was {n} tasks a week on average."
+      },
+      "ring": {
+        "label": "Done within the timebox: {share}%, usually {usual}%",
+        "labelNoUsual": "Done within the timebox: {share}%",
+        "labelNone": "No task with a timebox in the last 7 days",
+        "center": "in timebox"
+      }
+    },
+    "trend": {
+      "up": "Rising: earlier {early}% in the timebox, lately {recent}%.",
+      "down": "Falling: earlier {early}% in the timebox, lately {recent}%.",
+      "flat": "Steady: the share in the timebox hardly changes.",
+      "few": "Too few weeks for a development yet. Done tasks with a timebox fill the history.",
+      "chartLabel": "Share in the timebox per 7 days, oldest period first: {values}",
+      "noValue": "no value",
+      "table": {
+        "inTimebox": "In timebox",
+        "current": "Last 7 days",
+        "range": "{start} to {end}",
+        "dayEnd": "on average {n} open at day end",
+        "dayEndNone": "Open at day end –"
+      }
+    },
+    "patterns": {
+      "lineLonger": "For “{label}” you usually plan too tightly.",
+      "lineShorter": "For “{label}” you usually plan too generously.",
+      "none": "No recurring pattern in your estimates.",
+      "tooFew": "Too few done tasks with a timebox for patterns yet.",
+      "noTimebox": "Without a timebox there is nothing to compare. Set one next time.",
+      "heading": "Recurring patterns",
+      "kind": {
+        "activity": "Activity",
+        "topic": "Topic",
+        "size": "Timebox size",
+        "time": "Time of day"
+      },
+      "size": {
+        "s": "Timebox up to 30 min",
+        "m": "Timebox 31–60 min",
+        "l": "Timebox 61–90 min",
+        "xl": "Timebox over 90 min"
+      },
+      "time": {
+        "am": "Done in the morning",
+        "pm": "Done in the afternoon"
+      },
+      "longer": "about {pct}% longer than planned",
+      "shorter": "about {pct}% shorter than planned",
+      "sample": "{n} task | {n} tasks",
+      "nextLonger": "Next timebox: set it about {pct}% larger",
+      "nextShorter": "Next timebox: about {pct}% shorter is enough",
+      "showAll": "Show all {n} patterns",
+      "showFewer": "Show fewer"
+    },
+    "estimate": {
+      "longer": "Longer than planned",
+      "onTarget": "As planned",
+      "shorter": "Shorter than planned",
+      "label": "Done tasks with a timebox, last 8 weeks: {longer}% longer than planned, {onTarget}% as planned, {shorter}% shorter.",
+      "center": "with timebox"
+    },
+    "outliers": {
+      "heading": "Biggest overruns",
+      "empty": "No done task of the last 4 weeks ran over its timebox.",
+      "detail": "{planned} planned, {spent} taken"
+    },
+    "split": {
+      "lineTopic": "Mostly in “{label}”: {share}% of the time.",
+      "lineTime": "{time} in the last 4 weeks.",
+      "empty": "Nothing was done in the last 4 weeks.",
+      "by": "Split by",
+      "byTopic": "Topic",
+      "byActivity": "Activity",
+      "other": "Other",
+      "caption": "Last 4 weeks, done tasks only: {time} in total.",
+      "unplanned": "{share}% of the tasks were unplanned.",
+      "unfinishedBoth": "Not included: {open} on open tasks, {deleted} on deleted ones (last 4 weeks).",
+      "unfinishedOpen": "Not included: {open} on open tasks.",
+      "unfinishedDiscarded": "Not included: {deleted} on deleted tasks (last 4 weeks).",
+      "labelTopic": "Time by topic, last 4 weeks: {values}",
+      "labelActivity": "Time by activity, last 4 weeks: {values}",
+      "row": "{time} · {share}%"
+    },
+    "allTasks": "All done tasks ({n})",
+    "rhythm": {
+      "line": "Mostly between {from}:00 and {to}:00, which holds {share} % of your time.",
+      "lineOutside": "{share} % of your time falls before {first}:00 or after {last}:00.",
+      "lineStartWorkdays": "On weekdays you usually start at {time}.",
+      "lineStart": "You usually start at {time}.",
+      "thin": "Not enough data yet. Kan-Do now keeps track of when the timer runs. After five days with tracked time, your rhythm shows up here.",
+      "days": "{n} of {min} days",
+      "heading": "Average per hour, last 8 weeks",
+      "less": "less",
+      "more": "more",
+      "rowStart": "Usual start",
+      "workdaysOnly": "Mon to Fri",
+      "rowEnd": "Usual end",
+      "rowLongest": "You work longest on",
+      "barsLabel": "Time worked by hour. Most time between {from}:00 and {to}:00, {share} % of your time.",
+      "gridLabel": "Average time worked by weekday and hour, last 8 weeks.",
+      "gridLabelPeak": "Most time between {from}:00 and {to}:00 ({share} % of your time).",
+      "gridLabelLongest": "Longest on {weekday}."
+    }
+  },
+  "shortcut": {
+    "cmd": "Cmd",
+    "ctrl": "Ctrl",
+    "withEnter": "{key} + Enter"
+  },
+  "duration": {
+    "unitHour": "h",
+    "unitMinute": "min",
+    "unitSecond": "s",
+    "remaining": "{time} left",
+    "remainingCapital": "{time} left",
+    "remainingOfTotal": "{remaining} left / {total}",
+    "spentOfTotal": "{spent} of {total}"
+  },
+  "relative": {
+    "notUpdatedYet": "Not updated yet",
+    "justUpdated": "Just updated",
+    "updatedMinutesAgo": "Updated {n} minute ago | Updated {n} minutes ago"
+  },
+  "taskStatus": {
+    "open": "Open",
+    "progress": "Now",
+    "waiting": "Waiting",
+    "done": "Done",
+    "backlog": "Backlog"
+  },
+  "priority": {
+    "none": "None",
+    "low": "Low",
+    "regular": "Regular",
+    "high": "High",
+    "level": "Level {n}"
+  },
+  "errors": {
+    "title": {
+      "offline": "Offline",
+      "error": "Error",
+      "success": "Done",
+      "warning": "Warning"
+    },
+    "configuration": "The settings are invalid. Check them.",
+    "integrationSetupMissing": "No integration set up yet. Set one up in the settings.",
+    "integrationNotSupported": "Integration not supported.",
+    "notionNotConfigured": "Notion is not set up. Set up Notion in the settings.",
+    "notionTokenInvalid": "Notion token is invalid. Check your token.",
+    "notionDatabaseNotFound": "Notion database not found. Choose a valid database.",
+    "notionSyncFailed": "The sync with Notion could not be completed.",
+    "todoistTokenMissing": "Todoist token is missing. Sign in to Todoist.",
+    "todoistSyncFailed": "The sync with Todoist could not be completed.",
+    "taskNotFound": "Task not found.",
+    "taskUpdateFailed": "Task could not be updated.",
+    "networkError": "Network error. Check your internet connection.",
+    "networkOffline": "Offline mode. The app keeps trying to sync.",
+    "apiError": "API error. Try again later.",
+    "default": "An unexpected error occurred. Try again.",
+    "notionNotConfiguredShort": "Notion is not set up",
+    "invalidTokenFormat": "Invalid token format",
+    "invalidToken": "Invalid token",
+    "notionApiError": "Notion API error: {message}",
+    "loadDatabasesFailed": "The databases could not be loaded.",
+    "selectDatabase": "Select a database",
+    "selectDataSource": "Select a data source",
+    "validation": {
+      "titleRequired": "Task title is required",
+      "timeboxNegative": "Timebox cannot be negative",
+      "timeSpentNegative": "Time spent cannot be negative"
+    },
+    "taskCreateFailed": "The task could not be created. Try again.",
+    "taskDeleteFailed": "The task could not be deleted and is back on the board.",
+    "clipboardFailed": "The summary could not be copied.",
+    "secretsFailed": "The macOS Keychain did not accept the change.",
+    "secretsResetFailed": "The macOS Keychain is not reachable, so the setup was not reset. Unlock the Keychain and try again.",
+    "externalLinkFailed": "The link could not be opened.",
+    "feedbackFailed": "The feedback could not be sent. Your draft is kept.",
+    "taskRestoreFailed": "The task could not be restored and stays in the trash."
+  },
+  "notion": {
+    "modal": {
+      "next": "Next",
+      "finish": "Finish",
+      "titleSettings": "Notion settings",
+      "titleConnect": "Connect to Notion",
+      "titleConfigure": "Set up Notion integration",
+      "stepsLabel": "Setup progress",
+      "stepDone": "(completed)",
+      "steps": {
+        "token": "Token",
+        "database": "Database",
+        "mapping": "Properties",
+        "customProperties": "More properties",
+        "priority": "Priorities",
+        "status": "Status"
+      }
+    },
+    "token": {
+      "heading": "Notion setup",
+      "hintTitle": "Note",
+      "fieldLabel": "Notion integration token",
+      "placeholder": "Enter integration token",
+      "help": "Open {link} to create a new integration and get the token.",
+      "helpLink": "Notion › Settings › Integrations › Create your own integration",
+      "validated": "Token verified successfully"
+    },
+    "database": {
+      "selectLabel": "Select Notion database",
+      "selectPlaceholder": "Select database",
+      "loading": "Loading databases…",
+      "errorHint": "Check your token and try again.",
+      "empty": "No databases found.",
+      "emptyHint": "Make sure your token has access to Notion databases.",
+      "dataSourceLabel": "Select data source",
+      "dataSourceDescription": "Notion supports multiple data sources per database.",
+      "dataSourcePlaceholder": "Select data source",
+      "noDataSourcesSelectable": "This database currently has no data sources. Add a data source in Notion or choose a different database.",
+      "noDataSources": "This database currently has no data sources. Add at least one data source in Notion.",
+      "allDataSourcesUsed": "All data sources of this database are included automatically.",
+      "unnamedDataSource": "Unnamed data source"
+    },
+    "customProps": {
+      "intro": "Select additional fields from your Notion database for Kan-Do to import (read-only).",
+      "keyLabel": "Key: {key}",
+      "labelPlaceholder": "Label (optional)",
+      "empty": "No additional fields found. You have already mapped the most important properties."
+    },
+    "wizard": {
+      "noneOption": "None",
+      "warningLabel": "Warning:",
+      "brokenNotice": "The Notion setup is no longer valid. Set it up again.",
+      "stepTitle": {
+        "token": "Notion token",
+        "database": "Select database",
+        "mapping": "Map properties",
+        "customProperties": "More properties",
+        "priority": "Map priorities",
+        "status": "Map status values"
+      }
+    },
+    "statusMap": {
+      "intro": "Map the Kan-Do status values to the matching options of your Notion status field.",
+      "today": {
+        "label": "Today",
+        "help": "Tasks that should be done today.",
+        "placeholder": "Select status for 'Today'"
+      },
+      "doing": {
+        "label": "Now",
+        "help": "Tasks that are currently being worked on.",
+        "placeholder": "Select status for 'Now'"
+      },
+      "done": {
+        "label": "Done",
+        "help": "Done tasks.",
+        "placeholder": "Select status for 'Done'"
+      },
+      "waiting": {
+        "label": "Waiting",
+        "help": "Waiting or blocked tasks.",
+        "placeholder": "Select status for 'Waiting'"
+      },
+      "archive": {
+        "label": "Archived",
+        "help": "Optional status Kan-Do sets in Notion when you put done tasks away with “Seen”.",
+        "placeholder": "Select status for archived tasks"
+      },
+      "duplicates": "The following status values are mapped more than once: {values}"
+    },
+    "priorityMap": {
+      "intro": "Map the three Kan-Do priorities to the matching options of your Notion priority field. Several options can share one priority; Kan-Do writes the first one back.",
+      "high": {
+        "label": "High",
+        "help": "Important tasks. Options like 'Urgent' belong here too.",
+        "placeholder": "Select the options for 'High'"
+      },
+      "regular": {
+        "label": "Regular",
+        "help": "Standard tasks.",
+        "placeholder": "Select the options for 'Regular'"
+      },
+      "low": {
+        "label": "Low",
+        "help": "Tasks with low urgency.",
+        "placeholder": "Select the options for 'Low'"
+      },
+      "duplicates": "The following priority values are mapped more than once: {values}"
+    },
+    "mapping": {
+      "title": {
+        "label": "Title",
+        "help": "Field containing the task title.",
+        "placeholder": "Select title field"
+      },
+      "status": {
+        "label": "Status",
+        "help": "Field for the task status (e.g. Today, Doing, Waiting, Done).",
+        "placeholder": "Select status field"
+      },
+      "dueDate": {
+        "label": "Due date",
+        "help": "Field for due dates.",
+        "placeholder": "Select due date field"
+      },
+      "priority": {
+        "label": "Priority",
+        "help": "Field for the task priority.",
+        "placeholder": "Select priority field"
+      },
+      "topic": {
+        "label": "Topic",
+        "help": "Field for topics or categories (select, multi-select or text).",
+        "placeholder": "Select topic field"
+      },
+      "activity": {
+        "label": "Activity",
+        "help": "Field for task types or activity categories (select, multi-select or text).",
+        "placeholder": "Select activity field"
+      },
+      "timeBox": {
+        "label": "Timebox",
+        "help": "Field for duration/timebox (number or select with time values).",
+        "placeholder": "Select timebox field"
+      },
+      "timeBoxUnit": {
+        "label": "Timebox unit",
+        "help": "Format of the timebox field."
+      },
+      "timeSpent": {
+        "label": "Time spent",
+        "help": "Field for time spent (number or select with time values).",
+        "placeholder": "Select time spent field"
+      },
+      "timeSpentUnit": {
+        "label": "Time spent unit",
+        "help": "Unit of the number field."
+      },
+      "completedDate": {
+        "label": "Completion date",
+        "help": "Date field for the completion date.",
+        "placeholder": "Select completion date field"
+      },
+      "noField": "No field",
+      "unplanned": {
+        "label": "Unplanned",
+        "help": "Marker for unplanned tasks (reactive work). Direct field: checkbox. Value-based: specific value (e.g. tag).",
+        "modeNone": "No mapping",
+        "modeBoolean": "Direct field (checkbox)",
+        "modeValue": "Value-based (tag/select)",
+        "selectField": "Select field",
+        "checkboxPlaceholder": "Select checkbox field",
+        "valuePlaceholder": "Select or enter value",
+        "valueInputPlaceholder": "Enter value (e.g. 'unplanned')"
+      },
+      "unit": {
+        "seconds": "Seconds",
+        "minutes": "Minutes",
+        "hours": "Hours",
+        "formatted": "Formatted (e.g. “15 min”, “2h”)"
+      },
+      "unitPlaceholder": "Select unit"
+    },
+    "dataSource": {
+      "databaseNotFound": "The selected database was not found. Select it again.",
+      "noDataSources": "This database has no data sources. Add one in Notion.",
+      "noneFound": "No data source was found. Choose a different database."
+    },
+    "integration": {
+      "reconnected": "Connection to Notion restored. Syncing continues."
+    },
+    "settings": {
+      "pageTitle": "Notion settings",
+      "pageDescription": "Settings for your Notion integration",
+      "notConfigured": {
+        "message": "No Notion integration set up yet.",
+        "action": "Set up integration"
+      },
+      "tabs": {
+        "connection": "Database",
+        "properties": "Properties",
+        "custom": "More fields",
+        "priority": "Priorities",
+        "status": "Status"
+      },
+      "connection": {
+        "description": "Token and database selection",
+        "tokenLabel": "Integration token",
+        "manageToken": "Manage token in Notion →",
+        "databaseLabel": "Database",
+        "noDatabase": "No database selected",
+        "changeDatabase": "Change database",
+        "loadingDatabases": "Loading databases…",
+        "loadingDatabase": "Loading database…",
+        "selectDatabase": "Select database",
+        "dataSourceLabel": "Data source",
+        "selectDataSource": "Select data source",
+        "saved": "Connection saved",
+        "failed": "Invalid token or connection failed"
+      },
+      "properties": {
+        "description": "Mapping of Notion fields to Kan-Do task properties"
+      },
+      "custom": {
+        "description": "Additional Notion properties to show in Kan-Do"
+      },
+      "priority": {
+        "description": "Mapping of priority values between Notion and Kan-Do"
+      },
+      "status": {
+        "title": "Status mapping",
+        "description": "Mapping of status values between Notion and Kan-Do"
+      }
+    }
+  },
+  "settings": {
+    "page": {
+      "title": "Settings"
+    },
+    "tabs": {
+      "label": "Groups",
+      "board": "Board",
+      "sources": "Connections",
+      "manage": "Manage",
+      "lead": {
+        "board": "How your board behaves.",
+        "sources": "Where your tasks come from and where new ones go.",
+        "manage": "Maintain topics, data, updates and access here.",
+        "manageWeb": "Maintain topics and data here."
+      }
+    },
+    "focus": {
+      "heading": "Focus",
+      "label": "Now card in focus",
+      "help": "While a task sits in “Now”, the rest of the board steps back. A mouse move or a tap brings it back."
+    },
+    "github": {
+      "pageTitle": "GitHub access",
+      "pageDescription": "Tokens are kept in the macOS Keychain.",
+      "updates": {
+        "title": "Updates",
+        "purpose": "Optional: more update checks than GitHub allows without a token.",
+        "access": "Read only (Contents: read), this repository only.",
+        "permission": "Contents: read"
+      },
+      "feedback": {
+        "title": "Feedback",
+        "purpose": "Lets you send feedback as a GitHub issue.",
+        "access": "Issues + Contents: write, this repository only.",
+        "permission": "Issues"
+      },
+      "fieldLabel": "{name}: GitHub token",
+      "placeholder": "Paste token",
+      "save": "Save",
+      "checking": "Checking…",
+      "createToken": "Create token on GitHub",
+      "test": "Test",
+      "remove": "Delete",
+      "valid": "Valid",
+      "stored": "Saved",
+      "savedAria": "Token ends in {last4}",
+      "rejectedLine": "GitHub rejected this token. Paste a new one.",
+      "problem": {
+        "rejected": "GitHub rejected this token.",
+        "offlineSave": "No connection, nothing saved.",
+        "offlineTest": "No connection. The token was not checked.",
+        "forbiddenSave": "This token lacks the “{permission}” permission for this repository, nothing saved.",
+        "forbiddenTest": "This token lacks the “{permission}” permission for this repository.",
+        "notFoundSave": "This token cannot see the repository (wrong repository or no access), nothing saved.",
+        "notFoundTest": "This token cannot see the repository (wrong repository or no access).",
+        "unverifiedSave": "GitHub could not check this token, nothing saved.",
+        "unverifiedTest": "GitHub could not check this token right now.",
+        "failed": "The token could not be saved to the Keychain."
+      },
+      "removedToast": "Token “{name}” deleted",
+      "scopeHelp": "Write access for issues can only be checked by writing; if GitHub rejects a request later, it shows here. Whether screenshots may be uploaded (Contents: write) is checked by “Check screenshot upload”, which leaves nothing in the repository.",
+      "keychainUnavailable": "The macOS Keychain is not available right now. Unlock it and reopen this page.",
+      "probe": {
+        "action": "Check screenshot upload",
+        "checking": "Checking…",
+        "allowed": "Upload allowed",
+        "denied": "The token lacks Contents: write. Screenshots then go to the clipboard.",
+        "changeToken": "Change token on GitHub",
+        "offline": "No connection. The upload was not checked.",
+        "failed": "The upload could not be checked right now."
+      }
+    },
+    "data": {
+      "pageTitle": "Data & storage",
+      "pageDescription": "Where your tasks and settings live on this device.",
+      "link": "Data & storage",
+      "folderHeading": "Data folder",
+      "folderPath": "Data folder: {path}",
+      "changeFolder": "Change folder…",
+      "chooseFolder": "Choose folder…",
+      "reveal": "Show in Finder",
+      "startFresh": "Start fresh here",
+      "lastSaved": "Last saved {time} · schema {version}",
+      "notSavedYet": "Not saved yet · schema {version}",
+      "problemHeading": "Saving is not possible right now",
+      "state": {
+        "newerSchema": "This folder holds data from a newer version. Update the app; until then nothing is written.",
+        "corrupt": "The data file in this folder cannot be read. It stays as it is; nothing is written meanwhile. Below you can restore a backup.",
+        "missing": "The data file is missing from this folder. Nothing is written until you start fresh here or choose another folder.",
+        "writeFailed": "Saving to this folder failed. Your changes stay in the app. The app keeps trying.",
+        "folderUnavailable": "The data folder cannot be reached. The board shown is not your saved version. Changes stay in memory until the folder is back.",
+        "conflict": "The data was changed elsewhere. Nothing is saved until you pick a version."
+      },
+      "notice": {
+        "newerSchema": "Data from a newer version. Nothing is saved.",
+        "corrupt": "The data file cannot be read. Nothing is saved.",
+        "missing": "The data file is missing. Nothing is saved.",
+        "writeFailed": "Saving failed. The app keeps trying.",
+        "details": "Details",
+        "hide": "Hide",
+        "conflict": "The data was changed elsewhere. Nothing is saved.",
+        "folderUnavailable": "Data folder unavailable. The board shown is not your saved version.",
+        "conflictCopies": "There are conflict copies of the data. Nothing is lost.",
+        "resolve": "Resolve",
+        "retry": "Try again",
+        "cloudPending": "Not uploaded to iCloud yet. Everything is saved locally."
+      },
+      "cloud": {
+        "uploaded": "Backed up in iCloud",
+        "uploading": "Uploading…",
+        "pending": "Not uploaded to iCloud yet",
+        "error": "Not uploaded to iCloud yet"
+      },
+      "modal": {
+        "title": "Change data folder",
+        "target": "Target",
+        "inspecting": "Checking folder…",
+        "notWritable": "This folder is not writable. Choose another one.",
+        "sameFolder": "This is already your data folder.",
+        "copyMine": "Copy my data here",
+        "copyMineBody": "This folder is empty. Your current file stays where it is.",
+        "hasData": "This folder already holds data, last saved {time}.",
+        "hasDataNoTime": "This folder already holds data.",
+        "choiceLabel": "What should happen to the existing data?",
+        "optionUse": "Use the existing data",
+        "optionUseBody": "The app reloads. Your current data stays in the old folder.",
+        "optionReplace": "Copy my data here and replace the existing data",
+        "optionReplaceBody": "The existing data is overwritten. A copy stays in the “backups” subfolder.",
+        "newerSchema": "This data comes from a newer version. You can look at it, but nothing can change until the app is updated.",
+        "corrupt": "The file in this folder cannot be read. Choose another folder.",
+        "confirmReplace": "The data in this folder will be overwritten. A copy stays in its “backups” folder.",
+        "next": "Continue",
+        "back": "Back",
+        "apply": "Switch folder",
+        "replace": "Replace",
+        "working": "Switching…",
+        "failed": "The folder could not be changed.",
+        "failedBlocked": "Your data cannot be copied in this state.",
+        "failedHasData": "This folder now holds data. Choose the folder again."
+      },
+      "backups": {
+        "heading": "Backups",
+        "last": "Last backup: {time}",
+        "none": "No backup yet",
+        "now": "Back up now",
+        "working": "Backing up…",
+        "empty": "No backups yet. The first one appears before your next change.",
+        "loading": "Reading backups…",
+        "loadFailed": "The backups could not be read.",
+        "reload": "Reload",
+        "showAll": "Show all {n}",
+        "showLess": "Show fewer",
+        "tasks": "{n} task | {n} tasks",
+        "unreadable": "unreadable",
+        "restore": "Restore",
+        "update": "Update the app",
+        "failed": "Backup not possible. Details: {error}",
+        "manualFailed": "The backup could not be created. Details: {error}",
+        "listLabel": "Backups, newest first",
+        "thisDevice": "this device",
+        "otherDevice": "another device",
+        "kind": {
+          "daily": "Daily",
+          "manual": "Manual",
+          "pre-migration": "Before migration",
+          "pre-restore": "Before restore",
+          "pre-replace": "Before replace",
+          "pre-update": "Before update",
+          "conflict": "Other version (conflict)",
+          "unsaved": "Unsaved changes"
+        },
+        "lead": "A copy is made automatically before the first change of each day and before migrations, updates and restores. The last 14 daily ones are kept.",
+        "restoreAt": "Restore the state from {time}"
+      },
+      "restoreBlocked": {
+        "conflict": "Restoring and importing are possible once you have picked a version for the conflict.",
+        "newer-schema": "The data comes from a newer app version. Update the app before you restore anything.",
+        "unavailable": "The data folder cannot be reached. Restoring is possible once it is back."
+      },
+      "restore": {
+        "title": "Restore the state from {time}",
+        "source": "Backup",
+        "current": "Current",
+        "note": "The current state is backed up first. Afterwards you find it in the list as “Before restore”.",
+        "confirm": "Restore",
+        "failed": "Restoring is not possible. Details: {error}",
+        "failedBlocked": "Restoring is not possible in this state.",
+        "failedBackup": "The current state could not be backed up. Nothing was changed.",
+        "failedNewer": "This backup comes from a newer app version.",
+        "failedUnreadable": "This file cannot be read."
+      },
+      "copies": {
+        "heading": "Conflict copies",
+        "body": "A sync service created these copies of the data file. None of them is ever deleted.",
+        "restore": "Restore",
+        "file": "File away",
+        "filed": "Filed in backups",
+        "failed": "Filing away could not be completed. Details: {error}"
+      },
+      "conflict": {
+        "title": "Data was changed elsewhere",
+        "theirs": "Other version",
+        "mine": "This version",
+        "mineChanged": "unsaved changes",
+        "mineSaved": "saved state",
+        "unreadable": "unreadable",
+        "unknownTime": "time unknown",
+        "bothKept": "Both stay in the backups.",
+        "noChanges": "You have no unsaved changes. Reload takes over the other version.",
+        "later": "Later",
+        "keepMine": "Keep this version",
+        "loadTheirs": "Load other version",
+        "reload": "Reload",
+        "needsUpdate": "The other version comes from a newer app version. Update the app before you keep this version.",
+        "theirsUnreadable": "The other file cannot be read, maybe it is still syncing. “Keep this version” backs it up first.",
+        "changed": "The other file has changed in the meantime. It now shows its current state; nothing was changed.",
+        "failed": "That did not work. Nothing was changed. Details: {error}",
+        "origin": {
+          "thisDevice": "this device",
+          "otherDevice": "another device"
+        }
+      },
+      "exportImport": {
+        "heading": "Export / import data",
+        "body": "A plain JSON file, independent of the folder. Tokens are never included.",
+        "export": "Export…",
+        "import": "Import…",
+        "exported": "Exported.",
+        "exportFailed": "The export could not be completed. Details: {error}",
+        "importTitle": "Import data",
+        "importFile": "File",
+        "importConfirm": "Import",
+        "importFailed": "The import could not be completed. Details: {error}",
+        "invalid": "This is not a valid JSON file.",
+        "notKando": "This is not a Kan-Do export file.",
+        "newerSchema": "This file comes from a newer app version. Update the app.",
+        "unreadable": "The file could not be read.",
+        "webConfirm": "Replace data",
+        "webExport": "Export",
+        "webBody": "Download or restore a copy of your board. This browser's tokens are kept and never exported.",
+        "webNote": "Replaces your current data in this browser. You can download a safety copy first. Afterwards this tab reloads with the imported data.",
+        "safetyDownload": "Download current data first",
+        "failedQuota": "The import could not be completed: this browser has no room left. Nothing was changed.",
+        "failedSafety": "The safety copy could not be downloaded. Nothing was changed. Untick the box to import without it.",
+        "failedWrite": "The import could not be completed: the data could not be written. Nothing was changed."
+      }
+    },
+    "updates": {
+      "pageTitle": "Updates",
+      "pageDescription": "Which version runs, whether updates work, and where the log lives.",
+      "link": "Version & updates",
+      "whatsNew": "What's new",
+      "versionHeading": "Version",
+      "versionLine": "Kan-Do {version}",
+      "check": "Check for updates",
+      "retry": "Try again",
+      "details": "Install update…",
+      "lastChecked": "Last checked: {time}",
+      "neverChecked": "Not checked yet.",
+      "status": {
+        "upToDate": "You have the latest version.",
+        "available": "Version {version} is available.",
+        "rejected": "GitHub rejected the token for updates. Paste a new one.",
+        "offline": "No connection. Try again later.",
+        "noReleaseOrAccess": "No published release yet.",
+        "rateLimited": "GitHub is not accepting more requests right now. Try again later.",
+        "notConfigured": "Updates are not set up in this build: the public key is missing.",
+        "error": "The update check could not be completed.",
+        "errorReason": {
+          "manifestMissing": "The latest release has no update file.",
+          "manifestInvalid": "The update file of the latest release could not be read.",
+          "noPlatform": "The latest release has no update for this Mac.",
+          "keychain": "The macOS Keychain is not reachable right now.",
+          "api": "GitHub answered unexpectedly. Try again later.",
+          "unknown": "The update check could not be completed."
+        }
+      },
+      "accessHeading": "Token",
+      "accessBody": "Updates need no token. A GitHub token (read only) is optional and only raises GitHub's request limit.",
+      "openGithub": "Open GitHub access",
+      "logHeading": "Log",
+      "revealLog": "Show in Finder",
+      "checking": "Checking…"
+    },
+    "subpages": {
+      "data": {
+        "label": "Data & storage",
+        "descriptionWeb": "Export and import",
+        "descriptionDesktop": "Data folder and backups"
+      },
+      "updates": {
+        "label": "Updates",
+        "description": "Check the version, open the log"
+      },
+      "github": {
+        "label": "GitHub access",
+        "description": "Tokens for updates and feedback"
+      },
+      "topics": {
+        "label": "Topics and activities",
+        "description": "Rename, color, pick a symbol"
+      }
+    },
+    "topics": {
+      "pageTitle": "Topics and activities",
+      "pageDescription": "Rename, color, pick a symbol",
+      "tabTopics": "Topics",
+      "tabActivities": "Activities",
+      "tabsLabel": "Kind",
+      "introTopics": "The name, color and symbol of a topic change for all tasks. Color and symbol apply only in Kan-Do. Names from Notion are changed in Notion.",
+      "introActivities": "The name of an activity changes for all tasks. Names from Notion are changed in Notion.",
+      "taskCount": "{n} task | {n} tasks",
+      "fromNotion": "from Notion",
+      "unused": "unused",
+      "emptyTopics": "No topics yet. They appear when you pick one on a task.",
+      "emptyActivities": "No activities yet. They appear when you pick one on a task.",
+      "editRow": "Edit {name}"
+    }
+  },
+  "sources": {
+    "disconnect": {
+      "title": "Disconnect {source}?",
+      "leaving": "{n} task leaves the board. It stays in {source}. | {n} tasks leave the board. They stay in {source}.",
+      "leavingNone": "There are no {source} tasks on the board.",
+      "defaultFallback": "New tasks will be saved locally afterwards.",
+      "timerStops": "The running timer on “{title}” will stop.",
+      "unsyncedTitle": "Changes not synced yet",
+      "unsyncedReachable": "{n} change is not saved in {source} yet. Sync first, or it is lost. | {n} changes are not saved in {source} yet. Sync first, or they are lost.",
+      "unsyncedUnreachable": "{source} cannot be reached right now. {n} change will be lost when you disconnect. | {source} cannot be reached right now. {n} changes will be lost when you disconnect.",
+      "syncFailedTitle": "Not everything was synced",
+      "syncFailed": "{source} stays connected. Try again later or disconnect anyway.",
+      "credentialsFailedTitle": "Token could not be deleted",
+      "credentialsFailed": "The Keychain refused the deletion. {source} stays connected.",
+      "confirm": "Disconnect",
+      "anyway": "Disconnect anyway",
+      "syncFirst": "Sync first, then disconnect"
+    },
+    "page": {
+      "title": "Connections",
+      "description": "Where your tasks live and where new tasks go.",
+      "connectedHeading": "Your connections",
+      "lead": "New tasks land in the connection marked “Default”.",
+      "help": "When you add a task you can pick another connection. Tasks you start quickly in “Now” always land here.",
+      "moreHeading": "More connections",
+      "soon": "coming soon"
+    },
+    "row": {
+      "default": "Default",
+      "setDefault": "Set as default",
+      "setDefaultNamed": "Set {source} as default",
+      "repair": "Repair connection",
+      "repairNamed": "Repair {source} connection",
+      "settings": "{source} settings",
+      "disconnect": "Disconnect",
+      "disconnectNamed": "Disconnect {source}",
+      "connect": "Connect",
+      "connectNamed": "Connect {source}"
+    },
+    "status": {
+      "local": "Stored on this device",
+      "checking": "Checking…",
+      "needsAttention": "Check connection",
+      "syncedNow": "Synced · just now",
+      "syncedMinutes": "Synced · {n} min ago",
+      "syncedHours": "Synced · {n} h ago",
+      "syncedDays": "Synced · {n} d ago"
+    }
+  },
+  "sync": {
+    "warning": {
+      "title": "Sync warning",
+      "alertTitle": "Empty sync result",
+      "alertDescription": "The sync returned no tasks from {source}.",
+      "alertTitleDrop": "Far fewer tasks than expected",
+      "alertDescriptionDrop": "The sync returned only {fetched} of {count} tasks from {source}.",
+      "situation": "Current situation:",
+      "localTasks": "{source} tasks on the board: {count}",
+      "lastSync": "Last successful sync: {date}",
+      "newTasks": "Tasks returned by {source}: {count}",
+      "never": "Never",
+      "attention": "Warning",
+      "deleteNotice": "If you continue, {count} {source} tasks will be deleted from the board because they were no longer found in {source}.",
+      "causesTitle": "Possible causes:",
+      "causeEmpty": "Your {source} data was deleted or is empty",
+      "causeConnection": "Connection problem with {source}",
+      "causeFilter": "Wrong filter settings in {source}",
+      "causeCriteria": "No tasks meet the sync criteria",
+      "tipTitle": "Tip",
+      "tipDescription": "Check your {source} data in the browser before you continue.",
+      "confirm": "Sync anyway"
+    }
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Welcome to Kan-Do",
+      "tagline": "Your daily companion for focused work"
+    },
+    "page": {
+      "version": "Version:",
+      "title": "Where are your tasks today?",
+      "nowhere": "Nowhere yet",
+      "inNotion": "In Notion",
+      "later": "You can add more connections later in settings."
+    },
+    "local": {
+      "title": "Local mode",
+      "intro": "Work without an external connection. Your tasks are stored locally on this device.",
+      "later": "You can connect an integration such as Notion or Todoist at any time later.",
+      "howToStart": "How would you like to start?",
+      "startFresh": "Start fresh",
+      "startSamples": "Start with sample tasks"
+    }
+  },
+  "commandPalette": {
+    "title": "Command palette",
+    "description": "Search and run commands",
+    "placeholder": "Search commands…",
+    "empty": "No commands for “{term}”.",
+    "hintNavigate": "navigate",
+    "hintRun": "run",
+    "hintClose": "close",
+    "groupGlobal": "Board",
+    "groupCard": "Task",
+    "groupMove": "Move: {title}",
+    "groupSource": "Connection",
+    "moveTo": "Move to {column}",
+    "moveToSource": "Move to {source}",
+    "progressFull": "Now taken",
+    "setPriority": "Priority: {priority}",
+    "setTimebox": "Timebox: {minutes} min",
+    "addTask": "Add task",
+    "openStatistics": "Open statistics",
+    "openSettings": "Open settings",
+    "noCardHint": "Focus a task with Tab to see its commands.",
+    "dayClose": "Close the day",
+    "openGithubAccess": "GitHub access",
+    "openDataFolder": "Open data folder",
+    "openDataTransfer": "Export / import data",
+    "checkForUpdates": "Check for updates",
+    "openUpdates": "Version & updates",
+    "sendFeedback": "Send feedback",
+    "openWhatsNew": "What's new"
+  },
+  "recap": {
+    "title": "Quick look back",
+    "summary": {
+      "partial": "You got {n} of {m} tasks done {when}.",
+      "all": "You got all tasks done {when}."
+    },
+    "when": {
+      "yesterday": "yesterday",
+      "dayBefore": "the day before yesterday",
+      "weekday": "on {weekday}",
+      "date": "on {date}"
+    },
+    "deck": {
+      "done": "{n} done",
+      "undone": "{n} still open",
+      "previous": "Previous task",
+      "next": "Next task",
+      "counter": "{position} / {total}",
+      "announce": "{position} of {total}: {title}",
+      "roleDescription": "Stack",
+      "label": "{label}, switch with arrow keys"
+    },
+    "archiveToggle": "Archive done tasks",
+    "continue": "Continue to the board"
+  },
+  "dayClose": {
+    "title": "Close the day",
+    "description": "A look back at today and what is still on the board.",
+    "recap": "{n} done · {time} together",
+    "recapNoTime": "{n} done",
+    "nothingDone": "Nothing done today yet.",
+    "doneHeading": "Done today",
+    "doneListLabel": "{n} task done today | {n} tasks done today",
+    "inFlightHeading": "Not done yet",
+    "inFlightListLabel": "{n} task not done yet | {n} tasks not done yet",
+    "nothingInFlight": "Nothing left open.",
+    "putBackHint": "Done puts “{title}” back to Open. | Done puts {n} tasks back to Open.",
+    "copy": "Copy summary",
+    "copied": "Summary copied",
+    "copiedButton": "Copied",
+    "done": "Done",
+    "closing": {
+      "line0": "That is enough for today.",
+      "line1": "Tomorrow carries on.",
+      "line2": "This day needs nothing more.",
+      "line3": "Everything else can wait.",
+      "line4": "The day is closed.",
+      "line5": "The board will be here tomorrow."
+    },
+    "markdown": {
+      "heading": "Day summary, {date}",
+      "done": "Done",
+      "total": "Total: {time}",
+      "nothingDone": "Nothing done today yet.",
+      "inFlight": "Not done yet",
+      "nothingInFlight": "Nothing left open."
+    }
+  },
+  "secrets": {
+    "unavailableTitle": "Keychain not available",
+    "unavailableBody": "Your tokens are unchanged. The app tries again on the next start."
+  },
+  "whatsNew": {
+    "title": "What's new",
+    "description": "The most important changes since your last update.",
+    "version": "Version {version}",
+    "close": "Close",
+    "empty": "Nothing new yet.",
+    "toast": {
+      "updated": "Updated to version {version}"
+    }
+  },
+  "updates": {
+    "toast": {
+      "available": "Version {version} is available",
+      "details": "Details",
+      "upToDate": "You have the latest version."
+    },
+    "dialog": {
+      "title": "Version {version} is available",
+      "titleFallback": "Update",
+      "description": "Install the update and restart Kan-Do.",
+      "current": "You are on {version}.",
+      "sinceVersion": "New since your version ({version}):",
+      "backupNote": "Before installing, Kan-Do backs up your data. Then the app restarts.",
+      "later": "Later",
+      "install": "Install and restart",
+      "retry": "Try again",
+      "preparing": "Preparing…",
+      "downloading": "Downloading…",
+      "progress": "Downloading… {percent}%",
+      "installing": "Installing…",
+      "error": {
+        "dataFolderUnavailable": "Data folder not reachable. Nothing was changed.",
+        "dataUnreadable": "The data file is not readable. Fix that first; nothing was changed.",
+        "dataConflict": "Resolve the data conflict first. Nothing was changed.",
+        "saveFailed": "Your data could not be backed up. Nothing was changed.",
+        "installFailed": "The installation could not be completed. Nothing was changed.",
+        "busy": "An update action is already running."
+      },
+      "openData": "Open data folder"
+    }
+  },
+  "feedback": {
+    "title": "Send feedback",
+    "description": "Describe what you noticed. Nothing is sent before the last step.",
+    "titleLabel": "Title",
+    "descriptionLabel": "Description (optional)",
+    "contextLine": "Context: {summary}",
+    "contextReview": "View",
+    "pickElement": "Select element",
+    "pickElementHint": "Point at what you mean.",
+    "elementLabel": "Element",
+    "removeElement": "Remove",
+    "next": "Review",
+    "discardDraft": "Delete draft",
+    "review": {
+      "title": "Review and send",
+      "intro": "This goes exactly like this as a public issue to {repo}. Nothing leaves the app before that.",
+      "contextHeading": "What is sent along",
+      "itemElement": "Element: {name}",
+      "itemEnvironment": "Route, window, language",
+      "itemVersion": "Version, system",
+      "itemLog": "Log (last lines)",
+      "itemTaskTitle": "Insert task title",
+      "itemTaskTitleHint": "Only the task id is sent by default.",
+      "previewHeading": "Issue text",
+      "send": "Send as issue",
+      "sending": "Creating issue…",
+      "retry": "Try again",
+      "openInBrowser": "Open in browser",
+      "openOnGithub": "Open on GitHub",
+      "introBrowser": "Kan-Do opens GitHub in your browser with this text. There you send it yourself as a public issue to {repo}, signed in with your GitHub account. Nothing leaves the app before that.",
+      "itemScreenshot": "Screenshot",
+      "delivery": {
+        "upload": "Uploaded with the issue.",
+        "clipboardIssue": "The token may not store files: the image goes to the clipboard and the issue is created without it.",
+        "clipboardUrl": "The image goes to the clipboard. Paste it into the issue on GitHub with ⌘V."
+      },
+      "uploading": "Uploading image…",
+      "creating": "Creating issue…",
+      "sendWithoutImage": "Send without image"
+    },
+    "fallback": {
+      "rejected": "GitHub rejected the feedback token. Kan-Do opens the issue on GitHub in your browser instead.",
+      "accessLink": "GitHub access",
+      "trimmed": "Shortened to fit the link: {parts}.",
+      "trimmedLog": "log excerpt",
+      "trimmedContext": "context",
+      "overflow": "Your text is very long. GitHub may not accept the link."
+    },
+    "problem": {
+      "offline": "No connection. Your draft is kept.",
+      "blocked": "GitHub declined the request (limit or permissions). Try again later. Your draft is kept.",
+      "server": "GitHub is having trouble right now. Try again in a moment. Your draft is kept.",
+      "unexpected": "The issue could not be created. Your draft is kept.",
+      "uploadDenied": "The image could not be uploaded. It goes to the clipboard and the issue is created without it. Your draft is kept.",
+      "clipboardFailed": "The image could not be copied to the clipboard. You can take it again in the browser."
+    },
+    "sentToast": "Thanks, your feedback is now issue #{number}.",
+    "picker": {
+      "region": "Element picker",
+      "hint": "Click an element · ↑ larger · ↓ smaller · Esc cancels",
+      "cancel": "Cancel"
+    },
+    "screenshot": {
+      "add": "Add screenshot",
+      "hint": "The window is captured without this dialog; task text is masked.",
+      "label": "Screenshot",
+      "remove": "Remove",
+      "edit": "Mark up",
+      "capturing": "Taking screenshot…",
+      "failed": "Screenshot not possible. The rest of the report still works.",
+      "tooLarge": "The screenshot is too large. The rest of the report still works.",
+      "preview": "Screenshot preview, {n} mark | Screenshot preview, {n} marks",
+      "previewFinal": "Screenshot, ready to send",
+      "branchReadme": "Screenshots from the in-app feedback of Kan-Do. This branch is not cleaned up.",
+      "clipboardFailedToast": "The image could not be copied to the clipboard."
+    },
+    "annotate": {
+      "title": "Mark the screenshot",
+      "tools": "Tools",
+      "rect": "Rectangle",
+      "arrow": "Arrow",
+      "redact": "Redact",
+      "undo": "Undo last",
+      "clear": "Clear all",
+      "mask": "Mask task text",
+      "maskHint": "Switching takes the screenshot again; your marks stay.",
+      "drawHint": "Marking needs a mouse or pen. With the keyboard: “Back”, then “Remove” leaves the screenshot out.",
+      "done": "Done",
+      "back": "Back"
+    },
+    "public": "Your feedback becomes a public issue on GitHub.",
+    "publicAccount": "Sending it needs a GitHub account.",
+    "openedToast": "GitHub is open in your browser. Send the issue there.",
+    "openedToastImage": "GitHub is open in your browser. Paste the screenshot with ⌘V, then send the issue."
+  },
+  "trash": {
+    "title": "Trash",
+    "inTrash": "In the trash",
+    "gapLabel": "Deleted: {title}",
+    "undoNamed": "Undo: {title}",
+    "announceDeleted": "Task deleted: {title}",
+    "ago": {
+      "now": "Deleted just now",
+      "minutes": "Deleted {n} min ago",
+      "hours": "Deleted {n} h ago",
+      "days": "Deleted {n} day ago | Deleted {n} days ago"
+    },
+    "wasIn": "Was in {column}",
+    "wasInProgress": "Was in Now, comes back to Open",
+    "restore": "Restore",
+    "restoreNamed": "Restore: {title}",
+    "removeForever": "Delete forever",
+    "removeForeverNamed": "Delete forever: {title}",
+    "empty": "No deleted tasks yet.",
+    "emptyTrash": "Empty trash",
+    "emptyConfirm": "Delete {n} task for good? | Delete {n} tasks for good?",
+    "emptyConfirmYes": "Delete for good",
+    "retention": "Gone for good after 30 days",
+    "groups": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "earlier": "Earlier"
+    },
+    "listHeading": "Deleted tasks"
+  },
+  "topic": {
+    "hue": {
+      "gray": "Gray",
+      "brown": "Brown",
+      "orange": "Orange",
+      "yellow": "Yellow",
+      "green": "Green",
+      "blue": "Blue",
+      "purple": "Purple",
+      "pink": "Pink",
+      "red": "Red"
+    },
+    "symbol": {
+      "briefcase": "Work",
+      "house": "Home",
+      "graduation-cap": "Learning",
+      "code": "Code",
+      "palette": "Design",
+      "chat-circle": "Conversation",
+      "shopping-cart": "Shopping",
+      "heart": "Health",
+      "airplane": "Travel",
+      "currency-eur": "Finances",
+      "wrench": "Tools",
+      "lightbulb": "Idea",
+      "calendar": "Appointments",
+      "users": "Team",
+      "book-open": "Reading",
+      "music-note": "Music",
+      "barbell": "Sport",
+      "camera": "Photo",
+      "envelope": "Mail",
+      "star": "Important",
+      "flag": "Goal",
+      "leaf": "Nature",
+      "rocket-launch": "Project",
+      "gear": "Operations"
+    },
+    "editor": {
+      "titleTopic": "Edit topic",
+      "titleActivity": "Edit activity",
+      "name": "Name",
+      "nameGate": "The name comes from Notion. Rename it in Notion, Kan-Do picks it up on the next sync.",
+      "mergeTopic": "“{name}” already exists. Both are merged, the color and symbol of “{name}” stay.",
+      "mergeActivity": "“{name}” already exists. Both are merged.",
+      "color": "Color",
+      "colorNone": "No color",
+      "colorInherited": "Without a choice of your own, Kan-Do shows the color from Notion ({hue}).",
+      "colorLocalOnly": "Applies only in Kan-Do, Notion keeps {hue}.",
+      "symbol": "Symbol",
+      "symbolNone": "No symbol",
+      "symbolButton": "Symbol: {value}",
+      "unusedTopic": "No task uses this topic yet.",
+      "unusedActivity": "No task uses this activity yet.",
+      "appliesTo": "Applies to {n} task | Applies to {n} tasks",
+      "appliesToAll": "Applies to {n} task, done and archived ones too | Applies to {n} tasks, done and archived ones too",
+      "stayLocal": "Color and symbol stay in Kan-Do.",
+      "save": "Save",
+      "merge": "Merge",
+      "cancel": "Cancel"
+    },
+    "picker": {
+      "manage": "Manage topics",
+      "edit": "Edit",
+      "done": "Done",
+      "rowEdit": "edit"
+    }
+  }
+}

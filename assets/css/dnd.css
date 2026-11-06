@@ -1,0 +1,222 @@
+/**
+ * Drag-and-drop globals (@dnd-kit/vue): .kando-dnd-dragged placeholder (a card wrapper or a
+ * collapsed .task-stack, #150), .kando-dnd-preview floating card or stack face, text-selection and
+ * touch-callout suppression, long-press feedback. dnd-kit applies these classes at runtime and the preview is teleported, so scoped styles cannot reach them.
+ * Imported by main.css; components layer (#43).
+ */
+
+@layer components {
+  /* ========================================
+   * DRAG & DROP GLOBAL STYLES (@dnd-kit/vue)
+   * ======================================== */
+
+  /**
+   * Source item placeholder while dragged (dnd-kit 'clone' feedback).
+   * dnd-kit leaves the original element in the DOM and applies opacity: 0.5 via its injected stylesheet.
+   * We override to a fully opaque monochrome slot so the DragOverlay is the only visible "card".
+   *
+   * Two selectors cover both cases:
+   * 1. .kando-dnd-dragged — set by SortableTaskWrapper via isDragging from useSortable
+   * 2. [data-dnd-dragging] — set directly by dnd-kit on the element
+   */
+  .board.dragging .task-wrapper.kando-dnd-dragged,
+  .board.dragging .task-wrapper[data-dnd-dragging] {
+    opacity: 1 !important;
+  }
+
+  .board.dragging .task-wrapper.kando-dnd-dragged .task,
+  .board.dragging .task-wrapper[data-dnd-dragging] .task {
+    background-color: color-mix(in srgb, var(--ui-text-muted) 14%, transparent) !important;
+    opacity: 1 !important;
+    box-shadow: none !important;
+    transform: none !important;
+    filter: none !important;
+    border: 0 !important;
+    border-radius: var(--task-card-radius) !important;
+  }
+
+  .board.dragging .task-wrapper.kando-dnd-dragged .task > *,
+  .board.dragging .task-wrapper[data-dnd-dragging] .task > * {
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+
+  /* When hovering an empty target column the ColumnDropZone ghost is the only
+     intended drop indicator. Suppress the source placeholder's background so
+     only one grey shape is visible (no "double placeholder" confusion).
+     :has(.column-drop-zone__ghost) detects the ghost synchronously in CSS —
+     no JS state tracking needed. The element stays in the DOM for dnd-kit layout. */
+  .board.dragging:has(.column-drop-zone__ghost) .task-wrapper.kando-dnd-dragged .task,
+  .board.dragging:has(.column-drop-zone__ghost) .task-wrapper[data-dnd-dragging] .task {
+    background-color: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* The placeholder stays in the source column while the pointer is over an empty column (dnd-kit
+     moves it only into a column with sortables). Transparent it would still hold its slot and leave
+     a gap in the remaining list, in between or right below the header (#393): take it out of the
+     layout instead: absolute and zero-sized, not display: none, because a keyboard drag keeps focus
+     on the card and display: none would drop it to the body. It keeps its place in the DOM, and the
+     slot returns with the ghost's removal.
+     Only while other cards remain: a list holding just the placeholder shows no gap, and its node
+     must stay hit-testable so the pointer coming back over that column restores the slot (#372). */
+  .board.dragging:has(.column-drop-zone__ghost) .task-list:has(> :is(.task-wrapper, .task-stack):not(.kando-dnd-dragged, [data-dnd-dragging])) > :is(.task-wrapper, .task-stack):is(.kando-dnd-dragged, [data-dnd-dragging]) {
+    position: absolute !important;
+    width: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+  }
+
+  /* Landing slot in Erledigt (#124): on the teal drop wash the placeholder takes a teal tint so it
+     reads as the slot. Same geometry, class untouched. Skipped while the empty-column ghost shows. */
+  .board.dragging:not(:has(.column-drop-zone__ghost)) .column.is-done-drop-target .task-wrapper.kando-dnd-dragged .task,
+  .board.dragging:not(:has(.column-drop-zone__ghost)) .column.is-done-drop-target .task-wrapper[data-dnd-dragging] .task {
+    background-color: color-mix(in oklab, var(--ui-color-success-700) 16%, transparent) !important;
+  }
+
+  /* ========================================
+   * COLLAPSED STACK AS DRAG SOURCE (#150)
+   * The stack is one sortable (TaskStack). While it is the drag source its node keeps the stack's
+   * footprint (no layout jump) but shows one grey slot like a card: the front card greyed with its
+   * content hidden, peek layers, shadow and caption invisible. Same two selectors as cards, and the
+   * same slot colours (teal on the Erledigt wash, none while the empty-column ghost shows).
+   * ======================================== */
+  .board.dragging .task-stack.kando-dnd-dragged,
+  .board.dragging .task-stack[data-dnd-dragging] {
+    opacity: 1 !important;
+  }
+
+  .board.dragging .task-stack.kando-dnd-dragged .task-stack__cards,
+  .board.dragging .task-stack[data-dnd-dragging] .task-stack__cards {
+    filter: none !important;
+  }
+
+  .board.dragging .task-stack.kando-dnd-dragged .stacked-task--overflow,
+  .board.dragging .task-stack[data-dnd-dragging] .stacked-task--overflow,
+  .board.dragging .task-stack.kando-dnd-dragged .task-stack__caption,
+  .board.dragging .task-stack[data-dnd-dragging] .task-stack__caption,
+  .board.dragging .task-stack.kando-dnd-dragged .task-stack__pill-layer,
+  .board.dragging .task-stack[data-dnd-dragging] .task-stack__pill-layer {
+    visibility: hidden !important;
+  }
+
+  .board.dragging .task-stack.kando-dnd-dragged .stacked-task--top,
+  .board.dragging .task-stack[data-dnd-dragging] .stacked-task--top {
+    transform: none !important;
+  }
+
+  .board.dragging .task-stack.kando-dnd-dragged .stacked-task--top.task,
+  .board.dragging .task-stack[data-dnd-dragging] .stacked-task--top.task {
+    background-color: color-mix(in srgb, var(--ui-text-muted) 14%, transparent) !important;
+    opacity: 1 !important;
+    box-shadow: none !important;
+    transform: none !important;
+    filter: none !important;
+    border: 0 !important;
+    border-radius: var(--task-card-radius) !important;
+  }
+
+  .board.dragging .task-stack.kando-dnd-dragged .stacked-task--top.task > *,
+  .board.dragging .task-stack[data-dnd-dragging] .stacked-task--top.task > * {
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+
+  .board.dragging:has(.column-drop-zone__ghost) .task-stack.kando-dnd-dragged .stacked-task--top.task,
+  .board.dragging:has(.column-drop-zone__ghost) .task-stack[data-dnd-dragging] .stacked-task--top.task {
+    background-color: transparent !important;
+  }
+
+  .board.dragging:not(:has(.column-drop-zone__ghost)) .column.is-done-drop-target .task-stack.kando-dnd-dragged .stacked-task--top.task,
+  .board.dragging:not(:has(.column-drop-zone__ghost)) .column.is-done-drop-target .task-stack[data-dnd-dragging] .stacked-task--top.task {
+    background-color: color-mix(in oklab, var(--ui-color-success-700) 16%, transparent) !important;
+  }
+
+  /**
+   * DragOverlay card: the floating clone that follows the pointer.
+   * Rendered by Board.vue > DragOverlay > TaskCard with .kando-dnd-preview class.
+   */
+  .kando-dnd-preview {
+    transform: rotate(2deg) !important;
+    opacity: 1 !important;
+    filter: none !important;
+    mix-blend-mode: normal !important;
+    box-shadow: var(--shadow-task-drag-elevated) !important;
+    background-color: var(--ui-bg-elevated) !important;
+    pointer-events: none !important;
+  }
+
+  .kando-dnd-preview * {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  /* A dragged stack's preview is its collapsed face as it rests (#150): the card chrome above would
+     box the caption too, and the blanket visibility rule would show the cards beyond the peek layers.
+     The stack keeps its own layers; the floating lift is a shadow on the cards. */
+  .kando-dnd-preview.task-stack {
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
+
+  /* The preview keeps the muted front card of the resting face (#371); beats the blanket rule above */
+  .kando-dnd-preview.task-stack .stacked-task--top.task > * {
+    opacity: var(--stack-front-content-opacity) !important;
+  }
+
+  .kando-dnd-preview.task-stack .stacked-task--hidden,
+  .kando-dnd-preview.task-stack .stacked-task--hidden * {
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+
+  .kando-dnd-preview.task-stack .task-stack__cards {
+    filter: var(--shadow-stack-hover) !important;
+  }
+
+  /* ========================================
+   * Prevent text selection during drag-and-drop
+   * ======================================== */
+  .board-container,
+  .board-container * {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Allow text selection in input fields and textareas */
+  .board-container input,
+  .board-container textarea {
+    user-select: text;
+    -webkit-user-select: text;
+  }
+
+  /* ========================================
+   * Mobile: prevent iOS long-press callout on task cards
+   * (saves image / copy link popup that appears on long press)
+   * ======================================== */
+  .task-wrapper,
+  .task-stack {
+    -webkit-touch-callout: none;
+  }
+
+  /* ========================================
+   * Long-press visual feedback
+   * Applied by TaskCardContextMenu via useLongPress isPressing state.
+   * Gives a subtle visual cue that a long press is being registered.
+   * ======================================== */
+  @keyframes kando-long-press-pulse {
+    0%   { box-shadow: 0 0 0 0px color-mix(in srgb, var(--ui-primary) 40%, transparent); }
+    100% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--ui-primary) 0%, transparent); }
+  }
+
+  .kando-long-press-active .task {
+    animation: kando-long-press-pulse 750ms ease-out forwards;
+    transform: scale(0.98);
+    transition: transform 0.15s ease;
+  }
+}

@@ -1,0 +1,8 @@
+- group "Neue Aufgabe":
+  - group "Thema?":
+    - button "Zurück"
+    - paragraph: Thema?
+    - button "Überspringen"
+    - button "Design"
+    - button "Backend"
+    - button "Alle Optionen"

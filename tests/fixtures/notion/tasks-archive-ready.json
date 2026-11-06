@@ -1,0 +1,203 @@
+[
+  {
+    "id": "page-today-1",
+    "properties": {
+      "Name": {
+        "title": [
+          { "plain_text": "Heutiges Meeting vorbereiten" }
+        ]
+      },
+      "Status": {
+        "select": {
+          "name": "Today",
+          "color": "blue"
+        }
+      },
+      "Timebox": {
+        "number": 60
+      },
+      "Aufwand": {
+        "number": 0
+      }
+    }
+  },
+  {
+    "id": "page-doing-1",
+    "properties": {
+      "Name": {
+        "title": [
+          { "plain_text": "Code Review durchführen" }
+        ]
+      },
+      "Status": {
+        "select": {
+          "name": "Doing",
+          "color": "orange"
+        }
+      },
+      "Timebox": {
+        "number": 45
+      },
+      "Aufwand": {
+        "number": 20
+      }
+    }
+  },
+  {
+    "id": "page-waiting-1",
+    "properties": {
+      "Name": {
+        "title": [
+          { "plain_text": "Feedback vom Team einholen" }
+        ]
+      },
+      "Status": {
+        "select": {
+          "name": "Waiting",
+          "color": "yellow"
+        }
+      },
+      "Timebox": {
+        "number": 30
+      },
+      "Aufwand": {
+        "number": 10
+      }
+    }
+  },
+  {
+    "id": "page-done-today-1",
+    "properties": {
+      "Name": {
+        "title": [
+          { "plain_text": "Morgendliche Planung" }
+        ]
+      },
+      "Status": {
+        "select": {
+          "name": "Done",
+          "color": "green"
+        }
+      },
+      "Timebox": {
+        "number": 15
+      },
+      "Aufwand": {
+        "number": 15
+      },
+      "CompletedDate": {
+        "date": {
+          "start": "2025-10-07T08:30:00.000Z"
+        }
+      }
+    }
+  },
+  {
+    "id": "page-done-today-2",
+    "properties": {
+      "Name": {
+        "title": [
+          { "plain_text": "E-Mails beantwortet" }
+        ]
+      },
+      "Status": {
+        "select": {
+          "name": "Done",
+          "color": "green"
+        }
+      },
+      "Timebox": {
+        "number": 20
+      },
+      "Aufwand": {
+        "number": 20
+      },
+      "CompletedDate": {
+        "date": {
+          "start": "2025-10-07T09:15:00.000Z"
+        }
+      }
+    }
+  },
+  {
+    "id": "page-done-yesterday-1",
+    "properties": {
+      "Name": {
+        "title": [
+          { "plain_text": "Dokumentation aktualisiert" }
+        ]
+      },
+      "Status": {
+        "select": {
+          "name": "Done",
+          "color": "green"
+        }
+      },
+      "Timebox": {
+        "number": 90
+      },
+      "Aufwand": {
+        "number": 85
+      },
+      "CompletedDate": {
+        "date": {
+          "start": "2025-10-06T16:45:00.000Z"
+        }
+      }
+    }
+  },
+  {
+    "id": "page-done-yesterday-2",
+    "properties": {
+      "Name": {
+        "title": [
+          { "plain_text": "Bug in Authentifizierung behoben" }
+        ]
+      },
+      "Status": {
+        "select": {
+          "name": "Done",
+          "color": "green"
+        }
+      },
+      "Timebox": {
+        "number": 120
+      },
+      "Aufwand": {
+        "number": 135
+      },
+      "CompletedDate": {
+        "date": {
+          "start": "2025-10-06T14:20:00.000Z"
+        }
+      }
+    }
+  },
+  {
+    "id": "page-done-yesterday-3",
+    "properties": {
+      "Name": {
+        "title": [
+          { "plain_text": "Retrospektive nachbereitet" }
+        ]
+      },
+      "Status": {
+        "select": {
+          "name": "Done",
+          "color": "green"
+        }
+      },
+      "Timebox": {
+        "number": 45
+      },
+      "Aufwand": {
+        "number": 40
+      },
+      "CompletedDate": {
+        "date": {
+          "start": "2025-10-06T11:00:00.000Z"
+        }
+      }
+    }
+  }
+]

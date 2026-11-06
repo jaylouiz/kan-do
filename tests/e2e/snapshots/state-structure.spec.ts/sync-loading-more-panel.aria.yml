@@ -1,0 +1,14 @@
+- region "Ansicht":
+  - heading "Ansicht" [level=2]
+  - switch "Karten stapeln"
+  - text: Karten stapeln Stapelt ähnliche Aufgaben in den Spalten Offen, Wartet und Erledigt.
+- separator
+- button "Tag abschließen"
+- separator
+- link "Papierkorb":
+  - /url: /trash
+- link "Einstellungen":
+  - /url: /settings
+- separator
+- button "Jetzt synchronisieren Wird synchronisiert…" [disabled]
+- status: Wird synchronisiert…

@@ -1,0 +1,9 @@
+- main:
+  - heading "Heute" [level=1]
+  - status
+  - heading "Offen" [level=2]
+  - button "Aufgabe hinzufügen"
+  - heading "Jetzt" [level=2]
+  - button "Neue Aufgabe sofort starten"
+  - heading "Wartet?" [level=2]
+  - heading "Erledigt" [level=2]

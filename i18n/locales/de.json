@@ -1,0 +1,1506 @@
+{
+  "common": {
+    "back": "Zurück",
+    "completed": "Erledigt",
+    "settings": "Einstellungen",
+    "clickToEdit": "Zum Bearbeiten klicken",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "close": "Schließen",
+    "today": "Heute",
+    "apply": "Übernehmen",
+    "undo": "Rückgängig",
+    "choose": "Auswählen…",
+    "save": "Speichern"
+  },
+  "board": {
+    "pageHeading": "Heute",
+    "columns": {
+      "open": "Offen",
+      "progress": "Jetzt",
+      "waiting": "Wartet",
+      "done": "Erledigt"
+    },
+    "dnd": {
+      "roleDescription": "Verschiebbare Aufgabe",
+      "instructions": "Enter öffnet die Details. Leertaste hebt die Aufgabe auf, Pfeiltasten verschieben, Leertaste legt ab, Escape bricht ab.",
+      "pickedUp": "„{title}“ in Spalte {column}, Position {position} aufgenommen.",
+      "movedTo": "„{title}“ nach Spalte {column}, Position {position} verschoben.",
+      "dropped": "„{title}“ in Spalte {column}, Position {position} abgelegt.",
+      "cancelled": "Verschieben abgebrochen. „{title}“ bleibt in Spalte {column}.",
+      "stackRoleDescription": "Verschiebbarer Stapel",
+      "stackInstructions": "Enter öffnet den Stapel. Leertaste hebt den ganzen Stapel auf, Pfeiltasten verschieben ihn, Leertaste legt ab, Escape bricht ab.",
+      "pickedUpStack": "Stapel „{title}“ in Spalte {column}, Position {position} aufgenommen. Er wird mit allen Aufgaben verschoben."
+    },
+    "quickAdd": {
+      "label": "Neue Aufgabe",
+      "titleLabel": "Titel",
+      "confirmTitle": "Titel bestätigen",
+      "questionTopic": "Thema?",
+      "questionActivity": "Aktivität?",
+      "questionTimebox": "Timebox?",
+      "questionNotes": "Notiz?",
+      "notesPlaceholder": "Kurze Notiz …",
+      "save": "Aufgabe speichern",
+      "back": "Zurück",
+      "skip": "Überspringen",
+      "allOptions": "Alle Optionen",
+      "added": "Aufgabe hinzugefügt",
+      "details": "Details",
+      "saveNowHint": "Sofort speichern: ⌘↵ oder Strg+↵",
+      "draftDeleted": "Entwurf gelöscht"
+    },
+    "draftCard": "Entwurf der neuen Aufgabe",
+    "addTask": "Aufgabe hinzufügen",
+    "emptyWaitingSuffix": "?",
+    "dropToComplete": "Hier ablegen, um die Aufgabe als erledigt zu markieren",
+    "stack": {
+      "caption": "{group} · {n} Aufgabe | {group} · {n} Aufgaben",
+      "label": "{title}, {group}, {n} Aufgabe | {title}, {group}, {n} Aufgaben",
+      "labelUntitled": "{group}, {n} Aufgabe | {group}, {n} Aufgaben",
+      "closeLabel": "Gruppe {group} schließen",
+      "opened": "Stapel {group} geöffnet, {count} Aufgaben. Esc schließt.",
+      "openedPointer": "Stapel {group} geöffnet, {count} Aufgaben. Mit „Schließen“ einklappen.",
+      "memberPosition": "{n} von {total} in {group}",
+      "closed": "Stapel {group} geschlossen.",
+      "checkboxYes": "{property}: Ja",
+      "checkboxNo": "{property}: Nein"
+    },
+    "yesterday": {
+      "headingYesterday": "Gestern erledigt",
+      "headingWeekday": "{weekday} erledigt",
+      "headingRecent": "Zuletzt erledigt",
+      "more": "+ {n} weitere",
+      "ack": "Gesehen",
+      "ackLabel": "Gesehen, {n} erledigte Aufgabe ablegen | Gesehen, {n} erledigte Aufgaben ablegen"
+    },
+    "sync": {
+      "stackCards": "Karten stapeln",
+      "stackHelp": "Stapelt ähnliche Aufgaben in den Spalten Offen, Wartet und Erledigt.",
+      "groupBy": "Gruppieren nach",
+      "stackHint": "Klicke auf einen Stapel, um alle Karten einzublenden.",
+      "sourceOffline": "{source} offline – Synchronisierung läuft weiter",
+      "sourceBroken": "{source}: Verbindung prüfen",
+      "sourceDegraded": "{source}: Synchronisierung fehlgeschlagen",
+      "offlineHint": "Änderungen bleiben gespeichert und werden gesendet, sobald {source} wieder erreichbar ist.",
+      "brokenHint": "Der Zugriff wurde abgelehnt, oder das Token fehlt. Änderungen bleiben lokal gespeichert.",
+      "degradedHint": "Die letzte Synchronisierung konnte nicht abgeschlossen werden. Änderungen bleiben lokal gespeichert.",
+      "repair": "{source}-Verbindung reparieren"
+    },
+    "grouping": {
+      "activity": "Aktivität",
+      "priority": "Priorität",
+      "topic": "Thema"
+    },
+    "sort": {
+      "manual": "Manuell",
+      "priority": "Priorität",
+      "created": "Erstellt",
+      "default": "Sortierung",
+      "groupLabel": "Sortieren nach",
+      "completedFirst": "Zuerst erledigt",
+      "completedLast": "Zuletzt erledigt",
+      "longestWait": "Längste Wartezeit",
+      "shortestWait": "Kürzeste Wartezeit",
+      "highestFirst": "höchste zuerst",
+      "newestFirst": "neueste zuerst",
+      "oldestFirst": "älteste zuerst",
+      "newestOnTop": "neueste oben",
+      "oldestOnTop": "älteste oben"
+    },
+    "wip": {
+      "refusedTitle": "Verschieben nicht möglich",
+      "refusedReason": "In Jetzt liegt höchstens eine Aufgabe. Verschiebe die aktuelle nach Wartet oder Erledigt."
+    }
+  },
+  "nav": {
+    "label": "Hauptnavigation",
+    "brand": "kan-do",
+    "today": "Heute",
+    "statistics": "Statistik",
+    "more": "Mehr",
+    "moreProblem": "Mehr, Verbindungsproblem",
+    "commands": "Befehle",
+    "moreWithCommands": "Mehr · {commands}",
+    "view": "Ansicht",
+    "dayClose": "Tag abschließen",
+    "trash": "Papierkorb",
+    "trashCount": "Papierkorb ({n})",
+    "settings": "Einstellungen",
+    "appUpdate": "App-Update",
+    "syncNow": "Jetzt synchronisieren",
+    "syncing": "Wird synchronisiert…"
+  },
+  "menu": {
+    "app": "Kan-Do",
+    "about": "Über Kan-Do",
+    "checkUpdates": "Nach Updates suchen…",
+    "settings": "Einstellungen…",
+    "services": "Dienste",
+    "hide": "Kan-Do ausblenden",
+    "hideOthers": "Andere ausblenden",
+    "showAll": "Alle einblenden",
+    "quit": "Kan-Do beenden",
+    "file": "Ablage",
+    "newTask": "Neue Aufgabe",
+    "dayClose": "Tag abschließen…",
+    "closeWindow": "Fenster schließen",
+    "edit": "Bearbeiten",
+    "undo": "Widerrufen",
+    "redo": "Wiederholen",
+    "cut": "Ausschneiden",
+    "copy": "Kopieren",
+    "paste": "Einsetzen",
+    "selectAll": "Alles auswählen",
+    "view": "Darstellung",
+    "today": "Heute",
+    "statistics": "Statistik",
+    "trash": "Papierkorb",
+    "fullscreen": "Vollbild",
+    "window": "Fenster",
+    "minimize": "Minimieren",
+    "zoom": "Zoomen",
+    "help": "Hilfe",
+    "feedback": "Feedback senden…",
+    "whatsNew": "Was ist neu"
+  },
+  "task": {
+    "delete": {
+      "local": "Löschen",
+      "notion": "Löschen, auch in Notion",
+      "todoist": "Löschen, auch in Todoist"
+    },
+    "timeboxBasedOnSimilar": "Basierend auf {n} ähnlichen Aufgabe | Basierend auf {n} ähnlichen Aufgaben",
+    "timeboxBasedOnSimilarWithActivity": "Basierend auf {n} ähnlichen Aufgabe mit „{activity}“ | Basierend auf {n} ähnlichen Aufgaben mit „{activity}“",
+    "createAdHoc": "Neue Aufgabe sofort starten",
+    "createNew": "Neue Aufgabe erstellen",
+    "fallbackTitle": "Aufgabe",
+    "move": {
+      "done": "Nach {source} verschoben",
+      "failed": "Verschieben fehlgeschlagen",
+      "failedDescription": "„{title}“ bleibt in {source}.",
+      "retry": "Erneut versuchen",
+      "hintLost": "{n} Feld geht verloren | {n} Felder gehen verloren",
+      "hintAttention": "Verbindung prüfen · wird später gespeichert",
+      "hintPending": "Wird gespeichert"
+    },
+    "completed": "Erledigt",
+    "completedMany": "{n} Aufgabe erledigt | {n} Aufgaben erledigt",
+    "notFoundTitle": "Aufgabe nicht gefunden",
+    "notFoundMessage": "Die angeforderte Aufgabe existiert nicht oder wurde gelöscht.",
+    "timebox": "Timebox",
+    "timeboxNudge": {
+      "question": "Timebox hinzufügen?",
+      "preset": "{minutes} min",
+      "custom": "Eigene Dauer",
+      "minutes": "Minuten",
+      "unit": "min",
+      "apply": "Übernehmen"
+    },
+    "priorityTooltip": "Priorität",
+    "progressAria": "Fortschritt der Timebox",
+    "timeboxProgressAria": "Timebox: {spent} von {box}",
+    "progressRunning": "Timebox-Fortschritt, Timer läuft, {time} aufgewendet",
+    "elapsedAria": "Bisher gearbeitet: {time}",
+    "savePending": "Noch nicht in {source} gespeichert. Die Änderung ist lokal gesichert.",
+    "underOneMinute": "<1",
+    "field": {
+      "title": "Titel",
+      "topic": "Thema",
+      "topicSearch": "Thema suchen…",
+      "activity": "Aktivität",
+      "activitySearch": "Aktivität suchen…",
+      "notes": "Notiz",
+      "properties": "Eigenschaften",
+      "status": "Status",
+      "priority": "Priorität"
+    },
+    "datePicker": {
+      "set": "+ Datum setzen"
+    },
+    "detail": {
+      "moreActions": "Mehr Aktionen",
+      "notesEmpty": "Notiz hinzufügen…",
+      "notesPlaceholder": "Notiz hinzufügen…",
+      "notesHint": "Markdown unterstützt • {shortcut} zum Speichern",
+      "metadata": "Metadaten",
+      "sourceLocal": "Lokal",
+      "created": "Erstellt: {date}",
+      "copied": "Kopiert",
+      "copyId": "ID kopieren",
+      "openIn": "In {source} öffnen"
+    },
+    "timeStats": {
+      "spent": "{time} gearbeitet",
+      "remaining": "{time} übrig"
+    },
+    "form": {
+      "titlePlaceholder": "Aufgabe benennen…",
+      "titleRequired": "Gib der Aufgabe einen Titel.",
+      "priorityHint": "Wie wichtig ist diese Aufgabe?",
+      "durationHint": "Geplante Dauer in Minuten",
+      "notesPlaceholder": "Weitere Details oder Kontext…",
+      "choose": "Auswählen…",
+      "submit": "Aufgabe erstellen",
+      "start": "Starten",
+      "saveIn": "Speichern in",
+      "saveInDefault": "Standard",
+      "saveInAttention": "Verbindung prüfen · wird später gespeichert"
+    },
+    "contextMenu": {
+      "openDetails": "Details öffnen",
+      "markPlanned": "Als geplant markieren",
+      "markUnplanned": "Als ungeplant markieren",
+      "changeStatus": "Status ändern",
+      "changePriority": "Priorität ändern",
+      "setTimebox": "Timebox setzen",
+      "moveToSource": "Verschieben nach …",
+      "customTime": "Eigene Zeit…",
+      "removeTimebox": "Timebox entfernen",
+      "customPrompt": "Gib eine eigene Timebox in Minuten ein.",
+      "minutesUnit": "Minuten",
+      "presetMinutes": "{n} Minute | {n} Minuten",
+      "maxReached": "{label} (max. erreicht)",
+      "moveTo": {
+        "open": "Heute",
+        "progress": "Jetzt",
+        "waiting": "Warten",
+        "done": "Erledigt"
+      }
+    },
+    "carryOver": {
+      "label": "Tag {n} auf dem Board",
+      "nudgeTitle": "Immer noch da: Tag {n} auf dem Board.",
+      "nudgeHint": "Gehört die Aufgabe noch zu heute?",
+      "keep": "Behalten",
+      "smaller": "Kleiner machen",
+      "smallerHint": "Was ist der erste kleine Schritt?"
+    },
+    "property": {
+      "setValue": "+ hinzufügen",
+      "clear": "{field} entfernen",
+      "suggest": "Vorschlag {n} min"
+    }
+  },
+  "source": {
+    "name": {
+      "local": "Lokal",
+      "notion": "Notion",
+      "todoist": "Todoist"
+    }
+  },
+  "statistics": {
+    "taskCount": "{n} Aufgabe | {n} Aufgaben",
+    "pageTitle": "Statistik",
+    "headTitle": "Statistik {'|'} Kan-Do",
+    "backfillAdded": "{n} archivierte Aufgabe zur Statistik hinzugefügt. | {n} archivierte Aufgaben zur Statistik hinzugefügt.",
+    "notAvailable": "N/A",
+    "noTopic": "Ohne Thema",
+    "noActivity": "Ohne Aktivität",
+    "cards": {
+      "timeInvested": "Aufgewendete Zeit",
+      "avgAccuracy": "Ø Schätzgenauigkeit"
+    },
+    "accuracy": {
+      "yes": "Ja",
+      "almost": "Fast",
+      "no": "Nein",
+      "noTimebox": "Keine Timebox"
+    },
+    "accuracyLabel": {
+      "excellent": "Sehr gut",
+      "good": "Gut",
+      "okay": "Okay",
+      "poor": "Schlecht",
+      "needsImprovement": "Verbesserungsbedarf"
+    },
+    "table": {
+      "task": "Aufgabe",
+      "completedAt": "Erledigt am",
+      "timeSpent": "Aufgewendete Zeit",
+      "plannedTime": "Geplante Zeit",
+      "accuracy": "Genauigkeit",
+      "inTimebox": "In Timebox?",
+      "unplanned": "Ungeplant",
+      "scrollRegionLabel": "Tabelle erledigter Aufgaben, scrollbar",
+      "empty": "Keine Aufgaben im ausgewählten Zeitraum"
+    },
+    "question": {
+      "q1": "Arbeite ich gut?",
+      "q2": "Wie entwickle ich mich?",
+      "q3": "Wo schätze ich falsch?",
+      "q4": "Wofür nehme ich mir Zeit?",
+      "q5": "Wann arbeite ich?"
+    },
+    "verdict": {
+      "caption": "Letzte 7 Tage, verglichen mit deinen 4 Wochen davor",
+      "headline": {
+        "better": "Es läuft besser als sonst.",
+        "usual": "Es läuft wie sonst.",
+        "harder": "Es läuft fordernder als sonst.",
+        "thin": "Noch zu wenig Verlauf für einen Vergleich.",
+        "empty": "Noch nichts zu vergleichen.",
+        "quiet": "In den letzten 7 Tagen wurde nichts erledigt."
+      },
+      "line": {
+        "full": "{n} Aufgabe erledigt, {share} % davon in der Timebox (sonst {usual} %). | {n} Aufgaben erledigt, {share} % davon in der Timebox (sonst {usual} %).",
+        "noUsual": "{n} Aufgabe erledigt, {share} % davon in der Timebox. | {n} Aufgaben erledigt, {share} % davon in der Timebox.",
+        "noTimebox": "{n} Aufgabe erledigt. | {n} Aufgaben erledigt.",
+        "thin": "In den {baselineDays} Tagen vor den letzten {windowDays} Tagen: {n} erledigte Aufgabe. Ein Vergleich beginnt mit {days} Tagen Verlauf und mindestens {tasks} erledigten Aufgaben davor. | In den {baselineDays} Tagen vor den letzten {windowDays} Tagen: {n} erledigte Aufgaben. Ein Vergleich beginnt mit {days} Tagen Verlauf und mindestens {tasks} erledigten Aufgaben davor.",
+        "empty": "Erledigte Aufgaben mit Timebox füllen diese Seite.",
+        "quiet": "In den Wochen davor waren es im Schnitt {n} Aufgaben pro Woche."
+      },
+      "ring": {
+        "label": "In der Timebox erledigt: {share} %, sonst {usual} %",
+        "labelNoUsual": "In der Timebox erledigt: {share} %",
+        "labelNone": "Keine Aufgabe mit Timebox in den letzten 7 Tagen",
+        "center": "in Timebox"
+      }
+    },
+    "trend": {
+      "up": "Aufwärts: früher {early} % in der Timebox, zuletzt {recent} %.",
+      "down": "Abwärts: früher {early} % in der Timebox, zuletzt {recent} %.",
+      "flat": "Gleichbleibend: Der Anteil in der Timebox schwankt kaum.",
+      "few": "Noch zu wenige Wochen für eine Entwicklung. Erledigte Aufgaben mit Timebox füllen den Verlauf.",
+      "chartLabel": "Anteil in der Timebox je 7 Tage, ältester Zeitraum zuerst: {values}",
+      "noValue": "ohne Wert",
+      "table": {
+        "inTimebox": "In Timebox",
+        "current": "Letzte 7 Tage",
+        "range": "{start} bis {end}",
+        "dayEnd": "im Schnitt {n} offen am Tagesende",
+        "dayEndNone": "Offen am Tagesende –"
+      }
+    },
+    "patterns": {
+      "lineLonger": "Bei „{label}“ planst du meist zu knapp.",
+      "lineShorter": "Bei „{label}“ planst du meist zu großzügig.",
+      "none": "Kein wiederkehrendes Muster in deinen Schätzungen.",
+      "tooFew": "Noch zu wenige erledigte Aufgaben mit Timebox für Muster.",
+      "noTimebox": "Ohne Timebox gibt es keinen Vergleich. Setze beim nächsten Mal eine.",
+      "heading": "Wiederkehrende Muster",
+      "kind": {
+        "activity": "Aktivität",
+        "topic": "Thema",
+        "size": "Größe der Timebox",
+        "time": "Tageszeit"
+      },
+      "size": {
+        "s": "Timebox bis 30 Min",
+        "m": "Timebox 31–60 Min",
+        "l": "Timebox 61–90 Min",
+        "xl": "Timebox über 90 Min"
+      },
+      "time": {
+        "am": "Vormittags erledigt",
+        "pm": "Nachmittags erledigt"
+      },
+      "longer": "etwa {pct} % länger als geplant",
+      "shorter": "etwa {pct} % kürzer als geplant",
+      "sample": "{n} Aufgabe | {n} Aufgaben",
+      "nextLonger": "Nächste Timebox: etwa {pct} % größer ansetzen",
+      "nextShorter": "Nächste Timebox: etwa {pct} % kürzer reicht",
+      "showAll": "Alle {n} Muster anzeigen",
+      "showFewer": "Weniger anzeigen"
+    },
+    "estimate": {
+      "longer": "Länger als geplant",
+      "onTarget": "Wie geplant",
+      "shorter": "Kürzer als geplant",
+      "label": "Erledigte Aufgaben mit Timebox, letzte 8 Wochen: {longer} % länger als geplant, {onTarget} % wie geplant, {shorter} % kürzer.",
+      "center": "mit Timebox"
+    },
+    "outliers": {
+      "heading": "Größte Überschreitungen",
+      "empty": "Keine erledigte Aufgabe der letzten 4 Wochen ist über ihre Timebox gelaufen.",
+      "detail": "{planned} geplant, {spent} gebraucht"
+    },
+    "split": {
+      "lineTopic": "Meist in „{label}“: {share} % der Zeit.",
+      "lineTime": "{time} in den letzten 4 Wochen.",
+      "empty": "In den letzten 4 Wochen wurde nichts erledigt.",
+      "by": "Verteilung nach",
+      "byTopic": "Thema",
+      "byActivity": "Aktivität",
+      "other": "Sonstiges",
+      "caption": "Letzte 4 Wochen, nur erledigte Aufgaben: {time} insgesamt.",
+      "unplanned": "{share} % der Aufgaben waren ungeplant.",
+      "unfinishedBoth": "Nicht eingerechnet: {open} auf offenen Aufgaben, {deleted} auf gelöschten (letzte 4 Wochen).",
+      "unfinishedOpen": "Nicht eingerechnet: {open} auf offenen Aufgaben.",
+      "unfinishedDiscarded": "Nicht eingerechnet: {deleted} auf gelöschten Aufgaben (letzte 4 Wochen).",
+      "labelTopic": "Zeit nach Thema, letzte 4 Wochen: {values}",
+      "labelActivity": "Zeit nach Aktivität, letzte 4 Wochen: {values}",
+      "row": "{time} · {share} %"
+    },
+    "allTasks": "Alle erledigten Aufgaben ({n})",
+    "rhythm": {
+      "line": "Meist zwischen {from} und {to} Uhr, dort liegen {share} % deiner Zeit.",
+      "lineOutside": "{share} % deiner Zeit liegen vor {first} oder nach {last} Uhr.",
+      "lineStartWorkdays": "Du fängst an Werktagen meist um {time} an.",
+      "lineStart": "Du fängst meist um {time} an.",
+      "thin": "Noch zu wenig Daten. Kan-Do merkt sich ab jetzt, wann der Timer läuft. Nach fünf Tagen mit Zeiterfassung siehst du hier deinen Rhythmus.",
+      "days": "{n} von {min} Tagen",
+      "heading": "Durchschnittlich pro Stunde, letzte 8 Wochen",
+      "less": "weniger",
+      "more": "mehr",
+      "rowStart": "Beginn, meist um",
+      "workdaysOnly": "Mo bis Fr",
+      "rowEnd": "Ende, meist um",
+      "rowLongest": "Am längsten arbeitest du am",
+      "barsLabel": "Arbeitszeit nach Stunde. Meiste Zeit zwischen {from} und {to} Uhr, {share} % der Zeit.",
+      "gridLabel": "Durchschnittliche Arbeitszeit nach Wochentag und Stunde, letzte 8 Wochen.",
+      "gridLabelPeak": "Meiste Zeit zwischen {from} und {to} Uhr ({share} % der Zeit).",
+      "gridLabelLongest": "Am längsten am {weekday}."
+    }
+  },
+  "shortcut": {
+    "cmd": "Cmd",
+    "ctrl": "Strg",
+    "withEnter": "{key} + Enter"
+  },
+  "duration": {
+    "unitHour": "h",
+    "unitMinute": "min",
+    "unitSecond": "s",
+    "remaining": "noch {time}",
+    "remainingCapital": "Noch {time}",
+    "remainingOfTotal": "noch {remaining} / {total}",
+    "spentOfTotal": "{spent} von {total}"
+  },
+  "relative": {
+    "notUpdatedYet": "Noch nicht aktualisiert",
+    "justUpdated": "Gerade aktualisiert",
+    "updatedMinutesAgo": "Vor {n} Minute aktualisiert | Vor {n} Minuten aktualisiert"
+  },
+  "taskStatus": {
+    "open": "Offen",
+    "progress": "Jetzt",
+    "waiting": "Wartet",
+    "done": "Erledigt",
+    "backlog": "Backlog"
+  },
+  "priority": {
+    "none": "Keine",
+    "low": "Niedrig",
+    "regular": "Normal",
+    "high": "Hoch",
+    "level": "Stufe {n}"
+  },
+  "errors": {
+    "title": {
+      "offline": "Offline",
+      "error": "Fehler",
+      "success": "Fertig",
+      "warning": "Warnung"
+    },
+    "configuration": "Die Einstellungen sind ungültig. Überprüfe sie.",
+    "integrationSetupMissing": "Noch keine Integration eingerichtet. Richte eine Integration in den Einstellungen ein.",
+    "integrationNotSupported": "Integration nicht unterstützt.",
+    "notionNotConfigured": "Notion ist nicht eingerichtet. Richte Notion in den Einstellungen ein.",
+    "notionTokenInvalid": "Notion-Token ist ungültig. Überprüfe dein Token.",
+    "notionDatabaseNotFound": "Notion-Datenbank nicht gefunden. Wähle eine gültige Datenbank.",
+    "notionSyncFailed": "Die Synchronisation mit Notion konnte nicht abgeschlossen werden.",
+    "todoistTokenMissing": "Todoist-Token fehlt. Melde dich bei Todoist an.",
+    "todoistSyncFailed": "Die Synchronisation mit Todoist konnte nicht abgeschlossen werden.",
+    "taskNotFound": "Aufgabe nicht gefunden.",
+    "taskUpdateFailed": "Aufgabe konnte nicht aktualisiert werden.",
+    "networkError": "Netzwerkfehler. Überprüfe deine Internetverbindung.",
+    "networkOffline": "Offline-Modus. Die App versucht weiterhin zu synchronisieren.",
+    "apiError": "API-Fehler. Versuche es später erneut.",
+    "default": "Ein unerwarteter Fehler ist aufgetreten. Versuche es erneut.",
+    "notionNotConfiguredShort": "Notion ist nicht eingerichtet",
+    "invalidTokenFormat": "Ungültiges Token-Format",
+    "invalidToken": "Ungültiges Token",
+    "notionApiError": "Notion-API-Fehler: {message}",
+    "loadDatabasesFailed": "Die Datenbanken konnten nicht geladen werden.",
+    "selectDatabase": "Wähle eine Datenbank aus",
+    "selectDataSource": "Wähle eine Datenquelle aus",
+    "validation": {
+      "titleRequired": "Aufgabentitel ist erforderlich",
+      "timeboxNegative": "Timebox kann nicht negativ sein",
+      "timeSpentNegative": "Aufgewendete Zeit kann nicht negativ sein"
+    },
+    "taskCreateFailed": "Die Aufgabe konnte nicht erstellt werden. Versuche es erneut.",
+    "taskDeleteFailed": "Die Aufgabe konnte nicht gelöscht werden und ist wieder auf dem Board.",
+    "clipboardFailed": "Die Zusammenfassung konnte nicht kopiert werden.",
+    "secretsFailed": "Der macOS-Schlüsselbund hat die Änderung nicht angenommen.",
+    "secretsResetFailed": "Der macOS-Schlüsselbund ist nicht erreichbar, die Einrichtung wurde nicht zurückgesetzt. Entsperre den Schlüsselbund und versuche es erneut.",
+    "externalLinkFailed": "Der Link konnte nicht geöffnet werden.",
+    "feedbackFailed": "Das Feedback konnte nicht gesendet werden. Dein Entwurf bleibt erhalten.",
+    "taskRestoreFailed": "Die Aufgabe konnte nicht wiederhergestellt werden und bleibt im Papierkorb."
+  },
+  "notion": {
+    "modal": {
+      "next": "Weiter",
+      "finish": "Fertig stellen",
+      "titleSettings": "Notion-Einstellungen",
+      "titleConnect": "Mit Notion verbinden",
+      "titleConfigure": "Notion-Integration einrichten",
+      "stepsLabel": "Fortschritt der Einrichtung",
+      "stepDone": "(abgeschlossen)",
+      "steps": {
+        "token": "Token",
+        "database": "Datenbank",
+        "mapping": "Eigenschaften",
+        "customProperties": "Weitere Eigenschaften",
+        "priority": "Prioritäten",
+        "status": "Status"
+      }
+    },
+    "token": {
+      "heading": "Notion-Einrichtung",
+      "hintTitle": "Hinweis",
+      "fieldLabel": "Notion-Integrationstoken",
+      "placeholder": "Integrationstoken eingeben",
+      "help": "Öffne {link}, um eine neue Integration zu erstellen und das Token zu erhalten.",
+      "helpLink": "Notion › Einstellungen › Integrationen › Eigene Integrationen erstellen",
+      "validated": "Token erfolgreich geprüft"
+    },
+    "database": {
+      "selectLabel": "Notion-Datenbank auswählen",
+      "selectPlaceholder": "Datenbank auswählen",
+      "loading": "Datenbanken werden geladen…",
+      "errorHint": "Überprüfe dein Token und versuche es erneut.",
+      "empty": "Keine Datenbanken gefunden.",
+      "emptyHint": "Stelle sicher, dass dein Token Zugriff auf Notion-Datenbanken hat.",
+      "dataSourceLabel": "Datenquelle auswählen",
+      "dataSourceDescription": "Notion unterstützt mehrere Datenquellen pro Datenbank.",
+      "dataSourcePlaceholder": "Datenquelle auswählen",
+      "noDataSourcesSelectable": "Diese Datenbank hat aktuell keine Datenquellen. Füge in Notion eine Datenquelle hinzu oder wähle eine andere Datenbank aus.",
+      "noDataSources": "Diese Datenbank hat aktuell keine Datenquellen. Füge mindestens eine Datenquelle in Notion hinzu.",
+      "allDataSourcesUsed": "Alle Datenquellen dieser Datenbank werden automatisch berücksichtigt.",
+      "unnamedDataSource": "Unbenannte Datenquelle"
+    },
+    "customProps": {
+      "intro": "Wähle zusätzliche Felder aus deiner Notion-Datenbank aus, die Kan-Do (nur lesend) importieren soll.",
+      "keyLabel": "Key: {key}",
+      "labelPlaceholder": "Label (optional)",
+      "empty": "Keine zusätzlichen Felder gefunden. Du hast bereits die wichtigsten Eigenschaften zugeordnet."
+    },
+    "wizard": {
+      "noneOption": "Keinen",
+      "warningLabel": "Warnung:",
+      "brokenNotice": "Die Notion-Einrichtung ist nicht mehr gültig. Richte sie neu ein.",
+      "stepTitle": {
+        "token": "Notion-Token",
+        "database": "Datenbank auswählen",
+        "mapping": "Eigenschaften zuordnen",
+        "customProperties": "Weitere Eigenschaften",
+        "priority": "Prioritäten zuordnen",
+        "status": "Status-Werte zuordnen"
+      }
+    },
+    "statusMap": {
+      "intro": "Ordne die Kan-Do-Statuswerte den entsprechenden Optionen deines Notion-Status-Feldes zu.",
+      "today": {
+        "label": "Heute",
+        "help": "Aufgaben, die heute erledigt werden sollen.",
+        "placeholder": "Status für 'Heute' auswählen"
+      },
+      "doing": {
+        "label": "In Bearbeitung",
+        "help": "Aufgaben, die gerade bearbeitet werden.",
+        "placeholder": "Status für 'In Bearbeitung' auswählen"
+      },
+      "done": {
+        "label": "Erledigt",
+        "help": "Erledigte Aufgaben.",
+        "placeholder": "Status für 'Erledigt' auswählen"
+      },
+      "waiting": {
+        "label": "Wartend",
+        "help": "Wartende oder blockierte Aufgaben.",
+        "placeholder": "Status für 'Wartend' auswählen"
+      },
+      "archive": {
+        "label": "Archiviert",
+        "help": "Optionaler Status, den Kan-Do in Notion setzt, wenn du erledigte Aufgaben mit „Gesehen“ ablegst.",
+        "placeholder": "Status für archivierte Aufgaben auswählen"
+      },
+      "duplicates": "Die folgenden Status-Werte sind mehrfach zugeordnet: {values}"
+    },
+    "priorityMap": {
+      "intro": "Ordne die drei Kan-Do-Prioritäten den passenden Optionen deines Notion-Prioritäts-Feldes zu. Mehrere Optionen können dieselbe Priorität teilen; Kan-Do schreibt die erste zurück.",
+      "high": {
+        "label": "Hoch",
+        "help": "Wichtige Aufgaben. Optionen wie 'Dringend' gehören auch hierher.",
+        "placeholder": "Optionen für 'Hoch' auswählen"
+      },
+      "regular": {
+        "label": "Normal",
+        "help": "Standard-Aufgaben.",
+        "placeholder": "Optionen für 'Normal' auswählen"
+      },
+      "low": {
+        "label": "Niedrig",
+        "help": "Aufgaben mit geringer Dringlichkeit.",
+        "placeholder": "Optionen für 'Niedrig' auswählen"
+      },
+      "duplicates": "Die folgenden Prioritäts-Werte sind mehrfach zugeordnet: {values}"
+    },
+    "mapping": {
+      "title": {
+        "label": "Titel",
+        "help": "Feld, das den Aufgaben-Titel enthält.",
+        "placeholder": "Titel-Feld auswählen"
+      },
+      "status": {
+        "label": "Status",
+        "help": "Feld für den Aufgaben-Status (z. B. Today, Doing, Waiting, Done).",
+        "placeholder": "Status-Feld auswählen"
+      },
+      "dueDate": {
+        "label": "Fälligkeitsdatum",
+        "help": "Feld für Fälligkeitsdaten.",
+        "placeholder": "Fälligkeits-Feld auswählen"
+      },
+      "priority": {
+        "label": "Priorität",
+        "help": "Feld für die Aufgaben-Priorität.",
+        "placeholder": "Prioritäts-Feld auswählen"
+      },
+      "topic": {
+        "label": "Thema",
+        "help": "Feld für Themen oder Kategorien (Select, Multi-Select oder Text).",
+        "placeholder": "Themen-Feld auswählen"
+      },
+      "activity": {
+        "label": "Aktivität",
+        "help": "Feld für Aufgabenarten oder Aktivitätskategorien (Select, Multi-Select oder Text).",
+        "placeholder": "Aktivitäts-Feld auswählen"
+      },
+      "timeBox": {
+        "label": "Timebox",
+        "help": "Feld für Dauer/Timebox (Zahl oder Auswahl mit Zeitwerten).",
+        "placeholder": "Timebox-Feld auswählen"
+      },
+      "timeBoxUnit": {
+        "label": "Timebox-Einheit",
+        "help": "Format des Timebox-Felds."
+      },
+      "timeSpent": {
+        "label": "Aufgewendete Zeit",
+        "help": "Feld für die aufgewendete Zeit (Zahl oder Auswahl mit Zeitwerten).",
+        "placeholder": "Feld für aufgewendete Zeit auswählen"
+      },
+      "timeSpentUnit": {
+        "label": "Einheit der aufgewendeten Zeit",
+        "help": "Einheit des Zahlenfelds."
+      },
+      "completedDate": {
+        "label": "Erledigungsdatum",
+        "help": "Datumsfeld für das Erledigungsdatum.",
+        "placeholder": "Erledigungsdatum-Feld auswählen"
+      },
+      "noField": "Kein Feld",
+      "unplanned": {
+        "label": "Ungeplant",
+        "help": "Kennzeichnung für ungeplante Aufgaben (reaktive Arbeit). Direktes Feld: Checkbox. Wert-basiert: Bestimmter Wert (z.B. Tag).",
+        "modeNone": "Keine Zuordnung",
+        "modeBoolean": "Direktes Feld (Checkbox)",
+        "modeValue": "Wert-basiert (Tag/Select)",
+        "selectField": "Feld auswählen",
+        "checkboxPlaceholder": "Checkbox-Feld auswählen",
+        "valuePlaceholder": "Wert auswählen oder eingeben",
+        "valueInputPlaceholder": "Wert eingeben (z.B. 'ungeplant')"
+      },
+      "unit": {
+        "seconds": "Sekunden",
+        "minutes": "Minuten",
+        "hours": "Stunden",
+        "formatted": "Formatiert (z.B. „15 min“, „2h“)"
+      },
+      "unitPlaceholder": "Einheit wählen"
+    },
+    "dataSource": {
+      "databaseNotFound": "Die ausgewählte Datenbank wurde nicht gefunden. Wähle sie erneut aus.",
+      "noDataSources": "Diese Datenbank hat keine Datenquellen. Füge eine in Notion hinzu.",
+      "noneFound": "Es wurde keine Datenquelle gefunden. Wähle eine andere Datenbank."
+    },
+    "integration": {
+      "reconnected": "Verbindung zu Notion wiederhergestellt. Synchronisierung läuft weiter."
+    },
+    "settings": {
+      "pageTitle": "Notion-Einstellungen",
+      "pageDescription": "Einstellungen für deine Notion-Integration",
+      "notConfigured": {
+        "message": "Noch keine Notion-Integration eingerichtet.",
+        "action": "Integration einrichten"
+      },
+      "tabs": {
+        "connection": "Datenbank",
+        "properties": "Eigenschaften",
+        "custom": "Weitere Felder",
+        "priority": "Prioritäten",
+        "status": "Status"
+      },
+      "connection": {
+        "description": "Token und Datenbank-Auswahl",
+        "tokenLabel": "Integrationstoken",
+        "manageToken": "Token in Notion verwalten →",
+        "databaseLabel": "Datenbank",
+        "noDatabase": "Keine Datenbank ausgewählt",
+        "changeDatabase": "Datenbank ändern",
+        "loadingDatabases": "Datenbanken werden geladen…",
+        "loadingDatabase": "Datenbank wird geladen…",
+        "selectDatabase": "Datenbank auswählen",
+        "dataSourceLabel": "Datenquelle",
+        "selectDataSource": "Datenquelle auswählen",
+        "saved": "Verbindung gespeichert",
+        "failed": "Token ungültig oder Verbindung fehlgeschlagen"
+      },
+      "properties": {
+        "description": "Zuordnung der Notion-Felder zu Kan-Do-Aufgabeneigenschaften"
+      },
+      "custom": {
+        "description": "Zusätzliche Notion-Eigenschaften, die in Kan-Do angezeigt werden sollen"
+      },
+      "priority": {
+        "description": "Zuordnung der Prioritätswerte zwischen Notion und Kan-Do"
+      },
+      "status": {
+        "title": "Status-Zuordnung",
+        "description": "Zuordnung der Status-Werte zwischen Notion und Kan-Do"
+      }
+    }
+  },
+  "settings": {
+    "page": {
+      "title": "Einstellungen"
+    },
+    "tabs": {
+      "label": "Gruppen",
+      "board": "Board",
+      "sources": "Aufgabenquellen",
+      "manage": "Verwaltung",
+      "lead": {
+        "board": "Wie sich dein Board verhält.",
+        "sources": "Woher deine Aufgaben kommen und wohin neue gehen.",
+        "manage": "Themen, Daten, Updates und Zugriffe pflegst du hier.",
+        "manageWeb": "Themen und Daten pflegst du hier."
+      }
+    },
+    "focus": {
+      "heading": "Fokus",
+      "label": "Jetzt-Karte im Fokus",
+      "help": "Solange eine Aufgabe in „Jetzt“ liegt, tritt das übrige Board zurück. Eine Mausbewegung oder ein Tippen blendet es wieder ein."
+    },
+    "github": {
+      "pageTitle": "GitHub-Zugriff",
+      "pageDescription": "Tokens liegen im macOS-Schlüsselbund.",
+      "updates": {
+        "title": "Updates",
+        "purpose": "Optional: mehr Update-Prüfungen, als GitHub ohne Token erlaubt.",
+        "access": "Nur Lesen (Inhalte), nur dieses Repository.",
+        "permission": "Inhalte lesen"
+      },
+      "feedback": {
+        "title": "Feedback",
+        "purpose": "Damit du Feedback als GitHub-Issue senden kannst.",
+        "access": "Issues + Inhalte: schreiben, nur dieses Repository.",
+        "permission": "Issues"
+      },
+      "fieldLabel": "{name}: GitHub-Token",
+      "placeholder": "Token einfügen",
+      "save": "Speichern",
+      "checking": "Wird geprüft…",
+      "createToken": "Token auf GitHub erstellen",
+      "test": "Testen",
+      "remove": "Löschen",
+      "valid": "Gültig",
+      "stored": "Gespeichert",
+      "savedAria": "Token endet auf {last4}",
+      "rejectedLine": "GitHub hat dieses Token abgelehnt. Füge ein neues ein.",
+      "problem": {
+        "rejected": "GitHub hat dieses Token abgelehnt.",
+        "offlineSave": "Keine Verbindung, nichts gespeichert.",
+        "offlineTest": "Keine Verbindung. Das Token wurde nicht geprüft.",
+        "forbiddenSave": "Dem Token fehlt die Berechtigung „{permission}“ für dieses Repository, nichts gespeichert.",
+        "forbiddenTest": "Dem Token fehlt die Berechtigung „{permission}“ für dieses Repository.",
+        "notFoundSave": "Dieses Token sieht das Repository nicht (falsches Repository oder kein Zugriff), nichts gespeichert.",
+        "notFoundTest": "Dieses Token sieht das Repository nicht (falsches Repository oder kein Zugriff).",
+        "unverifiedSave": "GitHub konnte das Token nicht prüfen, nichts gespeichert.",
+        "unverifiedTest": "GitHub konnte das Token gerade nicht prüfen.",
+        "failed": "Das Token konnte nicht im Schlüsselbund gespeichert werden."
+      },
+      "removedToast": "Token „{name}“ gelöscht",
+      "scopeHelp": "Schreibrechte für Issues lassen sich nur durch Schreiben prüfen; lehnt GitHub später eine Anfrage ab, steht das hier. Ob Screenshots hochgeladen werden dürfen (Inhalte: schreiben), prüft „Screenshot-Upload prüfen“ ohne etwas im Repository anzulegen.",
+      "keychainUnavailable": "Der macOS-Schlüsselbund ist gerade nicht erreichbar. Entsperre ihn und öffne diese Seite erneut.",
+      "probe": {
+        "action": "Screenshot-Upload prüfen",
+        "checking": "Wird geprüft…",
+        "allowed": "Upload erlaubt",
+        "denied": "Dem Token fehlt Inhalte: schreiben. Screenshots gehen dann in die Zwischenablage.",
+        "changeToken": "Token auf GitHub ändern",
+        "offline": "Keine Verbindung. Der Upload wurde nicht geprüft.",
+        "failed": "Der Upload konnte gerade nicht geprüft werden."
+      }
+    },
+    "data": {
+      "pageTitle": "Daten & Speicher",
+      "pageDescription": "Wo deine Aufgaben und Einstellungen auf diesem Gerät liegen.",
+      "link": "Daten & Speicher",
+      "folderHeading": "Datenordner",
+      "folderPath": "Datenordner: {path}",
+      "changeFolder": "Ordner ändern…",
+      "chooseFolder": "Ordner wählen…",
+      "reveal": "Im Finder zeigen",
+      "startFresh": "Hier neu beginnen",
+      "lastSaved": "Zuletzt gespeichert {time} · Schema {version}",
+      "notSavedYet": "Noch nicht gespeichert · Schema {version}",
+      "problemHeading": "Speichern ist gerade nicht möglich",
+      "state": {
+        "newerSchema": "Dieser Ordner enthält Daten einer neueren Version. Aktualisiere die App; bis dahin wird nichts geschrieben.",
+        "corrupt": "Die Datendatei in diesem Ordner ist nicht lesbar. Sie bleibt unverändert; solange wird nichts geschrieben. Unten kannst du eine Sicherung wiederherstellen.",
+        "missing": "In diesem Ordner fehlt die Datendatei. Bis du hier neu beginnst oder einen anderen Ordner wählst, wird nichts geschrieben.",
+        "writeFailed": "Speichern in diesem Ordner ist fehlgeschlagen. Deine Änderungen bleiben in der App. Es wird weiter versucht.",
+        "folderUnavailable": "Der Datenordner ist nicht erreichbar. Das angezeigte Board ist nicht deine gespeicherte Version. Änderungen bleiben im Speicher, bis der Ordner wieder da ist.",
+        "conflict": "Die Daten wurden anderswo geändert. Es wird nichts gespeichert, bis du eine Version wählst."
+      },
+      "notice": {
+        "newerSchema": "Daten aus einer neueren Version. Es wird nichts gespeichert.",
+        "corrupt": "Die Datendatei ist nicht lesbar. Es wird nichts gespeichert.",
+        "missing": "Die Datendatei fehlt. Es wird nichts gespeichert.",
+        "writeFailed": "Speichern fehlgeschlagen. Es wird weiter versucht.",
+        "details": "Details",
+        "hide": "Ausblenden",
+        "conflict": "Die Daten wurden anderswo geändert. Es wird nichts gespeichert.",
+        "folderUnavailable": "Datenordner nicht erreichbar. Das angezeigte Board ist nicht deine gespeicherte Version.",
+        "conflictCopies": "Es gibt Konflikt-Kopien der Daten. Nichts ist verloren.",
+        "resolve": "Lösen",
+        "retry": "Erneut versuchen",
+        "cloudPending": "Noch nicht in iCloud hochgeladen. Lokal ist alles gespeichert."
+      },
+      "cloud": {
+        "uploaded": "In iCloud gesichert",
+        "uploading": "Wird hochgeladen…",
+        "pending": "Noch nicht in iCloud hochgeladen",
+        "error": "Noch nicht in iCloud hochgeladen"
+      },
+      "modal": {
+        "title": "Datenordner ändern",
+        "target": "Ziel",
+        "inspecting": "Ordner wird geprüft…",
+        "notWritable": "In diesen Ordner kann nicht geschrieben werden. Wähle einen anderen.",
+        "sameFolder": "Das ist bereits dein Datenordner.",
+        "copyMine": "Meine Daten hierher kopieren",
+        "copyMineBody": "Dieser Ordner ist leer. Deine bisherige Datei bleibt liegen.",
+        "hasData": "In diesem Ordner liegen bereits Daten, zuletzt gespeichert {time}.",
+        "hasDataNoTime": "In diesem Ordner liegen bereits Daten.",
+        "choiceLabel": "Was soll mit den vorhandenen Daten passieren?",
+        "optionUse": "Vorhandene Daten verwenden",
+        "optionUseBody": "Die App lädt neu. Deine bisherigen Daten bleiben im alten Ordner liegen.",
+        "optionReplace": "Meine Daten hierher kopieren und die vorhandenen ersetzen",
+        "optionReplaceBody": "Die vorhandenen Daten werden überschrieben. Eine Kopie bleibt im Unterordner „backups“.",
+        "newerSchema": "Diese Daten stammen aus einer neueren Version. Du kannst sie ansehen, aber nichts ändern, bis die App aktualisiert ist.",
+        "corrupt": "Die Datei in diesem Ordner ist nicht lesbar. Wähle einen anderen Ordner.",
+        "confirmReplace": "Die Daten in diesem Ordner werden überschrieben. Eine Kopie bleibt in dessen Ordner „backups“.",
+        "next": "Weiter",
+        "back": "Zurück",
+        "apply": "Ordner wechseln",
+        "replace": "Ersetzen",
+        "working": "Wechsle…",
+        "failed": "Der Ordner konnte nicht gewechselt werden.",
+        "failedBlocked": "Dein Stand kann in diesem Zustand nicht kopiert werden.",
+        "failedHasData": "In diesem Ordner liegen inzwischen Daten. Wähle den Ordner noch einmal."
+      },
+      "backups": {
+        "heading": "Sicherungen",
+        "last": "Letzte Sicherung: {time}",
+        "none": "Noch keine Sicherung",
+        "now": "Jetzt sichern",
+        "working": "Wird gesichert…",
+        "empty": "Noch keine Sicherungen. Die erste entsteht vor der nächsten Änderung.",
+        "loading": "Sicherungen werden gelesen…",
+        "loadFailed": "Die Sicherungen konnten nicht gelesen werden.",
+        "reload": "Erneut laden",
+        "showAll": "Alle {n} anzeigen",
+        "showLess": "Weniger anzeigen",
+        "tasks": "{n} Aufgabe | {n} Aufgaben",
+        "unreadable": "nicht lesbar",
+        "restore": "Wiederherstellen",
+        "update": "App aktualisieren",
+        "failed": "Sicherung nicht möglich. Details: {error}",
+        "manualFailed": "Die Sicherung konnte nicht erstellt werden. Details: {error}",
+        "listLabel": "Sicherungen, neueste zuerst",
+        "thisDevice": "dieses Gerät",
+        "otherDevice": "anderes Gerät",
+        "kind": {
+          "daily": "Täglich",
+          "manual": "Manuell",
+          "pre-migration": "Vor Migration",
+          "pre-restore": "Vor Wiederherstellung",
+          "pre-replace": "Vor Ersetzen",
+          "pre-update": "Vor Update",
+          "conflict": "Andere Version (Konflikt)",
+          "unsaved": "Nicht gespeicherte Änderungen"
+        },
+        "lead": "Vor der ersten Änderung eines Tages, vor Migrationen, Updates und Wiederherstellungen entsteht automatisch eine Kopie. Die letzten 14 täglichen bleiben erhalten.",
+        "restoreAt": "Stand vom {time} wiederherstellen"
+      },
+      "restoreBlocked": {
+        "conflict": "Wiederherstellen und Importieren sind erst möglich, wenn du bei dem Konflikt eine Version gewählt hast.",
+        "newer-schema": "Die Daten stammen aus einer neueren App-Version. Aktualisiere die App, bevor du etwas wiederherstellst.",
+        "unavailable": "Der Datenordner ist nicht erreichbar. Wiederherstellen ist erst möglich, wenn er wieder da ist."
+      },
+      "restore": {
+        "title": "Stand vom {time} wiederherstellen",
+        "source": "Sicherung",
+        "current": "Aktueller Stand",
+        "note": "Der aktuelle Stand wird vorher gesichert. Du findest ihn danach in der Liste als „Vor Wiederherstellung“.",
+        "confirm": "Wiederherstellen",
+        "failed": "Wiederherstellen ist nicht möglich. Details: {error}",
+        "failedBlocked": "Wiederherstellen ist in diesem Zustand nicht möglich.",
+        "failedBackup": "Der aktuelle Stand konnte nicht gesichert werden. Es wurde nichts verändert.",
+        "failedNewer": "Diese Sicherung stammt von einer neueren App-Version.",
+        "failedUnreadable": "Diese Datei ist nicht lesbar."
+      },
+      "copies": {
+        "heading": "Konflikt-Kopien",
+        "body": "Ein Sync-Dienst hat diese Kopien der Datendatei angelegt. Nichts davon wird gelöscht.",
+        "restore": "Wiederherstellen",
+        "file": "Ablegen",
+        "filed": "Abgelegt in Sicherungen",
+        "failed": "Das Ablegen konnte nicht abgeschlossen werden. Details: {error}"
+      },
+      "conflict": {
+        "title": "Daten wurden anderswo geändert",
+        "theirs": "Andere Version",
+        "mine": "Diese Version",
+        "mineChanged": "ungespeicherte Änderungen",
+        "mineSaved": "gespeicherter Stand",
+        "unreadable": "nicht lesbar",
+        "unknownTime": "Zeit unbekannt",
+        "bothKept": "Beide bleiben in den Sicherungen.",
+        "noChanges": "Du hast keine ungespeicherten Änderungen. Neu laden übernimmt die andere Version.",
+        "later": "Später",
+        "keepMine": "Diese Version behalten",
+        "loadTheirs": "Andere Version laden",
+        "reload": "Neu laden",
+        "needsUpdate": "Die andere Version stammt von einer neueren App-Version. Aktualisiere die App, bevor du diese Version behältst.",
+        "theirsUnreadable": "Die andere Datei ist nicht lesbar, vielleicht wird sie noch synchronisiert. „Diese Version behalten“ sichert sie vorher.",
+        "changed": "Die andere Datei hat sich inzwischen geändert. Oben steht jetzt ihr aktueller Stand; es wurde nichts geändert.",
+        "failed": "Das hat nicht geklappt. Es wurde nichts verändert. Details: {error}",
+        "origin": {
+          "thisDevice": "dieses Gerät",
+          "otherDevice": "anderes Gerät"
+        }
+      },
+      "exportImport": {
+        "heading": "Daten exportieren / importieren",
+        "body": "Eine einfache JSON-Datei, unabhängig vom Ordner. Tokens sind nie enthalten.",
+        "export": "Exportieren…",
+        "import": "Importieren…",
+        "exported": "Exportiert.",
+        "exportFailed": "Der Export konnte nicht abgeschlossen werden. Details: {error}",
+        "importTitle": "Daten importieren",
+        "importFile": "Datei",
+        "importConfirm": "Importieren",
+        "importFailed": "Der Import konnte nicht abgeschlossen werden. Details: {error}",
+        "invalid": "Das ist keine gültige JSON-Datei.",
+        "notKando": "Das ist keine Kan-Do-Exportdatei.",
+        "newerSchema": "Diese Datei stammt von einer neueren App-Version. Aktualisiere die App.",
+        "unreadable": "Die Datei konnte nicht gelesen werden.",
+        "webConfirm": "Daten ersetzen",
+        "webExport": "Exportieren",
+        "webBody": "Lade eine Kopie deines Boards herunter oder spiele sie wieder ein. Die Tokens dieses Browsers bleiben erhalten und werden nie exportiert.",
+        "webNote": "Ersetzt deine aktuellen Daten in diesem Browser. Vorher kannst du eine Sicherung herunterladen. Danach lädt dieser Tab mit den importierten Daten neu.",
+        "safetyDownload": "Aktuelle Daten vorher sichern",
+        "failedQuota": "Der Import konnte nicht abgeschlossen werden: Im Browser ist kein Platz mehr. Es wurde nichts verändert.",
+        "failedSafety": "Die Sicherung konnte nicht heruntergeladen werden. Es wurde nichts verändert. Entferne das Häkchen, um ohne Sicherung zu importieren.",
+        "failedWrite": "Der Import konnte nicht abgeschlossen werden: Die Daten konnten nicht geschrieben werden. Es wurde nichts verändert."
+      }
+    },
+    "updates": {
+      "pageTitle": "Updates",
+      "pageDescription": "Welche Version läuft, ob Updates funktionieren und wo das Protokoll liegt.",
+      "link": "Version & Updates",
+      "whatsNew": "Was ist neu",
+      "versionHeading": "Version",
+      "versionLine": "Kan-Do {version}",
+      "check": "Nach Updates suchen",
+      "retry": "Erneut versuchen",
+      "details": "Update installieren…",
+      "lastChecked": "Zuletzt geprüft: {time}",
+      "neverChecked": "Noch nicht geprüft.",
+      "status": {
+        "upToDate": "Du hast die neueste Version.",
+        "available": "Version {version} ist verfügbar.",
+        "rejected": "GitHub hat das Token für Updates abgelehnt. Füge ein neues ein.",
+        "offline": "Keine Verbindung. Versuche es später erneut.",
+        "noReleaseOrAccess": "Noch keine veröffentlichte Version.",
+        "rateLimited": "GitHub nimmt gerade keine weiteren Anfragen an. Versuche es später erneut.",
+        "notConfigured": "Updates sind in diesem Build nicht eingerichtet: Es fehlt der öffentliche Schlüssel.",
+        "error": "Die Update-Prüfung konnte nicht abgeschlossen werden.",
+        "errorReason": {
+          "manifestMissing": "Die neueste Version enthält keine Update-Datei.",
+          "manifestInvalid": "Die Update-Datei der neuesten Version konnte nicht gelesen werden.",
+          "noPlatform": "Die neueste Version enthält kein Update für diesen Mac.",
+          "keychain": "Der macOS-Schlüsselbund ist gerade nicht erreichbar.",
+          "api": "GitHub hat unerwartet geantwortet. Versuche es später erneut.",
+          "unknown": "Die Update-Prüfung konnte nicht abgeschlossen werden."
+        }
+      },
+      "accessHeading": "Token",
+      "accessBody": "Updates brauchen kein Token. Ein GitHub-Token (nur Lesen) ist optional und hebt nur das Anfragelimit von GitHub an.",
+      "openGithub": "GitHub-Zugriff öffnen",
+      "logHeading": "Protokoll",
+      "revealLog": "Im Finder zeigen",
+      "checking": "Wird geprüft…"
+    },
+    "subpages": {
+      "data": {
+        "label": "Daten & Speicher",
+        "descriptionWeb": "Export und Import",
+        "descriptionDesktop": "Speicherordner und Sicherungen"
+      },
+      "updates": {
+        "label": "Updates",
+        "description": "Version prüfen, Protokoll öffnen"
+      },
+      "github": {
+        "label": "GitHub-Zugriff",
+        "description": "Tokens für Updates und Feedback"
+      },
+      "topics": {
+        "label": "Themen und Aktivitäten",
+        "description": "Umbenennen, einfärben, Symbol wählen"
+      }
+    },
+    "topics": {
+      "pageTitle": "Themen und Aktivitäten",
+      "pageDescription": "Umbenennen, einfärben, Symbol wählen",
+      "tabTopics": "Themen",
+      "tabActivities": "Aktivitäten",
+      "tabsLabel": "Art",
+      "introTopics": "Name, Farbe und Symbol eines Themas ändern sich für alle Aufgaben. Farbe und Symbol gelten nur in Kan-Do. Namen aus Notion änderst du in Notion.",
+      "introActivities": "Der Name einer Aktivität ändert sich für alle Aufgaben. Namen aus Notion änderst du in Notion.",
+      "taskCount": "{n} Aufgabe | {n} Aufgaben",
+      "fromNotion": "aus Notion",
+      "unused": "ungenutzt",
+      "emptyTopics": "Noch keine Themen. Sie entstehen, wenn du sie an einer Aufgabe wählst.",
+      "emptyActivities": "Noch keine Aktivitäten. Sie entstehen, wenn du sie an einer Aufgabe wählst.",
+      "editRow": "{name} bearbeiten"
+    }
+  },
+  "sources": {
+    "disconnect": {
+      "title": "{source} trennen?",
+      "leaving": "{n} Aufgabe verlässt das Board. Sie bleibt in {source}. | {n} Aufgaben verlassen das Board. Sie bleiben in {source}.",
+      "leavingNone": "Es sind keine {source}-Aufgaben auf dem Board.",
+      "defaultFallback": "Neue Aufgaben werden danach lokal gespeichert.",
+      "timerStops": "Die laufende Zeiterfassung von „{title}“ wird angehalten.",
+      "unsyncedTitle": "Nicht synchronisierte Änderungen",
+      "unsyncedReachable": "{n} Änderung ist noch nicht in {source} gespeichert. Synchronisiere zuerst, sonst geht sie verloren. | {n} Änderungen sind noch nicht in {source} gespeichert. Synchronisiere zuerst, sonst gehen sie verloren.",
+      "unsyncedUnreachable": "{source} ist gerade nicht erreichbar. {n} Änderung geht beim Trennen verloren. | {source} ist gerade nicht erreichbar. {n} Änderungen gehen beim Trennen verloren.",
+      "syncFailedTitle": "Nicht alles wurde synchronisiert",
+      "syncFailed": "{source} bleibt verbunden. Versuche es später erneut oder trenne trotzdem.",
+      "credentialsFailedTitle": "Token konnte nicht gelöscht werden",
+      "credentialsFailed": "Der Schlüsselbund hat das Löschen abgelehnt. {source} bleibt verbunden.",
+      "confirm": "Trennen",
+      "anyway": "Trotzdem trennen",
+      "syncFirst": "Erst synchronisieren, dann trennen"
+    },
+    "page": {
+      "title": "Verbindungen",
+      "description": "Wo deine Aufgaben liegen und wohin neue Aufgaben gehen.",
+      "connectedHeading": "Deine Verbindungen",
+      "lead": "Neue Aufgaben landen in der Verbindung mit „Standard“.",
+      "help": "Beim Hinzufügen kannst du eine andere Verbindung wählen. Schnell gestartete Aufgaben in „Jetzt“ landen immer hier.",
+      "moreHeading": "Weitere Verbindungen",
+      "soon": "bald verfügbar"
+    },
+    "row": {
+      "default": "Standard",
+      "setDefault": "Als Standard festlegen",
+      "setDefaultNamed": "{source} als Standard festlegen",
+      "repair": "Verbindung reparieren",
+      "repairNamed": "{source}-Verbindung reparieren",
+      "settings": "{source}-Einstellungen",
+      "disconnect": "Trennen",
+      "disconnectNamed": "{source} trennen",
+      "connect": "Verbinden",
+      "connectNamed": "{source} verbinden"
+    },
+    "status": {
+      "local": "Auf diesem Gerät gespeichert",
+      "checking": "Wird geprüft…",
+      "needsAttention": "Verbindung prüfen",
+      "syncedNow": "Synchronisiert · gerade eben",
+      "syncedMinutes": "Synchronisiert · vor {n} Min.",
+      "syncedHours": "Synchronisiert · vor {n} Std.",
+      "syncedDays": "Synchronisiert · vor {n} T."
+    }
+  },
+  "sync": {
+    "warning": {
+      "title": "Sync-Warnung",
+      "alertTitle": "Leeres Sync-Ergebnis",
+      "alertDescription": "Die Synchronisation hat keine Aufgaben aus {source} zurückgegeben.",
+      "alertTitleDrop": "Deutlich weniger Aufgaben als erwartet",
+      "alertDescriptionDrop": "Die Synchronisation hat nur {fetched} von {count} Aufgaben aus {source} zurückgegeben.",
+      "situation": "Aktuelle Situation:",
+      "localTasks": "{source}-Aufgaben auf dem Board: {count}",
+      "lastSync": "Letzte erfolgreiche Sync: {date}",
+      "newTasks": "Von {source} zurückgegebene Aufgaben: {count}",
+      "never": "Nie",
+      "attention": "Achtung",
+      "deleteNotice": "Wenn du fortsetzt, werden {count} {source}-Aufgaben vom Board gelöscht, da sie in {source} nicht mehr gefunden wurden.",
+      "causesTitle": "Mögliche Ursachen:",
+      "causeEmpty": "Deine {source}-Daten wurden gelöscht oder sind leer",
+      "causeConnection": "Verbindungsproblem zu {source}",
+      "causeFilter": "Falsche Filter-Einstellungen in {source}",
+      "causeCriteria": "Keine Aufgaben erfüllen die Sync-Kriterien",
+      "tipTitle": "Tipp",
+      "tipDescription": "Prüfe deine {source}-Daten im Browser, bevor du fortsetzt.",
+      "confirm": "Sync trotzdem durchführen"
+    }
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Willkommen bei Kan-Do",
+      "tagline": "Dein täglicher Begleiter für fokussiertes Arbeiten"
+    },
+    "page": {
+      "version": "Version:",
+      "title": "Wo sind deine Aufgaben heute?",
+      "nowhere": "Noch nirgends",
+      "inNotion": "In Notion",
+      "later": "Weitere Verbindungen kannst du später in den Einstellungen hinzufügen."
+    },
+    "local": {
+      "title": "Lokaler Modus",
+      "intro": "Arbeite ohne externe Verbindung. Deine Aufgaben werden lokal auf diesem Gerät gespeichert.",
+      "later": "Du kannst jederzeit später eine Integration wie Notion oder Todoist verbinden.",
+      "howToStart": "Wie möchtest du starten?",
+      "startFresh": "Neu starten",
+      "startSamples": "Mit Beispielaufgaben starten"
+    }
+  },
+  "commandPalette": {
+    "title": "Befehlspalette",
+    "description": "Befehle suchen und ausführen",
+    "placeholder": "Befehl suchen…",
+    "empty": "Keine Befehle für „{term}“.",
+    "hintNavigate": "navigieren",
+    "hintRun": "ausführen",
+    "hintClose": "schließen",
+    "groupGlobal": "Board",
+    "groupCard": "Aufgabe",
+    "groupMove": "Verschieben: {title}",
+    "groupSource": "Verbindung",
+    "moveTo": "Verschieben nach {column}",
+    "moveToSource": "Verschieben nach {source}",
+    "progressFull": "Jetzt belegt",
+    "setPriority": "Priorität: {priority}",
+    "setTimebox": "Timebox: {minutes} Min.",
+    "addTask": "Aufgabe hinzufügen",
+    "openStatistics": "Statistik öffnen",
+    "openSettings": "Einstellungen öffnen",
+    "noCardHint": "Mit Tab eine Aufgabe fokussieren, dann erscheinen ihre Befehle.",
+    "dayClose": "Tag abschließen",
+    "openGithubAccess": "GitHub-Zugriff",
+    "openDataFolder": "Datenordner öffnen",
+    "openDataTransfer": "Daten exportieren/importieren",
+    "checkForUpdates": "Nach Updates suchen",
+    "openUpdates": "Version & Updates",
+    "sendFeedback": "Feedback senden",
+    "openWhatsNew": "Was ist neu"
+  },
+  "recap": {
+    "title": "Kurzer Rückblick",
+    "summary": {
+      "partial": "Du hast {when} {n} von {m} Aufgaben erledigt.",
+      "all": "Du hast {when} alle Aufgaben erledigt."
+    },
+    "when": {
+      "yesterday": "gestern",
+      "dayBefore": "vorgestern",
+      "weekday": "am {weekday}",
+      "date": "am {date}"
+    },
+    "deck": {
+      "done": "{n} erledigt",
+      "undone": "{n} noch offen",
+      "previous": "Vorherige Aufgabe",
+      "next": "Nächste Aufgabe",
+      "counter": "{position} / {total}",
+      "announce": "{position} von {total}: {title}",
+      "roleDescription": "Stapel",
+      "label": "{label}, mit Pfeiltasten wechseln"
+    },
+    "archiveToggle": "Erledigte archivieren",
+    "continue": "Weiter zum Board"
+  },
+  "dayClose": {
+    "title": "Tag abschließen",
+    "description": "Rückblick auf heute und was noch auf dem Board liegt.",
+    "recap": "{n} erledigt · zusammen {time}",
+    "recapNoTime": "{n} erledigt",
+    "nothingDone": "Heute noch nichts erledigt.",
+    "doneHeading": "Heute erledigt",
+    "doneListLabel": "{n} heute erledigte Aufgabe | {n} heute erledigte Aufgaben",
+    "inFlightHeading": "Noch nicht erledigt",
+    "inFlightListLabel": "{n} Aufgabe noch nicht erledigt | {n} Aufgaben noch nicht erledigt",
+    "nothingInFlight": "Nichts mehr offen.",
+    "putBackHint": "Fertig legt „{title}“ zurück nach Offen. | Fertig legt {n} Aufgaben zurück nach Offen.",
+    "copy": "Zusammenfassung kopieren",
+    "copied": "Zusammenfassung kopiert",
+    "copiedButton": "Kopiert",
+    "done": "Fertig",
+    "closing": {
+      "line0": "Für heute ist genug getan.",
+      "line1": "Morgen geht es weiter.",
+      "line2": "Mehr braucht dieser Tag nicht.",
+      "line3": "Alles Weitere hat Zeit.",
+      "line4": "Der Tag ist abgeschlossen.",
+      "line5": "Das Board wartet bis morgen."
+    },
+    "markdown": {
+      "heading": "Tagesabschluss, {date}",
+      "done": "Erledigt",
+      "total": "Gesamt: {time}",
+      "nothingDone": "Heute noch nichts erledigt.",
+      "inFlight": "Noch nicht erledigt",
+      "nothingInFlight": "Nichts mehr offen."
+    }
+  },
+  "secrets": {
+    "unavailableTitle": "Schlüsselbund nicht erreichbar",
+    "unavailableBody": "Deine Tokens bleiben unverändert. Beim nächsten Start wird es erneut versucht."
+  },
+  "whatsNew": {
+    "title": "Was ist neu",
+    "description": "Die wichtigsten Neuerungen seit deinem letzten Update.",
+    "version": "Version {version}",
+    "close": "Schließen",
+    "empty": "Noch keine Neuigkeiten.",
+    "toast": {
+      "updated": "Aktualisiert auf Version {version}"
+    }
+  },
+  "updates": {
+    "toast": {
+      "available": "Version {version} ist verfügbar",
+      "details": "Details",
+      "upToDate": "Du hast die neueste Version."
+    },
+    "dialog": {
+      "title": "Version {version} ist verfügbar",
+      "titleFallback": "Update",
+      "description": "Installiere das Update und starte Kan-Do neu.",
+      "current": "Du nutzt {version}.",
+      "sinceVersion": "Neu seit deiner Version ({version}):",
+      "backupNote": "Vor der Installation sichert Kan-Do deine Daten. Danach startet die App neu.",
+      "later": "Später",
+      "install": "Installieren und neu starten",
+      "retry": "Erneut versuchen",
+      "preparing": "Wird vorbereitet…",
+      "downloading": "Wird geladen…",
+      "progress": "Wird geladen… {percent}%",
+      "installing": "Wird installiert…",
+      "error": {
+        "dataFolderUnavailable": "Datenordner nicht erreichbar. Es wurde nichts geändert.",
+        "dataUnreadable": "Die Datendatei ist nicht lesbar. Löse das zuerst; es wurde nichts geändert.",
+        "dataConflict": "Löse zuerst den Datenkonflikt. Es wurde nichts geändert.",
+        "saveFailed": "Deine Daten konnten nicht gesichert werden. Es wurde nichts geändert.",
+        "installFailed": "Die Installation konnte nicht abgeschlossen werden. Es wurde nichts geändert.",
+        "busy": "Es läuft gerade schon eine Update-Aktion."
+      },
+      "openData": "Datenordner öffnen"
+    }
+  },
+  "feedback": {
+    "title": "Feedback senden",
+    "description": "Beschreibe, was dir aufgefallen ist. Vor dem letzten Schritt wird nichts gesendet.",
+    "titleLabel": "Titel",
+    "descriptionLabel": "Beschreibung (optional)",
+    "contextLine": "Kontext: {summary}",
+    "contextReview": "Ansehen",
+    "pickElement": "Element auswählen",
+    "pickElementHint": "Zeige auf das, was du meinst.",
+    "elementLabel": "Element",
+    "removeElement": "Entfernen",
+    "next": "Prüfen",
+    "discardDraft": "Entwurf löschen",
+    "review": {
+      "title": "Prüfen und senden",
+      "intro": "Das geht genau so als öffentliches Issue an {repo}. Vorher verlässt nichts die App.",
+      "contextHeading": "Das wird mitgeschickt",
+      "itemElement": "Element: {name}",
+      "itemEnvironment": "Route, Fenster, Sprache",
+      "itemVersion": "Version, System",
+      "itemLog": "Protokoll (letzte Zeilen)",
+      "itemTaskTitle": "Titel der Aufgabe einfügen",
+      "itemTaskTitleHint": "Standardmäßig wird nur die ID gesendet.",
+      "previewHeading": "Issue-Text",
+      "send": "Als Issue senden",
+      "sending": "Issue wird angelegt…",
+      "retry": "Erneut versuchen",
+      "openInBrowser": "Im Browser öffnen",
+      "openOnGithub": "Auf GitHub öffnen",
+      "introBrowser": "Kan-Do öffnet GitHub im Browser mit diesem Text. Dort sendest du ihn selbst als öffentliches Issue an {repo}, angemeldet mit deinem GitHub-Konto. Vorher verlässt nichts die App.",
+      "itemScreenshot": "Screenshot",
+      "delivery": {
+        "upload": "Wird mit dem Issue hochgeladen.",
+        "clipboardIssue": "Das Token darf keine Dateien speichern: Das Bild landet in der Zwischenablage, das Issue wird ohne Bild angelegt.",
+        "clipboardUrl": "Das Bild kommt in die Zwischenablage. Füge es auf GitHub mit ⌘V in das Issue ein."
+      },
+      "uploading": "Bild wird hochgeladen…",
+      "creating": "Issue wird angelegt…",
+      "sendWithoutImage": "Ohne Bild senden"
+    },
+    "fallback": {
+      "rejected": "GitHub hat das Feedback-Token abgelehnt. Das Issue öffnet Kan-Do stattdessen auf GitHub im Browser.",
+      "accessLink": "GitHub-Zugriff",
+      "trimmed": "Damit der Link passt, wurde gekürzt: {parts}.",
+      "trimmedLog": "Protokollauszug",
+      "trimmedContext": "Kontext",
+      "overflow": "Dein Text ist sehr lang. GitHub nimmt den Link eventuell nicht an."
+    },
+    "problem": {
+      "offline": "Keine Verbindung. Dein Entwurf bleibt erhalten.",
+      "blocked": "GitHub hat die Anfrage abgelehnt (Limit oder Rechte). Versuche es später erneut. Dein Entwurf bleibt erhalten.",
+      "server": "GitHub hat gerade Probleme. Versuche es gleich erneut. Dein Entwurf bleibt erhalten.",
+      "unexpected": "Das Issue konnte nicht angelegt werden. Dein Entwurf bleibt erhalten.",
+      "uploadDenied": "Das Bild konnte nicht hochgeladen werden. Es kommt in die Zwischenablage, das Issue entsteht ohne Bild. Dein Entwurf bleibt erhalten.",
+      "clipboardFailed": "Das Bild konnte nicht in die Zwischenablage kopiert werden. Du kannst es im Browser neu aufnehmen."
+    },
+    "sentToast": "Danke, das Feedback ist als Issue #{number} angelegt.",
+    "picker": {
+      "region": "Elementauswahl",
+      "hint": "Klicke ein Element an · ↑ größer · ↓ kleiner · Esc bricht ab",
+      "cancel": "Abbrechen"
+    },
+    "screenshot": {
+      "add": "Screenshot hinzufügen",
+      "hint": "Das Fenster wird ohne diesen Dialog aufgenommen, Aufgabentexte sind geschwärzt.",
+      "label": "Screenshot",
+      "remove": "Entfernen",
+      "edit": "Markieren",
+      "capturing": "Screenshot wird erstellt…",
+      "failed": "Screenshot nicht möglich. Der Rest des Berichts funktioniert weiter.",
+      "tooLarge": "Der Screenshot ist zu groß. Der Rest des Berichts funktioniert weiter.",
+      "preview": "Screenshot-Vorschau, {n} Markierung | Screenshot-Vorschau, {n} Markierungen",
+      "previewFinal": "Screenshot, bereit zum Senden",
+      "branchReadme": "Screenshots aus dem In-App-Feedback von Kan-Do. Der Branch wird nicht aufgeräumt.",
+      "clipboardFailedToast": "Das Bild konnte nicht in die Zwischenablage kopiert werden."
+    },
+    "annotate": {
+      "title": "Screenshot markieren",
+      "tools": "Werkzeuge",
+      "rect": "Rechteck",
+      "arrow": "Pfeil",
+      "redact": "Schwärzen",
+      "undo": "Letzte rückgängig",
+      "clear": "Alle löschen",
+      "mask": "Aufgabentexte schwärzen",
+      "maskHint": "Beim Umschalten wird neu aufgenommen, deine Markierungen bleiben.",
+      "drawHint": "Markieren geht nur mit Maus oder Stift. Mit der Tastatur: „Zurück“ und dann „Entfernen“ lässt den Screenshot weg.",
+      "done": "Fertig",
+      "back": "Zurück"
+    },
+    "public": "Dein Feedback wird ein öffentliches Issue auf GitHub.",
+    "publicAccount": "Zum Absenden brauchst du ein GitHub-Konto.",
+    "openedToast": "GitHub ist im Browser geöffnet. Sende das Issue dort ab.",
+    "openedToastImage": "GitHub ist im Browser geöffnet. Füge den Screenshot mit ⌘V ein und sende das Issue ab."
+  },
+  "trash": {
+    "title": "Papierkorb",
+    "inTrash": "Im Papierkorb",
+    "gapLabel": "Gelöscht: {title}",
+    "undoNamed": "Rückgängig: {title}",
+    "announceDeleted": "Aufgabe gelöscht: {title}",
+    "ago": {
+      "now": "Gerade eben gelöscht",
+      "minutes": "Gelöscht vor {n} Min.",
+      "hours": "Gelöscht vor {n} Std.",
+      "days": "Gelöscht vor {n} Tag | Gelöscht vor {n} Tagen"
+    },
+    "wasIn": "War in {column}",
+    "wasInProgress": "War in Jetzt, kommt zurück nach Offen",
+    "restore": "Wiederherstellen",
+    "restoreNamed": "Wiederherstellen: {title}",
+    "removeForever": "Endgültig löschen",
+    "removeForeverNamed": "Endgültig löschen: {title}",
+    "empty": "Noch keine gelöschten Aufgaben.",
+    "emptyTrash": "Papierkorb leeren",
+    "emptyConfirm": "{n} Aufgabe endgültig löschen? | {n} Aufgaben endgültig löschen?",
+    "emptyConfirmYes": "Endgültig löschen",
+    "retention": "Nach 30 Tagen endgültig weg",
+    "groups": {
+      "today": "Heute",
+      "yesterday": "Gestern",
+      "earlier": "Früher"
+    },
+    "listHeading": "Gelöschte Aufgaben"
+  },
+  "topic": {
+    "hue": {
+      "gray": "Grau",
+      "brown": "Braun",
+      "orange": "Orange",
+      "yellow": "Gelb",
+      "green": "Grün",
+      "blue": "Blau",
+      "purple": "Violett",
+      "pink": "Rosa",
+      "red": "Rot"
+    },
+    "symbol": {
+      "briefcase": "Arbeit",
+      "house": "Zuhause",
+      "graduation-cap": "Lernen",
+      "code": "Code",
+      "palette": "Design",
+      "chat-circle": "Gespräch",
+      "shopping-cart": "Einkaufen",
+      "heart": "Gesundheit",
+      "airplane": "Reisen",
+      "currency-eur": "Finanzen",
+      "wrench": "Technik",
+      "lightbulb": "Idee",
+      "calendar": "Termine",
+      "users": "Team",
+      "book-open": "Lesen",
+      "music-note": "Musik",
+      "barbell": "Sport",
+      "camera": "Foto",
+      "envelope": "Post",
+      "star": "Wichtig",
+      "flag": "Ziel",
+      "leaf": "Natur",
+      "rocket-launch": "Projekt",
+      "gear": "Betrieb"
+    },
+    "editor": {
+      "titleTopic": "Thema bearbeiten",
+      "titleActivity": "Aktivität bearbeiten",
+      "name": "Name",
+      "nameGate": "Der Name kommt aus Notion. In Notion umbenennen, Kan-Do übernimmt ihn beim nächsten Abgleich.",
+      "mergeTopic": "„{name}“ gibt es schon. Beide werden zusammengeführt, Farbe und Symbol von „{name}“ bleiben.",
+      "mergeActivity": "„{name}“ gibt es schon. Beide werden zusammengeführt.",
+      "color": "Farbe",
+      "colorNone": "Keine Farbe",
+      "colorInherited": "Ohne eigene Wahl zeigt Kan-Do die Farbe aus Notion ({hue}).",
+      "colorLocalOnly": "Gilt nur in Kan-Do, Notion behält {hue}.",
+      "symbol": "Symbol",
+      "symbolNone": "Kein Symbol",
+      "symbolButton": "Symbol: {value}",
+      "unusedTopic": "Noch keine Aufgabe nutzt dieses Thema.",
+      "unusedActivity": "Noch keine Aufgabe nutzt diese Aktivität.",
+      "appliesTo": "Gilt für {n} Aufgabe | Gilt für {n} Aufgaben",
+      "appliesToAll": "Gilt für {n} Aufgabe, auch erledigte und archivierte | Gilt für {n} Aufgaben, auch erledigte und archivierte",
+      "stayLocal": "Farbe und Symbol bleiben in Kan-Do.",
+      "save": "Speichern",
+      "merge": "Zusammenführen",
+      "cancel": "Abbrechen"
+    },
+    "picker": {
+      "manage": "Themen verwalten",
+      "edit": "Bearbeiten",
+      "done": "Fertig",
+      "rowEdit": "bearbeiten"
+    }
+  }
+}

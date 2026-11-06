@@ -1,0 +1,33 @@
+{
+  "Name": {
+    "id": "prop-title",
+    "name": "Name",
+    "type": "title",
+    "title": {}
+  },
+  "Status": {
+    "id": "prop-status",
+    "name": "Status",
+    "type": "status",
+    "status": {
+      "options": [
+        { "id": "status-today", "name": "Today", "color": "blue" },
+        { "id": "status-doing", "name": "Doing", "color": "orange" },
+        { "id": "status-waiting", "name": "Waiting", "color": "yellow" },
+        { "id": "status-done", "name": "Done", "color": "green" }
+      ]
+    }
+  },
+  "Aufwand": {
+    "id": "prop-timespent",
+    "name": "Aufwand",
+    "type": "number",
+    "number": {}
+  },
+  "Timebox": {
+    "id": "prop-timebox",
+    "name": "Timebox",
+    "type": "number",
+    "number": {}
+  }
+}

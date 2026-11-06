@@ -1,0 +1,70 @@
+# Nuxt dev/build outputs
+.output
+.e2e-build
+.nuxt
+.nitro
+.cache
+dist
+
+# Node dependencies
+node_modules
+
+# Logs
+logs
+*.log
+
+# Misc
+.DS_Store
+.fleet
+.idea
+*.code-workspace
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# Test reports
+tests/e2e/playwright-report/*
+tests/e2e/test-results/*
+tests/e2e/screenshots/*
+tests/e2e/e2e-results.json
+test-results
+
+# Allow inspecting Playwright artifacts for debugging failing tests
+tests/e2e/test-results/
+tests/e2e/test-results/**
+
+/.superpowers
+
+# windsurf rules
+#.windsurfrules
+
+# Claude and MCP artifacts. .claude/ is tracked by default, so a new hook, rule, skill or
+# config file is committed without an allow-list entry (#703); list only machine-local files here.
+.claude/settings.local.json
+.claude/launch.json
+.claude/worktrees/
+# testing mode (#693): per checkout; the hooks read a missing file as `quality`
+.claude/testing-mode
+# installed per machine by `playwright-cli install --skills` (.claude/hooks/cloud-setup.sh)
+.claude/skills/playwright-cli/
+.playwright-mcp/
+
+# Impeccable detector CI output
+impeccable-report.json
+
+# Impeccable per-developer state
+.impeccable/config.local.json
+.impeccable/hook.cache.json
+# critique runs record absolute worktree paths; kept local
+.impeccable/critique/
+
+# Playwright CLI / screenshot scratch output
+.playwright/
+.playwright-screenshots/
+
+# Editor swap and backup files
+*.swp
+*.swo
+*~

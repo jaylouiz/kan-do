@@ -1,0 +1,81 @@
+name: CI
+
+# Third-party actions are pinned by commit SHA (version in the comment); bump them deliberately.
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['docs/**', '**/*.md', '.claude/**']
+  # PRs (forks included) run `quality` with the read-only token below and no secrets. The local gate
+  # (npm run verify, the pre-merge E2E hook) stays; this is the check contributors without it get.
+  pull_request:
+    paths-ignore: ['docs/**', '**/*.md', '.claude/**']
+  # Full e2e on demand: Actions tab -> CI -> Run workflow
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint:ci
+      - run: npm run typecheck
+      - run: npx vitest run
+      # Advisory design anti-pattern scan (regex mode on .vue); findings never fail the job.
+      - name: Impeccable detector (advisory)
+        run: |
+          set +e
+          npx impeccable detect --json components pages layouts assets app.vue > impeccable-report.json
+          code=$?
+          set -e
+          case "$code" in
+            0) echo "Impeccable detector: no findings" ;;
+            2) echo "::warning::Impeccable detector reported findings (advisory)" ;;
+            *) echo "::error::Impeccable detector failed (exit $code)"; exit "$code" ;;
+          esac
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: impeccable-report
+          path: impeccable-report.json
+          retention-days: 7
+
+  # Manual only (workflow_dispatch): PRs and pushes to main run `quality`; the full suite runs in the
+  # pre-merge hook for risk-area PRs and in `npm run release`.
+  e2e:
+    needs: quality
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - run: npx playwright install --with-deps chromium
+      # visual-regression.spec.ts self-skips when CI is set (baselines are macOS-rendered).
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: failure()
+        with:
+          name: playwright-report
+          path: tests/e2e/playwright-report
+          retention-days: 7

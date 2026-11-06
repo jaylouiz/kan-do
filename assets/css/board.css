@@ -1,0 +1,296 @@
+/**
+ * Board layout: desktop 3-column grid, mobile 300vw transform layout, column placement, task list,
+ * drag-time header states and z-index stacking. Selectors target .board / #column-* markup from
+ * Board.vue and BoardColumn.vue, so this stays global (scoped styles would not reach nested
+ * component roots). Imported by main.css; components layer (#43).
+ * Invariant (`.claude/rules/drag-and-drop.md`): .board.dragging { transition: none } on mobile; DragOverlay is outside
+ * .board-container.
+ */
+
+@layer components {
+  /* ========================================
+   * BOARD LAYOUT & GRID STRUCTURE
+   * Location: components/board/Board.vue uses these styles
+   * ======================================== */
+  
+  /**
+   * Main kanban board container
+   * - Desktop: 3-column grid layout (Open | Progress+Waiting | Done)
+   * - Mobile: horizontal scroll-snap with one column page per screen
+   * - Establishes positioning context for overlay effects
+   * - Isolates stacking context to control z-index hierarchy
+   */
+  :where(.board) {
+    position: relative;        /* Positioning context for ::before overlay */
+    isolation: isolate;         /* Creates stacking context for z-index control */
+
+    /* Visual styling */
+    background: var(--ui-page-bg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    cursor: default;
+
+    /* Desktop layout: 3-column grid */
+    /* Below the desktop app bar (--app-bar-offset-top, app-nav.css): no document scrollbar from the bar alone */
+    min-height: calc(100vh - var(--app-bar-offset-top));
+    min-height: calc(100dvh - var(--app-bar-offset-top));
+    width: 100%;
+    display: grid;
+    /* Tracks cap at --board-column-max and the group centres (#122); minmax(0) lets columns shrink under 200% text (#66) */
+    grid-template-columns: repeat(3, minmax(0, var(--board-column-max)));
+    justify-content: center;
+    grid-template-rows: 1fr;   /* Single row; Progress/Waiting split handled by column-group-mid flex */
+    overflow: visible; /* Allow drag shadows to extend beyond grid bounds */
+  }
+
+  /* Landscape phones are wider than the mobile breakpoint and keep this grid: with viewport-fit=cover
+     (#257) the notch and home indicator sit over the page, so the board pads by the insets (0 on desktop browsers). */
+  @media (min-width: 768px) {
+    :where(.board) {
+      padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+      /* The completion burst (#692) flies ~230 px sideways past a card; in the right-hand column at the narrowest
+         desktop width that grew the page sideways (a scrollbar while it plays). Clip the x axis at the board edge, like
+         .board-container does on mobile; y stays visible (a drag shadow below the last card, and the burst never grew
+         the page vertically). The cards sit 2.5rem inside the columns, so no shadow reaches the clipped edge. */
+      overflow-x: clip;
+    }
+  }
+
+  /* ── Mobile: transform-based single-column navigation ── */
+  /*
+   * The board is 300vw wide. .board-container clips it to 100vw with
+   * overflow: hidden. Vue drives translateX(n * -100vw) to show the
+   * active column — no scroll container / scrollTo() needed at all.
+   */
+  @media (max-width: 767px) {
+    /* Mobile hit areas: anything marked .touch-target meets the 44px minimum (#37). Buttons never carry it: the button theme in app.config.ts floors them (#552). */
+    .touch-target {
+      min-height: 2.75rem;
+      min-width: 2.75rem;
+      justify-content: center;
+    }
+
+    .board-container {
+      width: 100vw;
+      max-width: 100vw;
+      overflow: hidden;      /* clip the off-screen columns */
+      /* `clip` cannot be scrolled at all: focusing a control on an off-screen page (Tab, #470) must not scroll this
+         container sideways on top of the board's own translateX (the page would land one page too far) */
+      overflow: clip;
+      position: relative;
+      /* Vertical pan stays native; horizontal gestures belong to useBoardSwipe (#145) */
+      touch-action: pan-y pinch-zoom;
+    }
+
+    :where(.board) {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start; /* undo the desktop centring (#122) */
+      width: 300vw;           /* 3 column-pages side-by-side */
+      overflow: visible;      /* clipping is handled by .board-container */
+      min-height: 100svh;
+      /* Smooth column-switch animation driven by the Vue-managed transform */
+      transition: transform 320ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Promote to a compositor layer only while a drag or a live swipe is running */
+    :where(.board).dragging,
+    :where(.board).swiping {
+      will-change: transform;
+    }
+
+    /* The board follows the finger 1:1 during a swipe; the 320ms transition returns when
+       .swiping drops, so release animates the commit / snap-back. Never combined with .dragging. */
+    :where(.board).swiping {
+      transition: none;
+    }
+
+    /* Reduced motion: column switch is instant, nothing stays promoted */
+    @media (prefers-reduced-motion: reduce) {
+      :where(.board) {
+        transition: none;
+        will-change: auto;
+      }
+    }
+
+    /* A classic bar (narrow desktop window) must not shift the cards when a page starts to scroll (#669, utilities.css) */
+    html.kando-classic-scrollbar :where(.board) > #column-open,
+    html.kando-classic-scrollbar :where(.board) > .column-group-mid,
+    html.kando-classic-scrollbar :where(.board) > #column-done {
+      scrollbar-gutter: stable;
+    }
+
+    /* Each "page" fills exactly one viewport width */
+    :where(.board) > #column-open,
+    :where(.board) > .column-group-mid,
+    :where(.board) > #column-done {
+      width: 100vw;
+      min-width: 100vw;
+      max-width: 100vw;
+      flex-shrink: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      min-height: 100svh;
+      /* touch-action ends at the nearest scroll container, so each page repeats pan-y (#145);
+         contain stops scroll chaining into the document and the neighbouring pages */
+      touch-action: pan-y pinch-zoom;
+      overscroll-behavior: contain;
+      /* Side gutter (#220): with the task list's own 0.75rem this leaves 1rem between the screen
+         edge and the cards. */
+      padding-inline: max(0.25rem, env(safe-area-inset-left, 0px)) max(0.25rem, env(safe-area-inset-right, 0px));
+      /* viewport-fit=cover (#257): the page starts under the status bar / notch; padding, not height, keeps the 100svh page and its bar padding intact */
+      padding-top: env(safe-area-inset-top, 0px);
+      /* Extra bottom padding so content isn't hidden behind the floating app bar (--phone-bar-offset, app-nav.css) */
+      padding-bottom: calc(var(--phone-bar-offset) + 0.75rem);
+    }
+
+    /* Offen page: the list fills the page so the add button (margin-top: auto,
+       sticky) sits at thumb height above the app bar even with few cards. */
+    :where(#column-open) :where(.task-list) {
+      flex: 1 1 auto;
+    }
+
+    /* The Offen and Erledigt pages scroll inside themselves (not the document) so the add button's and the
+       Tag-abschließen CTA's position: sticky have a scrollport to stick to (#470). */
+    :where(.board) > #column-open,
+    :where(.board) > #column-done {
+      height: 100svh;
+      max-height: 100svh;
+    }
+
+    /* Override any grid-specific positioning for these IDs */
+    :where(.board) > #column-open,
+    :where(.board) > #column-done {
+      grid-column: unset;
+      grid-row: unset;
+    }
+
+    /* Mobile task card: fill full column width */
+    :root {
+      --task-card-width: 100%;
+      --task-card-max-width: 17.5rem; /* 280px cap, centred in the column (#234); below ~312px screens the 100% width keeps the 1rem gutter */
+      --task-stack-max-width: var(--task-card-max-width);
+    }
+  }
+  
+  /* Desktop grid placement */
+  #column-open { grid-column: 1; grid-row: 1; z-index: 1; }
+  .column-group-mid { grid-column: 2; grid-row: 1; z-index: 1; display: flex; flex-direction: column; min-height: 0; }
+  #column-progress { flex: 0 0 auto; overflow: visible; z-index: 1; }
+  #column-waiting { flex: 1 1 auto; min-height: 12rem; z-index: 1; }
+  #column-done { grid-column: 3; grid-row: 1; z-index: 1; }
+
+  :where(.board) :where(.column) {
+    min-height: 0;
+    overflow: visible; /* Ensure shadows aren't clipped during drag */
+  }
+
+  :where(#column-waiting) :where(.task-list) {
+    flex: 1 1 auto;
+    min-height: 0;
+    /* On mobile, waiting column is not flex-stretched — let content flow naturally */
+  }
+
+  /* Use flex and gap for card spacing to avoid margins affecting grid row sizing */
+  :where(.task-list) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--task-list-gap); /* replaces .task margin-bottom (#584: 0.75rem) */
+  }
+
+  :where(.background-img) {
+    visibility: hidden;
+    position: absolute;
+    bottom: 0;
+    /* 2% of the page width, kept steady while an overlay locks the scrollbar away (#580, utilities.css): the containing block is the viewport, which grows by the scrollbar width */
+    right: calc(2% + var(--scrollbar-width, 0px) * 0.98);
+    height: 45%;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  /* ========================================
+   * BOARD DRAG STATES
+   * Applied by: components/board/Board.vue
+   * ======================================== */
+  
+  /* During drag, suppress the column-switch slide animation so the
+     DragOverlay (viewport-fixed) doesn't lag behind a sliding board. */
+  @media (max-width: 767px) {
+    :where(.board.dragging) {
+      transition: none;
+    }
+  }
+
+  :where(.board.dragging) h2 { opacity: 0.5; }
+  :where(.board.dragging) :where(.dragover) h2 { opacity: 1; }
+
+  :where(.waiting-header.empty:not(.dragover)) h2 {
+    transform: translateY(30vh);
+    opacity: 0;
+  }
+
+  :where(.board.dragging) :where(.waiting-header.empty) h2 { opacity: 0.5; }
+  :where(.board.dragging) :where(.waiting-header.empty.dragover) h2 { opacity: 1; }
+
+  /* ========================================
+   * CROSS-COMPONENT TASK STATES
+   * Applied to: TaskCard instances across all columns
+   * Note: Status-specific styles in TaskCard.vue
+   * ======================================== */
+  
+  /* Muted appearance for waiting tasks - now handled via filter in TaskCard.vue */
+
+  /* ========================================
+   * TASK LIST LAYOUT
+   * Applied to: .task-list in BoardColumn.vue
+   * ======================================== */
+  
+  /* Grouped mode: wrapper-based positioning */
+  :where(.task-list--stacking) {
+    position: relative;
+  }
+  
+  /**
+   * Task z-index stacking: higher index = higher z-index so later items overlap earlier ones.
+   * Used by the grouped/stacking view so cards render in the correct visual order.
+   */
+  :where(.task-list) :where(.task),
+  :where(.task-list) :where(.task-stack) {
+    position: relative;
+    z-index: calc(100 + var(--item-index, 0));
+  }
+
+  /**
+   * Expanded stack (#148): the header row and its members read as one group by spacing alone (no
+   * lines, boxes or tints). Members sit tight (0.25rem instead of the list's gap); the group
+   * keeps the normal gap above its header and below its last member, plus 0.5rem. Keyed to data-stack-position
+   * (set from the group, not from DOM neighbours): dnd-kit relocates the dragged node mid-drag, which
+   * would change what a sibling selector sees.
+   */
+  :where(.task-list) :where([data-stack-position="middle"], [data-stack-position="last"]) {
+    margin-top: calc(0.25rem - var(--task-list-gap)); /* members stay 0.25rem apart whatever the list gap */
+  }
+
+  :where(.task-list) :where([data-stack-position="last"]) {
+    margin-bottom: 0.5rem;
+  }
+
+  :where(.task-list) :where([data-stack-header]) {
+    margin-top: 0.5rem;
+    margin-bottom: calc(0.25rem - var(--task-list-gap)); /* the first member sits as close to the header as to its neighbours */
+  }
+}
+
+/**
+ * Stack motion clone layer (#197): non-interactive clones of the members fold into the collapsed face.
+ * A child of the column (never of .task-list, never fixed: the mobile board is transformed).
+ */
+[data-stack-motion-layer] {
+  position: absolute;
+  inset: 0;
+  z-index: 600; /* above the stack control (500) */
+  overflow: visible;
+  pointer-events: none;
+}

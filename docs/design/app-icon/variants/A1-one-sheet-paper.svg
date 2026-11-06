@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <filter id="filter-1" filterUnits="userSpaceOnUse" x="55" y="55" width="914" height="914" data-vc-blend="multiply" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceAlpha" stdDeviation="11"/><feOffset dx="0" dy="10" result="shadow"/><feFlood flood-color="#1c1917" flood-opacity="0.3"/><feComposite in2="shadow" operator="in" result="paint"/><feMerge><feMergeNode in="paint"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="filter-2" filterUnits="userSpaceOnUse" x="180" y="338" width="664" height="414" data-vc-blend="multiply" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceAlpha" stdDeviation="8"/><feOffset dx="0" dy="8" result="shadow"/><feFlood flood-color="#1c1917" flood-opacity="0.16"/><feComposite in2="shadow" operator="in" result="paint"/><feMerge><feMergeNode in="paint"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <title>A1-one-sheet-paper</title>
+  <g id="Layer_1" data-name="Layer 1">
+    <g filter="url(#filter-1)">
+      <path d="M285 100 L739 100 C841.173 100 924 182.827 924 285 L924 739 C924 841.173 841.173 924 739 924 L285 924 C182.827 924 100 841.173 100 739 L100 285 C100 182.827 182.827 100 285 100 Z" fill="#f5f5f4"/>
+    </g>
+    <path d="M356 268 L668 268 C692.301 268 712 287.699 712 312 L712 524 C712 548.301 692.301 568 668 568 L356 568 C331.699 568 312 548.301 312 524 L312 312 C312 287.699 331.699 268 356 268 Z" fill="#e7e5e4"/>
+    <path d="M322 318 L702 318 C729.614 318 752 340.386 752 368 L752 568 C752 595.614 729.614 618 702 618 L322 618 C294.386 618 272 595.614 272 568 L272 368 C272 340.386 294.386 318 322 318 Z" fill="#d6d3d1"/>
+    <g filter="url(#filter-2)">
+      <path d="M282 380 L742 380 C775.137 380 802 406.863 802 440 L802 650 C802 683.137 775.137 710 742 710 L282 710 C248.863 710 222 683.137 222 650 L222 440 C222 406.863 248.863 380 282 380 Z" fill="#ffffff" stroke="#446b9c" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <path d="M312 468 L598 468 C610.15 468 620 477.85 620 490 L620 490 C620 502.15 610.15 512 598 512 L312 512 C299.85 512 290 502.15 290 490 L290 490 C290 477.85 299.85 468 312 468 Z" fill="#1c1917"/>
+    <path d="M308 548 L482 548 C491.941 548 500 556.059 500 566 L500 566 C500 575.941 491.941 584 482 584 L308 584 C298.059 584 290 575.941 290 566 L290 566 C290 556.059 298.059 548 308 548 Z" fill="#a8a29e"/>
+    <path d="M686 490 C686 471.222 701.222 456 720 456 C738.778 456 754 471.222 754 490 C754 508.778 738.778 524 720 524 C701.222 524 686 508.778 686 490 Z" fill="none" stroke="#446b9c" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

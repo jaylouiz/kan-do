@@ -1,0 +1,4 @@
+- group "Neue Aufgabe":
+  - textbox "Titel":
+    - /placeholder: Aufgabe benennen…
+  - button "Titel bestätigen" [disabled]

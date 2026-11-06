@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<!--
+  Hardened-runtime entitlements for the signed app (#228, ADR 013). Deliberately empty:
+  - WKWebView runs JavaScript (and its JIT) in Apple-signed WebContent processes, so the app itself
+    needs no com.apple.security.cs.allow-jit.
+  - Tokens use the legacy login Keychain through the Security framework, which needs no entitlement.
+  - The app is not sandboxed, so network and file access need none either.
+  - It loads no third-party plug-ins or unsigned dylibs, so library validation stays on.
+  Add a key only when a notarized build or its runtime logs prove it is needed, with the reason here.
+-->
+<dict/>
+</plist>

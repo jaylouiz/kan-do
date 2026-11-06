@@ -1,0 +1,260 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+/* Component-level styles live in partials next to this file; order matters within a layer, so keep
+ * this import order (it mirrors the original single-file source order, #43). */
+@import "./utilities.css";
+@import "./integrations.css";
+@import "./board.css";
+@import "./dnd.css";
+@import "./app-nav.css";
+@import "./mobile-nav.css";
+@import "./task-detail.css";
+@import "./board-focus.css";
+@import "./board-focus-overlay.css";
+@import "./transitions.css";
+@import "./sheet.css";
+
+@theme static {
+  /* Page wash utility — generates `bg-page`, `bg-page/80`, etc.
+   * Backed by `--ui-page-bg` (defined in :root).
+   * Use for body, board surface, and sticky page chrome. */
+  --color-page: var(--ui-page-bg);
+
+  /* Headline step of the display role (DESIGN.md): generates `text-headline`. */
+  --text-headline: 1.375rem;
+  --text-headline--line-height: calc(1.75 / 1.25); /* same ratio as text-xl, which these headings used before */
+
+  /* Collapsible animations (keyframes ship with Nuxt UI) — `animate-collapsible-down/up`. */
+  --animate-collapsible-down: collapsible-down 200ms ease-out;
+  --animate-collapsible-up: collapsible-up 200ms ease-out;
+
+  /* === Palette · Primary Ink (frozen 2026-10-19, see DESIGN.md) ===
+   * Muted ink blue, hue 255. 500 carries white text at AA (>= 4.5:1). */
+  --color-custom-ink-50: oklch(0.97 0.013 255);
+  --color-custom-ink-100: oklch(0.93 0.027 255);
+  --color-custom-ink-200: oklch(0.86 0.050 255);
+  --color-custom-ink-300: oklch(0.77 0.072 255);
+  --color-custom-ink-400: oklch(0.66 0.085 255);
+  --color-custom-ink-500: oklch(0.52 0.090 255);
+  --color-custom-ink-600: oklch(0.45 0.085 255);
+  --color-custom-ink-700: oklch(0.39 0.076 255);
+  --color-custom-ink-800: oklch(0.32 0.063 255);
+  --color-custom-ink-900: oklch(0.26 0.050 255);
+  --color-custom-ink-950: oklch(0.19 0.036 255);
+
+  /* === Palette · Raspberry Accent === */
+  --color-custom-raspberry-50: #FBE9EE;
+  --color-custom-raspberry-100: #F6CAD4;
+  --color-custom-raspberry-200: #EE97AC;
+  --color-custom-raspberry-300: #E46883;
+  --color-custom-raspberry-400: #DB465F;
+  --color-custom-raspberry-500: #D0395A;
+  --color-custom-raspberry-600: #B8314F;
+  --color-custom-raspberry-700: #952740;
+  --color-custom-raspberry-800: #721E31;
+  --color-custom-raspberry-900: #561726;
+
+  /* === Palette · Teal Accent === */
+  --color-custom-teal-50: #E9F8F4;
+  --color-custom-teal-100: #D1F1EA;
+  --color-custom-teal-200: #A6E4D6;
+  --color-custom-teal-300: #7BD7C3;
+  --color-custom-teal-400: #58C9B3;
+  --color-custom-teal-500: #4CBDA8;
+  --color-custom-teal-600: #3DA08E;
+  --color-custom-teal-700: #337F72;
+  --color-custom-teal-800: #29645B;
+  --color-custom-teal-900: #1F4D46;
+
+  /* === Palette · Orange Accent === */
+  --color-custom-orange-50: #FFF0E9;
+  --color-custom-orange-100: #FFDCCB;
+  --color-custom-orange-200: #FFBFA3;
+  --color-custom-orange-300: #FF9A75;
+  --color-custom-orange-400: #FF793F;
+  --color-custom-orange-500: #F96124;
+  --color-custom-orange-600: #D34E19;
+  --color-custom-orange-700: #A83E14;
+  --color-custom-orange-800: #7D2E0F;
+  --color-custom-orange-900: #5F240C;
+}
+
+@layer base, components, utilities;
+
+@layer base {
+  :root {
+    /* ========================================
+     * PRIORITY 1: Nuxt UI Baseline Overrides
+     * ========================================
+     * These override Nuxt UI's default design tokens to set application-wide baselines.
+     * All Nuxt UI components and utilities (rounded-*, text-*, bg-*, etc.) derive from these.
+     * Modify these to adjust the global look and feel.
+     * See: https://ui.nuxt.com/docs/getting-started/theme/css-variables
+     * ======================================== */
+
+    /* `--ui-bg` intentionally NOT overridden here — Nuxt UI defaults it to
+     * neutral-50 (brightest), which is what every overlay component
+     * (DropdownMenu, Popover, Tooltip, ContextMenu, SelectMenu, …) uses via
+     * `bg-default`. Inverting it would force every floating surface to render
+     * darker than the cards it sits on. The page wash lives in `--ui-page-bg`
+     * below and is applied explicitly to body + page chrome. */
+    --ui-bg-muted: var(--ui-color-neutral-200);
+    --ui-bg-elevated: var(--ui-color-neutral-50);
+    --ui-bg-accented: var(--ui-color-neutral-200);
+    --ui-bg-inverted: var(--ui-color-neutral-500);
+
+    /* Page wash — separate from `--ui-bg` so Nuxt UI's `bg-default` overlays
+     * stay bright. Use the `bg-page` Tailwind utility (exposed via @theme) or
+     * `var(--ui-page-bg)` for chrome that should sit one step below cards. */
+    --ui-page-bg: var(--ui-color-neutral-100);
+
+    --ui-text-dimmed: var(--ui-color-neutral-400);
+    /* Midpoint of neutral-500/600: ~5.5:1 on the page wash (neutral-100) and
+     * ~4.8:1 on neutral-200 — raw neutral-500 was 4.4:1, just under WCAG AA.
+     * Stays visibly lighter than `text-toned` (neutral-600). */
+    --ui-text-muted: color-mix(in oklch, var(--ui-color-neutral-500), var(--ui-color-neutral-600));
+    --ui-text-toned: var(--ui-color-neutral-600);
+    --ui-text: var(--ui-color-neutral-900);
+    --ui-text-highlighted: var(--ui-color-neutral-900);
+    --ui-text-inverted: var(--color-white);
+
+    /* Border Radius Baseline
+     * Nuxt UI's rounded-xs, rounded-sm, rounded-md, etc. are calculated from this base value.
+     * Default: 0.25rem (4px) → Our baseline: 0.75rem (12px) for softer corners */
+    --ui-radius: 0.5rem;
+
+    /* ========================================
+     * PRIORITY 2: Custom Application Tokens
+     * ========================================
+     * Domain-specific tokens that extend beyond Nuxt UI's design system.
+     * These are unique to Kan-Do's requirements (task cards, drag-and-drop, integrations).
+     * ======================================== */
+
+    /* --- Typography: Custom Font Stacks --- */
+    --font-sans: 'Figtree', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+    --font-display: var(--font-sans);
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+    /* --- Typography: Line-Height Scale --- */
+    --lh-tight: 1.15;   /* Display text, column headers (Figtree 600 at display sizes) */
+    --lh-snug: 1.3;     /* Compact UI text, task card titles */
+    --lh-body: 1.55;    /* Body copy, notes, modal content */
+
+    /* --- Modal: Wizard Content Height --- */
+    --modal-height-wizard: 32.5rem; /* 520px — used by the Notion setup wizard */
+
+    /* --- Focus overlay (#394): the warm dusk the board steps back into while a task sits in Jetzt.
+       A brown-grey at hue 65, deliberately not the cool ink; outside the frozen custom-ink primary (DESIGN.md). --- */
+    --focus-dusk: oklch(0.27 0.04 65);
+
+    /* --- Topic mark tones (#431): the nine hues a topic's dot or glyph can take. Mark only, never a name, card or
+       surface colour (DESIGN.md "The Topic Mark Rule"). Each tone has >= 3:1 on the card sheet (tests/config/topic-tokens.test.ts),
+       so they can be retuned here (#423) without touching a component. --- */
+    --topic-gray: oklch(0.55 0.015 260);
+    --topic-brown: oklch(0.50 0.075 55);
+    --topic-orange: oklch(0.60 0.16 52);
+    --topic-yellow: oklch(0.64 0.13 88);
+    --topic-green: oklch(0.54 0.12 150);
+    --topic-blue: oklch(0.54 0.14 245);
+    --topic-purple: oklch(0.52 0.17 305);
+    --topic-pink: oklch(0.58 0.18 0);
+    --topic-red: oklch(0.54 0.19 27);
+
+    /* --- Task Card: Dimensions & Layout --- */
+    --task-card-height: 8.25rem; /* Fixed height for consistent card sizing (matches TaskCard min/max) */
+    --task-card-max-width: 20rem; /* 320px - prevents cards from becoming too wide */
+    --board-column-max: 27rem; /* widest desktop column track (#122); 3 × 27rem = 1296px, so a 1280px viewport stays fluid and unchanged */
+    --task-card-width: 18rem; /* Absolute width ensures consistency across flex, grid, and overlay contexts */
+    --task-stack-max-width: var(--task-card-max-width);
+    --task-stack-width: var(--task-card-width);
+    --task-list-gap: 0.75rem; /* Space between cards and stacks in a column (#584, was 0.5rem); the delete gap's closing margin and the expanded-stack margins read it */
+    --stack-collapsed-offset: 4px; /* Step between a stack's front card and each peek layer (#148); layers inset by the same step per side */
+    --stack-wash-opaque: 55%; /* Radial wash behind a collapsed stack's pill (#270, widened #371): fully card-coloured up to here ... */
+    --stack-wash-edge: 100%; /* ... and transparent from here toward the ellipse edge */
+    --stack-wash-rx: 9rem; /* Ellipse radii in rem, so the wash covers most of the front card at any card width or text size; clipped to the card */
+    --stack-wash-ry: 5rem;
+    --stack-front-content-opacity: 0.4; /* Content of a collapsed stack's front card (#371, accepted low contrast): only signals that cards are stacked */
+    --carry-over-dot-size: 5px; /* carried-over marker (#99): one dot per board day */
+    --carry-over-dot-gap: 4px;
+
+    /* --- Task Card: Visual Styling --- */
+    --task-card-border: 2px solid var(--color-white);
+    --task-card-radius: calc(var(--ui-radius) * 2);
+
+    /* --- Done (#124): cards keep the regular sheet; teal is the drop wash and the confirmation --- */
+    --done-wash: var(--ui-color-success-100); /* Erledigt drop zone */
+    --done-confirm-wash: var(--ui-color-success-50); /* in-card confirmation layer: the calmer of the compared washes */
+    --done-wash-duration: 200ms; /* drop wash fade in/out */
+    /* in-card confirmation length: --done-confirm-duration, set on the layer from DONE_CONFIRMATION_MS (store/board.ts) */
+
+    /* --- Task Card: Progress State Background --- */
+    /* Custom token for in-progress task cards - uses elevated background for consistency */
+    --task-card-progress-bg: var(--ui-bg-elevated);
+    --task-card-progress-border-color: var(--color-white);
+
+    /* --- Task Card: Muted State (Waiting/Inactive) --- */
+    /* Filter-based visual state for tasks that are waiting or not actively in focus */
+    --task-muted-filter-grayscale: 100%; /* Full desaturation for clear visual distinction */
+    --task-muted-filter-brightness: 0.97; /* Slight brightness reduction for subdued appearance */
+    --task-muted-filter-contrast: 1; /* Reduced contrast for softer, less prominent appearance */
+    --task-muted-transition-duration: 200ms; /* Smooth transition when entering/exiting muted state */
+    --task-muted-transition-easing: cubic-bezier(0.2, 0, 0, 1); /* Ease-out for natural feel */
+
+    /* --- Task sheet spotlight (#96): other cards fade while a task sheet is open --- */
+    --sheet-fade-opacity: 0.55;
+    /* Shared board scrim (#123); #127 reuses it for modals. */
+    --overlay-scrim: color-mix(in oklab, var(--color-neutral-900) 12%, transparent);
+    --sheet-fade-duration: 200ms;
+    --sheet-fade-easing: cubic-bezier(0.2, 0, 0, 1);
+
+    /* --- Drag & Drop: Animation Timings --- */
+    /* Synchronized with the DnD layer (useColumnDragAndDrop). */
+    /* Note: DnD handles position/transform; CSS transitions handle visual properties only. */
+    --dnd-reorder-duration: 220ms;
+    --dnd-reorder-easing: cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Stack-specific transitions (hover effects, expand/collapse) */
+    --stack-transition-duration: 220ms;
+    --stack-transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Task card visual transforms (scale, rotate effects during interaction) */
+    --task-transform-duration: 160ms;
+    --task-transform-easing: ease-out;
+    /* Add slot (#125): the soft surface (and the Jetzt slot) appears quickly on hover/focus */
+    --add-slot-reveal-duration: 120ms;
+    /* Offen add slot (#466): the soft surface grows from label-wide into the card shape on hover/focus */
+    --add-slot-grow-duration: 160ms;
+
+    /* --- Shadows: Custom Elevation System --- */
+    /* App-specific shadow tokens for task cards and stacks (not covered by Nuxt UI's shadow utilities) */
+    /* Desktop slideover elevation (#123): two-layer ambient shadow cast toward the board (left). */
+    --shadow-sheet: -12px 0 32px -4px rgba(15, 23, 42, 0.16), -2px 0 8px rgba(15, 23, 42, 0.1);
+    /* Modal elevation (#126): soft two-layer ambient shadow cast downward, wider blur than the sheet. */
+    --shadow-overlay: 0 12px 32px -4px rgba(15, 23, 42, 0.18), 0 2px 8px rgba(15, 23, 42, 0.1);
+    --shadow-task: 1px 2px 4px 2px rgba(15, 23, 42, 0.05), 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+    --shadow-task-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-task-strong: 0 4px 8px rgba(15, 23, 42, 0.12);
+    --shadow-task-drag-elevated: 0 25px 50px -12px rgba(15, 23, 42, 0.35);
+    --shadow-task-lifted: 0 14px 38px color-mix(in oklab, var(--focus-dusk) 20%, transparent); /* the Jetzt card while the focus overlay is on (#394) */
+    --shadow-stack-collapsed: drop-shadow(0 1px 1px rgba(15, 23, 42, 0.06)) drop-shadow(0 2px 3px rgba(15, 23, 42, 0.05));
+    --shadow-stack-hover: drop-shadow(0 2px 2px rgba(15, 23, 42, 0.07)) drop-shadow(0 5px 8px rgba(15, 23, 42, 0.06));
+    --shadow-badge: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+    /* --- App-Specific: Surfaces --- */
+    --task-drop-placeholder-bg: color-mix(in srgb, var(--ui-bg-inverted) 10%, transparent); /* Drop placeholder background */
+
+    color-scheme: light;
+  }
+
+  html,
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    color: var(--ui-text);
+    background: var(--ui-page-bg);
+  }
+}
+

@@ -1,0 +1,26 @@
+# ADR 016: Topic styles, topic and activity rename, the hue exception
+
+## Status
+
+Accepted (#430, #431; decisions D3 to D5 on #430). The ADR number was taken as the next free one on `main` and may be renumbered at merge.
+
+## Context
+
+A topic or activity is a plain string on every task (`task.topic`, `task.activity`), copied into the trash snapshots, the undo-window snapshots of a delete, the statistics completion records and the option lists. There was no way to fix a typo once, and a topic had no colour of its own: the card showed a dot in the raw Notion colour name, which rendered nothing (an inline `<span>` without `display`). Users asked to tell topics apart at a glance and to change that later in one place.
+
+## Decision
+
+- **One editor, two entry points.** `TopicEditor` (Name, Farbe, Symbol) is opened from `/settings/topics` (the home: every topic and activity, used or not, with task counts) and from the pencil after each option of the task sheet's Thema and Aktivität pickers. `TopicEditorHost` shows it inline at >=768px and as a bottom drawer below, as a *nested* drawer when opened from inside the sheet's drawer. Rejected: a command palette group (no entry on touch), picker only (unused options unreachable), a popover on the card badge (sits inside the draggable card).
+- **Rename is a store pass, not an update.** `renameValue(kind, from, to)` on `store/tasks.ts` (tasks of every status and the `pendingDeletes` snapshots), `store/trash.ts`, `store/taskStatistics.ts` and `renameOption` on `store/propertyOptions.ts`, run together by `useTopicManagement().rename` (pure rules in `lib/topicNames.ts`). It never goes through `updateTask`/`useTaskSync`: no `pendingSync`, no revision, no `updatedAt`, no upstream call. Names are case-sensitive and compared trimmed; a target that already exists is a merge (the target's style stays). Five persisted keys change in one synchronous pass; each persists on its own, so a crash in the middle can leave a partial rename that re-running completes (accepted: a window of milliseconds, nothing lost).
+- **Ownership gate.** A name in the Notion schema option list or on any task with `source !== 'local'` cannot be renamed here: Notion would bring the old name back on the next fetch, and rewriting Notion data from a rename is out of scope (a follow-up with an explicit confirm, if wanted). Farbe and Symbol stay editable and apply only in kan-do. A Local topic may be merged *into* an owned name. After a disconnect the same name is renamable again.
+- **Styles are app-local and keyed by topic name.** New persisted key `topic-styles` (`store/topicStyles.ts`, `{ styles: Record<name, { hue, symbol }> }`, in `PERSISTED_KEYS`, so export/import and the desktop data file carry it). A symbol is stored as a key, never an icon class. Hydration writes nothing and nothing is validated into the state: an unknown hue or symbol key, or a state that is not a record, reads as "no choice" (validated at read time) and is left as stored until the user edits that topic. Old data files and exports without the key hydrate to an empty store; no envelope migration and no schema version bump are needed (an older build ignores the key). Rejected: a field on each task (a rename would have to carry it, a Notion fetch would drop it), reusing `propertyOptions` (its option lists are rebuilt from the tasks on load and not persisted as such).
+- **Resolver.** `useTopicColor().markOf(topic, task?)` returns `{ hue, symbol, inherited }`: the user's hue wins over the colour the source gave (Notion's nine colour names map 1:1 onto the nine hues, `default` is gray, hex values map to the nearest hue), a Local topic takes the colour of a same-named Notion topic (#321, unchanged), a Todoist task never borrows one. `TopicMark` renders it everywhere: a 12px hue dot, or the Phosphor fill glyph (16px) in the hue (muted gray without one), nothing without either. The old `.topic-dot` and `useTaskDetail.topicBadgeColor` are gone.
+- **The hue exception (user decision D2, confirmed).** DESIGN.md's "topics stay neutral" becomes "a topic may carry a hue and a symbol on its mark only; the name stays neutral muted text, never a coloured chip, card, stack or column". Nine named tokens `--topic-<hue>` in `assets/css/main.css`, each >= 3:1 on the card sheet (`tests/config/topic-tokens.test.ts`), retunable without touching a component (#423). Orange, red and green share hues with the status colours; accepted because the mark is small and the name sits beside it.
+- **Symbols are bundled literals.** The 24 `i-ph-*-fill` classes are literal strings in `lib/topicStyles.ts` (the icon bundler only sees literals; desktop CSP, ADR 012; `tests/config/icons-bundled.test.ts`).
+
+## Consequences
+
+- A rename survives a reload and an export/import, and reaches the statistics and the trash, so a restore carries the new name and the timebox suggestion keeps matching.
+- A topic that only the trash or the statistics still carry stays editable (`useTopicManagement.topics` unions the option lists with those names).
+- Option lists are rebuilt from the tasks on load (they are computed in the store's public surface), so an unused option exists within a session; `/settings/topics` shows it as "ungenutzt" until the next reload.
+- No upstream call, no Notion contract change.

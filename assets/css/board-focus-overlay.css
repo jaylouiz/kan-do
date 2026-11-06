@@ -1,0 +1,122 @@
+/**
+ * Jetzt focus overlay (#394): layer rules and looks. Imported by main.css.
+ *
+ * Unlayered on purpose: the `#column-*` z-index rules in board.css sit in `@layer components`, and unlayered
+ * rules beat layered ones whatever their specificity, so the `.board[data-focus]` overrides below always win.
+ *
+ * Layer rule: while the board is in focus mode (`.board[data-focus]`, set by Board.vue only while the overlay
+ * can show), only the Jetzt column sits above the overlay; everything else is below it, the Erledigt footer
+ * ("Tag abschließen") included; the global app bar stays above it (#694). For that the middle column group and the Erledigt
+ * column give up their own stacking context (their cards then compete in the board's, with z-index 100 + index),
+ * so the overlay is 1000 and the lifted column 1100.
+ * - Desktop (>=768px): the app bar (`.app-nav`, z-index 40, app-nav.css) is outside the board and sticky, and the
+ *   board is a stacking context below it, so the bar simply stays above the overlay, undimmed and clickable (#694,
+ *   reverses the dimmed bar of #503). The overlay is `fixed` over the whole viewport (the bar's paper veil sits on top
+ *   of it, the pool shows through below). A classic document scroll bar lies outside the viewport box and cannot be
+ *   dimmed, so while the overlay is lit its colours step back into the dusk (`scrollbar-color`, below).
+ * - Phone: the floating nav pill stays above the overlay (the board stays below 40); on the phone it is the anchor
+ *   that shows there is a way out of the focus. The overlay stays `absolute` over the board.
+ * With the setting off or nothing in Jetzt there is no `data-focus` and none of this applies.
+ *
+ * The Jetzt card's raised shadow follows the overlay being visible (`data-focus-lit`, set by Board.vue from the
+ * state machine's `shown`), not the focus mode: a hidden overlay (mouse moved, menu open) leaves the regular card shadow.
+ */
+
+.board[data-focus] .column-group-mid,
+.board[data-focus] #column-done {
+  z-index: auto;
+}
+.board[data-focus] #column-progress {
+  z-index: 1100;
+}
+.board[data-focus] #column-waiting {
+  z-index: 1;
+}
+
+.focus-overlay {
+  /* Strength (gentle): max darkness at the rim, a little already in the middle, flat blur everywhere */
+  --focus-max: 0.46;
+  --focus-core: 0.07;
+  --focus-blur: 1.5px;
+  /* The pool: wide and tall around the card; tint falls off together with the ellipse */
+  --focus-ellipse: ellipse calc(var(--fw) * 1.9 + 12rem) calc(var(--fh) * 3.2 + 11rem) at var(--fx) var(--fy);
+  position: absolute;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+}
+@media (min-width: 768px) {
+  .focus-overlay {
+    position: fixed; /* after the base rule: same specificity, source order decides */
+    inset: 0; /* the app bar (z 40) sits above it */
+  }
+}
+.focus-overlay.is-swallowing {
+  pointer-events: auto;
+  touch-action: pan-y pinch-zoom;
+}
+
+.focus-overlay__tint,
+.focus-overlay__blur {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  /* Out is snappy (the pointer moved: the user wants to look), in is slow (a lamp warming up) */
+  transition: opacity 120ms ease-out;
+}
+.is-leaving > .focus-overlay__tint,
+.is-leaving > .focus-overlay__blur {
+  /* The card left Jetzt: the board comes back up gently, not with the snap of a pointer move */
+  transition-duration: 600ms;
+}
+.is-on > .focus-overlay__tint,
+.is-on > .focus-overlay__blur {
+  opacity: 1;
+  transition: opacity 1100ms cubic-bezier(0.3, 0, 0, 1);
+}
+
+/* A little dim already in the middle, then an eased (smoothstep-like) fall-off to the full dusk at the rim */
+.focus-overlay__tint {
+  background: radial-gradient(
+    var(--focus-ellipse),
+    color-mix(in oklab, var(--focus-dusk) calc(var(--focus-core) * 100%), transparent) 0%,
+    color-mix(in oklab, var(--focus-dusk) calc((var(--focus-core) + (var(--focus-max) - var(--focus-core)) * 0.04) * 100%), transparent) 14%,
+    color-mix(in oklab, var(--focus-dusk) calc((var(--focus-core) + (var(--focus-max) - var(--focus-core)) * 0.15) * 100%), transparent) 28%,
+    color-mix(in oklab, var(--focus-dusk) calc((var(--focus-core) + (var(--focus-max) - var(--focus-core)) * 0.33) * 100%), transparent) 42%,
+    color-mix(in oklab, var(--focus-dusk) calc((var(--focus-core) + (var(--focus-max) - var(--focus-core)) * 0.55) * 100%), transparent) 56%,
+    color-mix(in oklab, var(--focus-dusk) calc((var(--focus-core) + (var(--focus-max) - var(--focus-core)) * 0.76) * 100%), transparent) 70%,
+    color-mix(in oklab, var(--focus-dusk) calc((var(--focus-core) + (var(--focus-max) - var(--focus-core)) * 0.92) * 100%), transparent) 85%,
+    color-mix(in oklab, var(--focus-dusk) calc(var(--focus-max) * 100%), transparent) 100%
+  );
+}
+
+/* Defocus is flat: the same blur everywhere under the overlay, no radial fade */
+.focus-overlay__blur {
+  backdrop-filter: blur(var(--focus-blur)) saturate(0.85);
+}
+
+/* The lit card stands a little further off the paper only while the room is dim (overlay visible); otherwise it is a
+   plain card with the regular shadow. The drag placeholder (a `.task` of the same wrapper) keeps its own look. */
+.board[data-focus-lit] #column-progress .task[data-current]:not(.kando-dnd-placeholder) {
+  box-shadow: var(--shadow-task-lifted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .focus-overlay__tint,
+  .focus-overlay__blur,
+  .is-on > .focus-overlay__tint,
+  .is-on > .focus-overlay__blur,
+  .is-leaving > .focus-overlay__tint,
+  .is-leaving > .focus-overlay__blur {
+    transition-duration: 120ms;
+  }
+}
+
+/* The document scroll bar (classic bars only; overlay bars draw nothing) is outside the overlay's box and would stay
+   bright beside the dimmed board: while the overlay is lit its thumb takes the dusk tone and the track disappears.
+   Scoped to the lit state because `scrollbar-color` makes Chrome ignore `::-webkit-scrollbar` (utilities.css). */
+@supports (scrollbar-color: auto) {
+  html:has(.board[data-focus-lit]) {
+    scrollbar-color: color-mix(in oklab, var(--focus-dusk) 35%, transparent) transparent;
+  }
+}

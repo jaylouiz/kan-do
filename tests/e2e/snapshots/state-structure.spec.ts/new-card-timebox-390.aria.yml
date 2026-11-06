@@ -1,0 +1,8 @@
+- group "Neue Aufgabe":
+  - group "Timebox?":
+    - button "Zurück"
+    - paragraph: Timebox?
+    - button "Überspringen"
+    - button /\d+ min/
+    - button /\d+ min/
+    - button "Alle Optionen"

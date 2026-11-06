@@ -1,0 +1,22 @@
+- dialog "Konzept ausarbeiten":
+  - paragraph
+  - heading "Konzept ausarbeiten" [level=2]
+  - 'button "Titel: Konzept ausarbeiten"'
+  - button "Mehr Aktionen"
+  - text: Status
+  - 'button "Status: Offen"'
+  - text: Priorität
+  - 'button "Priorität: Normal"'
+  - text: Thema
+  - 'button "Thema: Design"'
+  - text: Aktivität
+  - 'button "Aktivität: Planung"'
+  - text: Timebox
+  - 'button "Timebox: + hinzufügen"'
+  - text: Geplante Dauer in Minuten
+  - region "Notiz":
+    - heading "Notiz" [level=3]
+    - 'button "Notiz: Entwurf bis Ende der Woche fertigstellen."'
+    - paragraph: Entwurf bis Ende der Woche fertigstellen.
+  - button "Metadaten":
+    - heading "Metadaten" [level=3]

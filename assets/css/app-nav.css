@@ -1,0 +1,438 @@
+/**
+ * Global app bar (#470, ADR 017): components/nav/AppNav.vue. Imported by main.css; components layer.
+ *
+ * Desktop (>=768px): a sticky row at the top, the group centred: the brand, one pill (the two places) and a round
+ * ⋯ pill. Phone: the same pills float centred at the bottom. This file is the one place that declares the two
+ * page offsets: `--app-bar-offset-top` (desktop) and `--phone-bar-offset` (phone); pages, the board and the
+ * toaster read them instead of knowing the bar's geometry.
+ *
+ * The brand `kan-do` sits left of the pill, outside it (#642): the pill holds only the segments.
+ *
+ * Palette (DESIGN.md "App bar"): neutral tokens only, no ink fill. The track is `--ui-bg-muted`; the selected
+ * segment sits on one raised `--ui-bg` chip, the moving indicator (#583, composables/useNavIndicator.ts), which
+ * glides and stretches between the segments. ⋯ is never selected: an open panel gives it a soft pressed fill only.
+ *
+ * Glass and veil (#615, DESIGN.md "The Glass Chrome Rule"): cards scroll under the bar, so the two pills are frosted
+ * glass, bottom to top: a blurred, saturated backdrop; a paper-tinted fill (`--ui-bg-muted` at 60%, never white) under
+ * a faint top light; a hairline drawn as an inset shadow (desktop: no border width, so a pill keeps its size, #616; phone: the pill's 1px border draws it); a 1px
+ * inner top highlight and a faint inner bottom edge; depth from the shadow scale (`--shadow-sm` desktop, `--shadow-md`
+ * phone). Behind the pills a paper veil (`.app-nav::before`, 80% -> 62% -> 0 of `--ui-page-bg`) hangs `--app-bar-veil-hang` (1.75rem) below
+ * the desktop row and rises 1.5rem above the phone pill, so cards dissolve into the paper instead of ending at the
+ * pill's edge. The veil takes no pointer events (the `.titlebar` drag strip and the page stay usable under it).
+ * Without `backdrop-filter`, or under reduced transparency, the tint rises to 94% and the filter is dropped: the
+ * near-opaque pre-glass pill, labels still AA. All recipe values are the `--nav-glass-*` properties on `.app-nav`.
+ *
+ * Third segment (#583): on /settings* and /trash the page appears as a third segment in the pill. One timeline
+ * (`--nav-move`, `--nav-ease`, set on `.app-nav`; 0ms under reduced motion, which also switches the JS springs off)
+ * drives the segment's growth (AppNav.vue, WAAPI), the brand fold and the phone segment padding.
+ * The outer pill (`.app-nav-pill`) has no width of its own (#616): it is as wide as its content, so it follows these
+ * moves frame by frame. Never give it a fixed or transitioned width; that would lag or clip behind the segment.
+ */
+
+:root {
+  --app-bar-offset-top: 3.5rem;
+  /* How far the paper veil hangs below the desktop row (#615). Everything that must clear or follow the veil reads it:
+     the sticky offset below. 0 on a phone: the veil rises. */
+  --app-bar-veil-hang: 1.75rem;
+  --phone-bar-offset: 0px;
+  --app-nav-pill-height: 2.25rem;
+}
+
+/* Coarse pointers on a desktop-width screen (tablets, landscape phones): 44px hit areas */
+@media (min-width: 768px) and (pointer: coarse) {
+  :root {
+    --app-nav-pill-height: 3.25rem;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --app-bar-offset-top: 0px;
+    --app-bar-veil-hang: 0px;
+    /* pill 3.25rem + 0.75rem below it + 0.5rem air; the bottom inset is added on top */
+    --phone-bar-offset: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@layer components {
+  /* A sticky element inside a sub-page sticks below the desktop bar and its veil, so the veil never washes it. The
+     PageHeader scrolls away with the page (#615), so it no longer takes part in the offset. */
+  .sticky-below-page-header {
+    top: calc(var(--app-bar-offset-top) + var(--app-bar-veil-hang));
+  }
+
+  .app-nav {
+    /* One timeline for everything that changes the pill's layout (#583); read by AppNav.vue as well */
+    --nav-move: 420ms;
+    --nav-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+    /* Glass recipe (#615): see the header comment. The tint is the one value the fallbacks override. */
+    --nav-glass-tint: color-mix(in srgb, var(--ui-bg-muted) 60%, transparent);
+    /* The fallbacks' tint (no backdrop-filter, reduced transparency): declared once */
+    --nav-glass-tint-solid: color-mix(in srgb, var(--ui-bg-muted) 94%, transparent);
+    /* The paper veil, one gradient for both placements: it fades away from the row (down on desktop, up on a phone) */
+    --nav-veil-dir: to bottom;
+    --nav-veil: linear-gradient(var(--nav-veil-dir),
+      color-mix(in srgb, var(--ui-page-bg) 80%, transparent) 0%,
+      color-mix(in srgb, var(--ui-page-bg) 62%, transparent) 50%,
+      transparent 100%);
+    --nav-glass-filter: blur(20px) saturate(1.8) brightness(1.03);
+    --nav-glass-light: linear-gradient(180deg, color-mix(in srgb, var(--color-white) 46%, transparent) 0%, transparent 62%);
+    --nav-glass-edge:
+      inset 0 0 0 1px color-mix(in srgb, var(--ui-border) 55%, transparent),
+      inset 0 1px 0 0 color-mix(in srgb, var(--color-white) 70%, transparent),
+      inset 0 -1px 0 0 color-mix(in srgb, var(--ui-text-highlighted) 5%, transparent);
+    --nav-glass-shadow: var(--shadow-sm);
+    --nav-glass-chip: color-mix(in srgb, var(--ui-bg) 94%, transparent);
+    --nav-glass-open: color-mix(in srgb, var(--ui-color-neutral-300) 78%, transparent);
+    position: sticky;
+    top: 0;
+    /* Below dialogs and scrims (z-50 and up) so an open overlay dims the bar and blocks it; above the page content (the page header scrolls away, #615); the Jetzt focus overlay dims the row with its own strip, z-41 */
+    z-index: 40;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: var(--app-bar-offset-top);
+    /* The row is transparent and lets clicks through; only the pills take them */
+    pointer-events: none;
+  }
+
+  /* The paper veil (#615): inside .app-nav's stacking context (z-index 40), under the pills, above the page */
+  .app-nav::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: 0 0 calc(var(--app-bar-veil-hang) * -1);
+    pointer-events: none;
+    background: var(--nav-veil);
+  }
+
+  .app-nav-group {
+    /* Brand, pill and ⋯ pill; the brand's fold cancels one gap (phone) */
+    --nav-group-gap: 0.375rem;
+    display: flex;
+    align-items: center;
+    gap: var(--nav-group-gap);
+    min-width: 0;
+    pointer-events: auto;
+  }
+
+  .app-nav-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.0625rem;
+    height: var(--app-nav-pill-height);
+    padding: 0.125rem;
+    min-width: 0;
+    /* Never shrinks (#642): on a phone the brand still takes room while the third segment grows, and the pill clipping
+       its own content would show as grey ending before the label. The brand (flex 0 1 auto, clips) gives way instead. */
+    flex: none;
+    position: relative;
+    border-radius: 9999px; /* the one pill-shaped container (DESIGN.md Shapes) */
+  }
+
+  /* Frosted glass (#615, DESIGN.md "The Glass Chrome Rule"): only the app bar's two pills */
+  .app-nav-pill,
+  .app-nav-more {
+    background: var(--nav-glass-light), var(--nav-glass-tint);
+    /* The light gradient spans the border box too: the phone's 1px border must not show a repeated tile */
+    background-origin: border-box;
+    -webkit-backdrop-filter: var(--nav-glass-filter);
+    backdrop-filter: var(--nav-glass-filter);
+    box-shadow: var(--nav-glass-edge), var(--nav-glass-shadow);
+  }
+
+  /* The raised white chip behind the selected segment; left/width are driven per frame by useNavIndicator */
+  .app-nav-indicator {
+    position: absolute;
+    top: 0.125rem;
+    bottom: 0.125rem;
+    left: 0;
+    width: 0;
+    opacity: 0;
+    border-radius: 9999px;
+    background: var(--nav-glass-chip);
+    box-shadow: 0 0 0 0.5px color-mix(in srgb, var(--ui-border) 70%, transparent), var(--shadow-xs);
+    pointer-events: none;
+  }
+
+  /* The brand sits outside the grey pill (#642), first in the group, on the paper veil. It is a one-column grid so that
+     it can fold to nothing (phone, third segment shown) with a transition of its track: a content-sized width cannot
+     be animated, a max-width has dead time before it bites */
+  .app-nav-brand {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    color: var(--ui-text-highlighted);
+  }
+
+  .app-nav-brand-text {
+    min-width: 0;
+    overflow: hidden;
+    /* Folding away clips, never "k…" half-way */
+    text-overflow: clip;
+    /* The group gap adds the rest of the space to the pill: 0.25rem + 0.375rem keeps the old brand-to-segment distance */
+    padding: 0 0.25rem 0 0.25rem;
+  }
+
+  .app-nav-place {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding-inline: 0.875rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    /* neutral-700, not muted: holds AA over any card colour that shows through the glass (#615) */
+    color: var(--ui-color-neutral-700);
+    transition: color 150ms ease, background-color 150ms ease;
+  }
+
+  .app-nav-place:hover {
+    color: var(--ui-text-highlighted);
+  }
+
+  /* The chip is the indicator; the selected segment only takes the strong text colour */
+  .app-nav-place.is-selected {
+    color: var(--ui-text-highlighted);
+  }
+
+  /* The third segment (#583): a wrapper whose width AppNav.vue animates; the link clips its label while it is narrow */
+  .app-nav-third {
+    display: flex;
+    flex: none;
+    align-items: center;
+    height: 100%;
+    min-width: 0;
+  }
+
+  .app-nav-third-link {
+    width: 100%;
+    padding-inline: 0;
+    overflow: hidden;
+  }
+
+  /* The label sets the natural width of the segment */
+  .app-nav-third-label {
+    padding-inline: 0.875rem;
+    white-space: nowrap;
+  }
+
+  .app-nav-more {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: var(--app-nav-pill-height);
+    height: var(--app-nav-pill-height);
+    border-radius: 9999px;
+    color: var(--ui-color-neutral-700);
+    transition: color 150ms ease, background-color 150ms ease;
+  }
+
+  .app-nav-more:hover {
+    color: var(--ui-text-highlighted);
+  }
+
+  /* Open = soft pressed fill, visibly not the raised white chip. ⋯ is never selected (#583). */
+  .app-nav-more.is-open {
+    background: var(--nav-glass-open);
+    color: var(--ui-text-highlighted);
+  }
+
+  .app-nav-more-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  /* Solid ink ring (DESIGN.md); Nuxt UI's 25% halo is below 3:1 on these surfaces */
+  .app-nav-brand:focus-visible,
+  .app-nav-place:focus-visible,
+  .app-nav-more:focus-visible {
+    outline: 2px solid var(--ui-primary);
+    outline-offset: 2px;
+  }
+
+  .app-nav-brand:focus-visible,
+  .app-nav-place:focus-visible {
+    box-shadow: none;
+  }
+
+  /* ⋯ is a glass pill: its ring must not take the glass edge and shadow with it (#631) */
+  .app-nav-more:focus-visible {
+    box-shadow: var(--nav-glass-edge), var(--nav-glass-shadow);
+  }
+
+  /* No glass: the near-opaque pre-glass pill. Without backdrop-filter nothing is blurred, so the tint must carry. */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .app-nav {
+      --nav-glass-tint: var(--nav-glass-tint-solid);
+    }
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .app-nav {
+      --nav-glass-tint: var(--nav-glass-tint-solid);
+      --nav-glass-filter: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .app-nav {
+      --nav-move: 0ms;
+    }
+
+    .app-nav-place,
+    .app-nav-more {
+      transition: none;
+    }
+  }
+
+  /* ── Phone: the same pills float centred at the bottom ── */
+  @media (max-width: 767px) {
+    .app-nav {
+      position: fixed;
+      inset: auto 0 0 0;
+      height: auto;
+      padding: 0 max(0.75rem, env(safe-area-inset-right, 0px)) calc(0.75rem + env(safe-area-inset-bottom, 0px)) max(0.75rem, env(safe-area-inset-left, 0px));
+    }
+
+    /* The drag fade lives on the pills and the veil, never on .app-nav: opacity < 1 on an ancestor makes it a Backdrop
+       Root, so the pills' blur would see nothing behind them while fading and pop in at the end (#631). */
+    .app-nav-pill,
+    .app-nav::before {
+      transition: opacity 150ms ease;
+    }
+
+    .app-nav-more {
+      transition: color 150ms ease, background-color 150ms ease, opacity 150ms ease;
+    }
+
+    .app-nav-group {
+      --nav-group-gap: 0.5rem;
+      max-width: 100%;
+    }
+
+    /* Cards scroll under the bar: frosted glass with a soft lift. The 1px border stays, so a pill keeps exactly its
+       size (#616); it carries the hairline (below). */
+    .app-nav {
+      --nav-glass-shadow: var(--shadow-md);
+      --nav-veil-dir: to top;
+      /* The 1px border draws the hairline (an inset ring would sit 1px inside the tinted edge): highlight and bottom edge stay */
+      --nav-glass-edge:
+        inset 0 1px 0 0 color-mix(in srgb, var(--color-white) 70%, transparent),
+        inset 0 -1px 0 0 color-mix(in srgb, var(--ui-text-highlighted) 5%, transparent);
+    }
+
+    /* The veil rises above the pill instead of hanging below a row */
+    .app-nav::before {
+      inset: -1.5rem 0 0;
+    }
+
+    .app-nav-pill,
+    .app-nav-more {
+      height: 3.25rem;
+      border: 1px solid color-mix(in srgb, var(--ui-border) 55%, transparent);
+    }
+
+    .app-nav-pill {
+      padding: 0.1875rem;
+    }
+
+    .app-nav-more {
+      width: 3.25rem;
+    }
+
+    .app-nav-indicator {
+      top: 0.1875rem;
+      bottom: 0.1875rem;
+    }
+
+    .app-nav-place {
+      min-height: 2.75rem;
+      padding-inline: 1rem;
+      font-size: 0.9375rem;
+      transition: color 150ms ease, background-color 150ms ease, padding var(--nav-move) var(--nav-ease);
+    }
+
+    .app-nav-third-link {
+      padding-inline: 0;
+    }
+
+    .app-nav-third-label {
+      padding-inline: 0.75rem;
+    }
+
+    /* The third segment needs the brand's room on a phone: the brand folds away, the segments tighten, the pill keeps
+       roughly its width. Everything on the one timeline; visibility waits for the fold so a folded brand is not
+       focusable or announced (and returns at once when it unfolds). */
+    .app-nav-brand {
+      transition: grid-template-columns var(--nav-move) var(--nav-ease), margin var(--nav-move) var(--nav-ease), opacity calc(var(--nav-move) * 0.6) ease;
+    }
+
+    .app-nav-brand-text {
+      transition: padding var(--nav-move) var(--nav-ease);
+    }
+
+    .app-nav.has-third .app-nav-place {
+      padding-inline: 0.75rem;
+    }
+
+    .app-nav.has-third .app-nav-third-link {
+      padding-inline: 0;
+    }
+
+    .app-nav.has-third .app-nav-brand {
+      grid-template-columns: 0fr;
+      /* Folded, the brand takes no room: its own gap is cancelled with it */
+      margin-right: calc(var(--nav-group-gap) * -1);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: grid-template-columns var(--nav-move) var(--nav-ease), margin var(--nav-move) var(--nav-ease), opacity calc(var(--nav-move) * 0.6) ease, visibility 0s linear var(--nav-move);
+    }
+
+    .app-nav.has-third .app-nav-brand-text {
+      padding-inline: 0;
+    }
+
+    /* While a card is dragged the bar fades out and takes no pointer, so no drop target is covered */
+    .app-nav.is-dragging .app-nav-brand,
+    .app-nav.is-dragging .app-nav-pill,
+    .app-nav.is-dragging .app-nav-more,
+    .app-nav.is-dragging::before {
+      opacity: 0;
+    }
+
+    .app-nav.is-dragging .app-nav-group {
+      pointer-events: none;
+    }
+
+    /* The phone rules above re-declare transitions after the global reduced-motion block (same specificity, later
+       wins), so reduced motion is repeated here: every change instant, no fades, no fold animation. */
+    @media (prefers-reduced-motion: reduce) {
+      .app-nav-pill,
+      .app-nav-more,
+      .app-nav::before,
+      .app-nav-place,
+      .app-nav-brand,
+      .app-nav-brand-text,
+      .app-nav.has-third .app-nav-brand {
+        transition: none;
+      }
+    }
+  }
+}

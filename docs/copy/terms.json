@@ -1,0 +1,701 @@
+[
+  {
+    "id": "task",
+    "concept": "A unit of work on the board (GLOSSARY: Task)",
+    "de": "Aufgabe",
+    "en": "task",
+    "avoidDe": [
+      "Task",
+      "Ticket",
+      "To-do"
+    ],
+    "avoidEn": [
+      "ticket",
+      "to-do",
+      "item"
+    ],
+    "status": "proposed",
+    "note": "Counted at seeding: de \"Aufgabe\" 120 values, de \"Task\" 1; en \"task\" 123 values, en \"to-do\" 5. Known limit: de \"Task\" also hits \"Tasks\" (intended) and compounds such as \"Taskleiste\" (no value today); no unrelated collision at seeding."
+  },
+  {
+    "id": "task-source",
+    "concept": "Where a task lives: Local, Notion, Todoist (GLOSSARY: Task source)",
+    "de": "Verbindung",
+    "en": "connection",
+    "avoidDe": [
+      "Quelle",
+      "Anbieter"
+    ],
+    "avoidEn": [
+      "task source",
+      "connected source",
+      "more source",
+      "another source",
+      "provider",
+      "backend"
+    ],
+    "status": "decided",
+    "note": "User answer (#473 calibration, applied in #474): the sources page and its group names say \"Verbindung\"/\"connection\", also for Local although Local is not an integration. Before: de \"Quelle\" 10 values vs \"Verbindung\" 22; en \"source\" 51 vs \"connection\" 18. \"Datenquelle\"/\"data source\" names the Notion database data source in notion.database.* (the Notion API term): a different concept, not an avoid form. Code identifiers and the {source} placeholder keep their name. Pitfall: a bare \"source\" in avoidEn would hit every {source} placeholder."
+  },
+  {
+    "id": "default-source",
+    "concept": "The source new tasks go to unless the user picks another (GLOSSARY: Default source)",
+    "de": "Standard",
+    "en": "default",
+    "avoidDe": [
+      "Standardquelle",
+      "Standardverbindung",
+      "Hauptquelle"
+    ],
+    "avoidEn": [
+      "primary"
+    ],
+    "status": "proposed",
+    "note": "de \"Standard\" 7 values, en \"Default\" 6 values (en also writes \"Standard\" once)."
+  },
+  {
+    "id": "integration",
+    "concept": "A task source outside the app: Notion, Todoist (GLOSSARY: Integration)",
+    "de": "Integration",
+    "en": "integration",
+    "avoidDe": [
+      "Anbindung",
+      "Konnektor",
+      "Plugin"
+    ],
+    "avoidEn": [
+      "connector",
+      "plugin"
+    ],
+    "status": "proposed",
+    "note": "de and en both 13 values. Local is a source, not an integration."
+  },
+  {
+    "id": "connect",
+    "concept": "Adding an integration to the board (GLOSSARY: Connect)",
+    "de": "verbinden",
+    "en": "connect",
+    "avoidDe": [
+      "anbinden",
+      "koppeln",
+      "einbinden"
+    ],
+    "avoidEn": [
+      "linked",
+      "link up",
+      "attach"
+    ],
+    "status": "proposed",
+    "note": "en \"connect\" is consistent. de also uses \"Verbindung\" (22 values) as a noun for the state; see task-source. en \"link\" (the noun, 5 values for URLs) is not an avoid form: it cannot be told from the verb under word-prefix matching, so \"linked\" and \"link up\" stand in for it."
+  },
+  {
+    "id": "disconnect",
+    "concept": "Removing an integration from the board; its tasks stay in the integration (GLOSSARY: Connect / disconnect)",
+    "de": "trennen",
+    "en": "disconnect",
+    "avoidDe": [
+      "Verbindung löschen",
+      "Verbindung entfernen",
+      "Quelle entfernen",
+      "Quelle löschen"
+    ],
+    "avoidEn": [
+      "unlink",
+      "remove connection",
+      "delete connection",
+      "remove source",
+      "delete source"
+    ],
+    "status": "decided",
+    "note": "Ending an integration connection (user answer: removing an integration = Trennen). de \"Trennen\" 8 values, en \"disconnect\" 8. Data removal is delete, taking a value or element away is remove. Local cannot be disconnected."
+  },
+  {
+    "id": "needs-attention",
+    "concept": "A connected integration that cannot sync right now (GLOSSARY: Needs attention)",
+    "de": "Verbindung prüfen",
+    "en": "Check connection",
+    "avoidDe": [
+      "Verbindungsfehler",
+      "Verbindung fehlgeschlagen",
+      "defekt"
+    ],
+    "avoidEn": [
+      "connection error",
+      "connection failed",
+      "broken"
+    ],
+    "status": "proposed",
+    "note": "The state is shown as an action (\"Verbindung prüfen\", \"Verbindung reparieren\"), not as an error word (PRODUCT.md principle 5: no technical detail). The tasks stay usable. Avoid forms are about the connection state only: the plain \"Fehler\"/\"error\"/\"failed\" were dropped, they hit every genuine error message (32 values at seeding) which is a different concept."
+  },
+  {
+    "id": "save-pending",
+    "concept": "A task with changes that have not reached its integration yet (GLOSSARY: Save pending)",
+    "de": "wird später gespeichert",
+    "en": "saved later",
+    "avoidDe": [
+      "nicht synchronisiert",
+      "ausstehend"
+    ],
+    "avoidEn": [
+      "unsynced",
+      "pending upload"
+    ],
+    "status": "proposed",
+    "note": "Seen only in task.move.hintAttention and task.form.saveInAttention at seeding."
+  },
+  {
+    "id": "move-task",
+    "concept": "A task changes its source; it stays the same task (GLOSSARY: Move)",
+    "de": "verschieben",
+    "en": "move",
+    "avoidDe": [
+      "Aufgabe kopieren",
+      "übertragen",
+      "migrieren"
+    ],
+    "avoidEn": [
+      "copy task",
+      "transfer",
+      "migrate"
+    ],
+    "status": "proposed",
+    "note": "Never \"copy\": the original is deleted from the old source once the task exists in the new one. \"kopieren\"/\"copy\" alone were narrowed to \"Aufgabe kopieren\"/\"copy task\": the bare words hit clipboard actions (\"ID kopieren\", \"Copy summary\") and backup copies (14 values), a different concept."
+  },
+  {
+    "id": "column-open",
+    "concept": "Board column 1 (fixed order Offen, Jetzt, Wartet, Erledigt)",
+    "de": "Offen",
+    "en": "Open",
+    "avoidDe": [
+      "Backlog",
+      "To do"
+    ],
+    "avoidEn": [
+      "backlog",
+      "to do"
+    ],
+    "status": "proposed",
+    "note": "UI status labels are used in E2E assertions. board.columns.* in en.json holds \"Open\", \"Now\", \"Waiting\", \"Done\" (de label in de.json)."
+  },
+  {
+    "id": "column-now",
+    "concept": "Board column 2, the WIP-limited column (at most one task)",
+    "de": "Jetzt",
+    "en": "Now",
+    "avoidDe": [
+      "In Arbeit"
+    ],
+    "avoidEn": [
+      "in progress",
+      "doing"
+    ],
+    "status": "proposed",
+    "note": "The key is board.columns.progress; the term is \"Jetzt\". \"Aktuell\"/\"current\" are not avoid forms: ordinary words (23 values such as \"aktuell keine Datenquellen\", \"Replaces your current data\"). Known collision: en \"doing\" hits the Notion status example \"Today, Doing, Waiting, Done\" (1 value), allow that key when deciding."
+  },
+  {
+    "id": "column-waiting",
+    "concept": "Board column 3: waiting on something",
+    "de": "Wartet",
+    "en": "Waiting",
+    "avoidDe": [
+      "Blockiert",
+      "Pausiert"
+    ],
+    "avoidEn": [
+      "blocked",
+      "paused",
+      "on hold"
+    ],
+    "status": "proposed",
+    "note": "en values containing \"waiting\": 9 at seeding."
+  },
+  {
+    "id": "column-done",
+    "concept": "Board column 4: finished tasks",
+    "de": "Erledigt",
+    "en": "Done",
+    "avoidDe": [
+      "Fertig",
+      "Abgeschlossen"
+    ],
+    "avoidEn": [
+      "finished",
+      "complete"
+    ],
+    "status": "decided",
+    "note": "User answer (#485): a task's state is always erledigt / done; Fertig / Done only labels a button that closes a dialog; abschließen only for the day (Tag abschließen) or a setup. The allow list also exempts de errors.title.success \"Fertig\" (a success toast title, an open question); the 6 en task-state strings that said \"finished\" now say \"done\" (#491).",
+    "allow": [
+      "dayClose.done",
+      "dayClose.putBackHint",
+      "dayClose.closing.line4",
+      "feedback.annotate.done",
+      "topic.picker.done",
+      "notion.modal.stepDone",
+      "notion.modal.finish",
+      "board.sync.degradedHint",
+      "errors.notionSyncFailed",
+      "errors.todoistSyncFailed",
+      "settings.data.copies.failed",
+      "settings.data.exportImport.exportFailed",
+      "settings.data.exportImport.importFailed",
+      "settings.data.exportImport.failedQuota",
+      "settings.data.exportImport.failedWrite",
+      "settings.updates.status.error",
+      "settings.updates.status.errorReason.unknown",
+      "updates.dialog.error.installFailed",
+      "errors.title.success"
+    ]
+  },
+  {
+    "id": "timebox",
+    "concept": "The planned time for a task",
+    "de": "Timebox",
+    "en": "timebox",
+    "avoidDe": [
+      "Zeitbox",
+      "Zeitvorgabe",
+      "Zeitrahmen",
+      "Zeitbudget"
+    ],
+    "avoidEn": [
+      "time limit",
+      "time budget"
+    ],
+    "status": "decided",
+    "note": "User answer (#473): \"Timebox\". de \"Timebox\" 25 values, en \"timebox\" 24; no \"Zeitbox\"/\"Zeitvorgabe\" left. en \"estimate\" (14 values) is not an avoid form: estimation accuracy (\"Estimated accurately\", \"your estimates\") is a different concept from the planned box."
+  },
+  {
+    "id": "topic",
+    "concept": "A grouping label of a task (colour-coded)",
+    "de": "Thema",
+    "en": "topic",
+    "avoidDe": [
+      "Kategorie",
+      "Label",
+      "Tags"
+    ],
+    "avoidEn": [
+      "category",
+      "label",
+      "tag"
+    ],
+    "status": "proposed",
+    "note": "de \"Thema/Themen\" 17 values, en \"topic\" 17; en \"category\" 8, de \"Kategorie\" 1. Avoid forms are matched as case-insensitive word prefixes, so they are narrowed: de \"Tags\" (the plural) instead of \"Tag\", because \"Tag\" also hits \"Tage\", \"Tagen\", \"Tagesabschluss\" and day-close's own \"Tag abschließen\"; the singular loanword \"Tag\" is not catchable. Known collisions today: \"Label\"/\"label\" also hit the placeholder name \"{label}\" (4 values each); en \"tag\" also hits \"tagline\" and \"tagged\" (no value today). Resolve the collisions with a per-key allow when the term is decided (not part of the calibration)."
+  },
+  {
+    "id": "activity",
+    "concept": "The kind of work a task is (second grouping next to topic)",
+    "de": "Aktivität",
+    "en": "activity",
+    "avoidDe": [
+      "Tätigkeit",
+      "Art der Arbeit"
+    ],
+    "avoidEn": [
+      "kind of work",
+      "type of work"
+    ],
+    "status": "proposed",
+    "note": "de \"Aktivität\" 15 values, en \"activity\" 12 (plus one \"Activity\" in de.json). en \"action\" is not an avoid form: it hits \"More actions\" and \"update action\" (2 values), other concepts."
+  },
+  {
+    "id": "note",
+    "concept": "The free-text field of a task",
+    "de": "Notiz",
+    "en": "note",
+    "avoidDe": [
+      "Beschreibung",
+      "Anmerkung"
+    ],
+    "avoidEn": [
+      "description"
+    ],
+    "status": "decided",
+    "note": "User answer (#473): \"Notiz\" over \"Notizen\"/\"Beschreibung\", singular in both languages. The feedback message field \"Beschreibung (optional)\" (feedback.descriptionLabel) is a different concept and is allowed.",
+    "allow": [
+      "feedback.descriptionLabel"
+    ]
+  },
+  {
+    "id": "trash",
+    "concept": "Where deleted tasks sit until they are restored or purged",
+    "de": "Papierkorb",
+    "en": "trash",
+    "avoidDe": [
+      "Mülleimer",
+      "Löschordner"
+    ],
+    "avoidEn": [
+      "bin",
+      "recycle bin",
+      "deleted items"
+    ],
+    "status": "proposed",
+    "note": "de \"Papierkorb\" 5 values, en \"trash\" 5."
+  },
+  {
+    "id": "delete",
+    "concept": "Delete data: a task (it goes to the trash first), a stored token, a draft",
+    "de": "Löschen",
+    "en": "Delete",
+    "avoidDe": [
+      "Entsorgen",
+      "Verwerfen",
+      "Wegwerfen"
+    ],
+    "avoidEn": [
+      "discard",
+      "dispose"
+    ],
+    "status": "decided",
+    "note": "User answer (#473): data removal = Löschen. de \"Löschen\" 29 values, en \"delete\" 28. Different concepts: delete (data goes away), remove (a value or element is taken away, nothing deleted), disconnect (ends an integration). The GitHub token is stored data (Löschen), the feedback draft \"Entwurf löschen\" replaces \"verwerfen\"."
+  },
+  {
+    "id": "remove",
+    "concept": "Take a value or an element away without deleting data (a timebox, a field value, a screenshot, a highlight)",
+    "de": "Entfernen",
+    "en": "Remove",
+    "avoidDe": [
+      "Streichen"
+    ],
+    "avoidEn": [
+      "erase"
+    ],
+    "status": "decided",
+    "note": "de \"Entfernen\" 6 values (task.property.clear, task.contextMenu.removeTimebox, feedback.removeElement, feedback.screenshot.remove, feedback.annotate.drawHint, the checkbox sentence in settings.data.exportImport.failedSafety), en \"remove\" 5. Boundary to delete and disconnect: see those entries. \"Löschen\"/\"delete\" are not avoid forms here: they are the preferred forms of delete, and a term may not avoid another term's preferred form (checkTerms). The boundary is by concept, reviewed per string."
+  },
+  {
+    "id": "archive",
+    "concept": "Move finished tasks out of the board into the archive",
+    "de": "Archivieren",
+    "en": "Archive",
+    "avoidDe": [
+      "Ablegen",
+      "Verstauen"
+    ],
+    "avoidEn": [
+      "file away",
+      "stash"
+    ],
+    "status": "proposed",
+    "note": "de \"Archiv*\" 6 values, en 6. Known collision: de \"Ablegen\" also hits the drag-and-drop hint \"Hier ablegen, um die Aufgabe abzuschließen\" (1 value, allow that key)."
+  },
+  {
+    "id": "restore",
+    "concept": "Bring a task back from the trash",
+    "de": "Wiederherstellen",
+    "en": "Restore",
+    "avoidDe": [
+      "Zurückholen",
+      "Rückgängig machen"
+    ],
+    "avoidEn": [
+      "recover",
+      "bring back",
+      "undelete"
+    ],
+    "status": "proposed",
+    "note": "de \"Wiederherstellen\" 16 values, en \"restore\" 15."
+  },
+  {
+    "id": "undo",
+    "concept": "Revert the last action right after it",
+    "de": "Rückgängig",
+    "en": "Undo",
+    "avoidDe": [
+      "Zurücknehmen",
+      "Widerrufen"
+    ],
+    "avoidEn": [
+      "revert",
+      "take back"
+    ],
+    "status": "proposed",
+    "note": "de \"Rückgängig\" 3 values, en \"Undo\" 4. DESIGN.md: undo instead of confirm."
+  },
+  {
+    "id": "save",
+    "concept": "Store the changes of a form",
+    "de": "Speichern",
+    "en": "Save",
+    "avoidDe": [
+      "Änderungen sichern",
+      "Absenden"
+    ],
+    "avoidEn": [
+      "submit",
+      "store changes"
+    ],
+    "status": "proposed",
+    "note": "de \"Speichern\" 12 values vs \"Sichern\" 2; en \"Save\" 32. Narrowed: bare \"Sichern\"/\"store\" hit backups (\"Jetzt sichern\", \"Stored on this device\"), a different concept (3+2 values)."
+  },
+  {
+    "id": "apply",
+    "concept": "Accept a suggestion (for example a suggested timebox)",
+    "de": "Übernehmen",
+    "en": "Apply",
+    "avoidDe": [
+      "Anwenden",
+      "Akzeptieren"
+    ],
+    "avoidEn": [
+      "accept suggestion",
+      "use suggestion"
+    ],
+    "status": "proposed",
+    "note": "common.apply and task.timeboxNudge.apply; save vs apply: save stores a form, apply takes a suggestion. Narrowed: bare \"accept\" hits \"did not accept the change\" (Keychain) and \"not accepting more requests\" (3 values)."
+  },
+  {
+    "id": "cancel",
+    "concept": "Leave a form or dialog without changes",
+    "de": "Abbrechen",
+    "en": "Cancel",
+    "avoidDe": [
+      "Verwerfen"
+    ],
+    "avoidEn": [
+      "discard",
+      "dismiss"
+    ],
+    "status": "proposed",
+    "note": "de \"Abbrechen\" 3 values, en \"Cancel\" 7. \"Zurück\" (common.back) is navigation, not cancel."
+  },
+  {
+    "id": "close",
+    "concept": "Close a dialog or sheet",
+    "de": "Schließen",
+    "en": "Close",
+    "avoidDe": [
+      "Beenden"
+    ],
+    "avoidEn": [
+      "dismiss",
+      "exit"
+    ],
+    "status": "proposed",
+    "note": "de \"Schließen\" 6 values, en \"Close\" 10. Not for ending the day, see day-close."
+  },
+  {
+    "id": "day-close",
+    "concept": "The end-of-day flow: look back at today and tidy the board",
+    "de": "Tag abschließen",
+    "en": "Close the day",
+    "avoidDe": [
+      "Tagesabschluss",
+      "Feierabend"
+    ],
+    "avoidEn": [
+      "end of day",
+      "wrap up",
+      "day close"
+    ],
+    "status": "proposed",
+    "note": "de \"Tag abschließen\" 4 values vs \"Tagesabschluss\" 1 (dayClose.markdown.heading, a generated heading); en \"Close the day\"."
+  },
+  {
+    "id": "recap",
+    "concept": "The short look back at the previous day when a new day starts",
+    "de": "Kurzer Rückblick",
+    "en": "Quick look back",
+    "avoidDe": [
+      "Zusammenfassung von gestern",
+      "Tagesrückblick",
+      "Recap"
+    ],
+    "avoidEn": [
+      "yesterday's summary",
+      "recap"
+    ],
+    "status": "proposed",
+    "note": "recap.title. de \"Rückblick\" 2 values; dayClose.description also says \"Rückblick auf heute\". The English values at seeding are \"Quick look back\" (recap) and \"A look back at today\" (day close). Narrowed: bare \"Zusammenfassung\"/\"summary\" hit the day summary export (\"Copy summary\", \"Summary copied\", 8 values) and \"review\" hits the feedback dialog (\"Review and send\"), other concepts."
+  },
+  {
+    "id": "sync",
+    "concept": "Exchange changes with an integration",
+    "de": "Synchronisieren",
+    "en": "Sync",
+    "avoidDe": [
+      "Abgleichen",
+      "Aktualisieren"
+    ],
+    "avoidEn": [
+      "refresh",
+      "update from"
+    ],
+    "status": "proposed",
+    "note": "de \"Synchron*\" 20 values and \"Sync\" 19; en \"sync\" 27. de \"Abgleich\" 1. Known collision: de \"Aktualisieren\" also hits the app updater (\"App aktualisieren\", 1 value); it cannot be told apart under word-prefix matching, allow that key."
+  },
+  {
+    "id": "time-spent",
+    "concept": "Time actually spent on a task",
+    "de": "Aufgewendete Zeit",
+    "en": "time spent",
+    "avoidDe": [
+      "Zeit investiert",
+      "Aufwand",
+      "investiert"
+    ],
+    "avoidEn": [
+      "time invested",
+      "effort"
+    ],
+    "note": "User answer (#485): the time spent on a task is 'Aufgewendete Zeit' / 'Time spent', not 'Zeit investiert' or 'Aufwand'. The running timer on a card keeps 'Bisher gearbeitet'.",
+    "status": "decided"
+  },
+  {
+    "id": "token",
+    "concept": "The secret that connects an integration",
+    "de": "Token",
+    "en": "token",
+    "avoidDe": [
+      "Zugang",
+      "Zugangsdaten"
+    ],
+    "avoidEn": [
+      "credentials",
+      "access token"
+    ],
+    "note": "Token is the secret; Zugriff / access is what it permits or is refused (User answer #485).",
+    "status": "decided"
+  },
+  {
+    "id": "settings",
+    "concept": "The place and the things a user can change",
+    "de": "Einstellungen",
+    "en": "settings",
+    "avoidDe": [
+      "Konfiguration",
+      "konfigur"
+    ],
+    "avoidEn": [
+      "configuration",
+      "configur"
+    ],
+    "note": "User answer (#485): Einstellungen / settings for the place and what can be changed; no Konfiguration / configuration.",
+    "status": "decided"
+  },
+  {
+    "id": "set-up",
+    "concept": "First guided setup of an integration",
+    "de": "einrichten",
+    "en": "set up",
+    "avoidDe": [
+      "konfigurieren"
+    ],
+    "avoidEn": [
+      "configure"
+    ],
+    "note": "User answer (#485): the first guided setup of an integration; \"Einrichtung\" / \"setup\" is the noun.",
+    "status": "decided"
+  },
+  {
+    "id": "product-name",
+    "concept": "The product name in running text",
+    "de": "Kan-Do",
+    "en": "Kan-Do",
+    "avoidDe": [
+      "kan-do",
+      "kan‑do"
+    ],
+    "avoidEn": [
+      "kan-do",
+      "kan‑do"
+    ],
+    "caseSensitive": true,
+    "note": "PRODUCT.md \"Name: Kan-Do\". The wordmark text `nav.brand` stays lowercase on purpose (DESIGN.md Navigation: the brand `kan-do` in the app bar pill) and is allowed.",
+    "allow": [
+      "nav.brand"
+    ],
+    "status": "decided"
+  },
+  {
+    "id": "address-du",
+    "concept": "Form of address in German UI copy",
+    "de": "du",
+    "en": "you",
+    "avoidDe": [
+      "Sie",
+      "Ihr",
+      "Ihnen"
+    ],
+    "avoidEn": [],
+    "status": "decided",
+    "note": "DESIGN.md \"Voice and copy\": du. The formal address is converted (#474). \"Sie\"/\"Ihr\"/\"Ihnen\" are matched case-sensitively (caseSensitive), so the pronoun \"sie\"/\"ihre\" (she/they/it) does not hit; the 4 sentence-initial pronouns \"Sie bleibt…\" are exempt via allow (keep the list to these keys: a new sentence-initial pronoun needs an allowed key).",
+    "allow": [
+      "settings.data.state.corrupt",
+      "settings.topics.emptyTopics",
+      "settings.topics.emptyActivities",
+      "sources.disconnect.leaving"
+    ],
+    "caseSensitive": true
+  },
+  {
+    "id": "day-end",
+    "concept": "The last moment of a day the app saw: the tasks still in Offen, Jetzt or Wartet then are counted on the Statistik page (#537)",
+    "de": "Tagesende",
+    "en": "day end",
+    "avoidDe": ["Feierabend", "Abend"],
+    "avoidEn": ["evening", "end of day"],
+    "status": "proposed",
+    "note": "Not an exact time: the count is the last one the app saw that day, so a day on which the app was only open in the morning shows the morning count. Not to be confused with day-close (the dialog, \"Tag abschließen\")."
+  },
+  {
+    "id": "task-title",
+    "concept": "A task's required name, the first field of the add and detail sheets (#662)",
+    "de": "Titel",
+    "en": "title",
+    "avoidDe": ["Name der Aufgabe"],
+    "avoidEn": ["task name"],
+    "status": "proposed",
+    "note": "The add-sheet placeholder asks to \"benennen\"/\"name\" the task and the empty-title error says \"Gib der Aufgabe einen Titel.\" / \"Give the task a title.\": verb and noun differ on purpose (the field is a title, naming is the act)."
+  },
+  {
+    "id": "statistics-page",
+    "concept": "The statistics place: app bar segment, page title, browser tab title, open command (#680)",
+    "de": "Statistik",
+    "en": "Statistics",
+    "avoidDe": ["Statistiken"],
+    "avoidEn": [],
+    "status": "proposed",
+    "note": "A place is named like the app bar names it (\"Heute\", \"Statistik\", \"Papierkorb\", \"Einstellungen\"): the singular, also as the page title and the tab title. de \"Statistiken\" was the page title and tab title before #680 while the app bar and the command said \"Statistik\". en was consistent (\"Statistics\" everywhere). \"Statistik\" inside running text (\"zur Statistik hinzugefügt\") is the same word."
+  },
+  {
+    "id": "settings-manage-tab",
+    "concept": "The third tab of Einstellungen: topics and activities, data and storage, updates and GitHub access (#691)",
+    "de": "Verwaltung",
+    "en": "Manage",
+    "avoidDe": ["App & Daten", "Sonstiges", "Mehr"],
+    "avoidEn": ["Other", "More", "App & data"],
+    "status": "proposed",
+    "note": "Named by the user in the #691 design round: user-data maintenance, not board behaviour, so Themen und Aktivitäten lives here too. The tab strip reads Board, Aufgabenquellen, Verwaltung (en: Board, Connections, Manage; en avoids \"task source\" because of the task-source term)."
+  },
+  {
+    "id": "request-limit",
+    "concept": "How many requests GitHub allows per hour; an optional read-only token raises it (update checks)",
+    "de": "Anfragelimit",
+    "en": "request limit",
+    "avoidDe": ["Rate-Limit", "Ratenlimit"],
+    "avoidEn": ["rate limit"],
+    "status": "proposed"
+  },
+  {
+    "id": "feedback-issue",
+    "concept": "What a feedback report becomes on GitHub: a public issue in the app's repository",
+    "de": "Issue",
+    "en": "issue",
+    "avoidDe": ["Ticket", "Fehlermeldung"],
+    "avoidEn": ["ticket", "bug report"],
+    "status": "proposed",
+    "note": "GitHub's own word, as the feedback dialog already used it (\"Als Issue senden\"). German keeps the English noun (das Issue). Since the repository is public the dialog says \"öffentliches Issue\" / \"public issue\"."
+  },
+  {
+    "id": "github-account",
+    "concept": "The user's own GitHub sign-in that the browser path of the feedback needs",
+    "de": "GitHub-Konto",
+    "en": "GitHub account",
+    "avoidDe": ["GitHub-Account"],
+    "avoidEn": ["GitHub login", "GitHub profile"],
+    "status": "proposed",
+    "note": "Not the token: the token is the secret stored in the app (token entry); the account is the person's sign-in on github.com. German compound with the brand name takes a hyphen (DESIGN.md)."
+  }
+]

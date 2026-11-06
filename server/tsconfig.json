@@ -1,0 +1,21 @@
+{
+  "extends": "../.nuxt/tsconfig.server.json",
+  "compilerOptions": {
+    "outDir": "../.output/server",
+    "rootDir": "./",
+    "module": "ESNext",
+    "target": "ESNext",
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "./**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "./**/__tests__/**",
+    "./**/*.test.ts",
+    "./**/*.spec.ts"
+  ]
+}

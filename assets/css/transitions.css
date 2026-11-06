@@ -1,0 +1,27 @@
+/**
+ * Page transitions (.page-enter-active etc.) for navigation between pages.
+ * Imported by main.css; components layer (#43).
+ */
+
+@layer components {
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.page-enter-to,
+.page-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+}

@@ -1,0 +1,161 @@
+name: Release
+
+# Desktop release on a macOS runner (#228 phase 3, ADR 013, docs/release.md "CI release").
+#
+# The repository is public, so Actions minutes (macOS included) are free. A local `npm run release`
+# stays the default way to cut a release; this workflow is the alternative that needs no Mac, and it
+# runs on every pushed `v*.*.*` tag (a locally published release makes it exit in the `gate` job).
+# Signing secrets, if they are ever stored in GitHub, belong in an `environment:` with a required
+# reviewer (docs/release.md "CI release"). Third-party actions are pinned by commit SHA.
+#
+# It runs the same script as a local release (`scripts/release.mjs --ci`), so the checks, the signing
+# and notarization, the asset names and `latest.json` cannot drift between the two. The difference is
+# the start: the tag `vX.Y.Z` is pushed first, on a commit that already bumped the version files and has
+# `release-notes/X.Y.Z.md`. The job leaves a DRAFT release; publishing it stays a human click.
+
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version X.Y.Z to release. The tag vX.Y.Z must already be pushed.
+        required: true
+        type: string
+      allow_adhoc:
+        description: Build ad-hoc (no Developer ID, not notarized) when the Apple secrets are missing. Off by default, so a missing secret fails the run.
+        required: false
+        type: boolean
+        default: false
+
+# Never two builds of the same version at once, whichever way they were started (a tag push gives
+# `release-v1.2.3`, a dispatch of `1.2.3` or `v1.2.3` the same); never cancel a running notarization.
+concurrency:
+  group: release-${{ github.event_name == 'workflow_dispatch' && (startsWith(inputs.version, 'v') && inputs.version || format('v{0}', inputs.version)) || github.ref_name }}
+  cancel-in-progress: false
+
+# The default token may create and edit the draft release; nothing else.
+permissions:
+  contents: write
+
+# Exact Tauri CLI the build installs (cache key and `cargo install --version`). Keep it >= MIN_TAURI_CLI
+# in scripts/release/preflight.mjs (2.11.5); bump it deliberately, a floating "^2" would change the signing tool unreviewed.
+env:
+  TAURI_CLI_VERSION: 2.12.4
+
+jobs:
+  # Ubuntu (1x minutes): resolve the version and look the release up before a macOS runner (10x) is
+  # started. A local `npm run release` publishes the draft, which creates the tag and fires this workflow
+  # again; a published release means there is nothing to do. No secrets here.
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      skip: ${{ steps.published.outputs.skip }}
+    steps:
+      # The ref name is user-controlled text, so it only ever reaches shell code through env.
+      - name: Resolve the version
+        id: version
+        env:
+          RAW: ${{ inputs.version || github.ref_name }}
+        run: |
+          version="${RAW#v}"
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::'$RAW' is not a plain X.Y.Z version"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Skip a release that is already published
+        id: published
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+          if [ "$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/v$VERSION" --jq '.draft' 2>/dev/null)" = "false" ]; then
+            echo "Release v$VERSION is already published; nothing to do."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  release:
+    needs: gate
+    if: needs.gate.outputs.skip != 'true'
+    # macOS arm64 runner: releases are Apple silicon only (ADR 009).
+    runs-on: macos-15
+    # Notarization can take a while on a first run; the job then fails and is re-run.
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: refs/tags/v${{ needs.gate.outputs.version }}
+          fetch-depth: 0
+          # No token in the git config for the compile step to read; `gh` gets it through GH_TOKEN only.
+          persist-credentials: false
+
+      # Only commits that reached main may be released.
+      - name: Check the tag is on main
+        run: |
+          git merge-base --is-ancestor HEAD origin/main || { echo "::error::The tagged commit is not on main"; exit 1; }
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # The Tauri CLI that `npm run tauri:build` calls, pinned exactly (TAURI_CLI_VERSION above). The release
+      # preflight refuses one older than 2.11.5.
+      # The build output (`src-tauri/target`) is deliberately not cached: a signed release builds clean.
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: |
+            ~/.cargo/bin/cargo-tauri
+            ~/.cargo/registry
+          key: tauri-${{ runner.os }}-${{ env.TAURI_CLI_VERSION }}-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: tauri-${{ runner.os }}-${{ env.TAURI_CLI_VERSION }}-
+      - name: Install the Tauri CLI
+        run: |
+          if [ "$(cargo tauri --version 2>/dev/null | awk '{print $2}')" != "$TAURI_CLI_VERSION" ]; then
+            cargo install tauri-cli --version "$TAURI_CLI_VERSION" --locked --force
+          fi
+
+      # Secrets appear only in this step's `env`, never in a command line or an echo. The script hands each
+      # one to exactly one child (updater key and Apple credentials to the bundling step, the token to
+      # `gh`; the .p8 contents become a file only while that bundling step runs); the compile step and the npm lifecycle scripts get none (docs/release.md, ADR 013).
+      # Developer ID is required: without the Apple secrets the run fails instead of falling back to an
+      # ad-hoc build. Only a manual dispatch with `allow_adhoc` may build ad-hoc, and the run says so.
+      # `--skip-verify`: ci.yml already runs lint, typecheck and unit tests on every PR and every push to
+      # main, so the slower macOS runner does not repeat them.
+      - name: Build, sign, notarize and upload the draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.gate.outputs.version }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_API_KEY_P8: ${{ secrets.APPLE_API_KEY_P8 }}
+          ALLOW_ADHOC: ${{ inputs.allow_adhoc }}
+        run: |
+          args=(--ci --skip-verify)
+          [ "$ALLOW_ADHOC" = "true" ] || args+=(--require-developer-id)
+          node scripts/release.mjs "$VERSION" "${args[@]}"
+
+      - name: Summary
+        env:
+          VERSION: ${{ needs.gate.outputs.version }}
+        run: |
+          {
+            echo "### Draft release v$VERSION"
+            echo "Check the assets, then publish it: https://github.com/$GITHUB_REPOSITORY/releases"
+          } >> "$GITHUB_STEP_SUMMARY"

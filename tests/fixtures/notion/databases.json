@@ -1,0 +1,14 @@
+[
+  {
+    "id": "db-123",
+    "title": "Demo Aufgaben",
+    "dataSources": [
+      {
+        "id": "ds-123",
+        "name": "Heute",
+        "databaseId": "db-123",
+        "databaseTitle": "Demo Aufgaben"
+      }
+    ]
+  }
+]

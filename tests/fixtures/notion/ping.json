@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "me": {
+    "object": "user",
+    "id": "stub-user",
+    "name": "Playwright Stub"
+  },
+  "counts": {
+    "data_sources": 1,
+    "pages_or_databases": 1
+  },
+  "samples": {
+    "data_sources": [],
+    "pages": []
+  }
+}

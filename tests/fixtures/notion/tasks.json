@@ -1,0 +1,90 @@
+[
+  {
+    "id": "page-1",
+    "properties": {
+      "Name": {
+        "title": [
+          { "plain_text": "Fokusaufgabe vorbereiten" }
+        ]
+      },
+      "Status": {
+        "select": {
+          "name": "Today",
+          "color": "blue"
+        }
+      },
+      "Timebox": {
+        "number": 90
+      },
+      "Aufwand": {
+        "number": 60
+      }
+    }
+  },
+  {
+    "id": "page-2",
+    "properties": {
+      "Name": {
+        "title": [
+          { "plain_text": "Review Team Updates" }
+        ]
+      },
+      "Status": {
+        "select": {
+          "name": "Doing",
+          "color": "orange"
+        }
+      },
+      "Timebox": {
+        "number": 45
+      },
+      "Aufwand": {
+        "number": 30
+      }
+    }
+  },
+  {
+    "id": "page-3",
+    "properties": {
+      "Name": {
+        "title": [
+          { "plain_text": "Blocker klären" }
+        ]
+      },
+      "Status": {
+        "select": {
+          "name": "Waiting",
+          "color": "yellow"
+        }
+      },
+      "Timebox": {
+        "number": 30
+      },
+      "Aufwand": {
+        "number": 15
+      }
+    }
+  },
+  {
+    "id": "page-4",
+    "properties": {
+      "Name": {
+        "title": [
+          { "plain_text": "Retrospektive nachbereiten" }
+        ]
+      },
+      "Status": {
+        "select": {
+          "name": "Done",
+          "color": "green"
+        }
+      },
+      "Timebox": {
+        "number": 60
+      },
+      "Aufwand": {
+        "number": 60
+      }
+    }
+  }
+]

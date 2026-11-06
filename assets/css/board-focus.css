@@ -1,0 +1,32 @@
+/**
+ * Keyboard focus ring for task cards. Imported by main.css (#43).
+ */
+
+@layer components {
+/* The page container is only a programmatic focus target (#644): dialogs and the day-close, recap and
+   feedback flows send focus back to it through a temporary tabindex="-1" when no element opened them.
+   A keyboard-closed dialog (Escape) makes that focus :focus-visible, which drew the UA ring around the
+   whole board. It is no tab stop and has no action, so it shows no ring; real controls keep theirs. */
+[data-task-sheet-return][tabindex="-1"]:focus-visible {
+  outline: none;
+}
+
+/* Keyboard focus for task cards: the focusable element is the dnd-kit wrapper, which has no
+   Nuxt UI focus style, so the UA default (thin, square, off-palette ring) showed instead. */
+.task-wrapper:focus-visible {
+  outline: none;
+}
+
+/* Draw the ring on the card itself: the wrapper is wider than the card in stacked columns. */
+.task-wrapper:focus-visible .task {
+  outline: 2px solid var(--ui-primary);
+  outline-offset: 2px;
+}
+
+/* Muted cards (50% opacity) lift to full opacity when the wrapper itself has keyboard focus;
+   `:focus-within` in TaskCard only covers focus on descendants. */
+.task-wrapper:focus-visible .task.muted > *,
+.task-wrapper:focus-visible .task-waiting > * {
+  opacity: 1;
+}
+}

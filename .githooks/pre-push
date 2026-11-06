@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Opt-in: git config core.hooksPath .githooks
+# Runs the same checks as the CI `quality` job so a failing push never costs Actions minutes.
+# Bypass once with `git push --no-verify`.
+[ -d node_modules ] || exit 0
+exec npm run verify

@@ -1,0 +1,261 @@
+<!--
+@component TaskCardContextMenu
+@description Wraps TaskCard with a context menu for quick task actions.
+  On desktop: right-click opens the menu via the native contextmenu event.
+  On mobile/touch: a 750ms long press opens the menu; moving more than 14px
+  (grace pixels) cancels it so a drag gesture is never interrupted.
+  If a drag starts while the menu is open it is closed immediately.
+@usage Used in BoardColumn to provide right-click / long-press menu on task cards
+@responsibility
+- Provides context menu with task actions (status, timebox, delete, etc.)
+- Handles custom timebox modal
+- Delegates task operations to composables
+-->
+<template>
+  <UContextMenu
+    v-model:open="isOpen"
+    :items="menuItems"
+    :ui="contextMenuUi"
+    size="md"
+  >
+    <!--
+      Inner wrapper captures pointer events for long-press detection.
+      contextmenu is intercepted on touch so we control open state ourselves;
+      on mouse it bubbles through to UContextMenu as normal.
+    -->
+    <div
+      v-bind="longPressHandlers"
+      :class="{ 'kando-long-press-active': isPressing }"
+      @pointerdown="handleWrapperPointerDown"
+      @contextmenu="handleContextMenu"
+    >
+      <slot />
+    </div>
+  </UContextMenu>
+
+  <!-- Custom timebox modal -->
+  <UModal
+    v-model:open="showTimeboxModal"
+    :title="t('task.contextMenu.setTimebox')"
+    :ui="{ content: MODAL_WIDTH.sm }"
+  >
+    <template #body>
+      <div class="space-y-4">
+        <p class="text-sm text-muted">
+          {{ t('task.contextMenu.customPrompt') }}
+        </p>
+        <div class="flex items-center gap-3">
+          <UInput
+            v-model="customTimeboxMinutes"
+            type="number"
+            placeholder="25"
+            :min="1"
+            :max="480"
+            autofocus
+            class="w-24"
+            @keyup.enter="applyCustomTimebox"
+          />
+          <span class="text-sm text-muted">{{ t('task.contextMenu.minutesUnit') }}</span>
+        </div>
+      </div>
+    </template>
+
+    <template #footer>
+      <UButton
+        color="neutral"
+        variant="soft"
+        @click="() => { showTimeboxModal = false; }"
+      >
+        {{ t('common.cancel') }}
+      </UButton>
+      <UButton
+        size="lg"
+        color="primary"
+        :disabled="!isValidTimebox"
+        @click="applyCustomTimebox"
+      >
+        {{ t('common.apply') }}
+      </UButton>
+    </template>
+  </UModal>
+</template>
+
+<script setup lang="ts">
+import { MODAL_WIDTH } from '~/utils/modalSizes'
+import { ref, computed, toRef, watch, onBeforeUnmount } from "vue";
+import { useI18n } from "vue-i18n";
+import type { Task } from "~/types/task";
+import { useTaskContextMenu } from "~/composables/useTaskContextMenu";
+import { useLongPress } from "~/composables/useLongPress";
+import { useBoardDragState } from "~/composables/useBoardDragState";
+
+defineOptions({ name: "TaskCardContextMenu" });
+
+const { t } = useI18n();
+
+/**
+ * Props for TaskCardContextMenu component.
+ */
+const props = defineProps<{
+  /** The task object to show context menu for */
+  task: Task;
+}>();
+
+const emit = defineEmits<{
+  /** Emitted when task is deleted */
+  deleted: [taskId: string];
+}>();
+
+// Programmatic open state — shared between desktop (contextmenu event) and
+// mobile (long press). UContextMenu is driven by this ref via v-model:open.
+const isOpen = ref(false);
+
+// Custom timebox modal state
+const showTimeboxModal = ref(false);
+const customTimeboxMinutes = ref<number | undefined>(undefined);
+
+const isValidTimebox = computed(() => {
+  const val = customTimeboxMinutes.value;
+  return val !== undefined && val >= 1 && val <= 480;
+});
+
+// Context menu setup
+const taskRef = toRef(props, "task");
+const { menuItems, setTimebox } = useTaskContextMenu(taskRef, {
+  onCustomTimebox: () => {
+    // Pre-fill with current timebox if exists
+    if (props.task.timeBoxSeconds) {
+      customTimeboxMinutes.value = Math.round(props.task.timeBoxSeconds / 60);
+    } else {
+      customTimeboxMinutes.value = undefined;
+    }
+    showTimeboxModal.value = true;
+  },
+  onDeleted: (taskId) => {
+    emit("deleted", taskId);
+  },
+});
+
+// ── Mobile / touch long-press ─────────────────────────────────────────────────
+
+// Track pointer position at pointerdown so we can measure movement after fire.
+let _pressX = 0;
+let _pressY = 0;
+// Cleanup fn for the post-fire drag guard listener.
+let _dragGuardCleanup: (() => void) | null = null;
+
+function removeDragGuard() {
+  if (_dragGuardCleanup) {
+    _dragGuardCleanup();
+    _dragGuardCleanup = null;
+  }
+}
+
+const { handlers: longPressHandlers, isPressing, lastPointerType } = useLongPress(
+  () => {
+    // Timer fired: user held still for 750ms on a touch device.
+    // Provide haptic feedback when available.
+    if (import.meta.client && "vibrate" in navigator) {
+      navigator.vibrate(10);
+    }
+    isOpen.value = true;
+
+    // After the menu opens the finger is still down. If the user starts dragging
+    // (moves > 10px), reka-ui's DismissableLayer may capture pointer events before
+    // dnd-kit can fire onDragStart — so the existing dragState watcher won't close
+    // the menu. We install a capture-phase document listener as an escape hatch.
+    if (!import.meta.client) return;
+    const fireX = _pressX;
+    const fireY = _pressY;
+
+    // Close on either pointermove OR touchmove — on iOS, reka-ui's DismissableLayer
+    // can consume touch events before the browser synthesizes them into pointer events,
+    // so pointermove alone may never fire. touchmove in capture phase arrives first.
+    const onMove = (e: PointerEvent | TouchEvent) => {
+      const clientX = 'touches' in e ? (e.touches[0]?.clientX ?? fireX) : e.clientX;
+      const clientY = 'touches' in e ? (e.touches[0]?.clientY ?? fireY) : e.clientY;
+      const d = Math.sqrt((clientX - fireX) ** 2 + (clientY - fireY) ** 2);
+      if (d > 10) {
+        // reka-ui's DismissableLayer ignores external v-model=false while the menu is
+        // actively open — it only responds to Escape or an internal dismiss trigger.
+        // Dispatching Escape is the reliable way to close the ContextMenu from outside.
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+        isOpen.value = false;
+        removeDragGuard();
+      }
+    };
+    const onUp = () => removeDragGuard();
+
+    document.addEventListener("pointermove", onMove as EventListener, { capture: true, passive: true });
+    document.addEventListener("touchmove", onMove as EventListener, { capture: true, passive: true });
+    document.addEventListener("pointerup", onUp, { capture: true, once: true });
+
+    _dragGuardCleanup = () => {
+      document.removeEventListener("pointermove", onMove as EventListener, true);
+      document.removeEventListener("touchmove", onMove as EventListener, true);
+      document.removeEventListener("pointerup", onUp, true);
+    };
+  },
+);
+
+/** Record pointer position at press time so the drag guard has an origin. */
+function handleWrapperPointerDown(event: PointerEvent) {
+  _pressX = event.clientX;
+  _pressY = event.clientY;
+}
+
+/**
+ * Intercepts the native contextmenu event.
+ * - Mouse (right-click): let it bubble up to UContextMenu naturally.
+ * - Touch / pen: stop propagation so UContextMenu does not double-open;
+ *   the long-press handler above already controls isOpen.
+ */
+function handleContextMenu(event: MouseEvent) {
+  if (lastPointerType.value !== "mouse") {
+    // Touch-triggered: we manage open state via useLongPress.
+    // Stop propagation to prevent UContextMenu from also reacting.
+    event.stopPropagation();
+  }
+}
+
+// ── Close menu when a drag starts ─────────────────────────────────────────────
+// Primary guard: document pointermove listener installed by the long-press
+// callback above. Secondary guard: watcher on dragState covers the case where
+// dnd-kit does fire onDragStart (pointer events not swallowed by the overlay).
+
+const { dragState } = useBoardDragState();
+
+watch(
+  () => dragState.value.isDragging,
+  (dragging) => {
+    if (dragging) {
+      isOpen.value = false;
+      removeDragGuard();
+    }
+  },
+  { flush: 'sync' },
+);
+
+// Remove drag guard listener on unmount to avoid leaks.
+onBeforeUnmount(removeDragGuard);
+
+// ── Timebox helpers ───────────────────────────────────────────────────────────
+
+/**
+ * Applies custom timebox from modal input
+ */
+const applyCustomTimebox = () => {
+  if (isValidTimebox.value && customTimeboxMinutes.value) {
+    setTimebox(customTimeboxMinutes.value * 60);
+    showTimeboxModal.value = false;
+    customTimeboxMinutes.value = undefined;
+  }
+};
+
+/**
+ * Custom UI overrides for context menu styling
+ */
+const contextMenuUi = {
+  content: "min-w-48",
+};
+</script>

@@ -1,0 +1,131 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/cleanup-merged.sh",
+            "timeout": 60,
+            "statusMessage": "Cleaning up merged PR worktrees and branches..."
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/cloud-setup.sh",
+            "timeout": 600,
+            "statusMessage": "Cloud session: installing dependencies and Chromium..."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/verify.sh",
+            "timeout": 600,
+            "statusMessage": "Verifying (lint, typecheck, design scans, unit tests)..."
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/impeccable-worktree.sh",
+            "timeout": 60,
+            "statusMessage": "Design deep pass (worktree)..."
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/eslint-file.sh",
+            "timeout": 60,
+            "statusMessage": "Linting edited file..."
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/impeccable-worktree.sh",
+            "timeout": 30,
+            "statusMessage": "Design check (worktree)..."
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/eslint-file.sh",
+            "timeout": 60,
+            "statusMessage": "Linting files changed by the command..."
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/impeccable-worktree.sh",
+            "timeout": 30,
+            "statusMessage": "Design check (files changed by the command)..."
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-commands.sh",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/e2e-before-merge.sh",
+            "timeout": 1800,
+            "statusMessage": "Running E2E before merge (cached per PR head SHA)..."
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(gh issue view *)",
+      "Bash(gh issue list *)",
+      "Bash(gh issue comment *)",
+      "Bash(gh issue edit *)",
+      "Bash(gh label create *)",
+      "Bash(gh label list *)",
+      "Bash(gh pr list *)",
+      "Bash(git worktree *)",
+      "Bash(git branch *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(npm run notion:sandbox *)",
+      "Bash(npm run test:contract*)",
+      "Bash(rm src-tauri/target)",
+      "Bash(rm -rf dist)",
+      "Bash(rm -rf .e2e-build)",
+      "Bash(rm -rf tests/e2e/playwright-report)",
+      "Bash(rm -rf tests/e2e/test-results)"
+    ],
+    "deny": [
+      "Edit(docs/copy/terms.lock.json)",
+      "Write(docs/copy/terms.lock.json)"
+    ]
+  },
+  "worktree": {
+    "symlinkDirectories": [
+      "node_modules"
+    ]
+  }
+}
