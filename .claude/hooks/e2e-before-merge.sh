@@ -13,7 +13,8 @@ input=$(cat)
 . "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/hook-input.sh"
 if ! cmd=$(hook_command "$input"); then
   # Neither jq nor perl's JSON::PP could read the input (#2): never wave a possible merge through.
-  printf '%s' "$input" | grep -Eq 'gh.*merge' && { echo "e2e-before-merge: cannot read the hook input (no working jq, and perl's JSON::PP failed), and it mentions the merge command. Install jq (brew install jq), then retry." >&2; exit 2; }
+  # Any `merge` in the raw input counts: a quoted or encoded `gh` (`$'\x67h'`) is not visible to a text check.
+  printf '%s' "$input" | grep -q merge && { echo "e2e-before-merge: cannot read the hook input (no working jq, and perl's JSON::PP failed), and it mentions the merge command. Install jq (brew install jq), then retry." >&2; exit 2; }
   exit 0
 fi
 # Only a real invocation counts, not text inside a commit message or heredoc (#506). The command is tokenised the way

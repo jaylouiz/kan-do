@@ -899,7 +899,7 @@ describe('e2e-before-merge hook without jq (#2)', () => {
 
   it('blocks a merge too when perl cannot read the input either, and lets unrelated commands through', () => {
     const path = noJqBin({ perl: '#!/bin/sh\nexit 1\n' })
-    for (const command of [merge(), restMerge(), '"gh" pr merge 12']) {
+    for (const command of [merge(), restMerge(), '"gh" pr merge 12', "$'\\x67h' pr merge 12"]) {
       const result = run(path, command)
       expect(result.status, command).toBe(2)
       expect(result.stderr, command).toContain('cannot read the hook input')
