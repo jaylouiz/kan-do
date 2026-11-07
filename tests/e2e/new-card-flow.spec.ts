@@ -429,6 +429,57 @@ test.describe('guided new card, keyboard and steps (desktop)', () => {
     await expect(page.getByTestId('new-card-more')).toBeFocused()
   })
 
+  test('#15: arrow keys, Home/End, Enter and Esc work inside the "all options" list', async ({ page }) => {
+    await openCard(page)
+    await confirmTitle(page, 'Pfeiltasten')
+    await page.keyboard.press('1') // Thema -> Aktivität
+    await expect(step(page)).toHaveAttribute('data-step', 'activity')
+    await page.keyboard.press('3')
+    const options = page.getByTestId('new-card-more-list').getByRole('button')
+    await expect(options.nth(1)).toBeVisible() // at least two options
+    await expect(options.first()).toBeFocused()
+    await page.keyboard.press('ArrowDown')
+    await expect(options.nth(1)).toBeFocused()
+    await page.keyboard.press('ArrowUp')
+    await expect(options.first()).toBeFocused()
+    await page.keyboard.press('ArrowUp') // wraps
+    await expect(options.last()).toBeFocused()
+    await page.keyboard.press('ArrowDown') // wraps
+    await expect(options.first()).toBeFocused()
+    await page.keyboard.press('End')
+    await expect(options.last()).toBeFocused()
+    await page.keyboard.press('Home')
+    await expect(options.first()).toBeFocused()
+    // Esc closes the list and does not also go back a step
+    await page.keyboard.press('Escape')
+    await expect(page.getByTestId('new-card-more-list')).toHaveCount(0)
+    await expect(step(page)).toHaveAttribute('data-step', 'activity')
+    // Enter on a focused option picks it and moves on
+    await page.keyboard.press('3')
+    await page.keyboard.press('ArrowDown')
+    await page.keyboard.press('Enter')
+    await expect(step(page)).toHaveAttribute('data-step', 'timebox')
+  })
+
+  test('#15: a list opened with the mouse takes the arrows too, and the drawer at 390 px does', async ({ page }) => {
+    await openCard(page)
+    await confirmTitle(page, 'Pfeile per Maus')
+    await page.keyboard.press('1')
+    await expect(step(page)).toHaveAttribute('data-step', 'activity')
+    const options = page.getByTestId('new-card-more-list').getByRole('button')
+    for (const size of [{ width: 1280, height: 800 }, { width: 390, height: 844 }]) {
+      await page.setViewportSize(size)
+      await page.getByTestId('new-card-more').click()
+      await expect(options.nth(1)).toBeVisible()
+      await page.keyboard.press('ArrowDown')
+      await expect(options.nth(1)).toBeFocused()
+      await page.keyboard.press('End')
+      await expect(options.last()).toBeFocused()
+      await page.keyboard.press('Escape')
+      await expect(page.getByTestId('new-card-more-list')).toHaveCount(0)
+    }
+  })
+
   test('the key cues sit inside the buttons; every control has a name; the panel is named by its question', async ({ page }) => {
     await openCard(page)
     await confirmTitle(page, 'Cues')
