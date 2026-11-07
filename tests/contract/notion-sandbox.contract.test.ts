@@ -267,4 +267,21 @@ describe.skipIf(!enabled).each(['select', 'status'] as const)('NotionIntegration
     expect(archived.map((entry) => entry.id)).toEqual([task!.id])
     expect(summarizePage((await notion.pages.retrieve({ page_id: task!.id })) as unknown as Record<string, unknown>)).toMatchObject({ status: 'Archiv' })
   }, 60_000)
+
+  it('a total the user set (#4) is written lowered and cleared; an ordinary push at 0 leaves the property alone', async () => {
+    const created = await integration.createTask({ title: `Zeittest ${statusType}`, status: TaskStatus.Open })
+
+    const raised = await integration.updateTask({ ...created, timeSpentSeconds: 1800 }, { timeEdited: true })
+    expect(raised.timeSpentSeconds).toBe(1800)
+
+    const lowered = await integration.updateTask({ ...raised, timeSpentSeconds: 600 }, { timeEdited: true })
+    expect(lowered.timeSpentSeconds).toBe(600)
+
+    // not a user edit: a task at 0 does not erase what the page holds
+    const untouched = await integration.updateTask({ ...lowered, timeSpentSeconds: 0 })
+    expect(untouched.timeSpentSeconds).toBe(600)
+
+    const cleared = await integration.updateTask({ ...untouched, timeSpentSeconds: 0 }, { timeEdited: true })
+    expect(cleared.timeSpentSeconds).toBe(0)
+  }, 60_000)
 })

@@ -222,6 +222,7 @@
                   v-model.number="editTimeSpentValue"
                   type="number"
                   min="0"
+                  :max="MAX_TIME_SPENT_MINUTES"
                   step="1"
                   inputmode="numeric"
                   data-testid="time-spent-edit-input"
@@ -571,6 +572,8 @@ const timeSpentInMinutes = computed(() => {
   const seconds = task.value?.timeSpentSeconds ?? 0;
   return seconds > 0 ? Math.max(1, Math.round(seconds / 60)) : 0;
 });
+/** Upper bound of the field (about 166 h): a typo must not put an absurd total into the statistics */
+const MAX_TIME_SPENT_MINUTES = 9999;
 const editTimeSpentValue = ref<number | string>(0);
 let timeSpentEditStart: number | null = null;
 
@@ -605,8 +608,8 @@ function saveTimeSpentEdit() {
   timeSpentEditStart = null;
   const raw = editTimeSpentValue.value;
   const minutes = typeof raw === 'number' ? Math.round(raw) : Number.NaN;
-  // Blank, negative and non-numeric entries are dropped; the field shows the total again
-  if (Number.isFinite(minutes) && minutes >= 0 && minutes !== start) setTimeSpentAndSync(minutes * 60);
+  // Blank, negative, non-numeric and absurdly large entries are dropped; the field shows the total again
+  if (Number.isFinite(minutes) && minutes >= 0 && minutes <= MAX_TIME_SPENT_MINUTES && minutes !== start) setTimeSpentAndSync(minutes * 60);
   editTimeSpentValue.value = timeSpentInMinutes.value;
 }
 

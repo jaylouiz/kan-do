@@ -442,7 +442,7 @@ test.describe('Task Detail View', () => {
       await expect.poll(() => storedTime(page, 'test-task-7')).toBe(1200);
     });
 
-    test('Esc cancels, blur saves, a blank entry changes nothing', async ({ page, baseURL }) => {
+    test('Esc cancels, blur saves, a blank or too large entry changes nothing', async ({ page, baseURL }) => {
       const row = await openRow(page, baseURL, 'test-task-7');
       const trigger = row.getByRole('button', { name: /^Aufgewendete Zeit: / });
       const input = page.getByTestId('time-spent-edit-input');
@@ -454,6 +454,11 @@ test.describe('Task Detail View', () => {
 
       await trigger.click();
       await input.fill('');
+      await input.press('Enter');
+      await expect(row.getByTestId('time-spent-value')).toHaveText('30 min');
+
+      await trigger.click();
+      await input.fill('99999'); // above the 9999-minute limit: dropped like a blank entry
       await input.press('Enter');
       await expect(row.getByTestId('time-spent-value')).toHaveText('30 min');
 
