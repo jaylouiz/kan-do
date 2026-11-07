@@ -275,6 +275,19 @@ describe('guard-commands hook without jq (#2)', () => {
     }
   })
 
+  it('treats an odd payload shape like unreadable input', () => {
+    const path = noJqBin()
+    const post = (payload: unknown) => spawnSync('/bin/bash', [resolve(root, '.claude/hooks/guard-commands.sh')], {
+      input: JSON.stringify(payload),
+      encoding: 'utf8',
+      env: { ...process.env, PATH: path, CLAUDE_PROJECT_DIR: root },
+    })
+    expect(post({ tool_input: { command: [nuxtKill] } }).status).toBe(2)
+    expect(post({ tool_input: nuxtKill }).status).toBe(2)
+    expect(post({ tool_input: {} }).status).toBe(0)
+    expect(post({ tool_input: { command: 'git status' } }).status).toBe(0)
+  })
+
   it('blocks anything the pre-filter would look at when perl cannot read the input either', () => {
     const path = noJqBin({ perl: '#!/bin/sh\nexit 1\n' })
     for (const command of [nuxtKill, npmInstall]) {

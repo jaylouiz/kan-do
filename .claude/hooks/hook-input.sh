@@ -7,6 +7,7 @@ hook_command() {
   if command -v jq >/dev/null 2>&1; then
     printf '%s' "$1" | jq -r '.tool_input.command // ""'
   else
-    printf '%s' "$1" | perl -MJSON::PP -0777 -ne 'use strict; binmode STDOUT, ":utf8"; my $t = decode_json($_)->{tool_input}; my $c = ref $t eq "HASH" ? $t->{command} : undef; print defined $c && !ref $c ? $c : ""'
+    # exit 1 for a tool_input or command of an odd shape (array, string, ...): the caller's text check applies then.
+    printf '%s' "$1" | perl -MJSON::PP -0777 -ne 'use strict; binmode STDOUT, ":utf8"; my $t = decode_json($_)->{tool_input}; if (defined $t && ref $t ne "HASH") { exit 1 } my $c = defined $t ? $t->{command} : undef; if (defined $c && ref $c) { exit 1 } print defined $c ? $c : ""'
   fi
 }

@@ -897,6 +897,22 @@ describe('e2e-before-merge hook without jq (#2)', () => {
     }
   })
 
+  it('treats an odd payload shape like unreadable input, and a missing command like no command', () => {
+    const path = noJqBin({ gh: '#!/bin/sh\nexit 1\n' })
+    const post = (payload: unknown) => spawnSync('/bin/bash', [resolve(root, '.claude/hooks/e2e-before-merge.sh')], {
+      input: JSON.stringify(payload),
+      encoding: 'utf8',
+      env: { ...process.env, PATH: path, CLAUDE_PROJECT_DIR: root, GH_REPO: 'o/r' },
+    })
+    for (const payload of [{ tool_input: { command: [merge()] } }, { tool_input: merge() }]) {
+      const result = post(payload)
+      expect(result.status, JSON.stringify(payload)).toBe(2)
+    }
+    for (const payload of [{ tool_input: {} }, { tool_name: 'Bash' }, { tool_input: { command: 'echo hi' } }]) {
+      expect(post(payload).status, JSON.stringify(payload)).toBe(0)
+    }
+  })
+
   it('blocks a merge too when perl cannot read the input either, and lets unrelated commands through', () => {
     const path = noJqBin({ perl: '#!/bin/sh\nexit 1\n' })
     for (const command of [merge(), restMerge(), '"gh" pr merge 12', "$'\\x67h' pr merge 12"]) {
