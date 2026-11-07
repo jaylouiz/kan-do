@@ -43,8 +43,9 @@ KANDO_BASH_EDIT_CAP=40
 # Commands that move the working tree rewrite files nobody authored: no lint --fix on those.
 KANDO_TREE_MOVING_RE='(^|[;&|({[:space:]])git[[:space:]]+(-[Cc][[:space:]]+[^[:space:]]+[[:space:]]+|-[^[:space:]]+[[:space:]]+)*(checkout|switch|pull|merge|rebase|stash|reset|restore|cherry-pick|revert|clone|worktree)([[:space:]]|$)'
 
-# kando_mtime <file>: modification time in epoch seconds (BSD stat, then GNU stat).
-kando_mtime() { stat -f %m "$1" 2>/dev/null || stat -c %Y "$1" 2>/dev/null; }
+# kando_mtime <file>: modification time in epoch seconds (GNU stat, then BSD stat). GNU first: GNU `stat -f %m` is a
+# valid filesystem query that prints `?` and exits 0, so a BSD-first chain never reached the GNU form on Linux (CI).
+kando_mtime() { stat -c %Y "$1" 2>/dev/null || stat -f %m "$1" 2>/dev/null; }
 
 # kando_checkable_ext <file>: success for a source file the per-edit hooks check.
 kando_checkable_ext() {
