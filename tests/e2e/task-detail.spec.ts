@@ -679,6 +679,20 @@ test.describe('Task Detail View', () => {
       await expect(page.getByRole('button', { name: 'Timebox: 25 min' })).toBeVisible();
     });
 
+    test('Esc in the timebox field cancels instead of saving the typed value (#12)', async ({ page, baseURL }) => {
+      await openSheet(page, baseURL, 'test-task-2');
+
+      const trigger = page.getByRole('button', { name: /^Timebox: / });
+      const before = await trigger.getAttribute('aria-label');
+      await trigger.click();
+      await expect(page.getByTestId('timebox-edit-input')).toBeFocused();
+      await page.keyboard.type('99');
+      await page.keyboard.press('Escape');
+      await expect(page.getByTestId('timebox-edit-input')).not.toBeAttached();
+      await expect(page.getByRole('button', { name: /^Timebox: / })).toHaveAttribute('aria-label', before!);
+      await expect(page.getByRole('button', { name: 'Timebox: 99 min' })).toHaveCount(0);
+    });
+
     test('property dropdown items use the text size of the task card context menu', async ({ page, baseURL }) => {
       await openSheet(page, baseURL, 'test-task-3');
 

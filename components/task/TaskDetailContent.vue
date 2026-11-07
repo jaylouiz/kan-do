@@ -181,7 +181,7 @@
                   class="min-h-8 w-14 [appearance:textfield] border-0 border-b border-dotted border-muted bg-transparent py-0.5 text-sm focus-ring max-md:min-h-11 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   @focus="(event: FocusEvent) => (event.target as HTMLInputElement).select()"
                   @keydown.enter="() => { saveTimeboxEdit(); commitEdit(); }"
-                  @keydown.esc.stop="cancelEdit"
+                  @keydown.esc.stop="() => { abandonTimeboxEdit(); cancelEdit(); }"
                   @blur="() => { saveTimeboxEdit(); finishEdit(); }"
                 >
                 <span class="text-sm text-muted">{{ t('duration.unitMinute') }}</span>
@@ -560,7 +560,13 @@ function updateTimebox(_val: string | number | null) {
   saveTimeboxEdit();
 }
 
+/** Esc (#12): the field goes back to the stored value, so the blur that follows the closing saves nothing */
+function abandonTimeboxEdit() {
+  editTimeboxValue.value = timeboxInMinutes.value;
+}
+
 function saveTimeboxEdit() {
+  if (editTimeboxValue.value === timeboxInMinutes.value) return;
   const seconds = editTimeboxValue.value > 0 ? editTimeboxValue.value * 60 : null;
   updateAndSync({ timeBoxSeconds: seconds });
 }
