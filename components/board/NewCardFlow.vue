@@ -10,7 +10,7 @@
 - Behind the steps the face sits under the stack pill's wash (`--stack-wash-*`) and softened (blur, 45 %), a cue that things are received, not text to read. A pick pulses the wash once (the only cue for Aktivität and Notiz, which a card does not show); saving lifts it
 - Keys: 1/2/3 pick, Enter skips (saves on Notiz), Esc goes back (cancels on the title step; with a typed title the slot offers "Rückgängig" in a toast, #665), Cmd/Ctrl+Enter saves now with what is entered, from any step once there is a title (#665; announced by `aria-keyshortcuts` and the check's title). Key cues sit inside the buttons (generated content, so the accessible name stays the label), fine pointers only. Tab order is the DOM order; every step change moves focus to the step (Notiz: its input)
 - A press outside cancels only while the title is blank; a save error keeps the card where it was (Notiz after Enter) with everything entered; the toast after a save is one row (title and Details, #665) so it stays clear of the saved card at 390 px
-- "All options": popover from 768 px, drawer below. Motion is instant under prefers-reduced-motion
+- "All options": popover from 768 px, drawer below; ↑/↓ (wrapping) and Home/End move between its options, Enter/Space pick, Esc closes (#15; plain buttons with one shared handler, not UDropdownMenu: the drawer has no menu primitive and the key-3 focus flow (#685) stays) Motion is instant under prefers-reduced-motion
 - Accepted: unsaved input is lost when the page is left (the card saves only at the end, as the story asks); activity and note have no place on a card, so the pulse is their only cue
 -->
 <template>
@@ -168,7 +168,7 @@
                   <kbd class="ncf__key" data-key="3" aria-hidden="true" />
                 </button>
                 <template #content>
-                  <div class="flex flex-col gap-0.5" role="group" :aria-label="question">
+                  <div class="flex flex-col gap-0.5" role="group" :aria-label="question" data-testid="new-card-more-list" @keydown="onMoreListKeydown">
                     <button
                       v-for="value in current.rest"
                       :key="value"
@@ -200,7 +200,7 @@
                   :description="t('board.quickAdd.allOptions')"
                 >
                   <template #content>
-                    <div class="flex flex-col gap-0.5 p-3 pb-6" role="group" :aria-label="question">
+                    <div class="flex flex-col gap-0.5 p-3 pb-6" role="group" :aria-label="question" data-testid="new-card-more-list" @keydown="onMoreListKeydown">
                       <button
                         v-for="value in current.rest"
                         :key="value"
@@ -528,6 +528,25 @@ async function goBack() {
   step.value = steps.value[index - 1]!;
   await nextTick();
   focusStep();
+}
+
+/** Arrow keys inside the "all options" list (#15): ↑/↓ move between the options (wrapping), Home/End jump; Enter/Space pick natively. Handled keys stop here so they never reach a surrounding handler */
+function onMoreListKeydown(event: KeyboardEvent) {
+  if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+  const keys = ['ArrowDown', 'ArrowUp', 'Home', 'End'];
+  if (!keys.includes(event.key)) return;
+  const list = event.currentTarget as HTMLElement;
+  const options = Array.from(list.querySelectorAll<HTMLButtonElement>('button:not(:disabled)'));
+  if (!options.length) return;
+  event.preventDefault();
+  event.stopPropagation();
+  const at = options.indexOf(document.activeElement as HTMLButtonElement);
+  let next: number;
+  if (event.key === 'Home') next = 0;
+  else if (event.key === 'End') next = options.length - 1;
+  else if (event.key === 'ArrowDown') next = at < 0 ? 0 : (at + 1) % options.length;
+  else next = at < 0 ? options.length - 1 : (at - 1 + options.length) % options.length;
+  options[next]!.focus();
 }
 
 function onKeydown(event: KeyboardEvent) {
