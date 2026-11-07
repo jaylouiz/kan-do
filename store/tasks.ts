@@ -587,6 +587,33 @@ export const useTasksStore = defineStore("tasks", () => {
   }
 
   /**
+   * A user's edit of a task's total time spent (#4). Unlike the timer tick (`updateTaskTimespent`, which
+   * accumulates and queues only for a task in Jetzt) the edit is absolute, for any status: the total is
+   * written at once and, for a source that stores time, queued as an `absolute` entry. While that entry
+   * exists `mergeTasks` takes the local total over a higher fetched one, and the Notion push writes the time
+   * property even at 0 (otherwise the old value would come back). A running timer keeps counting from the
+   * new total; a done task's completion record follows through `updateTask`. Work sessions are not touched.
+   * @returns false for an unknown task or a total that is negative or not a finite number
+   */
+  function setTimeSpent(taskId: string, seconds: number): boolean {
+    const task = tasks.value.find((el) => el.id === taskId);
+    if (!task || !Number.isFinite(seconds) || seconds < 0) return false;
+
+    updateTask(taskId, { timeSpentSeconds: seconds });
+
+    if (sourceSyncsTime(task.source)) {
+      const existing = mapHelpers.get(pendingTimeUpdates.value, taskId);
+      if (existing) {
+        existing.timeSpentSeconds = seconds;
+        existing.absolute = true;
+      } else {
+        mapHelpers.set(pendingTimeUpdates.value, taskId, { ...createPendingTimeUpdate(taskId, seconds), absolute: true });
+      }
+    }
+    return true;
+  }
+
+  /**
    * Clear pending time updates for a specific task
    */
   function clearPendingTimeUpdate(taskId: string) {
@@ -761,7 +788,9 @@ export const useTasksStore = defineStore("tasks", () => {
         const externalTimeSpent = fetchedTask.timeSpentSeconds || 0;
         const pendingUpdate = mapHelpers.get(pendingTimeUpdates.value, resolvedId);
         const pendingLocal = pendingUpdate?.timeSpentSeconds || 0;
-        const effectiveLocal = Math.max(localTimeSpent, pendingLocal);
+        // A total the user set (#4) wins over the fetched one, also when it is lower; otherwise the larger value stays
+        const userSetTime = pendingUpdate?.absolute === true;
+        const effectiveLocal = userSetTime ? localTimeSpent : Math.max(localTimeSpent, pendingLocal);
 
         // A task with unpushed changes (#319) keeps its local state: the fetch is older than the edit, and the
         // push that follows would otherwise send the source's stale copy back. Only the source's id is taken.
@@ -782,7 +811,7 @@ export const useTasksStore = defineStore("tasks", () => {
           id: existingTask.id, // The app-level identity never changes
           createdAt: earlierCreatedAt(existingTask.createdAt, base.createdAt), // A moved task keeps its first creation time
           // Keep the highest value across external and effective local (including pending)
-          timeSpentSeconds: Math.max(effectiveLocal, externalTimeSpent),
+          timeSpentSeconds: userSetTime ? effectiveLocal : Math.max(effectiveLocal, externalTimeSpent),
           timerId: existingTask.timerId, // Preserve active timer
         };
 
@@ -1248,6 +1277,7 @@ export const useTasksStore = defineStore("tasks", () => {
     removeTask,
     replaceTasksWith,
     updateTaskTimespent,
+    setTimeSpent,
     clearPendingTimeUpdate,
     clearAllPendingTimeUpdates,
     setTasks,

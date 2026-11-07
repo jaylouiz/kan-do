@@ -49,8 +49,8 @@ export class NotionSource implements TaskSourceAdapter {
     return this.deps.createInstance().createTask(draft)
   }
 
-  async update(task: Task): Promise<Task | null> {
-    return this.instance().updateTask(task)
+  async update(task: Task, change: { timeEdited?: boolean } = {}): Promise<Task | null> {
+    return change.timeEdited ? this.instance().updateTask(task, { timeEdited: true }) : this.instance().updateTask(task)
   }
 
   async remove(task: Task): Promise<void> {

@@ -359,6 +359,8 @@ export const useTaskSync = () => {
         const sentDone = task.status === TaskStatus.Done;
         const synced = await adapter.update(task, {
           previousStatus: heldDone === undefined ? previousStatus : heldDone ? TaskStatus.Done : TaskStatus.Open,
+          // A total the user set (#4) is written even at 0; the entry lives until the push carried it
+          ...(tasksStore.pendingTimeUpdates[task.id]?.absolute === true ? { timeEdited: true } : {}),
         });
         if (synced) applySyncedTask(task.id, synced, operationVersion);
         tasksStore.clearPendingSync(task.id, revision, sentDone);

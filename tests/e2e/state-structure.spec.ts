@@ -1,5 +1,5 @@
 import { expect, test, type Page, type Route } from '@playwright/test'
-import { seedLocalBoard, seedMixedBoard, SEED_TASKS } from './helpers/seed'
+import { seedLocalBoard, seedMixedBoard, SEED_TASKS, type SeedTask } from './helpers/seed'
 import { openMore } from './helpers/appNav'
 import { settleAnimations } from './helpers/settle'
 
@@ -99,6 +99,33 @@ test.describe('task sheet', () => {
     await expect(sheet).toBeVisible()
     await settleAnimations(page)
     await expect(sheet).toMatchAriaSnapshot({ name: 'task-sheet-390.aria.yml' })
+  })
+})
+
+test.describe('task sheet: time spent row (#4)', () => {
+  // A waiting task (no timer ticks): 30 of 60 min, with a Timebox
+  const WAITING_WITH_TIME: SeedTask = {
+    id: 'time-edit-1', title: 'Wartende Aufgabe', status: 2, priority: 1, activity: null, topic: null, topicColorCode: null,
+    timeSpentSeconds: 1800, timeBoxSeconds: 3600, custom: {},
+  }
+  const timeSpentRow = (page: Page) => page.getByTestId('task-property-row').filter({ hasText: 'Aufgewendete Zeit' })
+
+  test('time and time left beside it (1280)', async ({ context, page }) => {
+    await seedLocalBoard(context, [WAITING_WITH_TIME], {}, undefined, { once: true })
+    await page.goto('/tasks/time-edit-1')
+    await expect(timeSpentRow(page)).toBeVisible()
+    await settleAnimations(page)
+    await expect(timeSpentRow(page)).toMatchAriaSnapshot({ name: 'time-spent-row-1280.aria.yml' })
+  })
+
+  test('the minutes field is open (390)', async ({ context, page }) => {
+    await page.setViewportSize(MOBILE)
+    await seedLocalBoard(context, [WAITING_WITH_TIME], {}, undefined, { once: true })
+    await page.goto('/tasks/time-edit-1')
+    await timeSpentRow(page).getByRole('button', { name: /^Aufgewendete Zeit: / }).click()
+    await expect(page.getByTestId('time-spent-edit-input')).toBeVisible()
+    await settleAnimations(page)
+    await expect(timeSpentRow(page)).toMatchAriaSnapshot({ name: 'time-spent-row-edit-390.aria.yml' })
   })
 })
 
