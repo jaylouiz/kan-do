@@ -602,6 +602,8 @@ export const useTasksStore = defineStore("tasks", () => {
     updateTask(taskId, { timeSpentSeconds: seconds });
 
     if (sourceSyncsTime(task.source)) {
+      // A new revision, so a push already in flight does not clear this edit's entry when it lands
+      markPendingSync(taskId);
       const existing = mapHelpers.get(pendingTimeUpdates.value, taskId);
       if (existing) {
         existing.timeSpentSeconds = seconds;
