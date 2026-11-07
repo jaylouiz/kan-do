@@ -1,4 +1,4 @@
-import { spawnSync } from 'node:child_process'
+import { execFileSync, spawnSync } from 'node:child_process'
 import { chmodSync, copyFileSync, existsSync, mkdtempSync, readFileSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
@@ -809,14 +809,20 @@ describe('e2e-before-merge hook arguments', () => {
   it('writes its gate row to KANDO_CHECKS_LEDGER, not to the real checks.tsv (#10)', () => {
     const own = join(mkdtempSync(join(tmpdir(), 'kando-hook-ledger-own-')), 'rows.tsv')
     const { GH_REPO: _inherited, ...inherited } = process.env
-    const result = spawnSync('bash', [resolve(root, '.claude/hooks/e2e-before-merge.sh')], {
+    const spawn = (env: Record<string, string>) => spawnSync('bash', [resolve(root, '.claude/hooks/e2e-before-merge.sh')], {
       input: JSON.stringify({ tool_input: { command: merge() } }),
       encoding: 'utf8',
-      env: { ...inherited, PATH: `${restBin}:${process.env.PATH}`, CLAUDE_PROJECT_DIR: root, GH_REPO: 'o/r', KANDO_CHECKS_LEDGER: own },
+      env: { ...inherited, PATH: `${restBin}:${process.env.PATH}`, CLAUDE_PROJECT_DIR: root, GH_REPO: 'o/r', ...env },
     })
+    // The override file gets the row; the real file (the default location) and the file-level temp ledger do not.
+    const real = `${execFileSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], { cwd: root, encoding: 'utf8' }).trim()}/agent-ledgers/checks.tsv`
+    // Only the fake PR head of this test counts, so a real gate row written meanwhile by another session cannot flake it.
+    const lines = (f: string) => (existsSync(f) ? readFileSync(f, 'utf8').split('\n').filter(l => l.includes('\tabc123\t')).length : 0)
+    const before = [lines(real), lines(ledger)]
+    const result = spawn({ KANDO_CHECKS_LEDGER: own })
     expect(result.status).toBe(0)
     expect(readFileSync(own, 'utf8')).toMatch(/\te2e-gate\t/)
-    expect(existsSync(ledger) ? readFileSync(ledger, 'utf8') : '').not.toContain(readFileSync(own, 'utf8'))
+    expect([lines(real), lines(ledger)]).toEqual(before)
   })
 
   it.each([merge(), restMerge()])('resolves the PR over REST only and lets a docs-only PR through: %s', (command) => {
