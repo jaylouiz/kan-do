@@ -53,11 +53,11 @@ describe('useTaskSheet return focus (#125)', () => {
 
 describe('useTaskSheet close navigation (#22)', () => {
   const setup = (back: string | null) => {
-    const hooks: Array<() => void> = []
+    const hooks: Array<(to: { path: string }, from: unknown, failure?: unknown) => void> = []
     const router = {
       options: { history: { state: { back } } },
-      back: vi.fn(() => { hooks.splice(0).forEach(h => h()) }),
-      afterEach: vi.fn((h: () => void) => { hooks.push(h); return () => {} }),
+      back: vi.fn(() => { hooks.splice(0).forEach(h => h({ path: '/tasks' }, {})) }),
+      afterEach: vi.fn((h: (typeof hooks)[number]) => { hooks.push(h); return () => {} }),
     }
     vi.stubGlobal('useRouter', () => router)
     navigateTo.mockClear()
@@ -79,6 +79,19 @@ describe('useTaskSheet close navigation (#22)', () => {
     void sheet.closeTaskSheet()
     await sheet.finishClose()
     expect(router.back).not.toHaveBeenCalled()
+    expect(navigateTo).toHaveBeenCalledWith('/tasks', { replace: true })
+  })
+
+  it('replaces /tasks when the back navigation never arrives', async () => {
+    vi.useFakeTimers()
+    const router = setup('/tasks')
+    router.back.mockImplementation(() => {})
+    const sheet = useTaskSheet()
+    void sheet.closeTaskSheet()
+    const done = sheet.finishClose()
+    await vi.advanceTimersByTimeAsync(2000)
+    await done
+    vi.useRealTimers()
     expect(navigateTo).toHaveBeenCalledWith('/tasks', { replace: true })
   })
 })

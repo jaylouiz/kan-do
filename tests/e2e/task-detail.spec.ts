@@ -314,8 +314,6 @@ test.describe('Task Detail View', () => {
     });
   });
 
-  // Render-only facts of the task sheet, one test per seeded task or state (#544). Every former test is an
-  // expect.soft whose message names it: a failure still reports each broken fact, and which one it was.
   // #22: closing the sheet must not stack a /tasks entry
   test('closing a sheet opened from the board returns by history: Back leaves the board, not into the sheet', async ({ page, baseURL }) => {
     await page.goto(`${baseURL}/tasks`);
@@ -341,6 +339,8 @@ test.describe('Task Detail View', () => {
     expect(await page.evaluate(() => history.length)).toBe(before);
   });
 
+  // Render-only facts of the task sheet, one test per seeded task or state (#544). Every former test is an
+  // expect.soft whose message names it: a failure still reports each broken fact, and which one it was.
   test('task sheet of a Jetzt task with notes and a topic: properties, status, priority, notes, planned, topic, header actions', async ({ page, baseURL }) => {
     await page.goto(`${baseURL}/tasks/test-task-1`);
     await expect(page.getByTestId('task-property-list')).toBeVisible();

@@ -22,7 +22,7 @@ let leaveFallback: ReturnType<typeof setTimeout> | undefined;
 let returnFocusTaskId: string | null = null;
 
 /** Wait for the history step of `router.back()` before giving up and replacing. */
-const BACK_TIMEOUT_MS = 800;
+const BACK_TIMEOUT_MS = 1500;
 
 /**
  * Leaves the sheet route without growing history (#22): `router.back()` when the entry before
@@ -33,8 +33,15 @@ const leaveSheetRoute = async () => {
   const back = (router.options.history.state as { back?: string | null } | undefined)?.back;
   if (back && back.split(/[?#]/)[0] === '/tasks') {
     const arrived = new Promise<boolean>((resolve) => {
+      let remove = () => {};
       const timer = setTimeout(() => { remove(); resolve(false); }, BACK_TIMEOUT_MS);
-      const remove = router.afterEach(() => { clearTimeout(timer); remove(); resolve(true); });
+      // Only a successful arrival on the board counts; a cancelled or failed navigation falls back to the replace
+      remove = router.afterEach((to, _from, failure) => {
+        if (failure || to.path !== '/tasks') return;
+        clearTimeout(timer);
+        remove();
+        resolve(true);
+      });
     });
     router.back();
     if (await arrived) return;
