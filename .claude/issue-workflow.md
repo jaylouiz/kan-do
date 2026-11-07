@@ -1,9 +1,8 @@
 # issue-workflow profile: kan-do
 
 <!-- Read by design-gh-issue, specify-gh-issue, build-gh-issue, orchestrate-gh-issues and workflow-retro
-     (the maintainer's agent-workflow skills, https://github.com/jaylouiz/agent-workflow, usually at ~/dev-workspace/agent-workflow;
+     (the maintainer's agent-workflow skills, https://github.com/jaylouiz/agent-workflow, linked as ~/.claude/agent-workflow;
      contributors without them follow CONTRIBUTING.md). Project facts only; the method lives in the skills.
-     Issue and PR numbers `#n` up to #704 in code, docs and commit history refer to the private archive `jaylouiz/kan-do-archive` (`gh issue view <n> -R jaylouiz/kan-do-archive`).
      CLAUDE.md (plus its path-scoped `.claude/rules/` and project skills) stays the source for commands, invariants and testing rules; this file points into it. -->
 
 ## Labels
@@ -156,7 +155,7 @@ User decision 2026-10-30. Rule, labels and `decide.sh`: `/orchestrate-gh-issues`
 ## Retro
 
 - running log: `.claude/retro-log.md`
-- context files: `~/.claude/CLAUDE.md`, `CLAUDE.md`, `.claude/issue-workflow.md`, `~/dev-workspace/agent-workflow/skills/*/SKILL.md`, `~/dev-workspace/agent-workflow/reference/issue-rules.md` (every stage loads it; the README is not loaded)
+- context files: `~/.claude/CLAUDE.md`, `CLAUDE.md`, `.claude/issue-workflow.md`, `~/.claude/agent-workflow/skills/*/SKILL.md`, `~/.claude/agent-workflow/reference/issue-rules.md` (every stage loads it; the README is not loaded)
 - metric sources: `<git common dir>/agent-ledgers/checks.tsv`, one row per run of the Stop hook (`verify.sh`) and the pre-merge E2E gate: date, hook, branch or PR head, tier, spec count, seconds, result (`pass`, `fail`, or `timeout` = the E2E run exceeded its own budget and the merge was blocked, #415), flaky specs. Compare a PR's tier and spec count with its diff; a stamped (cached) gate pass writes no row
 - escape (#446): a full release run (`npm run release`) that fails on a spec no PR gate ran since the last release (compare `checks.tsv` with the failing spec) is an `escaped` entry in the retro log: add the missing mapping to `.claude/hooks/e2e-gate.json` (the area whose file changed) and name the PR that should have run it; a spec that names a changed i18n value or `data-testid` is selected by text since #525, so a miss there means the spec asserts neither (a count, a visual state): map it
-- edits land: skill method → `~/dev-workspace/agent-workflow` (commit + push there); kan-do facts → this file or CLAUDE.md, committed to `main` as `docs(workflow): ...` from a temporary worktree on `origin/main` when the main checkout is not on `main`
+- edits land: skill method → the agent-workflow checkout (`~/.claude/agent-workflow`, commit + push there); kan-do facts → this file or CLAUDE.md, committed to `main` as `docs(workflow): ...` from a temporary worktree on `origin/main` when the main checkout is not on `main`
