@@ -15,7 +15,7 @@
     <div class="trash-entry__side">
       <p class="text-sm text-muted">{{ agoLabel }}</p>
       <p class="text-sm text-muted" data-testid="trash-was-in">{{ wasInLabel }}</p>
-      <div class="trash-entry__actions">
+      <div class="trash-entry__actions" @keydown.esc.stop="confirming && cancel()">
         <UButton
           icon="i-ph-arrow-counter-clockwise"
           color="neutral"
@@ -28,7 +28,7 @@
           {{ t('trash.restore') }}
         </UButton>
         <template v-if="forever && confirming">
-          <p class="trash-entry__confirm text-sm text-default" role="alert" data-private @keydown.esc.stop="cancel">
+          <p class="trash-entry__confirm text-sm text-default" role="alert" data-private>
             {{ t('trash.removeForeverConfirm', { title: entry.task.title }) }}
           </p>
           <UButton color="error" variant="soft" size="sm" data-testid="trash-remove-confirm" @click="confirmRemove">
@@ -41,7 +41,6 @@
             size="sm"
             data-testid="trash-remove-cancel"
             @click="cancel"
-            @keydown.esc.stop="cancel"
           >
             {{ t('common.cancel') }}
           </UButton>

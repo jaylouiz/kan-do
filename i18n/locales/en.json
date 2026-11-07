@@ -1424,7 +1424,7 @@
     "restoreNamed": "Restore: {title}",
     "removeForever": "Delete forever",
     "removeForeverNamed": "Delete forever: {title}",
-    "removeForeverConfirm": "Delete {title} for good?",
+    "removeForeverConfirm": "Delete “{title}” for good?",
     "empty": "No deleted tasks yet.",
     "emptyTrash": "Empty trash",
     "emptyConfirm": "Delete {n} task for good? | Delete {n} tasks for good?",

@@ -18,13 +18,13 @@
         <section aria-labelledby="trash-heading" class="flex flex-wrap items-center gap-x-4 gap-y-2">
           <h2 id="trash-heading" ref="headingEl" tabindex="-1" class="sr-only">{{ t('trash.listHeading') }}</h2>
           <p class="text-sm text-muted">{{ t('trash.retention') }}</p>
-          <div v-if="count > 0" class="flex flex-wrap items-center gap-2">
+          <div v-if="count > 0" class="flex flex-wrap items-center gap-2" @keydown.esc.stop="confirming && cancelEmpty()">
             <template v-if="confirming">
-              <p class="text-sm text-default" role="alert" @keydown.esc="cancelEmpty">{{ t('trash.emptyConfirm', { n: count }, count) }}</p>
-              <UButton color="error" variant="soft" size="sm" data-testid="trash-empty-confirm" @click="confirmEmpty" @keydown.esc="cancelEmpty">
+              <p class="text-sm text-default" role="alert">{{ t('trash.emptyConfirm', { n: count }, count) }}</p>
+              <UButton color="error" variant="soft" size="sm" data-testid="trash-empty-confirm" @click="confirmEmpty">
                 {{ t('trash.emptyConfirmYes') }}
               </UButton>
-              <UButton ref="cancelEl" color="neutral" variant="ghost" size="sm" data-testid="trash-empty-cancel" @click="cancelEmpty" @keydown.esc="cancelEmpty">
+              <UButton ref="cancelEl" color="neutral" variant="ghost" size="sm" data-testid="trash-empty-cancel" @click="cancelEmpty">
                 {{ t('common.cancel') }}
               </UButton>
             </template>

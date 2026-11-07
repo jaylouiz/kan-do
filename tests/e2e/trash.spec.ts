@@ -364,6 +364,10 @@ test.describe('the trash page (#422)', () => {
     await expect(page.getByRole('button', { name: 'Endgültig löschen: Früher gelöscht A' })).toBeFocused()
     await expect(page.getByTestId('trash-entry')).toHaveCount(3)
     await page.getByRole('button', { name: 'Endgültig löschen: Früher gelöscht A' }).click()
+    await page.getByTestId('trash-remove-confirm').focus()
+    await page.keyboard.press('Escape') // Esc works from the confirm button too
+    await expect(page.getByRole('button', { name: 'Endgültig löschen: Früher gelöscht A' })).toBeFocused()
+    await page.getByRole('button', { name: 'Endgültig löschen: Früher gelöscht A' }).click()
     await page.getByTestId('trash-remove-confirm').click()
     await expect(page.getByTestId('trash-entry')).toHaveCount(2)
 
