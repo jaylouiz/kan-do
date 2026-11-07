@@ -314,6 +314,31 @@ test.describe('Task Detail View', () => {
     });
   });
 
+  // #22: closing the sheet must not stack a /tasks entry
+  test('closing a sheet opened from the board returns by history: Back leaves the board, not into the sheet', async ({ page, baseURL }) => {
+    await page.goto(`${baseURL}/tasks`);
+    // The dblclick may land before hydration attached the handler: retry it until the route changes
+    await expect(async () => {
+      await page.evaluate(() => document.querySelector<HTMLElement>('.task[data-task-id="test-task-7"]')?.dispatchEvent(new MouseEvent('dblclick', { bubbles: true })));
+      await expect(page).toHaveURL(/\/tasks\/test-task-7$/, { timeout: 1000 });
+    }).toPass({ timeout: 10000 });
+    await expect(page.getByTestId('task-property-list')).toBeVisible();
+    await settleAnimations(page);
+    await page.keyboard.press('Escape');
+    await expect(page).toHaveURL(/\/tasks$/);
+    await expect(page.getByTestId('task-property-list')).toBeHidden();
+    await page.goBack();
+    await expect(page).not.toHaveURL(/\/tasks\/test-task-7/);
+  });
+
+  test('closing a deep-linked sheet replaces the entry with /tasks', async ({ page, baseURL }) => {
+    await openSheet(page, baseURL, 'test-task-1');
+    const before = await page.evaluate(() => history.length);
+    await page.keyboard.press('Escape');
+    await expect(page).toHaveURL(/\/tasks$/);
+    expect(await page.evaluate(() => history.length)).toBe(before);
+  });
+
   // Render-only facts of the task sheet, one test per seeded task or state (#544). Every former test is an
   // expect.soft whose message names it: a failure still reports each broken fact, and which one it was.
   test('task sheet of a Jetzt task with notes and a topic: properties, status, priority, notes, planned, topic, header actions', async ({ page, baseURL }) => {
