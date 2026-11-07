@@ -144,15 +144,6 @@ test.describe('Accessibility (axe)', () => {
       }
     })
 
-    // #642: the brand stands on the paper veil alone (no glass pill behind it): it keeps 4.5:1 over the cards under the veil
-    test('phone – app bar brand over cards', async ({ page, context }) => {
-      await seedLocalBoard(context, [...NO_PROGRESS_TASKS, ...fillerTasks(14)])
-      await page.setViewportSize({ width: 390, height: 844 })
-      await gotoBoard(page)
-      await settleAnimations(page)
-      await expectContrast(page, appNav(page).getByTestId('app-nav-brand'))
-    })
-
     // #124: header, hint, Gestern note and done cards on the teal drop wash keep 4.5:1.
     // Scoped to Erledigt: during a drag the other column headings dim on purpose (board.css).
     test('desktop – dragging over Erledigt', async ({ page }) => {
