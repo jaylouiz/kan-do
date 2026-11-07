@@ -10,12 +10,18 @@ It is built for one person managing their own day: short, frequent sessions wher
 
 Want to help build kan-do? See [CONTRIBUTING.md](CONTRIBUTING.md).
 
+![The board: Open, Now, Waiting and Done, with one task running in Now](docs/images/readme-board.png)
+
+![The statistics page: how the last 7 days went compared with the 4 weeks before](docs/images/readme-statistics.png)
+
+<sub>Screenshots of the demo board with the English interface. The demo tasks ship in German; they were shown in English here.</sub>
+
 ## What you get
 
-- **A board for today only.** Four columns in a fixed order: **Offen**, **Jetzt**, **Wartet**, **Erledigt** (open, now, waiting, done). Drag a card, or move it by keyboard.
-- **One task in Jetzt.** The "Jetzt" column accepts a single task, so the thing you are doing right now is unambiguous.
-- **Timeboxes and time tracking.** Set a timebox on a task (presets, with an automatic suggestion), run its timer while it is in Jetzt, and see the time spent.
-- **A rhythm for the day.** An optional "Tag abschließen" at the end of the day, and a short recap ("Kurzer Rückblick") the first time you open the app on a new day. Yesterday's finished tasks are acknowledged before they leave the board.
+- **A board for today only.** Four columns in a fixed order: **Open**, **Now**, **Waiting**, **Done**. Drag a card, or move it by keyboard.
+- **One task in Now.** The Now column accepts a single task, so the thing you are doing right now is unambiguous.
+- **Timeboxes and time tracking.** Set a timebox on a task (presets, with an automatic suggestion), run its timer while it is in Now, and see the time spent.
+- **A rhythm for the day.** An optional "Close the day" at the end of the day, and a short recap ("Quick look back") the first time you open the app on a new day. Yesterday's finished tasks are acknowledged before they leave the board.
 - **Statistics.** A statistics page shows how your days went, so you can plan better ones.
 - **Your tasks, your source.** Connect a Notion database or use local tasks, or both side by side on one board. Todoist support is planned and not offered in the app yet.
 - **Works offline.** The local copy is authoritative while you have no connection and reconciles when you are back online.
