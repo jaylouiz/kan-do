@@ -22,7 +22,8 @@ export interface PrefilledUrl {
 }
 
 function urlFor(title: string, body: string): string {
-  const query = [`title=${encodeURIComponent(title)}`, `body=${encodeURIComponent(body)}`, 'labels=inbox'].join('&')
+  // `labels` only applies for users with triage rights; the template's own `labels: inbox` applies for everyone.
+  const query = ['template=feedback.md', `title=${encodeURIComponent(title)}`, `body=${encodeURIComponent(body)}`, 'labels=inbox'].join('&')
   return `https://github.com/${FEEDBACK_REPO}/issues/new?${query}`
 }
 

@@ -106,7 +106,7 @@ Deep detail per subsystem lives in path-scoped rule files in [.claude/rules/](.c
 
 ## Quality gate
 
-GitHub Actions (`.github/workflows/ci.yml`) runs lint, typecheck and unit tests on every pull request and every push to `main`. The local gate below is still the main one, and a pull request is not ready until it passes:
+GitHub Actions (`.github/workflows/ci.yml`) runs only when the maintainer starts it by hand; pull requests and pushes start no run. The local gate below is the check, and a pull request is not ready until it passes:
 
 ```bash
 npm run verify        # lint:ci + typecheck + design:detect + vitest (run before opening a PR)

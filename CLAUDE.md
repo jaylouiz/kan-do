@@ -135,7 +135,7 @@ Issue and PR numbers `#n` up to #704 in code, docs and commit history refer to t
 
 ## CI
 
-`.github/workflows/ci.yml` runs `quality` (lint, typecheck, Vitest) on PRs and pushes to `main` (read-only, no secrets; actions pinned by SHA); full E2E only via `workflow_dispatch`. The local gate stays: `npm run verify` before opening a PR, `npm run build` when the PR touches `nuxt.config.ts`, `package.json`, `app.config.ts`, `server/` or `vercel.json`, the relevant E2E specs (`E2E-specs: a b c` in the PR body), and the pre-merge hook's tiered E2E run on `gh pr merge` (`scripts/e2e-gate.mjs`, `.claude/rules/e2e-gate.md`). Vercel deploys only `main` and `proto/*`. Opt in to `npm run verify` before every push: `git config core.hooksPath .githooks`. `visual-regression.spec.ts` self-skips when `CI` is set (macOS baselines).
+`.github/workflows/ci.yml` runs only by hand (`workflow_dispatch`: `quality` = lint, typecheck, Vitest, then full E2E; read-only, no secrets; actions pinned by SHA); no runs on PRs or pushes (Actions budget). The local gate is the check: `npm run verify` before opening a PR, `npm run build` when the PR touches `nuxt.config.ts`, `package.json`, `app.config.ts`, `server/` or `vercel.json`, the relevant E2E specs (`E2E-specs: a b c` in the PR body), and the pre-merge hook's tiered E2E run on `gh pr merge` (`scripts/e2e-gate.mjs`, `.claude/rules/e2e-gate.md`). Vercel deploys only `main` and `proto/*`. Opt in to `npm run verify` before every push: `git config core.hooksPath .githooks`. `visual-regression.spec.ts` self-skips when `CI` is set (macOS baselines).
 
 ## Cloud sessions
 

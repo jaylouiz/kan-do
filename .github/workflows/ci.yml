@@ -2,14 +2,8 @@ name: CI
 
 # Third-party actions are pinned by commit SHA (version in the comment); bump them deliberately.
 on:
-  push:
-    branches: [main]
-    paths-ignore: ['docs/**', '**/*.md', '.claude/**']
-  # PRs (forks included) run `quality` with the read-only token below and no secrets. The local gate
-  # (npm run verify, the pre-merge E2E hook) stays; this is the check contributors without it get.
-  pull_request:
-    paths-ignore: ['docs/**', '**/*.md', '.claude/**']
-  # Full e2e on demand: Actions tab -> CI -> Run workflow
+  # Manual only (Actions tab -> CI -> Run workflow): no runs on push or pull_request. The local gate
+  # (npm run verify, the pre-merge E2E hook at the PR's testing mode) checks every merge.
   workflow_dispatch:
 
 concurrency:
@@ -52,11 +46,10 @@ jobs:
           path: impeccable-report.json
           retention-days: 7
 
-  # Manual only (workflow_dispatch): PRs and pushes to main run `quality`; the full suite runs in the
-  # pre-merge hook for risk-area PRs and in `npm run release`.
+  # Runs after `quality` on every manual run; the full suite also runs in the pre-merge hook for risk-area
+  # PRs and in `npm run release`.
   e2e:
     needs: quality
-    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:

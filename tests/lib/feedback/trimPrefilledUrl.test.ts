@@ -20,6 +20,7 @@ describe('buildPrefilledUrl', () => {
     expect(`${parsed.origin}${parsed.pathname}`).toBe('https://github.com/jaylouiz/kan-do/issues/new')
     expect(parsed.searchParams.get('title')).toBe('Titel & mehr')
     expect(parsed.searchParams.get('labels')).toBe('inbox')
+    expect(parsed.searchParams.get('template')).toBe('feedback.md')
     expect(bodyOf(url)).toContain('Karte ist abgeschnitten')
     expect(trimmed).toEqual([])
     expect(overflow).toBe(false)
