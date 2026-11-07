@@ -861,6 +861,19 @@ describe('e2e-before-merge hook arguments', () => {
 
 // #2: a missing `jq` used to leave the command empty, so the hook saw no merge and let it through unchecked.
 describe('e2e-before-merge hook without jq (#2)', () => {
+  it('with jq, an odd payload shape is blocked like the same shape without jq, and the block message runs no command', () => {
+    for (const tool_input of [{ command: [merge()] }, merge()]) {
+      const result = spawnSync('bash', [resolve(root, '.claude/hooks/e2e-before-merge.sh')], {
+        input: JSON.stringify({ tool_input }),
+        encoding: 'utf8',
+        env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, CLAUDE_PROJECT_DIR: root, GH_REPO: 'o/r' },
+      })
+      expect(result.status).toBe(2)
+      expect(result.stderr).toContain('cannot read the hook input')
+      expect(result.stderr).not.toContain('git:')
+    }
+  })
+
   // A PATH that holds the tools the hook needs but no jq, resolved from the real PATH.
   const noJqBin = (extra: Record<string, string> = {}) => {
     const dir = mkdtempSync(join(tmpdir(), 'kando-hook-nojq-'))
