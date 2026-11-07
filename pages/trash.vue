@@ -8,6 +8,7 @@
 - "Papierkorb leeren" sits right after the retention line, not at the column's far edge past a dead strip (#683). It is irreversible and confirms in place (the button row turns into the question), no dialog
 - Reached with an empty trash it says "Noch keine gelöschten Aufgaben." (the "Noch keine X." empty-state rule)
 - No visible page header (#670): the app bar's third segment reads "Papierkorb"; the layout keeps the title as an sr-only h1
+- The empty-trash question moves focus to "Abbrechen"; Esc cancels and returns focus to "Papierkorb leeren" (#21)
 - Focus: when the focused entry leaves, focus goes to the page heading
 -->
 <template>
@@ -19,15 +20,15 @@
           <p class="text-sm text-muted">{{ t('trash.retention') }}</p>
           <div v-if="count > 0" class="flex flex-wrap items-center gap-2">
             <template v-if="confirming">
-              <p class="text-sm text-default" role="alert">{{ t('trash.emptyConfirm', { n: count }, count) }}</p>
-              <UButton color="error" variant="soft" size="sm" data-testid="trash-empty-confirm" @click="confirmEmpty">
+              <p class="text-sm text-default" role="alert" @keydown.esc="cancelEmpty">{{ t('trash.emptyConfirm', { n: count }, count) }}</p>
+              <UButton color="error" variant="soft" size="sm" data-testid="trash-empty-confirm" @click="confirmEmpty" @keydown.esc="cancelEmpty">
                 {{ t('trash.emptyConfirmYes') }}
               </UButton>
-              <UButton color="neutral" variant="ghost" size="sm" @click="confirming = false">
+              <UButton ref="cancelEl" color="neutral" variant="ghost" size="sm" data-testid="trash-empty-cancel" @click="cancelEmpty" @keydown.esc="cancelEmpty">
                 {{ t('common.cancel') }}
               </UButton>
             </template>
-            <UButton v-else color="neutral" variant="ghost" size="sm" data-testid="trash-empty" @click="confirming = true">
+            <UButton v-else ref="emptyEl" color="neutral" variant="ghost" size="sm" data-testid="trash-empty" @click="openEmpty">
               {{ t('trash.emptyTrash') }}
             </UButton>
           </div>
@@ -72,6 +73,20 @@ const { t } = useI18n()
 const { count, groups, restoreFromTrash, removeForever, emptyTrash } = useTrash()
 const confirming = ref(false)
 const headingEl = ref<HTMLElement | null>(null)
+const cancelEl = ref<{ $el: HTMLElement } | null>(null)
+const emptyEl = ref<{ $el: HTMLElement } | null>(null)
+
+/** The empty-trash question (#21): focus lands on "Abbrechen"; Esc and Abbrechen hand it back to "Papierkorb leeren". */
+const openEmpty = async () => {
+  confirming.value = true
+  await nextTick()
+  cancelEl.value?.$el.focus()
+}
+const cancelEmpty = async () => {
+  confirming.value = false
+  await nextTick()
+  emptyEl.value?.$el.focus()
+}
 
 /** The focused entry is leaving the page: focus goes to the heading instead of falling to <body>. */
 const keepFocus = async () => {

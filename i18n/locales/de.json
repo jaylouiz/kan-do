@@ -1424,6 +1424,7 @@
     "restoreNamed": "Wiederherstellen: {title}",
     "removeForever": "Endgültig löschen",
     "removeForeverNamed": "Endgültig löschen: {title}",
+    "removeForeverConfirm": "{title} endgültig löschen?",
     "empty": "Noch keine gelöschten Aufgaben.",
     "emptyTrash": "Papierkorb leeren",
     "emptyConfirm": "{n} Aufgabe endgültig löschen? | {n} Aufgaben endgültig löschen?",
