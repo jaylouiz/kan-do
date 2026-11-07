@@ -18,8 +18,18 @@
 # flags before the subcommand such as `npm --silent install`; only `terms:approve` unwraps npm flags and `run-script`). Accepted trade-off: wrappers are not unwrapped.
 
 input=$(cat)
-cmd=$(printf '%s' "$input" | jq -r '.tool_input.command // ""')
+# shellcheck source=hook-input.sh
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/hook-input.sh"
 shopt -s nocasematch
+if ! cmd=$(hook_command "$input"); then
+  # Neither jq nor perl's JSON::PP could read the input (#2): block anything the guard's own pre-filter would look at.
+  case "$input" in
+    *pkill*|*killall*|*pgrep*|*tauri*|*release*|*npm*|*copy-terms*|*osascript*|*screencapture*)
+      echo "guard-commands: cannot read the hook input (no working jq, and perl's JSON::PP failed), and it may hold a guarded command. Install jq (brew install jq), then retry." >&2
+      exit 2 ;;
+  esac
+  exit 0
+fi
 case "$cmd" in
   *pkill*|*killall*|*pgrep*|*tauri*|*release*|*npm*|*copy-terms*|*osascript*|*screencapture*) ;;
   *) exit 0 ;;

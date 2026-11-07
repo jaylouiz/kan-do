@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process'
-import { chmodSync, copyFileSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
+import { chmodSync, copyFileSync, mkdtempSync, readFileSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
@@ -815,6 +815,7 @@ describe('e2e-before-merge hook arguments', () => {
   it('keeps working when the parser file contains an apostrophe (#640)', () => {
     const dir = mkdtempSync(join(tmpdir(), 'kando-hook-apostrophe-'))
     copyFileSync(resolve(root, '.claude/hooks/e2e-before-merge.sh'), join(dir, 'e2e-before-merge.sh'))
+    copyFileSync(resolve(root, '.claude/hooks/hook-input.sh'), join(dir, 'hook-input.sh'))
     const parser = readFileSync(resolve(root, '.claude/hooks/e2e-merge-parse.pl'), 'utf8')
     writeFileSync(join(dir, 'e2e-merge-parse.pl'), `# it's a comment with an apostrophe, and "a quote"\n${parser}`)
     const run = (command: string) => spawnSync('bash', [join(dir, 'e2e-before-merge.sh')], {
@@ -833,6 +834,7 @@ describe('e2e-before-merge hook arguments', () => {
   it('reads the parser file next to the hook: a broken one lands in the fail-closed fallback (#640)', () => {
     const dir = mkdtempSync(join(tmpdir(), 'kando-hook-broken-parser-'))
     copyFileSync(resolve(root, '.claude/hooks/e2e-before-merge.sh'), join(dir, 'e2e-before-merge.sh'))
+    copyFileSync(resolve(root, '.claude/hooks/hook-input.sh'), join(dir, 'hook-input.sh'))
     writeFileSync(join(dir, 'e2e-merge-parse.pl'), 'this is not perl (\n')
     const run = (command: string) => spawnSync('bash', [join(dir, 'e2e-before-merge.sh')], {
       input: JSON.stringify({ tool_input: { command } }),
@@ -854,5 +856,56 @@ describe('e2e-before-merge hook arguments', () => {
     })
     expect(result.status).toBe(2)
     expect(result.stderr).not.toContain('cannot parse')
+  })
+})
+
+// #2: a missing `jq` used to leave the command empty, so the hook saw no merge and let it through unchecked.
+describe('e2e-before-merge hook without jq (#2)', () => {
+  // A PATH that holds the tools the hook needs but no jq, resolved from the real PATH.
+  const noJqBin = (extra: Record<string, string> = {}) => {
+    const dir = mkdtempSync(join(tmpdir(), 'kando-hook-nojq-'))
+    for (const tool of ['bash', 'sh', 'cat', 'sed', 'tr', 'grep', 'head', 'dirname', 'mktemp', 'rm', 'awk', 'env', 'git', 'date', 'paste', 'perl']) {
+      const found = spawnSync('sh', ['-c', `command -v ${tool}`], { encoding: 'utf8' }).stdout.trim()
+      if (found && !(tool in extra)) symlinkSync(found, join(dir, tool))
+    }
+    for (const [name, body] of Object.entries(extra)) {
+      writeFileSync(join(dir, name), body)
+      chmodSync(join(dir, name), 0o755)
+    }
+    return dir
+  }
+  const run = (path: string, command: string) => spawnSync('/bin/bash', [resolve(root, '.claude/hooks/e2e-before-merge.sh')], {
+    input: JSON.stringify({ tool_input: { command } }),
+    encoding: 'utf8',
+    env: { ...process.env, PATH: path, CLAUDE_PROJECT_DIR: root, GH_REPO: 'o/r' },
+  })
+
+  it('the test PATH really has no jq', () => {
+    expect(spawnSync('sh', ['-c', 'command -v jq'], { env: { PATH: noJqBin() } }).status).not.toBe(0)
+  })
+
+  it('blocks a merge with a message that names jq, and lets other commands through', () => {
+    const path = noJqBin({ gh: '#!/bin/sh\nexit 1\n' })
+    for (const command of [merge(), restMerge(), 'gh -R o/r pr merge 12', 'E2E_GATE=full gh pr merge 12']) {
+      const result = run(path, command)
+      expect(result.status, command).toBe(2)
+      expect(result.stderr, command).toContain('jq is missing')
+    }
+    for (const command of ['echo hi', 'gh pr view 12', 'git status', "git commit -m 'gh pr merge notes'"]) {
+      const result = run(path, command)
+      expect(result.status, command).toBe(0)
+    }
+  })
+
+  it('blocks a merge too when perl cannot read the input either, and lets unrelated commands through', () => {
+    const path = noJqBin({ perl: '#!/bin/sh\nexit 1\n' })
+    for (const command of [merge(), restMerge(), '"gh" pr merge 12']) {
+      const result = run(path, command)
+      expect(result.status, command).toBe(2)
+      expect(result.stderr, command).toContain('cannot read the hook input')
+    }
+    for (const command of ['echo hi', 'gh pr view 12', 'git status']) {
+      expect(run(path, command).status, command).toBe(0)
+    }
   })
 })
