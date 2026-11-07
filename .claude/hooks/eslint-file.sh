@@ -14,7 +14,8 @@ input=$(cat)
 # Cheap exit first: a Bash call that changed nothing (nearly all of them) must cost one jq and one git.
 files=$(kando_edited_files "$input")
 [ -n "$files" ] || exit 0
-session_id=$(printf '%s' "$input" | jq -r '.session_id // "unknown"' 2>/dev/null)
+session_id=$(hook_get "$input" session_id)
+: "${session_id:=unknown}"
 
 # check_root <root> <file>...: lint the files of one checkout; appends to $errors.
 errors=""
@@ -29,7 +30,7 @@ check_root() {
     local flag="${TMPDIR:-/tmp}/kando-nolint-${session_id}-$(printf '%s' "$root" | cksum | cut -d' ' -f1)"
     if [ ! -f "$flag" ]; then
       : >"$flag"
-      jq -n --arg r "$root" --arg p "$project_dir" '{hookSpecificOutput: {hookEventName: "PostToolUse", additionalContext: ("eslint-file: \($r) has no node_modules, so edits there are not linted. Link it: ln -s \($p)/node_modules \($r)/node_modules")}}'
+      hook_context_json PostToolUse "eslint-file: $root has no node_modules, so edits there are not linted. Link it: ln -s $project_dir/node_modules $root/node_modules"
     fi
     return 0
   fi

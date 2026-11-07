@@ -14,15 +14,16 @@ cd "$project_dir" || exit 0
 . "$(dirname "$0")/edit-root.sh"
 
 input=$(cat)
-event=$(printf '%s' "$input" | jq -r '.hook_event_name // empty')
-# Cheap exit first: a Bash call that changed nothing (nearly all of them) must cost two jq and one git, before the
+event=$(hook_get "$input" hook_event_name)
+# Cheap exit first: a Bash call that changed nothing (nearly all of them) must cost two jq (or perl) calls and one git, before the
 # checkout root and session id are looked up.
 files=""
 if [ "$event" = PostToolUse ]; then
   files=$(kando_edited_files "$input")
   [ -n "$files" ] || exit 0
 fi
-session_id=$(printf '%s' "$input" | jq -r '.session_id // "unknown"')
+session_id=$(hook_get "$input" session_id)
+: "${session_id:=unknown}"
 main=$(kando_toplevel "$project_dir")
 
 # run_hook <root> <payload>: Impeccable's hook in <root>; prints its additionalContext, if any.
@@ -31,7 +32,7 @@ run_hook() {
   [ -x "$bin" ] || bin="$main/node_modules/.bin/impeccable"
   [ -x "$bin" ] || return 0
   (cd "$1" && printf '%s' "$2" | CLAUDE_PROJECT_DIR="$1" "$bin" hook 2>/dev/null) |
-    jq -r '.hookSpecificOutput.additionalContext // empty' 2>/dev/null
+    hook_additional_context
 }
 
 case "$event" in
@@ -39,7 +40,7 @@ case "$event" in
     # Edit|Write: one file, other checkouts only (the plugin's own hook covers the session's checkout). Bash (#650): the
     # files a sed/heredoc/script changed; the plugin's hook matches Edit|Write only, so the session's checkout is
     # judged here too.
-    tool=$(printf '%s' "$input" | jq -r '.tool_name // empty')
+    tool=$(hook_get "$input" tool_name)
     context=""
     while IFS= read -r file; do
       [ -n "$file" ] || continue
@@ -50,7 +51,7 @@ case "$event" in
       elif [ "$tool" != Bash ]; then
         continue
       fi
-      part=$(run_hook "$root" "$(printf '%s' "$input" | jq -c --arg r "$root" --arg f "$file" '.cwd = $r | .tool_name = "Write" | .tool_input = {file_path: $f}')")
+      part=$(run_hook "$root" "$(hook_retarget "$input" "$root" "$file")")
       [ -n "$part" ] && context="${context:+$context
 }$part"
     done < <(printf '%s\n' "$files" | sort -u)
@@ -59,7 +60,7 @@ case "$event" in
     context=""
     while IFS= read -r root; do
       [ -n "$root" ] && [ "$root" != "$main" ] && [ -d "$root" ] || continue
-      part=$(run_hook "$root" "$(printf '%s' "$input" | jq -c --arg r "$root" '.cwd = $r')")
+      part=$(run_hook "$root" "$(hook_retarget "$input" "$root")")
       [ -n "$part" ] && context="${context:+$context
 
 }[worktree $root]
@@ -70,5 +71,5 @@ $part"
 esac
 
 [ -n "$context" ] || exit 0
-jq -n --arg e "$event" --arg c "$context" '{hookSpecificOutput: {hookEventName: $e, additionalContext: $c}}'
+hook_context_json "$event" "$context"
 exit 0
