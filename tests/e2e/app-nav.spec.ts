@@ -466,8 +466,13 @@ for (const { label, size } of VIEWPORTS) {
 
     test('keyboard: Tab order through the bar and the panel, Enter on a row, Escape returns focus to ⋯', async ({ page }) => {
       await page.goto('/trash')
-      await appNav(page).getByTestId('app-nav-brand').focus()
-      await page.keyboard.press('Tab')
+      if (label === '1280') {
+        await appNav(page).getByTestId('app-nav-brand').focus()
+        await page.keyboard.press('Tab')
+      } else {
+        await expect(appNav(page).getByTestId('app-nav-brand')).toBeHidden() // no wordmark on a phone (#24)
+        await heute(page).focus()
+      }
       await expect(heute(page)).toBeFocused()
       await page.keyboard.press('Tab')
       await expect(statistik(page)).toBeFocused()
@@ -502,7 +507,7 @@ for (const { label, size } of VIEWPORTS) {
       await expect(page.locator('.board')).toBeVisible()
       await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
       await page.keyboard.press('Tab')
-      await expect(appNav(page).getByTestId('app-nav-brand')).toBeFocused()
+      await expect(label === '1280' ? appNav(page).getByTestId('app-nav-brand') : heute(page)).toBeFocused()
     })
 
     test('a rejected source puts a dot on ⋯ and the panel says why; with healthy sources ⋯ stays silent', async ({ context, page }) => {
@@ -533,25 +538,21 @@ test.describe('App bar: third segment on a phone (#583)', () => {
     await seedLocalBoard(context, SEED_TASKS, {}, undefined, { once: true })
   })
 
-  test('the brand folds away while the third segment shows and unfolds when it leaves; the bar keeps roughly its width', async ({ page }) => {
+  test('no wordmark on a phone (#24); the bar keeps its width when the third segment comes and goes', async ({ page }) => {
     await page.goto('/tasks')
     const brand = appNav(page).getByTestId('app-nav-brand')
-    await expect(brand).toBeVisible()
-    // The brand is outside the pill (#642): the bar's width is the group (brand + pill + ⋯)
+    await expect(brand).toBeHidden() // display none: not focusable, not announced
     const group = appNav(page).locator('.app-nav-group')
     const before = (await group.boundingBox())!.width
 
     await openSettings(page)
     await waitForNavIdle(page)
-    await expect(brand).toBeHidden() // folded: not focusable, not announced
-    expect((await brand.boundingBox())?.width ?? 0).toBeLessThanOrEqual(1)
-    const withThird = (await group.boundingBox())!.width
-    expect(Math.abs(withThird - before) / before).toBeLessThan(0.15)
+    await expect(brand).toBeHidden()
     await expectIndicatorOn(page, thirdItem(page))
 
     await goToPlace(page, 'Heute')
     await waitForNavIdle(page)
-    await expect(brand).toBeVisible()
+    await expect(brand).toBeHidden()
     expect(Math.abs((await group.boundingBox())!.width - before)).toBeLessThanOrEqual(1)
   })
 
@@ -658,10 +659,12 @@ for (const { label, size } of VIEWPORTS) {
     expect(focused.focusVisible).toBe(true)
     expect(focused.outline).toBe('solid')
     expect(focused.shadow).not.toBe('none')
-    await appNav(page).getByRole('link', { name: 'Heute' }).focus()
-    await page.keyboard.press('Shift+Tab')
-    await expect(appNav(page).getByTestId('app-nav-brand')).toBeFocused()
-    expect(await appNav(page).getByTestId('app-nav-brand').evaluate(el => getComputedStyle(el).outlineStyle)).toBe('solid')
+    if (label === '1280') {
+      await appNav(page).getByRole('link', { name: 'Heute' }).focus()
+      await page.keyboard.press('Shift+Tab')
+      await expect(appNav(page).getByTestId('app-nav-brand')).toBeFocused()
+      expect(await appNav(page).getByTestId('app-nav-brand').evaluate(el => getComputedStyle(el).outlineStyle)).toBe('solid')
+    }
     // A point inside the veil, outside both pills, hits the page, not the bar
     const pill = (await appNav(page).locator('.app-nav-pill').boundingBox())!
     const y = label === '1280' ? 56 + 14 : pill.y - 12

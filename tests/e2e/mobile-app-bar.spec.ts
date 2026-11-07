@@ -67,8 +67,9 @@ test.describe('Mobile app bar', () => {
     await openBoard(page);
     const pill = (await bar(page).boundingBox())!;
     const more = (await moreButton(page).boundingBox())!;
-    // The brand stands left of the pill, outside it (#642): the group starts at the brand
-    const left = (await page.getByTestId('app-nav-brand').boundingBox())!.x;
+    // No wordmark on a phone (#24): the group starts at the pill
+    await expect(page.getByTestId('app-nav-brand')).toBeHidden();
+    const left = pill.x;
     const right = 390 - (more.x + more.width);
     expect(Math.abs(left - right)).toBeLessThanOrEqual(2); // the group is centred
     expect(pill.height).toBeCloseTo(52, 0); // 3.25rem
@@ -232,7 +233,7 @@ test.describe('Mobile app bar', () => {
     const nav = appNav(page);
     // The pills fade, never .app-nav itself: opacity < 1 on an ancestor makes it a Backdrop Root and the blur pops in
     // only at the end of the fade (#631)
-    const pills = nav.locator('.app-nav-pill, .app-nav-more, .app-nav-brand'); // the brand too (#642): it stands outside the pill
+    const pills = nav.locator('.app-nav-pill, .app-nav-more');
     await expect(pills.first()).toHaveCSS('opacity', '1');
     await pickUp(page, page.locator('#column-open .task-wrapper').first());
     for (const pill of await pills.all()) await expect(pill).toHaveCSS('opacity', '0');
