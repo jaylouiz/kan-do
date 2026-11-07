@@ -1,12 +1,14 @@
-# Kan-Do
+# kan-do
 
-A calm board for today's work. Kan-Do is a focus layer on top of your existing tasks (Notion or tasks kept in the app itself): it shows only what you chose for today, lets you work on one thing at a time, and helps you close the day with fewer things in flight. It is not a second task manager to maintain.
+A calm board for today's work. Kan-do is a focus layer on top of your existing tasks (Notion or tasks kept in the app itself): it shows only what you chose for today, lets you work on one thing at a time, and helps you close the day with fewer things in flight. It is not a second task manager to maintain.
 
 It is built for one person managing their own day: short, frequent sessions where you glance, move a card, check a timer and close.
 
+> **Status: alpha.** kan-do is well tested and in daily use by its author, but it does not yet keep its promise for external to-do apps: Notion is the only one you can connect, and that connection still has gaps; Todoist is planned. Expect rough edges and changes between versions.
+
 **Platforms:** a macOS desktop app (Apple silicon) and a web app (Nuxt), built from the same code.
 
-Want to help build Kan-Do? See [CONTRIBUTING.md](CONTRIBUTING.md).
+Want to help build kan-do? See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## What you get
 
@@ -20,7 +22,7 @@ Want to help build Kan-Do? See [CONTRIBUTING.md](CONTRIBUTING.md).
 - **German and English.** The interface is German by default and English when your browser or system prefers it (add `?lang=en` to the address to switch).
 - **Mobile friendly.** The web app works down to phone width.
 
-## Using Kan-Do
+## Using kan-do
 
 ### Install the desktop app
 
@@ -44,7 +46,7 @@ The app checks for updates on its own and installs them after asking; no GitHub 
 
 ### Connecting Notion
 
-Notion is optional. From the welcome page, or from the board settings under task sources, choose **Notion** and follow the setup wizard: connect your integration, pick the database, and map its properties to Kan-Do's status and fields. You can also map extra Notion properties (text, number, select, multi-select, date, checkbox, URL, email, phone) so they show in the task's detail view, and choose the unit (seconds, minutes, hours) for time spent.
+Notion is optional. From the welcome page, or from the board settings under task sources, choose **Notion** and follow the setup wizard: connect your integration, pick the database, and map its properties to kan-do's status and fields. You can also map extra Notion properties (text, number, select, multi-select, date, checkbox, URL, email, phone) so they show in the task's detail view, and choose the unit (seconds, minutes, hours) for time spent.
 
 ### Local tasks
 
@@ -74,11 +76,11 @@ Notion is optional and configured in the app; `.env.example` lists the variables
 
 ## More about the product
 
-- [PRODUCT.md](PRODUCT.md): who Kan-Do is for and the principles behind it.
+- [PRODUCT.md](PRODUCT.md): who kan-do is for and the principles behind it.
 - [docs/application-purpose.md](docs/application-purpose.md): vision and non-goals.
 
 ## License
 
-Kan-Do is released under the [MIT License](LICENSE). Copyright (c) 2026 Julius Wüstefeld.
+Kan-do is released under the [MIT License](LICENSE). Copyright (c) 2026 Julius Wüstefeld.
 
 The interface font is [Figtree](https://github.com/erikdkennedy/figtree) by Erik Kennedy, licensed under the SIL Open Font License 1.1 ([public/fonts/Figtree-OFL.txt](public/fonts/Figtree-OFL.txt)).
