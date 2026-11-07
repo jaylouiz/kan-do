@@ -2,7 +2,7 @@
  * Global app bar (#470, ADR 017): components/nav/AppNav.vue. Imported by main.css; components layer.
  *
  * Desktop (>=768px): a sticky row at the top, the group centred: the brand, one pill (the two places) and a round
- * ⋯ pill. Phone: the same pills float centred at the bottom. This file is the one place that declares the two
+ * ⋯ pill. Phone: the same pills float centred at the bottom, without the brand (#24: no backing, it printed over the cards). This file is the one place that declares the two
  * page offsets: `--app-bar-offset-top` (desktop) and `--phone-bar-offset` (phone); pages, the board and the
  * toaster read them instead of knowing the bar's geometry.
  *
@@ -24,7 +24,7 @@
  *
  * Third segment (#583): on /settings* and /trash the page appears as a third segment in the pill. One timeline
  * (`--nav-move`, `--nav-ease`, set on `.app-nav`; 0ms under reduced motion, which also switches the JS springs off)
- * drives the segment's growth (AppNav.vue, WAAPI), the brand fold and the phone segment padding.
+ * drives the segment's growth (AppNav.vue, WAAPI) and the phone segment padding.
  * The outer pill (`.app-nav-pill`) has no width of its own (#616): it is as wide as its content, so it follows these
  * moves frame by frame. Never give it a fixed or transitioned width; that would lag or clip behind the segment.
  */
@@ -107,7 +107,7 @@
   }
 
   .app-nav-group {
-    /* Brand, pill and ⋯ pill; the brand's fold cancels one gap (phone) */
+    /* Brand (desktop only), pill and ⋯ pill */
     --nav-group-gap: 0.375rem;
     display: flex;
     align-items: center;
@@ -156,8 +156,7 @@
   }
 
   /* The brand sits outside the grey pill (#642), first in the group, on the paper veil. It is a one-column grid so that
-     it can fold to nothing (phone, third segment shown) with a transition of its track: a content-sized width cannot
-     be animated, a max-width has dead time before it bites */
+     it is display:none on a phone (#24) */
   .app-nav-brand {
     position: relative;
     display: grid;
@@ -376,15 +375,11 @@
       padding-inline: 0.75rem;
     }
 
-    /* The third segment needs the brand's room on a phone: the brand folds away, the segments tighten, the pill keeps
-       roughly its width. Everything on the one timeline; visibility waits for the fold so a folded brand is not
-       focusable or announced (and returns at once when it unfolds). */
+    /* The wordmark has no backing on a phone and would print over the cards scrolling under the bar (#24): it is not
+       shown below 768px (display none: not focusable, not announced). Heute links to /tasks. The third segment
+       tightens the segments' padding on the one timeline. */
     .app-nav-brand {
-      transition: grid-template-columns var(--nav-move) var(--nav-ease), margin var(--nav-move) var(--nav-ease), opacity calc(var(--nav-move) * 0.6) ease;
-    }
-
-    .app-nav-brand-text {
-      transition: padding var(--nav-move) var(--nav-ease);
+      display: none;
     }
 
     .app-nav.has-third .app-nav-place {
@@ -395,22 +390,7 @@
       padding-inline: 0;
     }
 
-    .app-nav.has-third .app-nav-brand {
-      grid-template-columns: 0fr;
-      /* Folded, the brand takes no room: its own gap is cancelled with it */
-      margin-right: calc(var(--nav-group-gap) * -1);
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-      transition: grid-template-columns var(--nav-move) var(--nav-ease), margin var(--nav-move) var(--nav-ease), opacity calc(var(--nav-move) * 0.6) ease, visibility 0s linear var(--nav-move);
-    }
-
-    .app-nav.has-third .app-nav-brand-text {
-      padding-inline: 0;
-    }
-
     /* While a card is dragged the bar fades out and takes no pointer, so no drop target is covered */
-    .app-nav.is-dragging .app-nav-brand,
     .app-nav.is-dragging .app-nav-pill,
     .app-nav.is-dragging .app-nav-more,
     .app-nav.is-dragging::before {
@@ -422,15 +402,12 @@
     }
 
     /* The phone rules above re-declare transitions after the global reduced-motion block (same specificity, later
-       wins), so reduced motion is repeated here: every change instant, no fades, no fold animation. */
+       wins), so reduced motion is repeated here: every change instant, no fades. */
     @media (prefers-reduced-motion: reduce) {
       .app-nav-pill,
       .app-nav-more,
       .app-nav::before,
-      .app-nav-place,
-      .app-nav-brand,
-      .app-nav-brand-text,
-      .app-nav.has-third .app-nav-brand {
+      .app-nav-place {
         transition: none;
       }
     }

@@ -3,11 +3,11 @@
 @description The global app bar (#470, ADR 017): the `kan-do` wordmark (outside any pill, #642), one pill with the two places (Heute, Statistik) plus, on a page behind ⋯, that page as a third segment (#583), then a separate round ⋯ pill that opens the Mehr panel
 @usage Mounted once in app.vue before <NuxtLayout>, so it survives page transitions; hidden on routes with `appNav: false`
 @responsibility
-- Brand (#642): the wordmark link sits first in the group, left of the pill and outside it, on the paper veil; DOM and tab order unchanged (brand, Heute, Statistik, third, ⋯). On a phone it folds away with its own gap while the third segment shows
+- Brand (#642): the wordmark link sits first in the group, left of the pill and outside it, on the paper veil; DOM and tab order unchanged (brand, Heute, Statistik, third, ⋯). Not shown on a phone (#24: it has no backing and printed over the cards scrolling under the bar; Heute links to /tasks)
 - Desktop (≥768px): sticky bar at the top, the group centred. Phone: the same pills float at the bottom (assets/css/app-nav.css)
 - Separation from the content behind it (#615, DESIGN.md "The Glass Chrome Rule"): the two pills are frosted glass and a paper veil sits behind them (`.app-nav::before`, no pointer events, so the `.titlebar` drag strip and the page stay usable). Near-opaque fallback without `backdrop-filter` and under reduced transparency. Recipe: `--nav-glass-*` in app-nav.css. The page header is not sticky, so the bar is the only thing that stays
 - Selected state is a pure function of the route (useAppNav): Heute on /tasks*, Statistik on /statistics, the third segment (Papierkorb, Einstellungen) on /trash and /settings*. ⋯ is never selected and carries no aria-current. An open panel is an overlay, not a navigation: the place keeps its chip, ⋯ shows only a soft "open" fill and aria-expanded
-- Third segment (#583, DESIGN.md "App bar"): grows in the pill when a page behind ⋯ is entered, shrinks away when Heute or Statistik is chosen, re-measures when Einstellungen <-> Papierkorb. MorePanel leaves out the row of the page the pill shows. One 420 ms timeline (`--nav-move`, `--nav-ease` in app-nav.css, 0 under reduced motion) drives the segment, the phone brand fold and the phone segment padding; a retarget mid-move continues from the current width. The grey pill is content-sized, so its width follows the segment frame by frame on that same timeline (#616); the segment's left margin runs -gap -> 0 with it, so the pill's 1px flex gap does not step in at the first frame or out at the last. The move starts on the second animation frame after the route change, not at the DOM patch (#643): the first frame lays out and paints the new page and, on a slow main thread (WKWebView, a big board), can outlast the whole 420 ms, which left a timeline started before it already over (segment and pill jumped to the end). Until then the segment holds its start state by inline style, and the phone `has-third` class (brand fold, padding transitions) flips with the move so all three share one start. Direct load and the first paint show the segment without motion
+- Third segment (#583, DESIGN.md "App bar"): grows in the pill when a page behind ⋯ is entered, shrinks away when Heute or Statistik is chosen, re-measures when Einstellungen <-> Papierkorb. MorePanel leaves out the row of the page the pill shows. One 420 ms timeline (`--nav-move`, `--nav-ease` in app-nav.css, 0 under reduced motion) drives the segment and the phone segment padding; a retarget mid-move continues from the current width. The grey pill is content-sized, so its width follows the segment frame by frame on that same timeline (#616); the segment's left margin runs -gap -> 0 with it, so the pill's 1px flex gap does not step in at the first frame or out at the last. The move starts on the second animation frame after the route change, not at the DOM patch (#643): the first frame lays out and paints the new page and, on a slow main thread (WKWebView, a big board), can outlast the whole 420 ms, which left a timeline started before it already over (segment and pill jumped to the end). Until then the segment holds its start state by inline style, and the phone `has-third` class (padding transitions) flips with the move so all three share one start. Direct load and the first paint show the segment without motion
 - One indicator (the raised white chip) behind the selected segment: two springs chase the live box of the `aria-current` segment (useNavIndicator, lib/navSpring.ts). `data-moving` on the nav is set until chip and layout are idle (E2E waits on it)
 - A failing source puts a status dot on ⋯ (error for broken, else warning) and the accessible name says so; the panel explains it
 - Tag abschließen: closes the panel, returns focus to ⋯, then opens the dialog, so the dialog's return target is ⋯ and not a removed row
@@ -160,7 +160,7 @@ const { moving } = indicator
 
 /** The segment on screen: outlives `thirdItem` while it shrinks away, label and target follow `thirdItem` otherwise */
 const shownThird = ref<ThirdItem | null>(thirdItem.value)
-/** Brand fold and phone segment padding (app-nav.css): flips at the START of a move, both ways */
+/** Phone segment padding (app-nav.css): flips at the START of a move, both ways */
 const folded = ref(thirdItem.value !== null)
 const leaving = computed(() => thirdItem.value === null && shownThird.value !== null)
 
@@ -253,7 +253,7 @@ watch(thirdItem, async (item, previous) => {
     thirdAnim.cancel()
     thirdAnim = null
   }
-  // The brand fold and the phone padding are CSS transitions, which start on the frame that sees the class change:
+  // The phone padding is a CSS transition, which start on the frame that sees the class change:
   // with motion they flip together with the segment's move (below), so all three share one start
   if (!animated) folded.value = item !== null
   if (item) shownThird.value = item
