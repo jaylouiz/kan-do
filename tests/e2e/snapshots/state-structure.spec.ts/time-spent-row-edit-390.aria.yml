@@ -1,0 +1,3 @@
+- text: Aufgewendete Zeit
+- spinbutton "Aufgewendete Zeit in Minuten": "30"
+- text: min 30 min übrig

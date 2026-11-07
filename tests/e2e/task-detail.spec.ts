@@ -143,6 +143,21 @@ const mockTasks = [
     timerId: null,
     isUnplanned: false,
   },
+  {
+    id: 'test-task-8',
+    // Waiting, 30 min 5 s tracked: the edit field shows whole minutes and must not round the total by itself (#4)
+    title: 'Wartende Aufgabe mit krummer Zeit',
+    status: 2, // Waiting
+    priority: 2,
+    timeSpentSeconds: 1805,
+    timeBoxSeconds: null,
+    topic: null,
+    topicColorCode: null,
+    activity: null,
+    notes: null,
+    timerId: null,
+    isUnplanned: false,
+  },
 ];
 
 /** Opens a task's sheet by URL and waits until its property list is rendered, so what follows acts on a settled sheet. */
@@ -307,8 +322,8 @@ test.describe('Task Detail View', () => {
 
     // properties render as labelled rows without chips or icons
     const list = page.getByTestId('task-property-list');
-    await expect.soft(list.getByTestId('task-property-row'), 'properties render as labelled rows: five rows').toHaveCount(5);
-    for (const label of ['Status', 'Priorität', 'Thema', 'Aktivität', 'Timebox']) {
+    await expect.soft(list.getByTestId('task-property-row'), 'properties render as labelled rows: six rows').toHaveCount(6);
+    for (const label of ['Status', 'Priorität', 'Thema', 'Aktivität', 'Timebox', 'Aufgewendete Zeit']) {
       await expect.soft(list.getByText(label, { exact: true }), `properties render as labelled rows: ${label}`).toBeVisible();
     }
     await expect.soft(page.getByTestId('task-status-select'), 'properties render as labelled rows: status name').toHaveAccessibleName('Status: Jetzt');
@@ -357,10 +372,11 @@ test.describe('Task Detail View', () => {
     // Task 2 is unplanned (isUnplanned: true)
     await expect.soft(page.getByText('Ungeplant').first(), 'shows unplanned status for ad-hoc task').toBeVisible();
 
-    // time block has no empty state when task has no timebox and no time spent
-    await expect.soft(page.getByTestId('time-stats-empty'), 'time block has no empty state: time-stats-empty').not.toBeAttached();
-    await expect.soft(page.getByTestId('time-stats-data'), 'time block has no empty state: time-stats-data').not.toBeAttached();
-    await expect.soft(page.getByText('Keine Zeit erfasst'), 'time block has no empty state: no "Keine Zeit erfasst"').toHaveCount(0);
+    // no separate time block and no ring (#4): the time spent is a property row, empty reads "+ hinzufügen"
+    await expect.soft(page.getByTestId('time-stats-data'), 'no time block: time-stats-data').not.toBeAttached();
+    await expect.soft(page.locator('[data-section="time-stats"]'), 'no time block: section').toHaveCount(0);
+    await expect.soft(page.getByRole('button', { name: 'Aufgewendete Zeit: + hinzufügen' }), 'time spent row: empty state').toBeVisible();
+    await expect.soft(page.getByTestId('time-remaining'), 'time spent row: no remaining time without a timebox').not.toBeAttached();
 
     // timebox has a single entry point: its property row, no second CTA in the time block
     await expect.soft(page.getByTestId('set-timebox-cta'), 'timebox single entry point: no set-timebox-cta').not.toBeAttached();
@@ -372,19 +388,104 @@ test.describe('Task Detail View', () => {
     await expect(page.getByTestId('timebox-edit-input')).toBeVisible();
   });
 
-  test('task sheet of a waiting task with a timebox and tracked time: time stats and the timebox row', async ({ page, baseURL }) => {
+  test('task sheet of a waiting task with a timebox and tracked time: the time spent row, time left beside it and the timebox row', async ({ page, baseURL }) => {
     // Task 7 has timebox of 3600s (1h) and timeSpent of 1800s (30min); it waits, so no timer counts on
     await page.goto(`${baseURL}/tasks/test-task-7`);
-    const timeStats = page.getByTestId('time-stats-data');
-    await expect(timeStats).toBeVisible();
+    const row = page.getByTestId('task-property-row').filter({ hasText: 'Aufgewendete Zeit' });
+    await expect(row).toBeVisible();
 
-    // time stats shows data state when task has a timebox set
-    await expect.soft(page.getByTestId('time-stats-empty'), 'time stats shows data state: no empty state').not.toBeAttached();
-    // displays time tracking information when timebox is set
-    await expect.soft(timeStats, 'displays time tracking information: worked').toContainText('30 min gearbeitet');
-    await expect.soft(timeStats, 'displays time tracking information: left').toContainText('30 min übrig');
-    // The timebox value lives in its row, not in the time block
-    await expect.soft(page.getByRole('button', { name: /^Timebox: 1 h/ }), 'displays time tracking information: timebox row').toBeVisible();
+    await expect.soft(row.getByTestId('time-spent-value'), 'time spent row: value').toHaveText('30 min');
+    await expect.soft(row.getByTestId('time-remaining'), 'time spent row: time left').toHaveText('30 min übrig');
+    await expect.soft(page.getByTestId('time-stats-data'), 'time spent row: no separate time block').not.toBeAttached();
+    // The timebox value lives in its own row, directly above
+    await expect.soft(page.getByRole('button', { name: /^Timebox: 1 h/ }), 'time spent row: timebox row').toBeVisible();
+  });
+
+  test.describe('editing the time spent (#4)', () => {
+    const openRow = async (page: Page, baseURL: string | undefined, id: string) => {
+      await page.goto(`${baseURL}/tasks/${id}`);
+      const row = page.getByTestId('task-property-row').filter({ hasText: 'Aufgewendete Zeit' });
+      await expect(row).toBeVisible();
+      return row;
+    };
+    const storedTime = (page: Page, id: string) => page.evaluate((taskId) => {
+      const tasks = (JSON.parse(localStorage.getItem('tasks-store') ?? '{}') as { tasks?: Array<{ id: string; timeSpentSeconds: number }> }).tasks ?? [];
+      return tasks.find((t) => t.id === taskId)?.timeSpentSeconds;
+    }, id);
+
+    test('Enter saves the new total; the time left follows', async ({ page, baseURL }) => {
+      const row = await openRow(page, baseURL, 'test-task-7');
+      await row.getByRole('button', { name: /^Aufgewendete Zeit: / }).click();
+      const input = page.getByRole('spinbutton', { name: 'Aufgewendete Zeit in Minuten' });
+      await expect(input).toBeFocused();
+      await expect(input).toHaveValue('30');
+      await input.fill('50');
+      await input.press('Enter');
+
+      await expect(row.getByTestId('time-spent-value')).toHaveText('50 min');
+      await expect(row.getByTestId('time-remaining')).toHaveText('10 min übrig');
+      await expect.poll(() => storedTime(page, 'test-task-7')).toBe(3000);
+    });
+
+    test('lowering works, 0 shows "+ hinzufügen", and a time can be added to a task without any', async ({ page, baseURL }) => {
+      const row = await openRow(page, baseURL, 'test-task-7');
+      await row.getByRole('button', { name: /^Aufgewendete Zeit: / }).click();
+      await page.getByTestId('time-spent-edit-input').fill('0');
+      await page.getByTestId('time-spent-edit-input').press('Enter');
+      await expect(row.getByRole('button', { name: 'Aufgewendete Zeit: + hinzufügen' })).toBeVisible();
+      await expect.poll(() => storedTime(page, 'test-task-7')).toBe(0);
+
+      await row.getByRole('button', { name: 'Aufgewendete Zeit: + hinzufügen' }).click();
+      await page.getByTestId('time-spent-edit-input').fill('20');
+      await page.getByTestId('time-spent-edit-input').press('Enter');
+      await expect(row.getByTestId('time-spent-value')).toHaveText('20 min');
+      await expect.poll(() => storedTime(page, 'test-task-7')).toBe(1200);
+    });
+
+    test('Esc cancels, blur saves, a blank or too large entry changes nothing', async ({ page, baseURL }) => {
+      const row = await openRow(page, baseURL, 'test-task-7');
+      const trigger = row.getByRole('button', { name: /^Aufgewendete Zeit: / });
+      const input = page.getByTestId('time-spent-edit-input');
+
+      await trigger.click();
+      await input.fill('99');
+      await input.press('Escape');
+      await expect(row.getByTestId('time-spent-value')).toHaveText('30 min');
+
+      await trigger.click();
+      await input.fill('');
+      await input.press('Enter');
+      await expect(row.getByTestId('time-spent-value')).toHaveText('30 min');
+
+      await trigger.click();
+      await input.fill('99999'); // above the 9999-minute limit: dropped like a blank entry
+      await input.press('Enter');
+      await expect(row.getByTestId('time-spent-value')).toHaveText('30 min');
+
+      await trigger.click();
+      await input.fill('45');
+      await page.getByTestId('task-property-row').filter({ hasText: 'Status' }).click();
+      await expect(row.getByTestId('time-spent-value')).toHaveText('45 min');
+    });
+
+    test('leaving the field unchanged keeps the exact total (30 min 5 s stays)', async ({ page, baseURL }) => {
+      const row = await openRow(page, baseURL, 'test-task-8');
+      await row.getByRole('button', { name: /^Aufgewendete Zeit: / }).click();
+      await expect(page.getByTestId('time-spent-edit-input')).toHaveValue('30');
+      await page.getByTestId('time-spent-edit-input').press('Enter');
+      await expect(row.getByRole('button', { name: /^Aufgewendete Zeit: / })).toBeVisible();
+      await expect.poll(() => storedTime(page, 'test-task-8')).toBe(1805);
+    });
+
+    test('a running timer keeps counting from the edited total', async ({ page, baseURL }) => {
+      const row = await openRow(page, baseURL, 'test-task-1'); // in Jetzt: timed from page load
+      await row.getByRole('button', { name: /^Aufgewendete Zeit: / }).click();
+      await page.getByTestId('time-spent-edit-input').fill('60');
+      await page.getByTestId('time-spent-edit-input').press('Enter');
+      await expect.poll(() => storedTime(page, 'test-task-1')).toBeGreaterThanOrEqual(3600);
+      await expect.poll(async () => (await storedTime(page, 'test-task-1')) ?? 0).toBeGreaterThan(3600);
+      expect(await storedTime(page, 'test-task-1')).toBeLessThan(3700);
+    });
   });
 
   test('error state shows when task not found', async ({ page, baseURL }) => {

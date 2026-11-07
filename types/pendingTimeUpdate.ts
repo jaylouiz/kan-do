@@ -9,6 +9,8 @@ export interface PendingTimeUpdate {
   attemptCount: number;
   status: 'pending' | 'syncing' | 'failed';
   errorMessage?: string;
+  /** The total was set by the user (#4): it wins over a fetched value, also a higher one, until a push carried it */
+  absolute?: boolean;
 }
 
 /**

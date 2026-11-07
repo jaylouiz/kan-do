@@ -483,28 +483,6 @@
                 </div>
               </div>
             </div>
-            <div class="min-w-48 flex-1">
-              <SectionHeader text="TaskProgressCircular" class="mb-2" />
-              <div class="rounded-lg border border-default bg-elevated p-4 flex flex-col gap-4">
-                <div>
-                  <span class="mb-2 block text-xs text-muted">Standardgrößen</span>
-                  <div class="flex items-center gap-4">
-                    <TaskProgressCircular :time-box-seconds="3600" :time-spent-seconds="900" :is-running="false" />
-                    <TaskProgressCircular :time-box-seconds="3600" :time-spent-seconds="2700" :is-running="true" />
-                    <TaskProgressCircular :time-box-seconds="3600" :time-spent-seconds="4320" :is-running="false" />
-                  </div>
-                </div>
-                <div>
-                  <span class="mb-2 block text-xs text-muted">Größen (24/36/56/80px)</span>
-                  <div class="flex items-end gap-4">
-                    <TaskProgressCircular :time-box-seconds="3600" :time-spent-seconds="1500" :size="24" :stroke-width="3" :show-label="false" />
-                    <TaskProgressCircular :time-box-seconds="3600" :time-spent-seconds="1500" :size="36" :stroke-width="4" />
-                    <TaskProgressCircular :time-box-seconds="3600" :time-spent-seconds="1500" :size="56" :stroke-width="5" />
-                    <TaskProgressCircular :time-box-seconds="3600" :time-spent-seconds="1500" :size="80" :stroke-width="6" />
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -692,7 +670,6 @@ import TaskPriorityBadge from '~/components/task/TaskPriorityBadge.vue'
 import TaskTimebox from '~/components/task/TaskTimebox.vue'
 import TaskTimer from '~/components/task/TaskTimer.vue'
 import TaskProgressBar from '~/components/task/TaskProgressBar.vue'
-import TaskProgressCircular from '~/components/task/TaskProgressCircular.vue'
 import SectionHeader from '~/components/ui/SectionHeader.vue'
 import ExpandingButton from '~/components/ui/ExpandingButton.vue'
 import InlineEditable from '~/components/ui/inline/InlineEditable.vue'

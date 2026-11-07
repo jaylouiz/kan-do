@@ -43,9 +43,10 @@ export interface TaskSourceAdapter {
    * Writes the task's current state upstream. `change.previousStatus` is the status the source held before
    * (Todoist completes, or reopens when it was `Done`; `useTaskSync` takes it from the task's `pendingSync.upstreamDone`
    * when there is one, so a replay after a restart reopens too, #344). Resolves to the task as the source now holds it (Notion), or
-   * `null` when the source returns nothing to merge back (Todoist, Local).
+   * `null` when the source returns nothing to merge back (Todoist, Local). `change.timeEdited`: the user set the
+   * task's total time spent (#4), so a source that stores time writes it even at 0 (Notion clears the property).
    */
-  update(task: Task, change?: { previousStatus?: TaskStatus }): Promise<Task | null>
+  update(task: Task, change?: { previousStatus?: TaskStatus; timeEdited?: boolean }): Promise<Task | null>
 
   /** Removes the task upstream: Notion archives the page, Todoist deletes the task, Local has nothing upstream. */
   remove(task: Task): Promise<void>

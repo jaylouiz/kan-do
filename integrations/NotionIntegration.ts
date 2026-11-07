@@ -642,13 +642,15 @@ export class NotionIntegration {
    * Implements bidirectional sync: after updating, fetches the page to ensure local state
    * matches Notion (e.g., preserves tags added directly in Notion).
    * @param task The task to update; Notion is addressed by its `externalId` (the page id), never by `id`
+   * @param change `timeEdited`: the user set the total time spent (#4), so it is written even at 0 (the property
+   *   is cleared). An ordinary push at 0 leaves the property alone, so time another device recorded survives.
    * @returns The task with properties synced from Notion after the update
    */
-  async updateTask(task: Task): Promise<Task> {
+  async updateTask(task: Task, change: { timeEdited?: boolean } = {}): Promise<Task> {
     const externalId = externalIdOf(task);
     try {
       const statusType = await this.statusPropertyType();
-      const properties: Record<string, { select?: { name: string }; status?: { name: string }; number?: number; date?: { start: string } | null }> = {
+      const properties: Record<string, { select?: { name: string }; status?: { name: string }; number?: number | null; date?: { start: string } | null }> = {
         [this.propertyMapping.status]: this.statusValue(
           statusType,
           (task.archivedAt && this.statusMapping.archive)
@@ -664,6 +666,10 @@ export class NotionIntegration {
         properties[this.propertyMapping.timeSpent] = {
           number: valueToWrite,
         };
+      }
+      else if (change.timeEdited && this.propertyMapping.timeSpent) {
+        // The user cleared the total (#4): an empty number, not a skipped property
+        properties[this.propertyMapping.timeSpent] = { number: null };
       }
 
       // Add timeBox if it exists and is mapped, converting based on configured unit

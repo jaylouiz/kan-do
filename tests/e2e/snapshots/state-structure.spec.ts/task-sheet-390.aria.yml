@@ -13,7 +13,8 @@
   - 'button "Aktivität: Planung"'
   - text: Timebox
   - 'button "Timebox: + hinzufügen"'
-  - text: Geplante Dauer in Minuten
+  - text: Geplante Dauer in Minuten Aufgewendete Zeit
+  - 'button "Aufgewendete Zeit: + hinzufügen"'
   - region "Notiz":
     - heading "Notiz" [level=3]
     - 'button "Notiz: Entwurf bis Ende der Woche fertigstellen."'

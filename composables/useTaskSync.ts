@@ -339,6 +339,10 @@ export const useTaskSync = () => {
     }
   };
 
+  /** `timeEdited` for a write that carries a total the user set (#4), even at 0; empty otherwise. */
+  const timeEditFlag = (taskId: string): { timeEdited?: true } =>
+    tasksStore.pendingTimeUpdates[taskId]?.absolute === true ? { timeEdited: true } : {};
+
   /** One write of a non-Local task; never rejects, a failure goes to `reportPushFailure`. */
   const pushTask = async (task: Task, previousStatus?: TaskStatus, operationVersion?: number): Promise<boolean> => {
     const revision = tasksStore.markPendingSync(task.id, previousStatus === undefined ? undefined : previousStatus === TaskStatus.Done);
@@ -359,6 +363,8 @@ export const useTaskSync = () => {
         const sentDone = task.status === TaskStatus.Done;
         const synced = await adapter.update(task, {
           previousStatus: heldDone === undefined ? previousStatus : heldDone ? TaskStatus.Done : TaskStatus.Open,
+          // A total the user set (#4) is written even at 0; the entry lives until the push carried it
+          ...timeEditFlag(task.id),
         });
         if (synced) applySyncedTask(task.id, synced, operationVersion);
         tasksStore.clearPendingSync(task.id, revision, sentDone);
@@ -425,9 +431,11 @@ export const useTaskSync = () => {
       return;
     }
 
+    // A total the user set after this write started (#4) is not yet in the source: keep it over the echo
+    const timeKept = tasksStore.pendingTimeUpdates[taskId]?.absolute === true;
     tasksStore.updateTask(taskId, {
       isUnplanned: synced.isUnplanned,
-      timeSpentSeconds: synced.timeSpentSeconds,
+      ...(timeKept ? {} : { timeSpentSeconds: synced.timeSpentSeconds }),
       status: synced.status,
       priority: synced.priority,
       timeBoxSeconds: synced.timeBoxSeconds,
@@ -480,7 +488,8 @@ export const useTaskSync = () => {
 
         try {
           // update returns the synced task with the source's current state
-          const syncedTask = await adapter.update(task);
+          // The write drops the queued time entry, so it has to carry a user-set total (#4)
+          const syncedTask = await adapter.update(task, timeEditFlag(taskId));
           tasksStore.clearPendingSync(taskId, revision);
           restoreSourceAfterPush(source);
           if (!syncedTask) continue;

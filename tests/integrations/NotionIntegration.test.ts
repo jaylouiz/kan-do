@@ -415,6 +415,39 @@ describe('NotionIntegration – priority mapping and time parsing edge cases', (
     expect(body.properties[propertyMapping.timeSpent].number).toBe(1.5)
   })
 
+  it('clears the time property when the user set the total to 0 (#4); an ordinary push at 0 leaves it alone', async () => {
+    const jsonMock = vi.fn().mockResolvedValue({ ok: true })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: jsonMock }))
+    const ni = makeSutWithUnit('minutes')
+    const base = {
+      id: 'p-edit', source: 'notion', externalId: 'p-edit', title: 'Edit', notes: null, status: TaskStatus.Open, priority: 1,
+      timeBoxSeconds: null, timeSpentSeconds: 0, topic: null, topicColorCode: null, timerId: null,
+    } as any
+
+    await ni.updateTask(base)
+    expect(parseLastUpdateTaskBody().properties[propertyMapping.timeSpent]).toBeUndefined()
+
+    await ni.updateTask(base, { timeEdited: true })
+    expect(parseLastUpdateTaskBody().properties[propertyMapping.timeSpent]).toEqual({ number: null })
+
+    await ni.updateTask({ ...base, timeSpentSeconds: 1800 }, { timeEdited: true })
+    expect(parseLastUpdateTaskBody().properties[propertyMapping.timeSpent]).toEqual({ number: 30 })
+  })
+
+  it('does not write a cleared time when the time property is not mapped', async () => {
+    const jsonMock = vi.fn().mockResolvedValue({ ok: true })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: jsonMock }))
+    const { timeSpent: _unmapped, ...withoutTime } = propertyMapping
+    const ni = makeSut(withoutTime as any)
+
+    await ni.updateTask({
+      id: 'p-nomap', source: 'notion', externalId: 'p-nomap', title: 'X', notes: null, status: TaskStatus.Open, priority: 1,
+      timeBoxSeconds: null, timeSpentSeconds: 0, topic: null, topicColorCode: null, timerId: null,
+    } as any, { timeEdited: true })
+
+    expect(Object.keys(parseLastUpdateTaskBody().properties)).not.toContain(propertyMapping.timeSpent)
+  })
+
   it('writes the completion date of a Done task as an ISO instant', async () => {
     const jsonMock = vi.fn().mockResolvedValue({ ok: true })
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: jsonMock }))

@@ -213,7 +213,9 @@
       "notes": "Notiz",
       "properties": "Eigenschaften",
       "status": "Status",
-      "priority": "Priorität"
+      "priority": "Priorität",
+      "timeSpent": "Aufgewendete Zeit",
+      "timeSpentInMinutes": "Aufgewendete Zeit in Minuten"
     },
     "datePicker": {
       "set": "+ Datum setzen"
@@ -231,7 +233,6 @@
       "openIn": "In {source} öffnen"
     },
     "timeStats": {
-      "spent": "{time} gearbeitet",
       "remaining": "{time} übrig"
     },
     "form": {

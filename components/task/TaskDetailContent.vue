@@ -5,7 +5,7 @@
 @responsibility
 - Display task properties as labelled rows (shared with the add form, #161), notes, and custom fields
 - Every property is a row in a stable position; unset Thema/Aktivität show the empty "Auswählen" state (#161)
-- Order: property rows, time, notes, custom properties, metadata (#386). Desktop slideover: the metadata is pinned to the bottom, the rest scrolls
+- Order: property rows (time spent last, with the time left beside it, #4), notes, custom properties, metadata (#386). Desktop slideover: the metadata is pinned to the bottom, the rest scrolls
 - Provide formatted display of all task metadata
 - Render error state when task not found
 - Handle inline updates and synchronization
@@ -13,7 +13,8 @@
   picker's footer ("Bearbeiten" / "Fertig") lists one button row per option, and a row closes the picker and opens the shared
   TopicEditorHost under the property row (#430, #431, #443); topics also get a "Themen verwalten" row
 - Host the carried-over triage block and line (#99)
-- Guard against drift (#161): at most five always-visible standard rows (Status, Priorität, Thema, Aktivität, Timebox),
+- Guard against drift (#161, #4): at most six always-visible standard rows (Status, Priorität, Thema, Aktivität, Timebox,
+  Aufgewendete Zeit),
   no per-row icons, no dividers; more always-visible rows must revisit the layout. The one hairline is the pin line
   above the desktop metadata footer, a boundary of the scroll region, not a row divider
 -->
@@ -201,21 +202,55 @@
           </button>
           <span v-if="timeboxSuggestion" :id="suggestionHintId" class="sr-only">{{ timeboxSuggestion.matchDescription }}</span>
         </TaskPropertyRow>
+
+        <!-- Time spent (#4): the total in minutes, edited like the Timebox; what is left of the Timebox sits beside it as text -->
+        <TaskPropertyRow :label="t('task.field.timeSpent')">
+          <InlineEditable
+            :model-value="timeSpentInMinutes"
+            :label="t('task.field.timeSpent')"
+            :value-text="(task.timeSpentSeconds ?? 0) > 0 ? timeSpentText : undefined"
+            :placeholder="t('task.property.setValue')"
+            affordance="rule"
+          >
+            <template #display>
+              <span v-if="(task.timeSpentSeconds ?? 0) > 0" class="tabular-nums" data-testid="time-spent-value">{{ timeSpentText }}</span>
+              <span v-else class="text-muted not-italic">{{ t('task.property.setValue') }}</span>
+            </template>
+            <template #edit="{ finishEdit, commitEdit, cancelEdit }">
+              <div class="flex min-h-8 items-center gap-1.5 max-md:min-h-11">
+                <input
+                  v-model.number="editTimeSpentValue"
+                  type="number"
+                  min="0"
+                  :max="MAX_TIME_SPENT_MINUTES"
+                  step="1"
+                  inputmode="numeric"
+                  data-testid="time-spent-edit-input"
+                  :aria-label="t('task.field.timeSpentInMinutes')"
+                  class="min-h-8 w-14 [appearance:textfield] border-0 border-b border-dotted border-muted bg-transparent py-0.5 text-sm focus-ring max-md:min-h-11 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  @vue:mounted="beginTimeSpentEdit"
+                  @focus="(event: FocusEvent) => (event.target as HTMLInputElement).select()"
+                  @keydown.enter="() => { saveTimeSpentEdit(); commitEdit(); }"
+                  @keydown.esc.stop="() => { abandonTimeSpentEdit(); cancelEdit(); }"
+                  @blur="(event: FocusEvent) => onTimeSpentBlur(event, finishEdit)"
+                >
+                <span class="text-sm text-muted">{{ t('duration.unitMinute') }}</span>
+              </div>
+            </template>
+          </InlineEditable>
+          <span
+            v-if="task.timeBoxSeconds"
+            class="flex min-h-8 items-center text-sm tabular-nums max-md:min-h-11"
+            :class="remainingTimeClass"
+            data-testid="time-remaining"
+          >{{ t('task.timeStats.remaining', { time: remainingTimeText }) }}</span>
+        </TaskPropertyRow>
       </div>
 
-      <!-- 2. Time (only with data: no empty state) -->
-      <section v-if="hasTimeData" class="task-detail-section" data-section="time-stats">
-        <TaskDetailTimeStats
-          :task="task"
-          :time-spent-text="timeSpentText"
-          :remaining-time-text="remainingTimeText"
-        />
-      </section>
-
-      <!-- 3. Notes: directly after the main fields on every sheet variant (#386) -->
+      <!-- 2. Notes: directly after the main fields on every sheet variant (#386) -->
       <TaskDetailNotes :notes="task.notes" @save="updateNotes" />
 
-      <!-- 4. Custom (Notion) properties: one quiet heading, rows in the same grammar -->
+      <!-- 3. Custom (Notion) properties: one quiet heading, rows in the same grammar -->
       <section v-if="hasCustom" aria-labelledby="custom-heading" class="task-detail-section">
         <SectionHeader id="custom-heading" :text="t('task.field.properties')" tag="h3" class="mb-0" />
         <TaskDetailCustomFields
@@ -225,7 +260,7 @@
         />
       </section>
 
-      <!-- 5. Metadata (collapsed by default): last in the flow on mobile, pinned as the footer on desktop -->
+      <!-- 4. Metadata (collapsed by default): last in the flow on mobile, pinned as the footer on desktop -->
       <TaskDetailMetadata
         v-if="!pinMetadata"
         v-model:open="isMetadataOpen"
@@ -276,7 +311,6 @@ import TaskPropertySelect from '~/components/task/TaskPropertySelect.vue';
 import TopicPropertyPicker from '~/components/task/TopicPropertyPicker.vue';
 import TopicMark from '~/components/topic/TopicMark.vue';
 import TopicEditorHost from '~/components/topic/TopicEditorHost.vue';
-import TaskDetailTimeStats from '~/components/task/TaskDetailTimeStats.vue';
 import TaskCarryOverTriage from '~/components/task/TaskCarryOverTriage.vue';
 import TaskCarryOverDots from '~/components/task/TaskCarryOverDots.vue';
 import { useTaskCarryOver } from '~/composables/useCarryOver';
@@ -326,16 +360,6 @@ const { ensureOptionsAvailable } = usePropertyOptionsSync();
 const isMetadataOpen = ref(false);
 const timeboxHintId = useId();
 const suggestionHintId = useId();
-
-/** True when the task has a timebox, any time spent, or an active timer */
-const hasTimeData = computed(() => {
-  if (!task.value) return false;
-  return (
-    task.value.timeBoxSeconds != null ||
-    (task.value.timeSpentSeconds ?? 0) > 0 ||
-    task.value.timerId != null
-  );
-});
 
 // Ensure property options are available when this component is used
 // Skip in preview mode to avoid side effects
@@ -394,6 +418,17 @@ function updateAndSync(updates: Partial<Task>) {
     if (updatedTask) {
       syncTaskToIntegration(updatedTask, undefined, operationVersion);
     }
+  }
+}
+
+/** Sets the task's total time spent (#4); like `updateAndSync`, with the store action that queues the total for the source */
+function setTimeSpentAndSync(seconds: number) {
+  if (!task.value) return;
+  const operationVersion = tasksStore.incrementTaskOperationVersion(task.value.id);
+  if (!tasksStore.setTimeSpent(task.value.id, seconds)) return;
+  if (!props.isPreview) {
+    const updatedTask = tasksStore.task(task.value.id);
+    if (updatedTask) syncTaskToIntegration(updatedTask, undefined, operationVersion);
   }
 }
 
@@ -529,6 +564,63 @@ function saveTimeboxEdit() {
   const seconds = editTimeboxValue.value > 0 ? editTimeboxValue.value * 60 : null;
   updateAndSync({ timeBoxSeconds: seconds });
 }
+
+// Time spent (#4): the total in whole minutes. A running timer changes the displayed minutes while the field is
+// open, so the field is synced from the task only while it is closed, and an unchanged field writes nothing
+// (a total of "30 min 5 s" must not become "30 min" by opening and leaving the field).
+const timeSpentInMinutes = computed(() => {
+  const seconds = task.value?.timeSpentSeconds ?? 0;
+  return seconds > 0 ? Math.max(1, Math.round(seconds / 60)) : 0;
+});
+/** Upper bound of the field (about 166 h): a typo must not put an absurd total into the statistics */
+const MAX_TIME_SPENT_MINUTES = 9999;
+const editTimeSpentValue = ref<number | string>(0);
+let timeSpentEditStart: number | null = null;
+
+watch(timeSpentInMinutes, (val) => {
+  if (timeSpentEditStart === null) editTimeSpentValue.value = val;
+}, { immediate: true });
+
+/** The field mounted: every edit starts from the total shown when it opened (not from a focus event, which a busy page may delay) */
+function beginTimeSpentEdit() {
+  timeSpentEditStart = Number(editTimeSpentValue.value);
+}
+
+/** Esc: the field's value goes back to where it started, so the blur that follows saves nothing */
+function abandonTimeSpentEdit() {
+  if (timeSpentEditStart !== null) editTimeSpentValue.value = timeSpentEditStart;
+  timeSpentEditStart = null;
+}
+
+/**
+ * Leaving the field saves it. The blur that a removed input still fires after Enter or Esc belongs to the
+ * closed edit: with a new edit already open it would end that one (the input is no longer in the document).
+ */
+function onTimeSpentBlur(event: FocusEvent, finishEdit: () => void) {
+  if (!(event.target as HTMLElement).isConnected) return;
+  saveTimeSpentEdit();
+  finishEdit();
+}
+
+function saveTimeSpentEdit() {
+  if (timeSpentEditStart === null) return;
+  const start = timeSpentEditStart;
+  timeSpentEditStart = null;
+  const raw = editTimeSpentValue.value;
+  const minutes = typeof raw === 'number' ? Math.round(raw) : Number.NaN;
+  // Blank, negative, non-numeric and absurdly large entries are dropped; the field shows the total again
+  if (Number.isFinite(minutes) && minutes >= 0 && minutes <= MAX_TIME_SPENT_MINUTES && minutes !== start) setTimeSpentAndSync(minutes * 60);
+  editTimeSpentValue.value = timeSpentInMinutes.value;
+}
+
+const remainingTimeClass = computed(() => {
+  const box = task.value?.timeBoxSeconds;
+  if (!box) return 'text-muted';
+  const percentageLeft = ((box - (task.value?.timeSpentSeconds ?? 0)) / box) * 100;
+  if (percentageLeft <= 0) return 'text-warning-700 font-semibold';
+  if (percentageLeft <= 20) return 'text-warning-700 font-medium';
+  return 'text-muted';
+});
 
 // Timebox Suggestion
 const timeboxSuggestion = ref<{ suggestedMinutes: number; matchDescription: string } | null>(null);

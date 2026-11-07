@@ -213,7 +213,9 @@
       "notes": "Note",
       "properties": "Properties",
       "status": "Status",
-      "priority": "Priority"
+      "priority": "Priority",
+      "timeSpent": "Time spent",
+      "timeSpentInMinutes": "Time spent in minutes"
     },
     "datePicker": {
       "set": "+ Set date"
@@ -231,7 +233,6 @@
       "openIn": "Open in {source}"
     },
     "timeStats": {
-      "spent": "{time} worked",
       "remaining": "{time} left"
     },
     "form": {
