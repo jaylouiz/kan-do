@@ -28,6 +28,7 @@ const stubs = {
   USwitch: { props: ['modelValue', 'label'], emits: ['update:modelValue'], template: '<button role="switch" :aria-checked="modelValue" v-bind="$attrs" @click="$emit(\'update:modelValue\', !modelValue)">{{ label }}</button>' },
   UFormField: { template: '<div><slot /></div>' },
   USeparator: true,
+  UKbd: { props: ['value'], template: '<kbd>{{ value }}</kbd>' },
   UIcon: true,
 }
 
@@ -227,6 +228,51 @@ describe('MorePanel: the Mehr panel (#470)', () => {
     it('shows nothing for a source that is not connected', () => {
       useIntegrationHealthStore().markBroken('todoist', 'old')
       expect(render().find('[data-testid^="sync-problem-"]').exists()).toBe(false)
+    })
+  })
+
+  describe('keyboard (#23)', () => {
+    const press = async (w: VueWrapper, key: string) => {
+      await w.find('[data-testid="more-panel"]').trigger('keydown', { key })
+    }
+    const mountAttached = () => mount(MorePanel, { global: { stubs }, attachTo: document.body })
+    const controls = (w: VueWrapper) => Array.from(w.element.querySelectorAll<HTMLElement>('button:not([disabled]), a[href]'))
+
+    it('ArrowDown/ArrowUp move focus one control, clamped at both ends', async () => {
+      const w = mountAttached()
+      const all = controls(w)
+      all[0]!.focus()
+      await press(w, 'ArrowDown')
+      expect(document.activeElement).toBe(all[1])
+      await press(w, 'ArrowUp')
+      await press(w, 'ArrowUp')
+      expect(document.activeElement).toBe(all[0])
+      all.at(-1)!.focus()
+      await press(w, 'ArrowDown')
+      expect(document.activeElement).toBe(all.at(-1))
+      w.unmount()
+    })
+
+    it('Home and End jump to the first and last control; a disabled sync row is skipped', async () => {
+      isLoading.value = true
+      const w = mountAttached()
+      const all = controls(w)
+      expect(all.some(el => el.getAttribute('data-testid') === 'more-sync')).toBe(false)
+      all[1]!.focus()
+      await press(w, 'End')
+      expect(document.activeElement).toBe(all.at(-1))
+      await press(w, 'Home')
+      expect(document.activeElement).toBe(all[0])
+      w.unmount()
+    })
+
+    it('Befehle is the first row on the board and emits commands; absent off the board', async () => {
+      const w = render()
+      expect(w.find('[data-testid="more-commands"]').text()).toContain('Befehle')
+      await w.find('[data-testid="more-commands"]').trigger('click')
+      expect(w.emitted('commands')).toHaveLength(1)
+      route.path = '/trash'
+      expect(render().find('[data-testid="more-commands"]').exists()).toBe(false)
     })
   })
 })

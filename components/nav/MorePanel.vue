@@ -9,11 +9,30 @@
 - App-Update only in the desktop app (`isTauri()`, absent in the web build, never disabled)
 - Sync footer: a failing source shows its worst problem (title, hint, "Verbindung reparieren") above "Jetzt synchronisieren" + last sync; silent while every source is healthy
 - While a sync runs (manual or background) the row's second line reads "Wird synchronisiert…" (spinner from the button's `loading`), so the accessible name carries the state, and a sibling `role="status"` announces it (#647)
+- Board, desktop only: "Befehle" with the palette shortcut hint opens the command palette (U7 of #17: the hint was tooltip-only; the palette has no phone entry). AppNav closes the panel and returns focus to ⋯ first, like `dayClose`
+- Keyboard: ↑/↓ move focus to the previous/next enabled control (clamped, no wrap), Home/End to the first/last; Tab order and roles stay (a popover, not role=menu)
 - Emits `close` when a navigation row is chosen and `dayClose` for "Tag abschließen": AppNav closes the panel and returns focus to ⋯ first, then opens the dialog
 -->
 <template>
-  <div class="more-panel w-72 max-w-full p-2" data-testid="more-panel">
+  <div ref="panelEl" class="more-panel w-72 max-w-full p-2" data-testid="more-panel" @keydown="onKeydown">
     <template v-if="onBoard">
+      <UButton
+        v-if="!isPhone"
+        icon="i-ph-command"
+        color="neutral"
+        variant="ghost"
+        block
+        class="justify-start"
+        aria-keyshortcuts="Control+K Meta+K"
+        data-testid="more-commands"
+        @click="emit('commands')"
+      >
+        <span class="flex w-full items-center justify-between gap-2">
+          <span>{{ t('nav.commands') }}</span>
+          <span class="inline-flex items-center gap-0.5" aria-hidden="true"><UKbd value="meta" /><UKbd value="k" /></span>
+        </span>
+      </UButton>
+      <USeparator class="my-1" />
       <section :aria-labelledby="viewHeadingId" class="space-y-3 p-2">
         <h2 :id="viewHeadingId" class="text-xs font-medium text-muted">{{ t('nav.view') }}</h2>
         <UFormField :help="t('board.sync.stackHelp')">
@@ -142,7 +161,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, useId } from 'vue'
+import { computed, ref, useId } from 'vue'
+import { useMediaQuery } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import { useAppNav } from '~/composables/useAppNav'
 import { useBoardGrouping } from '~/composables/useBoardGrouping'
@@ -161,6 +181,8 @@ const emit = defineEmits<{
   close: []
   /** "Tag abschließen" was chosen: the host closes the panel, returns focus to ⋯, then opens the dialog */
   dayClose: []
+  /** "Befehle" was chosen: the host closes the panel, returns focus to ⋯, then opens the command palette */
+  commands: []
 }>()
 
 const { t } = useI18n()
@@ -174,6 +196,27 @@ const { count: trashCount } = useTrash()
 
 /** App-Update exists only in the desktop app (same predicate as middleware/desktop-only.ts) */
 const isDesktopApp = isTauri()
+
+/** Phone layout has no keyboard: the palette row is desktop only (same query as AppNav) */
+const isPhone = useMediaQuery('(max-width: 767px)')
+
+const panelEl = ref<HTMLElement | null>(null)
+const CONTROLS = 'button:not([disabled]), a[href]'
+
+/** ↑/↓/Home/End move focus through the panel's enabled controls in DOM order (clamped, no wrap) */
+function onKeydown(event: KeyboardEvent) {
+  if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return
+  if (!['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return
+  const controls = Array.from(panelEl.value?.querySelectorAll<HTMLElement>(CONTROLS) ?? [])
+  if (controls.length === 0) return
+  const at = controls.indexOf(document.activeElement as HTMLElement)
+  const last = controls.length - 1
+  const next = event.key === 'Home' ? 0
+    : event.key === 'End' ? last
+      : event.key === 'ArrowDown' ? Math.min(at + 1, last) : Math.max(at - 1, 0)
+  event.preventDefault()
+  controls[next]?.focus()
+}
 
 const groupingEnabled = computed(() => boardStore.grouping.enabled)
 

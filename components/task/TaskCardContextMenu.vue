@@ -4,6 +4,8 @@
   On desktop: right-click opens the menu via the native contextmenu event.
   On mobile/touch: a 750ms long press opens the menu; moving more than 14px
   (grace pixels) cancels it so a drag gesture is never interrupted.
+  Keyboard: the ContextMenu key or Shift+F10 on the focused card (its `.task-wrapper`, a parent of this
+  component) opens the menu at the card; on close focus returns to the card (#23).
   If a drag starts while the menu is open it is closed immediately.
 @usage Used in BoardColumn to provide right-click / long-press menu on task cards
 @responsibility
@@ -24,6 +26,7 @@
       on mouse it bubbles through to UContextMenu as normal.
     -->
     <div
+      ref="wrapperEl"
       v-bind="longPressHandlers"
       :class="{ 'kando-long-press-active': isPressing }"
       @pointerdown="handleWrapperPointerDown"
@@ -82,7 +85,7 @@
 
 <script setup lang="ts">
 import { MODAL_WIDTH } from '~/utils/modalSizes'
-import { ref, computed, toRef, watch, onBeforeUnmount } from "vue";
+import { ref, computed, toRef, watch, nextTick, onMounted, onBeforeUnmount } from "vue";
 import { useI18n } from "vue-i18n";
 import type { Task } from "~/types/task";
 import { useTaskContextMenu } from "~/composables/useTaskContextMenu";
@@ -211,12 +214,58 @@ function handleWrapperPointerDown(event: PointerEvent) {
  *   the long-press handler above already controls isOpen.
  */
 function handleContextMenu(event: MouseEvent) {
+  if (!event.isTrusted && keyboardOpener) return; // our own keyboard-triggered event
   if (lastPointerType.value !== "mouse") {
     // Touch-triggered: we manage open state via useLongPress.
     // Stop propagation to prevent UContextMenu from also reacting.
     event.stopPropagation();
   }
 }
+
+// ── Keyboard: ContextMenu key / Shift+F10 on the focused card (#23) ──────────
+// The focus holder is the parent `.task-wrapper`, so its keydown never reaches this component's own
+// wrapper. reka opens only from a `contextmenu` event with coordinates: dispatch one at the card.
+
+const wrapperEl = ref<HTMLElement | null>(null);
+let cardEl: HTMLElement | null = null;
+/** The card that had focus when the key opened the menu; focus goes back to it on close */
+let keyboardOpener: HTMLElement | null = null;
+
+function isEditable(el: EventTarget | null) {
+  return el instanceof HTMLElement && (el.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName));
+}
+
+function handleCardKeydown(event: KeyboardEvent) {
+  const isMenuKey = event.key === "ContextMenu" || (event.key === "F10" && event.shiftKey);
+  if (!isMenuKey || event.repeat || event.defaultPrevented || isEditable(event.target)) return;
+  if (!cardEl || dragState.value.isDragging || document.querySelector(".board.dragging, .kando-dnd-dragged")) return;
+  // Stops the browser's own contextmenu event, which would open the menu a second time
+  event.preventDefault();
+  keyboardOpener = cardEl;
+  const rect = cardEl.getBoundingClientRect();
+  wrapperEl.value?.dispatchEvent(new MouseEvent("contextmenu", {
+    bubbles: true,
+    cancelable: true,
+    clientX: rect.left + 24,
+    clientY: rect.top + Math.min(rect.height, 48) / 2,
+  }));
+}
+
+onMounted(() => {
+  cardEl = wrapperEl.value?.closest<HTMLElement>(".task-wrapper") ?? null;
+  cardEl?.addEventListener("keydown", handleCardKeydown);
+});
+
+watch(isOpen, async (open) => {
+  if (open || !keyboardOpener) return;
+  const card = keyboardOpener;
+  keyboardOpener = null;
+  await nextTick();
+  // reka returns focus to its (non-focusable) trigger; an item that navigated away or moved the card keeps its own focus
+  if (card.isConnected && (!document.activeElement || document.activeElement === document.body)) {
+    card.focus({ preventScroll: true });
+  }
+});
 
 // ── Close menu when a drag starts ─────────────────────────────────────────────
 // Primary guard: document pointermove listener installed by the long-press
@@ -237,7 +286,10 @@ watch(
 );
 
 // Remove drag guard listener on unmount to avoid leaks.
-onBeforeUnmount(removeDragGuard);
+onBeforeUnmount(() => {
+  removeDragGuard();
+  cardEl?.removeEventListener("keydown", handleCardKeydown);
+});
 
 // ── Timebox helpers ───────────────────────────────────────────────────────────
 

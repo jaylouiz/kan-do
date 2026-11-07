@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
 import { seedLocalBoard } from './helpers/seed'
+import { moreButton, morePanel } from './helpers/appNav'
 
 const column = (page: Page, key: string) => page.locator(`#column-${key}-list`)
 const card = (page: Page, title: string) => page.locator('.task-wrapper', { hasText: title }).first()
@@ -29,6 +30,29 @@ test.describe('Command palette', () => {
     await page.keyboard.press('Escape')
     await expect(palette(page)).toBeHidden()
     await expect(card(page, 'Dokumentation lesen')).toBeFocused()
+  })
+
+  test('Ctrl+K opens it on every platform (#23: Meta+K alone left Windows/Linux out)', async ({ page }) => {
+    await card(page, 'Dokumentation lesen').focus()
+    await page.keyboard.press('Control+k')
+    await expect(palette(page)).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(palette(page)).toBeHidden()
+    await page.keyboard.press('Meta+k')
+    await expect(palette(page)).toBeVisible()
+  })
+
+  test('the ⋯ panel has a visible Befehle row that opens it (#23)', async ({ page }) => {
+    await moreButton(page).click()
+    const row = morePanel(page).getByTestId('more-commands')
+    await expect(row).toContainText('Befehle')
+    await expect(row.locator('kbd')).toHaveCount(2)
+    await row.click()
+    await expect(morePanel(page)).toBeHidden()
+    await expect(palette(page)).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(palette(page)).toBeHidden()
+    await expect(moreButton(page)).toBeFocused()
   })
 
   test('Statistik öffnen goes to the statistics page', async ({ page }) => {

@@ -77,7 +77,8 @@ const { isOpen, groups, hasCard, open, restoreFocus } = useCommandPalette({
 })
 
 // Not usingInput: the shortcut stays silent while typing in fields. Desktop keyboards only.
-defineShortcuts({ meta_k: open })
+// Nuxt UI matches `meta` to the literal Meta key, so Ctrl+K (Windows/Linux) needs its own entry (#23).
+defineShortcuts({ meta_k: open, ctrl_k: open })
 
 const modalUi = {
   content: 'sm:top-20 sm:translate-y-0 sm:max-w-xl overflow-hidden',

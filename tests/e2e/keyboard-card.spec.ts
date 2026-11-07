@@ -140,4 +140,42 @@ test.describe('Keyboard: delete the focused card (#579)', () => {
     await page.keyboard.press('Escape');
     await expect(wrapper(page, firstId)).toBeVisible();
   });
+
+  test.describe('context menu by key (#23)', () => {
+    const menu = (page: Page) => page.getByRole('menu');
+
+    test('the Menu key opens the card menu, Esc closes it and focus is back on the card', async ({ page }) => {
+      await focusUntilActive(wrapper(page, firstId));
+      await page.keyboard.press('ContextMenu');
+      await expect(menu(page)).toBeVisible();
+      await expect(menu(page).getByRole('menuitem', { name: 'Details öffnen' })).toBeVisible();
+      await page.keyboard.press('Escape');
+      await expect(menu(page)).toBeHidden();
+      await expect(wrapper(page, firstId)).toBeFocused();
+    });
+
+    test('Shift+F10 opens it too and the arrow keys + Enter pick an item', async ({ page }) => {
+      await focusUntilActive(wrapper(page, firstId));
+      await page.keyboard.press('Shift+F10');
+      await expect(menu(page)).toBeVisible();
+      const items = menu(page).getByRole('menuitem');
+      await expect(items.first()).toBeFocused(); // opened by key: the first item takes focus
+      await page.keyboard.press('ArrowDown');
+      await expect(menu(page).getByRole('menuitemcheckbox').first()).toBeFocused();
+      await page.keyboard.press('ArrowUp');
+      await expect(items.first()).toBeFocused();
+      await page.keyboard.press('Enter');
+      await expect(page).toHaveURL(new RegExp(`/tasks/${firstId}`));
+    });
+
+    test('no menu while the card is picked up for a keyboard drag', async ({ page }) => {
+      await focusUntilActive(wrapper(page, firstId));
+      await page.keyboard.press('Space');
+      await expect(page.locator('body > [aria-live]')).toContainText('aufgenommen');
+      await page.keyboard.press('ContextMenu');
+      await flushFrames(page);
+      await expect(menu(page)).toHaveCount(0);
+      await page.keyboard.press('Escape');
+    });
+  });
 });
