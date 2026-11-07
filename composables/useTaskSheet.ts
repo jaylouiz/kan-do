@@ -21,8 +21,29 @@ let leaveFallback: ReturnType<typeof setTimeout> | undefined;
 /** Card that receives focus once the sheet has closed; read once by `TaskSheet`. */
 let returnFocusTaskId: string | null = null;
 
+/** Wait for the history step of `router.back()` before giving up and replacing. */
+const BACK_TIMEOUT_MS = 800;
+
 /**
- * Finishes a pending close: navigates to /tasks and resolves waiting callers.
+ * Leaves the sheet route without growing history (#22): `router.back()` when the entry before
+ * the sheet is the board, else a replace (deep link, reload, opened from another page or sheet).
+ */
+const leaveSheetRoute = async () => {
+  const router = useRouter();
+  const back = (router.options.history.state as { back?: string | null } | undefined)?.back;
+  if (back && back.split(/[?#]/)[0] === '/tasks') {
+    const arrived = new Promise<boolean>((resolve) => {
+      const timer = setTimeout(() => { remove(); resolve(false); }, BACK_TIMEOUT_MS);
+      const remove = router.afterEach(() => { clearTimeout(timer); remove(); resolve(true); });
+    });
+    router.back();
+    if (await arrived) return;
+  }
+  await navigateTo('/tasks', { replace: true });
+};
+
+/**
+ * Finishes a pending close: leaves the sheet route (back or replace to /tasks) and resolves waiting callers.
  * Called by the host on the sheet's leave event (or by the fallback timer).
  */
 const finishClose = async () => {
@@ -31,7 +52,7 @@ const finishClose = async () => {
   const resolve = resolveClose;
   pendingClose = null;
   resolveClose = null;
-  await navigateTo('/tasks');
+  await leaveSheetRoute();
   resolve?.();
 };
 

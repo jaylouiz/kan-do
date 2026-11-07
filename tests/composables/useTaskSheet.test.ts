@@ -2,6 +2,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest'
 
 const navigateTo = vi.hoisted(() => vi.fn(async () => {}))
 vi.stubGlobal('navigateTo', navigateTo)
+vi.stubGlobal('useRouter', () => ({ options: { history: { state: { back: null } } }, back: vi.fn(), afterEach: vi.fn(() => () => {}) }))
 
 const { useTaskSheet } = await import('~/composables/useTaskSheet')
 
@@ -47,5 +48,37 @@ describe('useTaskSheet return focus (#125)', () => {
     void sheet.closeTaskSheet({ focusTaskId: 'local_1' })
     sheet.resetTaskSheet()
     expect(sheet.takeReturnFocusTaskId()).toBeNull()
+  })
+})
+
+describe('useTaskSheet close navigation (#22)', () => {
+  const setup = (back: string | null) => {
+    const hooks: Array<() => void> = []
+    const router = {
+      options: { history: { state: { back } } },
+      back: vi.fn(() => { hooks.splice(0).forEach(h => h()) }),
+      afterEach: vi.fn((h: () => void) => { hooks.push(h); return () => {} }),
+    }
+    vi.stubGlobal('useRouter', () => router)
+    navigateTo.mockClear()
+    return router
+  }
+
+  it('goes back when the sheet was opened from the board', async () => {
+    const router = setup('/tasks')
+    const sheet = useTaskSheet()
+    void sheet.closeTaskSheet()
+    await sheet.finishClose()
+    expect(router.back).toHaveBeenCalledTimes(1)
+    expect(navigateTo).not.toHaveBeenCalled()
+  })
+
+  it.each([null, '/statistics', '/tasks/other'])('replaces /tasks when the previous entry is %s', async (back) => {
+    const router = setup(back)
+    const sheet = useTaskSheet()
+    void sheet.closeTaskSheet()
+    await sheet.finishClose()
+    expect(router.back).not.toHaveBeenCalled()
+    expect(navigateTo).toHaveBeenCalledWith('/tasks', { replace: true })
   })
 })
