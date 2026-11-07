@@ -214,7 +214,8 @@ function handleWrapperPointerDown(event: PointerEvent) {
  *   the long-press handler above already controls isOpen.
  */
 function handleContextMenu(event: MouseEvent) {
-  if (!event.isTrusted && keyboardOpener) return; // our own keyboard-triggered event
+  if (event.isTrusted) keyboardOpener = null; // a real pointer open: no stale keyboard origin
+  else if (keyboardOpener) return; // our own keyboard-triggered event
   if (lastPointerType.value !== "mouse") {
     // Touch-triggered: we manage open state via useLongPress.
     // Stop propagation to prevent UContextMenu from also reacting.

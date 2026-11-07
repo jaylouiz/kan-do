@@ -16,8 +16,8 @@
 <template>
   <div ref="panelEl" class="more-panel w-72 max-w-full p-2" data-testid="more-panel" @keydown="onKeydown">
     <template v-if="onBoard">
+      <template v-if="!isPhone">
       <UButton
-        v-if="!isPhone"
         icon="i-ph-command"
         color="neutral"
         variant="ghost"
@@ -33,6 +33,7 @@
         </span>
       </UButton>
       <USeparator class="my-1" />
+      </template>
       <section :aria-labelledby="viewHeadingId" class="space-y-3 p-2">
         <h2 :id="viewHeadingId" class="text-xs font-medium text-muted">{{ t('nav.view') }}</h2>
         <UFormField :help="t('board.sync.stackHelp')">
@@ -207,6 +208,7 @@ const CONTROLS = 'button:not([disabled]), a[href]'
 function onKeydown(event: KeyboardEvent) {
   if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return
   if (!['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return
+  if (event.target instanceof HTMLElement && ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName)) return
   const controls = Array.from(panelEl.value?.querySelectorAll<HTMLElement>(CONTROLS) ?? [])
   if (controls.length === 0) return
   const at = controls.indexOf(document.activeElement as HTMLElement)
