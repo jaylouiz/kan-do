@@ -6,6 +6,7 @@
 - Shows the standard TaskCard (`readonly`, `preview`: no sheet, no drag, no swipe, no task id on the DOM); a Wartet card is muted as on the board
 - "Gelöscht vor …", "War in <Spalte>" ("War in Jetzt, kommt zurück nach Offen" for a task from Jetzt) beside the card on desktop, below it at 390px
 - "Wiederherstellen: <title>" for every entry; "Endgültig löschen: <title>" on the page only (`forever`), the sheet is a one-action surface
+- The ✕ asks in place (#21, aligned with "Papierkorb leeren"): question, "Endgültig löschen", "Abbrechen" (focused); Esc or Abbrechen returns focus to the ✕
 - A failed restore leaves the entry where it is (`useTrash` reports the error)
 -->
 <template>
@@ -14,7 +15,7 @@
     <div class="trash-entry__side">
       <p class="text-sm text-muted">{{ agoLabel }}</p>
       <p class="text-sm text-muted" data-testid="trash-was-in">{{ wasInLabel }}</p>
-      <div class="trash-entry__actions">
+      <div class="trash-entry__actions" @keydown.esc.stop="confirming && cancel()">
         <UButton
           icon="i-ph-arrow-counter-clockwise"
           color="neutral"
@@ -26,14 +27,33 @@
         >
           {{ t('trash.restore') }}
         </UButton>
+        <template v-if="forever && confirming">
+          <p class="trash-entry__confirm text-sm text-default" role="alert" data-private>
+            {{ t('trash.removeForeverConfirm', { title: entry.task.title }) }}
+          </p>
+          <UButton color="error" variant="soft" size="sm" data-testid="trash-remove-confirm" @click="confirmRemove">
+            {{ t('trash.emptyConfirmYes') }}
+          </UButton>
+          <UButton
+            ref="cancelBtn"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            data-testid="trash-remove-cancel"
+            @click="cancel"
+          >
+            {{ t('common.cancel') }}
+          </UButton>
+        </template>
         <UButton
-          v-if="forever"
+          v-else-if="forever"
+          ref="removeBtn"
           icon="i-ph-x"
           color="neutral"
           variant="ghost"
           :aria-label="t('trash.removeForeverNamed', { title: entry.task.title })"
           data-testid="trash-remove"
-          @click="emit('remove', entry.taskId)"
+          @click="openConfirm"
         />
       </div>
     </div>
@@ -41,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import TaskCard from '~/components/task/TaskCard.vue'
 import { useTrash } from '~/composables/useTrash'
@@ -64,6 +84,26 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 const { isRestoring } = useTrash()
+
+// Remove-forever asks in place (#21): focus to "Abbrechen", Esc / Abbrechen put it back on the ✕
+const confirming = ref(false)
+const cancelBtn = ref<{ $el: HTMLElement } | null>(null)
+const removeBtn = ref<{ $el: HTMLElement } | null>(null)
+
+const openConfirm = async () => {
+  confirming.value = true
+  await nextTick()
+  cancelBtn.value?.$el.focus()
+}
+const cancel = async () => {
+  confirming.value = false
+  await nextTick()
+  removeBtn.value?.$el.focus()
+}
+const confirmRemove = () => {
+  confirming.value = false
+  emit('remove', props.entry.taskId)
+}
 
 const COLUMN_KEY: Record<number, string> = {
   [TaskStatus.Open]: 'open',
@@ -106,6 +146,7 @@ const wasInLabel = computed(() =>
 }
 .trash-entry__actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.25rem;
   margin-top: 0.5rem;
