@@ -214,8 +214,7 @@ function handleWrapperPointerDown(event: PointerEvent) {
  *   the long-press handler above already controls isOpen.
  */
 function handleContextMenu(event: MouseEvent) {
-  if (event.isTrusted) keyboardOpener = null; // a real pointer open: no stale keyboard origin
-  else if (keyboardOpener) return; // our own keyboard-triggered event
+  if (keyboardEvents.has(event)) return; // our own keyboard-triggered event
   if (lastPointerType.value !== "mouse") {
     // Touch-triggered: we manage open state via useLongPress.
     // Stop propagation to prevent UContextMenu from also reacting.
@@ -231,6 +230,8 @@ const wrapperEl = ref<HTMLElement | null>(null);
 let cardEl: HTMLElement | null = null;
 /** The card that had focus when the key opened the menu; focus goes back to it on close */
 let keyboardOpener: HTMLElement | null = null;
+/** The synthetic contextmenu events dispatched for a key press (they skip the touch guard) */
+const keyboardEvents = new WeakSet<Event>();
 
 function isEditable(el: EventTarget | null) {
   return el instanceof HTMLElement && (el.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName));
@@ -244,12 +245,16 @@ function handleCardKeydown(event: KeyboardEvent) {
   event.preventDefault();
   keyboardOpener = cardEl;
   const rect = cardEl.getBoundingClientRect();
-  wrapperEl.value?.dispatchEvent(new MouseEvent("contextmenu", {
+  const synthetic = new MouseEvent("contextmenu", {
     bubbles: true,
     cancelable: true,
     clientX: rect.left + 24,
     clientY: rect.top + Math.min(rect.height, 48) / 2,
-  }));
+  });
+  keyboardEvents.add(synthetic);
+  wrapperEl.value?.dispatchEvent(synthetic);
+  // A menu that did not open must not leave a stale origin behind
+  setTimeout(() => { if (!isOpen.value) keyboardOpener = null; }, 500);
 }
 
 onMounted(() => {
