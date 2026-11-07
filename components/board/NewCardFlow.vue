@@ -10,7 +10,7 @@
 - Behind the steps the face sits under the stack pill's wash (`--stack-wash-*`) and softened (blur, 45 %), a cue that things are received, not text to read. A pick pulses the wash once (the only cue for Aktivität and Notiz, which a card does not show); saving lifts it
 - Keys: 1/2/3 pick, Enter skips (saves on Notiz), Esc goes back (cancels on the title step; with a typed title the slot offers "Rückgängig" in a toast, #665), Cmd/Ctrl+Enter saves now with what is entered, from any step once there is a title (#665; announced by `aria-keyshortcuts` and the check's title). Key cues sit inside the buttons (generated content, so the accessible name stays the label), fine pointers only. Tab order is the DOM order; every step change moves focus to the step (Notiz: its input)
 - A press outside cancels only while the title is blank; a save error keeps the card where it was (Notiz after Enter) with everything entered; the toast after a save is one row (title and Details, #665) so it stays clear of the saved card at 390 px
-- "All options": popover from 768 px, drawer below; ↑/↓ (wrapping) and Home/End move between its options, Enter/Space pick, Esc closes (#15; plain buttons with one shared handler, not UDropdownMenu: the drawer has no menu primitive and the key-3 focus flow (#685) stays) Motion is instant under prefers-reduced-motion
+- "All options": popover from 768 px, drawer below; ↑/↓ (wrapping) and Home/End move between its options, Enter/Space pick, Esc closes (#15; plain buttons with one shared handler, not UDropdownMenu: the drawer has no menu primitive and the key-3 focus flow (#685) stays). Motion is instant under prefers-reduced-motion
 - Accepted: unsaved input is lost when the page is left (the card saves only at the end, as the story asks); activity and note have no place on a card, so the pulse is their only cue
 -->
 <template>
@@ -196,6 +196,7 @@
                 </button>
                 <UDrawer
                   v-model:open="moreOpen"
+                  :content="{ onOpenAutoFocus: onDrawerOpenAutoFocus }"
                   :title="question"
                   :description="t('board.quickAdd.allOptions')"
                 >
@@ -447,6 +448,13 @@ watch(moreOpen, (open) => {
   moreOpenedByKey = openingByKey && isDesktop.value;
   openingByKey = false;
 });
+/** The drawer's focus scope lands on its container: take it over and focus the first option, so the arrows work at once (#15; the popover already focuses one) */
+function onDrawerOpenAutoFocus(event: Event) {
+  const first = (event.currentTarget as HTMLElement | null)?.querySelector<HTMLElement>('[data-testid="new-card-more-list"] button');
+  if (!first) return;
+  event.preventDefault();
+  first.focus({ preventScroll: true });
+}
 function onMoreCloseAutoFocus(event: Event) {
   if (!moreOpenedByKey) return;
   moreOpenedByKey = false;
