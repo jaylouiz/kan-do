@@ -4,7 +4,7 @@ A calm board for today's work. Kan-do is a focus layer on top of your existing t
 
 It is built for one person managing their own day: short, frequent sessions where you glance, move a card, check a timer and close.
 
-> **Status: alpha.** kan-do is well tested and in daily use by its author, but it does not yet keep its promise for external to-do apps: Notion is the only one you can connect, and that connection still has gaps; Todoist is planned. Expect rough edges and changes between versions.
+> **Status: alpha.** Kan-do is well tested and in daily use by its author, but it does not yet keep its promise for external to-do apps: Notion is the only one you can connect, and that connection still has gaps; Todoist is planned. Expect rough edges and changes between versions.
 
 **Platforms:** a macOS desktop app (Apple silicon) and a web app (Nuxt), built from the same code.
 
