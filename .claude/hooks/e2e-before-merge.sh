@@ -71,7 +71,8 @@ cd "${CLAUDE_PROJECT_DIR:-.}" || exit 0
 # One row per run for the workflow retro (agent-workflow `workflow-retro`, profile "Retro"): date, hook, ref, tier, specs, seconds, result, flaky.
 log_check() {
   local f
-  f="$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)/agent-ledgers/checks.tsv" || return 0
+  # KANDO_CHECKS_LEDGER overrides the file (tests must not write fake rows into the real retro metrics, #10).
+  f="${KANDO_CHECKS_LEDGER:-$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)/agent-ledgers/checks.tsv}" || return 0
   mkdir -p "${f%/*}" && (IFS=$'\t'; printf '%s\t%s\n' "$(date '+%F %T')" "$*") >>"$f"
 }
 export PATH="$PATH:${HOMEBREW_PREFIX:-/opt/homebrew}/bin"

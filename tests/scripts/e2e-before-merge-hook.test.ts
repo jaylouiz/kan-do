@@ -1,5 +1,5 @@
-import { spawnSync } from 'node:child_process'
-import { chmodSync, copyFileSync, mkdtempSync, readFileSync, symlinkSync, writeFileSync } from 'node:fs'
+import { execFileSync, spawnSync } from 'node:child_process'
+import { chmodSync, copyFileSync, existsSync, mkdtempSync, readFileSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
@@ -10,6 +10,10 @@ import { describe, expect, it } from 'vitest'
 // reaches the gate and skips.
 
 const root = resolve(__dirname, '../..')
+// The hook logs one row per run into <git common dir>/agent-ledgers/checks.tsv, the retro's metric file (#10). Every run
+// here goes to a temp ledger instead: the fake gh answers (head abc123, tier skip) must not land among real gate rows.
+const ledger = join(mkdtempSync(join(tmpdir(), 'kando-hook-ledger-')), 'checks.tsv')
+process.env.KANDO_CHECKS_LEDGER = ledger
 const bin = mkdtempSync(join(tmpdir(), 'kando-hook-'))
 writeFileSync(join(bin, 'gh'), '#!/bin/sh\necho gh-stub-failed >&2\nexit 1\n')
 chmodSync(join(bin, 'gh'), 0o755)
@@ -800,6 +804,25 @@ describe('e2e-before-merge hook arguments', () => {
     expect(run(`git commit -m "x\n${merge()} stays"`)).toEqual({ status: 0, calls: '' })
     expect(run(`cat <<EOF\n${merge()}\nEOF`)).toEqual({ status: 0, calls: '' })
     expect(run(`git commit -m "x\n${restMerge()}"`)).toEqual({ status: 0, calls: '' })
+  })
+
+  it('writes its gate row to KANDO_CHECKS_LEDGER, not to the real checks.tsv (#10)', () => {
+    const own = join(mkdtempSync(join(tmpdir(), 'kando-hook-ledger-own-')), 'rows.tsv')
+    const { GH_REPO: _inherited, ...inherited } = process.env
+    const spawn = (env: Record<string, string>) => spawnSync('bash', [resolve(root, '.claude/hooks/e2e-before-merge.sh')], {
+      input: JSON.stringify({ tool_input: { command: merge() } }),
+      encoding: 'utf8',
+      env: { ...inherited, PATH: `${restBin}:${process.env.PATH}`, CLAUDE_PROJECT_DIR: root, GH_REPO: 'o/r', ...env },
+    })
+    // The override file gets the row; the real file (the default location) and the file-level temp ledger do not.
+    const real = `${execFileSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], { cwd: root, encoding: 'utf8' }).trim()}/agent-ledgers/checks.tsv`
+    // Only the fake PR head of this test counts, so a real gate row written meanwhile by another session cannot flake it.
+    const lines = (f: string) => (existsSync(f) ? readFileSync(f, 'utf8').split('\n').filter(l => l.includes('\tabc123\t')).length : 0)
+    const before = [lines(real), lines(ledger)]
+    const result = spawn({ KANDO_CHECKS_LEDGER: own })
+    expect(result.status).toBe(0)
+    expect(readFileSync(own, 'utf8')).toMatch(/\te2e-gate\t/)
+    expect([lines(real), lines(ledger)]).toEqual(before)
   })
 
   it.each([merge(), restMerge()])('resolves the PR over REST only and lets a docs-only PR through: %s', (command) => {

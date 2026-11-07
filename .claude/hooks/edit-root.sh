@@ -4,6 +4,10 @@
 # and no Stop verification for it, because every hook keyed on $CLAUDE_PROJECT_DIR. Now each hook works in the
 # file's own checkout, and the Stop hook verifies every checkout the session edited.
 
+# Hook input is read through hook-input.sh (jq, else perl; #9), for this file and for every hook that sources it.
+# shellcheck source=hook-input.sh
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/hook-input.sh"
+
 # kando_toplevel <dir>: the checkout root of <dir>, or nothing.
 kando_toplevel() { git -C "$1" rev-parse --show-toplevel 2>/dev/null; }
 
@@ -60,8 +64,8 @@ kando_checkable_ext() {
 }
 
 # kando_bash_changed_files <payload> <state> <cwd> <duration_ms>: the checkable files a Bash call changed; nothing on
-# any doubt. <state> (skip|none|diff|...) and the rest come from the single jq of kando_edited_files.
-# Hot path (every Bash call, two hooks, nearly always nothing changed): no process beyond that jq and one
+# any doubt. <state> (skip|none|diff|...) and the rest come from the single hook_fields call of kando_edited_files.
+# Hot path (every Bash call, two hooks, nearly always nothing changed): no process beyond that one jq and one
 # `git ls-files`. `-- :/` lists the whole checkout but prints paths relative to <cwd> (`../x` outside it), so neither
 # `rev-parse --show-toplevel` nor the command text is needed until a candidate exists.
 kando_bash_changed_files() {
@@ -69,7 +73,7 @@ kando_bash_changed_files() {
   case "$state" in
     skip) return 0 ;;
     diff)
-      list=$(printf '%s' "$input" | jq -r '.tool_response.bashEditDiff | ((.changedFiles // []) + [.files[]?.filePath]) | unique | .[]' 2>/dev/null)
+      list=$(hook_changed_files "$input")
       ;;
     *)
       # No diff recorded: dirty files of the command's checkout whose mtime lies inside the command's run.
@@ -86,7 +90,7 @@ kando_bash_changed_files() {
       ;;
   esac
   [ -n "$list" ] || return 0
-  cmd=$(printf '%s' "$input" | jq -r '.tool_input.command // empty' 2>/dev/null) || return 0
+  cmd=$(hook_get "$input" tool_input.command) || return 0
   [[ "$cmd" =~ $KANDO_TREE_MOVING_RE ]] && return 0
   # Candidates only: resolve `cwd/../x` to the real absolute path.
   local dir
@@ -101,7 +105,7 @@ kando_bash_changed_files() {
 # KANDO_BASH_EDIT_CAP files, a bulk operation, yields none: the Stop hook still covers it).
 kando_edited_files() {
   local fields file tool state cwd dur
-  fields=$(printf '%s' "$1" | jq -r '(.tool_input.file_path // ""), (.tool_name // ""), ((.tool_response.bashEditDiff? // null) as $d | if ($d | type) != "object" then "none" elif $d.skipped == true then "skip" elif $d.unavailable == true then "none" else "diff" end), (.cwd // ""), ((.duration_ms // "") | tostring)' 2>/dev/null) || return 0
+  fields=$(hook_fields "$1") || return 0
   { read -r file; read -r tool; read -r state; read -r cwd; read -r dur; } <<<"$fields"
   if [ -n "$file" ]; then
     printf '%s\n' "$file"

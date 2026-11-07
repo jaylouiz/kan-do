@@ -15,7 +15,8 @@ cd "$project_dir" || exit 0
 . "$(dirname "$0")/edit-root.sh"
 
 input=$(cat)
-session_id=$(printf '%s' "$input" | jq -r '.session_id // "unknown"')
+session_id=$(hook_get "$input" session_id)
+: "${session_id:=unknown}"
 
 # Cap consecutive blocks so an unfixable failure can't loop forever.
 counter="${TMPDIR:-/tmp}/kando-verify-${session_id}"
@@ -123,6 +124,6 @@ for root in "${roots[@]}"; do verify_root "$root"; done
 
 rm -f "$counter"
 if [ ${#messages[@]} -gt 0 ]; then
-  jq -n --arg m "$(printf '%s\n' "${messages[@]}")" '{systemMessage: $m}'
+  hook_system_message_json "$(printf '%s\n' "${messages[@]}")"
 fi
 exit 0
