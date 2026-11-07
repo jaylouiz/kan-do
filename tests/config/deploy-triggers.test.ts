@@ -28,18 +28,18 @@ describe('ci.yml triggers', () => {
     jobs: Record<string, Job>
   }
 
-  it('runs on pull requests, on push to main and on dispatch, read-only and without secrets', () => {
-    expect(Object.keys(doc.on).sort()).toEqual(['pull_request', 'push', 'workflow_dispatch'])
-    expect(doc.on.push).toMatchObject({ branches: ['main'] })
+  // Manual only (Actions budget, 2026-11-07): pushes and PRs start no run; the local gate checks every merge.
+  it('runs only on dispatch, read-only and without secrets', () => {
+    expect(Object.keys(doc.on)).toEqual(['workflow_dispatch'])
     expect(doc.permissions).toEqual({ contents: 'read' })
     expect(text).not.toContain('${{ secrets.')
     expect(text).not.toContain('pull_request_target')
   })
 
-  it('keeps quality unconditional and e2e dispatch-only behind quality', () => {
+  it('runs quality, then e2e behind it, on every manual run', () => {
     expect(doc.jobs.quality!.if).toBeUndefined()
     expect(doc.jobs.e2e!.needs).toBe('quality')
-    expect(doc.jobs.e2e!.if).toBe("github.event_name == 'workflow_dispatch'")
+    expect(doc.jobs.e2e!.if).toBeUndefined()
   })
 })
 
