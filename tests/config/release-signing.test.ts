@@ -188,9 +188,9 @@ describe('release workflow', () => {
     expect(install.run).not.toContain('command -v')
   })
 
-  it('does not change what skips the regular CI (docs-only paths)', () => {
-    const ci = read('.github/workflows/ci.yml')
-    expect(ci).toContain("paths-ignore: ['docs/**', '**/*.md', '.claude/**']")
+  it('starts the regular CI only by hand, never from a tag push', () => {
+    const ci = parse(read('.github/workflows/ci.yml')) as { on: Record<string, unknown> }
+    expect(Object.keys(ci.on)).toEqual(['workflow_dispatch'])
   })
 })
 
