@@ -9,7 +9,14 @@
 # budget (E2E_GATE_BUDGET_SECONDS, default 1500 s) also blocks, with result `timeout` in checks.tsv (#415).
 
 input=$(cat)
-cmd=$(printf '%s' "$input" | jq -r '.tool_input.command // ""')
+# shellcheck source=hook-input.sh
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/hook-input.sh"
+if ! cmd=$(hook_command "$input"); then
+  # Neither jq nor perl's JSON::PP could read the input (#2): never wave a possible merge through.
+  # Any `merge` in the raw input counts: a quoted or encoded `gh` (`$'\x67h'`) is not visible to a text check.
+  printf '%s' "$input" | grep -Fiq merge && { echo "e2e-before-merge: cannot read the hook input (no working jq, and perl's JSON::PP failed), and the input mentions merge (any text, a plain git merge too). Install jq (brew install jq), then retry." >&2; exit 2; }
+  exit 0
+fi
 # Only a real invocation counts, not text inside a commit message or heredoc (#506). The command is tokenised the way
 # guard-commands.sh does it, in one left-to-right pass: quoted strings have their separators neutralised, comments are
 # dropped, and a heredoc operator outside quotes drops its body (so a quoted `<<EOF` opens none, #516; an apostrophe inside a
@@ -40,6 +47,8 @@ if [ "$parse_status" -ne 0 ]; then
   exit 0
 fi
 [ -n "$parsed" ] || exit 0
+# Everything below reads GitHub's answers with jq: without it the gate cannot decide, so it blocks (#2).
+command -v jq >/dev/null 2>&1 || { echo "e2e-before-merge: jq is missing, so the E2E gate cannot run. Install it (brew install jq), then retry the merge." >&2; exit 2; }
 if [ "$(printf '%s' "$parsed" | sed -n 3p)" = REST:unresolved ]; then
   echo "e2e-before-merge: the REST merge path has no literal PR number (a variable, a substitution or not plain digits), so the gate cannot tell which PR it merges. Write the number into the path: gh api -X PUT repos/<owner>/<repo>/pulls/<n>/merge ..." >&2
   exit 2

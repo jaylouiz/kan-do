@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process'
-import { chmodSync, copyFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { chmodSync, copyFileSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
@@ -181,6 +181,7 @@ describe('guard-commands hook', () => {
     const copyHook = (perl: string) => {
       const dir = mkdtempSync(join(tmpdir(), 'kando-guard-'))
       copyFileSync(resolve(root, '.claude/hooks/guard-commands.sh'), join(dir, 'guard-commands.sh'))
+      copyFileSync(resolve(root, '.claude/hooks/hook-input.sh'), join(dir, 'hook-input.sh'))
       chmodSync(join(dir, 'guard-commands.sh'), 0o755)
       writeFileSync(join(dir, 'guard-commands.pl'), perl)
       return dir
@@ -234,5 +235,66 @@ describe('guard-commands hook', () => {
       })
       expect(real.status).toBe(2)
     })
+  })
+})
+
+// #2: a missing `jq` used to leave the command empty, so the guard saw nothing and let every guarded command through.
+describe('guard-commands hook without jq (#2)', () => {
+  const noJqBin = (extra: Record<string, string> = {}) => {
+    const dir = mkdtempSync(join(tmpdir(), 'kando-guard-nojq-'))
+    for (const tool of ['bash', 'sh', 'cat', 'sed', 'tr', 'grep', 'head', 'dirname', 'mktemp', 'rm', 'perl']) {
+      const found = spawnSync('sh', ['-c', `command -v ${tool}`], { encoding: 'utf8' }).stdout.trim()
+      if (found && !(tool in extra)) symlinkSync(found, join(dir, tool))
+    }
+    for (const [name, body] of Object.entries(extra)) {
+      writeFileSync(join(dir, name), body)
+      chmodSync(join(dir, name), 0o755)
+    }
+    return dir
+  }
+  const run = (path: string, command: string) => spawnSync('/bin/bash', [resolve(root, '.claude/hooks/guard-commands.sh')], {
+    input: JSON.stringify({ tool_input: { command } }),
+    encoding: 'utf8',
+    env: { ...process.env, PATH: path, CLAUDE_PROJECT_DIR: root },
+  })
+
+  it('the test PATH really has no jq', () => {
+    expect(spawnSync('sh', ['-c', 'command -v jq'], { env: { PATH: noJqBin() } }).status).not.toBe(0)
+  })
+
+  it('keeps the same decisions as with jq', () => {
+    const path = noJqBin()
+    for (const command of [nuxtKill, tauriDev, release, npmInstall, termsApprove]) {
+      const result = run(path, command)
+      expect(result.status, command).toBe(2)
+      expect(result.stderr, command).toContain('guard-commands:')
+      expect(result.stderr, command).not.toContain('cannot read')
+    }
+    for (const command of [`${release} 0.4.0 -- --dry-run`, 'git status', 'npm run lint']) {
+      expect(run(path, command).status, command).toBe(0)
+    }
+  })
+
+  it('treats an odd payload shape like unreadable input', () => {
+    const path = noJqBin()
+    const post = (payload: unknown) => spawnSync('/bin/bash', [resolve(root, '.claude/hooks/guard-commands.sh')], {
+      input: JSON.stringify(payload),
+      encoding: 'utf8',
+      env: { ...process.env, PATH: path, CLAUDE_PROJECT_DIR: root },
+    })
+    expect(post({ tool_input: { command: [nuxtKill] } }).status).toBe(2)
+    expect(post({ tool_input: nuxtKill }).status).toBe(2)
+    expect(post({ tool_input: {} }).status).toBe(0)
+    expect(post({ tool_input: { command: 'git status' } }).status).toBe(0)
+  })
+
+  it('blocks anything the pre-filter would look at when perl cannot read the input either', () => {
+    const path = noJqBin({ perl: '#!/bin/sh\nexit 1\n' })
+    for (const command of [nuxtKill, npmInstall]) {
+      const result = run(path, command)
+      expect(result.status, command).toBe(2)
+      expect(result.stderr, command).toContain('cannot read the hook input')
+    }
+    expect(run(path, 'git status').status).toBe(0)
   })
 })
