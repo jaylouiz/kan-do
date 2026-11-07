@@ -253,7 +253,8 @@ export class TodoistIntegration {
     return {
       ...item,
       isCompleted: item.checked,
-      createdAt: item.addedAt ?? null,
+      // the SDK parses `addedAt` into a Date since todoist-sdk 17; the board mapper keeps ISO strings
+      createdAt: item.addedAt ? new Date(item.addedAt).toISOString() : null,
       assignee: null,
       assigner: null,
       due: null,
