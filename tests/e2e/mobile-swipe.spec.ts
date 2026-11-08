@@ -44,6 +44,27 @@ test.describe('Mobile swipe axis lock', () => {
     await expect.poll(() => activeColumnPage(page)).toBe(1);
   });
 
+  test('three non-interactive page dots follow the active page (#26)', async ({ context, page }) => {
+    const dots = page.getByTestId('page-dots');
+    const active = () => page.locator('[data-testid="page-dots"] .page-dot[data-active]').evaluateAll(
+      els => els.map(el => Array.from(el.parentElement!.children).indexOf(el)),
+    );
+    await expect(dots.locator('.page-dot')).toHaveCount(3);
+    expect(await dots.evaluate(el => getComputedStyle(el).pointerEvents)).toBe('none');
+    await expect(dots).toHaveAttribute('aria-hidden', 'true');
+    await expect.poll(active).toEqual([0]);
+
+    const touch = finger(await context.newCDPSession(page), page);
+    await touch.start(300, 400);
+    await touch.moveTo(80, 410, 12);
+    await touch.end();
+    await expect.poll(() => activeColumnPage(page)).toBe(1);
+    await expect.poll(active).toEqual([1]);
+
+    await showColumnPage(page, 2);
+    await expect.poll(active).toEqual([2]);
+  });
+
   test('a vertical scroll never switches the page or moves the board', async ({ context, page }) => {
     const touch = finger(await context.newCDPSession(page), page);
     await touch.start(200, 600);
@@ -147,5 +168,15 @@ test.describe('Mobile swipe with a pinned clock', () => {
     expect(new Date(first).toDateString()).toBe(pinnedNow().toDateString());
     expect(first).toBeGreaterThanOrEqual(pinned.getTime());
     await expect.poll(() => page.evaluate(() => Date.now())).toBeGreaterThan(first);
+  });
+});
+
+test.describe('Page dots on desktop (#26)', () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+  test('are not shown', async ({ context, page }) => {
+    await seedLocalBoard(context, SEED_TASKS);
+    await page.goto('/tasks');
+    await expect(page.locator('#column-open')).toBeVisible();
+    await expect(page.getByTestId('page-dots')).toBeHidden();
   });
 });
