@@ -114,6 +114,34 @@ test('"Noch nirgends" -> local setup (fresh) -> Local is the only source and the
   await expect.poll(() => storedSources(page)).toEqual({ connected: [], default: 'local' })
 })
 
+test('Local radio cards follow the radio keyboard contract: one Tab stop, arrows move and select (#43)', async ({ page, baseURL }) => {
+  await page.goto(baseURL! + '/welcome')
+  await page.getByRole('button', { name: 'Noch nirgends' }).click()
+
+  const fresh = page.getByRole('radio', { name: /Neu starten/ })
+  const samples = page.getByRole('radio', { name: /Mit Beispielaufgaben starten/ })
+  await expect(fresh).toHaveAttribute('aria-checked', 'true')
+  // One Tab stop: Tab from the Back button enters the group on the checked radio, never on the second one
+  await page.getByTestId('setup-back').focus()
+  await page.keyboard.press('Tab')
+  await expect(fresh).toBeFocused()
+  await expect(samples).toHaveAttribute('tabindex', '-1')
+  // reka-ui checks the radio focused by an arrow while the key is still down (a zero-delay timeout reads it), so hold it until the check shows
+  await page.keyboard.down('ArrowDown')
+  await expect(samples).toBeFocused()
+  await expect(samples).toHaveAttribute('aria-checked', 'true')
+  await page.keyboard.up('ArrowDown')
+  await expect(fresh).toHaveAttribute('aria-checked', 'false')
+  await page.keyboard.down('ArrowUp')
+  await expect(fresh).toBeFocused()
+  await expect(fresh).toHaveAttribute('aria-checked', 'true')
+  await page.keyboard.up('ArrowUp')
+
+  // Tab leaves the group after one stop: the next stop is the confirmation, not the second radio
+  await page.keyboard.press('Tab')
+  await expect(page.getByTestId('local-confirm')).toBeFocused()
+})
+
 test('"Noch nirgends" -> "Mit Beispielaufgaben starten" -> the demo board (#527): every column filled, topics with symbols, carry-over kept', async ({ page, baseURL }) => {
   await page.goto(baseURL! + '/welcome')
   await page.getByRole('button', { name: 'Noch nirgends' }).click()

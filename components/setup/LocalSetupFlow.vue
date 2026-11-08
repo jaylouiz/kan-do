@@ -4,7 +4,7 @@
 @usage <LocalSetupFlow @back="flow = null" @complete="onLocalDone" /> inside pages/welcome.vue
 @responsibility
 - Explains that tasks stay on this device and other connections come later
-- Two radio cards (empty board, sample board) and one "Los geht's" confirmation; nothing happens on the pick alone
+- Two radio cards (empty board, sample board) on reka-ui's RadioGroup (the primitive under Nuxt UI's URadioGroup, whose card variant cannot carry the icon and the answer-row look): arrow keys select, one Tab stop (roving tabindex) and one "Los geht's" confirmation; nothing happens on the pick alone
 - Seeds the task store (empty, or the shared demo board of #527 with carry-over and topic styles), then emits `complete`
 - Back returns to the choice
 - Pattern: first-run setup, diverged from the modal wizard; the radio cards follow the welcome page's answer rows
@@ -27,17 +27,14 @@
       <p class="mt-2 text-base text-default">{{ t('onboarding.flow.local.intro') }}</p>
     </div>
 
-    <div class="flex flex-col gap-3" role="radiogroup" :aria-label="t('onboarding.local.howToStart')">
-      <button
+    <RadioGroupRoot v-model="pick" class="flex flex-col gap-3" orientation="vertical" :aria-label="t('onboarding.local.howToStart')">
+      <RadioGroupItem
         v-for="option in options"
         :key="option.key"
-        type="button"
-        role="radio"
-        :aria-checked="pick === option.key"
+        :value="option.key"
         class="focus-ring flex min-h-16 w-full items-center gap-4 rounded-xl border bg-elevated p-4 text-left hover:border-accented"
         :class="pick === option.key ? 'border-inverted bg-default' : 'border-default'"
         :data-testid="`local-option-${option.key}`"
-        @click="pick = option.key"
       >
         <UIcon :name="option.icon" class="size-6 shrink-0 text-toned" aria-hidden="true" />
         <span class="min-w-0 flex-1">
@@ -47,8 +44,8 @@
         <span class="flex size-5 shrink-0 items-center justify-center rounded-full border-[1.5px]" :class="pick === option.key ? 'border-inverted' : 'border-accented'" aria-hidden="true">
           <span class="size-2.5 rounded-full bg-inverted transition-transform duration-150 motion-reduce:transition-none" :class="pick === option.key ? 'scale-100' : 'scale-0'" />
         </span>
-      </button>
-    </div>
+      </RadioGroupItem>
+    </RadioGroupRoot>
 
     <UButton color="primary" size="lg" block data-testid="local-confirm" @click="confirm">
       {{ t('onboarding.flow.local.confirm') }}
@@ -58,6 +55,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { RadioGroupRoot, RadioGroupItem } from 'reka-ui';
 import { useI18n } from 'vue-i18n';
 import { useTasksStore } from '~/store/tasks';
 import { useTopicStylesStore } from '~/store/topicStyles';

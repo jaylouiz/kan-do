@@ -202,7 +202,8 @@ const handleNotionSetupComplete = async () => {
 </script>
 
 <style>
-.setup-body { position: relative; overflow: clip; overflow-clip-margin: 4px; }
+/* 12px clip margin: the Back button sits 4px outside the body and its focus ring reaches 4px beyond it (2px offset + 2px width) */
+.setup-body { position: relative; overflow: clip; overflow-clip-margin: 12px; }
 /* Leave 140 ms, enter 240 ms straight after it (no delay: a delay shows an empty sheet for a beat) */
 .swap-enter-active { transition: opacity 0.24s cubic-bezier(0.3, 0.8, 0.3, 1), transform 0.24s cubic-bezier(0.3, 0.8, 0.3, 1); }
 .swap-leave-active { transition: opacity 0.14s ease-in, transform 0.14s ease-in; }

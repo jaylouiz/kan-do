@@ -144,7 +144,10 @@ const props = defineProps<{
 }>();
 
 const [animateRef, setAnimate] = useAutoAnimate();
-watch(() => props.animate, (on) => setAnimate(on !== false), { immediate: true });
+// The controller only exists after useAutoAnimate's own onMounted, so apply the prop from a later onMounted (registered
+// after it, so it runs after it) and on every change; an immediate watch in setup would hit a no-op setEnabled (#43)
+onMounted(() => setAnimate(props.animate !== false));
+watch(() => props.animate, (on) => setAnimate(on !== false));
 
 const emit = defineEmits<{
   (e: "cancel" | "complete" | "back"): void;
