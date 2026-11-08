@@ -121,6 +121,7 @@
       ],
       "specs": [
         "drag-and-drop",
+        "card-click-open",
         "dnd-double-placeholder",
         "done-drop",
         "stack-dnd",
@@ -807,6 +808,7 @@
         "app-nav",
         "archive-feature",
         "board-wide-layout",
+        "card-click-open",
         "carry-over",
         "data-safety",
         "day-close",

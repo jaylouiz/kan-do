@@ -18,8 +18,8 @@ const expandedByStatus = ref<Record<number, string[]>>({});
 
 /**
  * Armed by a pointer expand, so the rest of that click sequence cannot open a sheet: a double-click
- * (or double-tap) on a collapsed stack expands it with the first click, and the second one lands on
- * the first member. Event-scoped, no timer: see `shouldBlockModal`.
+ * (or double-tap) on a collapsed stack expands it with the first click, and the second click lands on
+ * the first member (a card opens on click, #25). Event-scoped, no timer: see `shouldBlockModal`.
  */
 let postExpandArmed = false;
 
@@ -98,7 +98,7 @@ export function useStackExpansion() {
   /**
    * Whether opening a sheet for `event` belongs to the click that expanded a stack: the guard is
    * armed and the event is the second (or later) click of a sequence (`detail >= 2`). Enter on a
-   * member dispatches a synthetic dblclick with `detail` 0, which is never blocked.
+   * member dispatches a synthetic click with `detail` 0, which is never blocked.
    */
   function shouldBlockModal(event: MouseEvent) {
     return postExpandArmed && event.detail >= 2;

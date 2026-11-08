@@ -232,7 +232,7 @@ test.describe('Accessibility (axe)', () => {
 
     test('task detail sheet opened from a card (desktop)', async ({ page }) => {
       await gotoBoard(page)
-      await page.locator('[data-task-id="seed-open-1"]').first().dblclick()
+      await page.locator('[data-task-id="seed-open-1"]').first().click()
       await expect(page).toHaveURL(/\/tasks\/seed-open-1/)
       const dialog = page.getByRole('dialog')
       await expect(dialog).toBeVisible()

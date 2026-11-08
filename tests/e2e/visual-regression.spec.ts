@@ -325,7 +325,7 @@ async function tabTo(page: Page, target: Locator, maxTabs = 60) {
 test.describe('focus states', () => {
   test('focus: text input in task detail modal', async ({ page }) => {
     await page.goto('/tasks')
-    await page.locator('.task[data-task-id="vr-open-1"]').dblclick()
+    await page.locator('.task[data-task-id="vr-open-1"]').click()
     const header = page.getByTestId('task-detail-header')
     await expect(header).toBeVisible()
     // The inline-editable display text is not keyboard-reachable (no tabindex), so enter edit

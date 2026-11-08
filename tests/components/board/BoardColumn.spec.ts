@@ -202,7 +202,7 @@ describe('BoardColumn', () => {
     })
   })
 
-  describe('opening a card (#111)', () => {
+  describe('opening a card (#111, #25)', () => {
     const openTasks = [{ id: 'a', title: 'A', status: TaskStatus.Open } as any]
     const mountOpen = (extra: Record<string, unknown> = {}) =>
       mount(BoardColumn, {
@@ -210,7 +210,7 @@ describe('BoardColumn', () => {
         global: {
           stubs: {
             ...stubs,
-            TaskCard: { props: ['task'], emits: ['open'], template: '<div class="task" @dblclick="$emit(\'open\', task.id)" />' },
+            TaskCard: { props: ['task'], emits: ['open'], template: '<div class="task" @click="$emit(\'open\', task.id)" />' },
           },
         },
       })
@@ -219,14 +219,14 @@ describe('BoardColumn', () => {
 
     it('navigates exactly once per open gesture', async () => {
       const wrapper = mountOpen()
-      await wrapper.find('.task').trigger('dblclick')
+      await wrapper.find('.task').trigger('click')
       expect(navigateTo).toHaveBeenCalledTimes(1)
       expect(navigateTo).toHaveBeenCalledWith({ path: '/tasks/a' })
     })
 
     it('does not navigate in static mode', async () => {
       const wrapper = mountOpen({ staticMode: true })
-      await wrapper.find('.task').trigger('dblclick')
+      await wrapper.find('.task').trigger('click')
       expect(navigateTo).not.toHaveBeenCalled()
     })
   })

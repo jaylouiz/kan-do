@@ -154,7 +154,7 @@ test.describe('delete is confirmed in the card slot (#422)', () => {
     await expect(gap(page)).toHaveCount(1)
     // not inside a sortable wrapper, no task id on it
     expect(await gap(page).evaluate(el => !!el.closest('.task-wrapper') || el.querySelector('[data-task-id]') !== null)).toBe(false)
-    await gap(page).dblclick({ position: { x: 20, y: 20 } })
+    await gap(page).click({ position: { x: 20, y: 20 } })
     await expect(page).toHaveURL(/\/tasks$/)
     const box = (await gap(page).boundingBox())!
     await page.mouse.move(box.x + 20, box.y + 20)
@@ -442,7 +442,7 @@ test.describe('the trash page (#422)', () => {
   test('a trash card cannot be opened or dragged', async ({ page }) => {
     await page.goto('/trash')
     const entry = page.getByTestId('trash-entry').first()
-    await entry.locator('.task').dblclick()
+    await entry.locator('.task').click()
     await expect(page).toHaveURL(/\/trash$/)
     expect(await entry.locator('[data-task-id]').count()).toBe(0)
   })

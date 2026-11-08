@@ -318,12 +318,12 @@ test.describe('timebox progress chip (#388)', () => {
     expect(stops).toContain('dots:seed-open-1')
   })
 
-  test('the chip never takes pointer events: double click over the bar opens the sheet', async ({ context, page }) => {
+  test('the chip never takes pointer events: a click over the bar opens the sheet', async ({ context, page }) => {
     await seedLocalBoard(context, withJetztSpent(1800))
     await page.goto('/tasks')
     await expectBar(page, JETZT_ID)
     await expect(chip(page, JETZT_ID)).toHaveCSS('pointer-events', 'none')
-    await chip(page, JETZT_ID).dblclick({ force: true })
+    await chip(page, JETZT_ID).click({ force: true })
     await expect(page).toHaveURL(new RegExp(`/tasks/${JETZT_ID}`))
   })
 

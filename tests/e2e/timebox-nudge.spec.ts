@@ -212,12 +212,12 @@ test.describe('timebox nudge on a card that lands in Jetzt (desktop)', () => {
     await expect(jetzt(page).locator('.task .chip__box')).toHaveText('1 h')
   })
 
-  test('opening the sheet (double click on the face, outside the buttons) ends the nudge; the card leaving Jetzt too', async ({ page }) => {
+  test('opening the sheet (click on the face, outside the buttons) ends the nudge; the card leaving Jetzt too', async ({ page }) => {
     await contextMenuMoveTo(page, PLAIN.title, 'Jetzt')
     await expect(nudge(page)).toBeVisible()
     const card = (await jetzt(page).locator('.task').boundingBox())!
-    // The top-left corner of the face is outside the controls: the layer passes the double click through
-    await page.mouse.dblclick(card.x + 12, card.y + 12)
+    // The top-left corner of the face is outside the controls: the layer passes the click through
+    await page.mouse.click(card.x + 12, card.y + 12)
     await expect(page).toHaveURL(/\/tasks\/plain/)
     await expect(nudge(page)).toHaveCount(0)
   })
