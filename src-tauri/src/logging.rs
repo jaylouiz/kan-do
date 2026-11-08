@@ -1,4 +1,4 @@
-//! Persistent log file (#225). Release builds write `~/Library/Logs/com.julius.kan-do/kan-do.log`
+//! Persistent log file (#225). Release builds write `~/Library/Logs/io.github.jaylouiz.kan-do/kan-do.log`
 //! (five rotated files of about 1 MB); dev builds also log to stdout at `Debug`.
 //!
 //! What gets logged is decided at the call sites: status names, versions and error kinds. Never

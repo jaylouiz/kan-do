@@ -78,7 +78,7 @@ describe('updater placeholder', () => {
     expect(conf.bundle.createUpdaterArtifacts).toBe(true)
     expect(conf.bundle.targets).toEqual(['app', 'dmg'])
     expect(conf.bundle.macOS.signingIdentity).toBe('-')
-    expect(conf.identifier).toBe('com.julius.kan-do')
+    expect(conf.identifier).toBe('io.github.jaylouiz.kan-do')
     expect(conf.plugins.updater.endpoints).toBeUndefined()
   })
 })

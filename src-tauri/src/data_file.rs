@@ -1950,14 +1950,13 @@ pub const STATUS_EVENT: &str = "data-status";
 
 impl DataFile {
     /// Builds the state for the running app: location file in the config dir, default folder in the
-    /// data dir (on macOS both are `~/Library/Application Support/com.julius.kan-do`).
-    pub fn for_app(app: &AppHandle) -> DataFile {
-        let config_dir = app.path().app_config_dir().expect("app config dir");
-        let default_folder = app.path().app_data_dir().expect("app data dir");
+    /// data dir (on macOS both are `~/Library/Application Support/io.github.jaylouiz.kan-do`). `dirs` comes from
+    /// the identifier migration (#42): the new directories, or the legacy ones when copying the data failed.
+    pub fn for_app(app: &AppHandle, dirs: crate::identifier_migration::Dirs) -> DataFile {
         let handle = app.clone();
         DataFile::new(
-            config_dir,
-            default_folder,
+            dirs.config_dir,
+            dirs.default_folder,
             app.package_info().version.to_string(),
             Timing::default(),
             Box::new(move |payload| {

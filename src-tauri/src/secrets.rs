@@ -1,6 +1,6 @@
 //! Keychain-backed secret store (#223, ADR 007).
 //!
-//! Four fixed entries live under the service `com.julius.kan-do`. The Notion and Todoist tokens
+//! Four fixed entries live under the service `io.github.jaylouiz.kan-do`. The Notion and Todoist tokens
 //! can be read back by the webview (their client code needs the string). The two GitHub tokens
 //! are write-only for JS: it can set, delete and ask for status, and `github::github_request`
 //! performs the calls. Rust code in this process reads them through [`get`].
@@ -15,8 +15,9 @@ use std::sync::Mutex;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Manager, State};
 
-/// Keychain service name. Equals the bundle identifier and must not change.
-pub const SERVICE: &str = "com.julius.kan-do";
+/// Keychain service name. Equals the bundle identifier (a test compares it with `tauri.conf.json`). Changing the
+/// identifier moves the app's data and tokens: see `identifier_migration` and ADR 019 (which amends ADR 007).
+pub const SERVICE: &str = "io.github.jaylouiz.kan-do";
 
 /// The only account names the store accepts.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -142,24 +143,37 @@ impl Backend for UnsupportedBackend {
 #[cfg(target_os = "macos")]
 pub struct KeyringBackend {
     store: std::sync::Arc<keyring_core::api::CredentialStore>,
+    service: String,
 }
 
 #[cfg(target_os = "macos")]
 impl KeyringBackend {
+    /// Under the app's own service; the app itself goes through `native`, the unit tests through this.
+    #[cfg_attr(not(test), allow(dead_code))]
     pub fn new(store: std::sync::Arc<keyring_core::api::CredentialStore>) -> Self {
-        Self { store }
+        Self::with_service(store, SERVICE)
+    }
+
+    /// Entries under another service: the identifier migration reads the legacy one (#42).
+    pub fn with_service(store: std::sync::Arc<keyring_core::api::CredentialStore>, service: &str) -> Self {
+        Self { store, service: service.to_owned() }
     }
 
     /// The login Keychain via the native macOS store.
     pub fn native() -> Result<Self, SecretError> {
+        Self::native_for(SERVICE)
+    }
+
+    /// The login Keychain via the native macOS store, entries under `service`.
+    pub fn native_for(service: &str) -> Result<Self, SecretError> {
         let store = apple_native_keyring_store::keychain::Store::new()
             .map_err(|_| SecretError::Keychain)?;
-        Ok(Self::new(store))
+        Ok(Self::with_service(store, service))
     }
 
     fn entry(&self, entry: SecretEntry) -> Result<keyring_core::Entry, SecretError> {
         self.store
-            .build(SERVICE, entry.account(), None)
+            .build(&self.service, entry.account(), None)
             .map_err(|_| SecretError::Keychain)
     }
 }
@@ -479,7 +493,12 @@ mod tests {
 
     #[test]
     fn service_is_the_bundle_identifier() {
-        assert_eq!(SERVICE, "com.julius.kan-do");
+        assert_eq!(SERVICE, "io.github.jaylouiz.kan-do");
+        // The identifier in tauri.conf.json is what names the data folder, the logs and (through SERVICE) the Keychain
+        // service; they must not drift apart (#42).
+        let conf: serde_json::Value = serde_json::from_str(include_str!("../tauri.conf.json")).unwrap();
+        assert_eq!(conf["identifier"], SERVICE);
+        assert_eq!(conf["identifier"], crate::identifier_migration::PRODUCTION_IDENTIFIER);
     }
 
     #[test]
@@ -699,7 +718,7 @@ mod tests {
         #[ignore = "touches the real macOS login Keychain"]
         fn native_keychain_round_trip() {
             let store = KeyringBackend::native().expect("native store").store;
-            let entry = store.build("com.julius.kan-do.test", "round-trip", None).unwrap();
+            let entry = store.build("io.github.jaylouiz.kan-do.test", "round-trip", None).unwrap();
             entry.set_password("ntn_round_trip_1234").unwrap();
             assert_eq!(entry.get_password().unwrap(), "ntn_round_trip_1234");
             entry.delete_credential().unwrap();

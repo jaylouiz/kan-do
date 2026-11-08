@@ -229,7 +229,7 @@ export async function installTauriStub(context: BrowserContext, options: TauriSt
           data: {
             configured: opts.data?.envelope !== undefined,
             status: opts.data?.status ?? 'ok',
-            folder: opts.data?.folder ?? '/Users/test/Library/Application Support/com.julius.kan-do',
+            folder: opts.data?.folder ?? '/Users/test/Library/Application Support/io.github.jaylouiz.kan-do',
             envelope: opts.data?.envelope ?? null,
             writtenAt: opts.data?.envelope !== undefined ? '2026-01-01T10:00:00.000Z' : null,
             error: null,
@@ -368,7 +368,7 @@ export async function installTauriStub(context: BrowserContext, options: TauriSt
       }
       if (cmd === 'plugin:event|unlisten') return null
       if (cmd === 'plugin:app|version') return state.update.appVersion
-      if (cmd === 'log_location') return '/Users/test/Library/Logs/com.julius.kan-do'
+      if (cmd === 'log_location') return '/Users/test/Library/Logs/io.github.jaylouiz.kan-do'
       if (cmd === 'log_tail') return state.logTail
       if (cmd === 'feedback_capture') {
         state.captures.push({

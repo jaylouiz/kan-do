@@ -4,7 +4,7 @@
  * `SECRET_STATE_PATHS` is the contract for everything that serialises app state (#222 data file,
  * #224 export/import): those paths hold secrets and must never be written outside the Keychain.
  */
-/** Fixed Keychain accounts under service `com.julius.kan-do`. Mirrors `SecretEntry` in src-tauri. */
+/** Fixed Keychain accounts under service `io.github.jaylouiz.kan-do`. Mirrors `SecretEntry` in src-tauri. */
 export const SECRET_ENTRIES = ['notion-token', 'todoist-token', 'github-updates', 'github-feedback'] as const
 export type SecretEntryName = (typeof SECRET_ENTRIES)[number]
 

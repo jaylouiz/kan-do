@@ -60,7 +60,7 @@ No setup needed. Add tasks directly on the board; they are stored on your device
 
 ## Your data and privacy
 
-- Local tasks and settings stay on your device. The desktop app keeps them in a data file in a folder you choose (by default `~/Library/Application Support/com.julius.kan-do/`).
+- Local tasks and settings stay on your device. The desktop app keeps them in a data file in a folder you choose (by default `~/Library/Application Support/io.github.jaylouiz.kan-do/`).
 - The desktop app keeps API tokens in the macOS Keychain, never in the data file.
 - Task text is masked in screenshots attached to in-app feedback.
 - Details for the curious: [ADR 007](docs/adr/007-secrets-keychain.md) (secrets) and [ADR 008](docs/adr/008-file-backed-persistence.md) (data file).

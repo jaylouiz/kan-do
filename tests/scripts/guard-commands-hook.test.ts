@@ -42,7 +42,7 @@ describe('guard-commands hook', () => {
 
   it('finds the sandbox recipe in the doc', () => {
     expect(recipe).toContain('tauri dev')
-    expect(sandboxStep).toContain('com.julius.kan-do.sandbox-')
+    expect(sandboxStep).toContain('io.github.jaylouiz.kan-do.sandbox-')
   })
 
   it.each([

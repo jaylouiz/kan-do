@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted (#223, part of epic #221)
+Accepted (#223, part of epic #221). The identifier rule below is amended by [ADR 019](019-bundle-identifier-and-migration.md) (#42): the service is now `io.github.jaylouiz.kan-do`, and the four entries were moved from `com.julius.kan-do` at the first start under it.
 
 ## Context
 
