@@ -165,7 +165,7 @@ fn an_interrupted_run_resumes_and_replaces_its_own_stale_copy() {
     // A crash after the data file and before the pointer, then the old app ran on and changed the file.
     fs::create_dir_all(t.new.join("backups")).unwrap();
     fs::write(t.new.join(FILE_NAME), b"stale copy").unwrap();
-    write_state(&t.new, &State { data: Some(IN_PROGRESS.into()), secrets: None }).unwrap();
+    write_state(&t.new, &State { data: Some(IN_PROGRESS.into()), ..State::default() }).unwrap();
 
     assert_eq!(t.migrate(), DataOutcome::Migrated);
 
@@ -194,7 +194,7 @@ fn a_failed_copy_falls_back_without_a_half_file_and_the_legacy_folder_is_untouch
     // A directory where the data file must go makes the copy fail after the backups were copied.
     fs::create_dir_all(t.new.join(FILE_NAME)).unwrap();
     // The destination holds "data" (the directory) and no marker, so force the in-progress path.
-    write_state(&t.new, &State { data: Some(IN_PROGRESS.into()), secrets: None }).unwrap();
+    write_state(&t.new, &State { data: Some(IN_PROGRESS.into()), ..State::default() }).unwrap();
     let before = snapshot(&t.old);
 
     let outcome = t.migrate();
@@ -303,6 +303,20 @@ fn absent_entries_are_resolved_and_a_present_new_entry_wins_and_keeps_the_legacy
 }
 
 #[test]
+fn the_new_service_is_checked_first_and_the_legacy_entry_is_not_touched_when_it_holds_a_value() {
+    let (legacy, current) = (full_legacy(), Arc::new(Mem::default()));
+    for entry in SecretEntry::ALL {
+        current.values.lock().unwrap().insert(entry, format!("new-{}", entry.account()));
+        // Even a legacy entry that would be denied (a Keychain error) must not be read.
+        legacy.fail_get.lock().unwrap().push(entry);
+    }
+    let results = migrate_secrets(&legacy, &current);
+    assert!(results.iter().all(|(_, o)| *o == EntryOutcome::KeptNew));
+    assert_eq!(*legacy.reads.lock().unwrap(), 0, "the legacy service is never read when the new one holds a value");
+    assert_eq!(legacy.values.lock().unwrap().len(), 4);
+}
+
+#[test]
 fn a_read_back_mismatch_keeps_the_legacy_entry_and_is_not_resolved() {
     let (legacy, current) = (full_legacy(), Arc::new(Mem::default()));
     *current.corrupt_set.lock().unwrap() = true;
@@ -368,6 +382,55 @@ fn an_incomplete_step_writes_no_marker_and_is_retried() {
     assert!(matches!(outcome, SecretsOutcome::Done(_)));
     // The already moved entries are not moved twice: they were deleted from the legacy service.
     assert_eq!(current.values.lock().unwrap().len(), 4);
+}
+
+#[test]
+fn a_denied_prompt_is_recorded_and_the_step_backs_off_after_a_few_starts() {
+    let t = Support::new();
+    let (legacy, current) = (full_legacy(), Arc::new(Mem::default()));
+    for entry in SecretEntry::ALL {
+        legacy.fail_get.lock().unwrap().push(entry);
+    }
+    for attempt in 1..=MAX_SECRET_ATTEMPTS {
+        let outcome = run_secrets(PRODUCTION_IDENTIFIER, &t.new, || Some((boxed(&legacy), boxed(&current))));
+        assert!(matches!(outcome, SecretsOutcome::Incomplete(_)), "attempt {attempt}");
+        assert_eq!(read_state(&t.new).unwrap().secrets_attempts, attempt);
+    }
+    let reads = *legacy.reads.lock().unwrap();
+    let outcome = run_secrets(PRODUCTION_IDENTIFIER, &t.new, || panic!("the Keychain must not be opened after the back-off"));
+    assert_eq!(outcome, SecretsOutcome::GaveUp);
+    assert_eq!(*legacy.reads.lock().unwrap(), reads);
+    assert!(read_state(&t.new).unwrap().secrets.is_none(), "giving up is not `done`");
+}
+
+#[test]
+fn a_debug_build_runs_neither_step_and_touches_neither_folder_nor_keychain() {
+    let t = Support::new();
+    t.seed_default_install();
+    let before = snapshot(&t.old);
+    let dirs = run_gated(true, PRODUCTION_IDENTIFIER, &t.new, &t.new, || panic!("a debug build must not open the Keychain"));
+    assert_eq!(dirs, Dirs { config_dir: t.new.clone(), default_folder: t.new.clone() });
+    assert!(!t.new.exists(), "no state file, no copied data");
+    assert_eq!(snapshot(&t.old), before);
+}
+
+#[test]
+fn a_sandbox_identifier_in_a_debug_build_still_runs_the_data_step_but_never_the_keychain() {
+    let t = Support::new();
+    t.seed_default_install();
+    let dirs = run_gated(true, "io.github.jaylouiz.kan-do.sandbox-3103", &t.new, &t.new, || panic!("sandbox: no Keychain"));
+    assert_eq!(dirs.config_dir, t.new);
+    assert_eq!(read_state(&t.new).unwrap().data.as_deref(), Some(DONE));
+}
+
+#[test]
+fn a_release_build_runs_both_steps() {
+    let t = Support::new();
+    t.seed_default_install();
+    let (legacy, current) = (full_legacy(), Arc::new(Mem::default()));
+    run_gated(false, PRODUCTION_IDENTIFIER, &t.new, &t.new, || Some((boxed(&legacy), boxed(&current))));
+    let state = read_state(&t.new).unwrap();
+    assert_eq!((state.data.as_deref(), state.secrets.as_deref()), (Some(DONE), Some(DONE)));
 }
 
 #[test]

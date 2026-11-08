@@ -9,8 +9,11 @@
 //!    legacy folder for that session (the previous version's behaviour) and retries at the next start; it never lets the
 //!    webview start a first run with an empty board.
 //! 2. **Keychain**: the four entries are **moved** to the new service (write, read back, compare, then delete the legacy
-//!    entry). Only for the production identifier: the service is a fixed constant and sandbox runs must never read or create
-//!    real entries.
+//!    entry). The new service is checked first (a value there wins, the legacy entry is not read); unresolved entries are
+//!    retried for [`MAX_SECRET_ATTEMPTS`] starts, then the step gives up. Only for the production identifier: the service
+//!    is a fixed constant and sandbox runs must never read or create real entries.
+//!
+//! Debug builds with the production identifier (`tauri dev`) run neither step, see [`run_gated`].
 //!
 //! Progress lives in `identifier-migration.json` in the new config dir (states only, never a value). Token values never
 //! reach a log line, an error or that file. Log lines name steps and counts, never paths with user content.
@@ -47,6 +50,7 @@ fn legacy_sibling(dir: &Path) -> Option<PathBuf> {
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct State {
     /// `in-progress`, `done` or `skipped` (the destination already held data and no migration was running).
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -54,7 +58,19 @@ struct State {
     /// `done` once all four entries are resolved.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     secrets: Option<String>,
+    /// Starts that ended with an unresolved Keychain entry (a denied prompt, an error); the step gives up at
+    /// [`MAX_SECRET_ATTEMPTS`] so a denial is not asked again at every start.
+    #[serde(default, skip_serializing_if = "is_zero")]
+    secrets_attempts: u32,
 }
+
+fn is_zero(n: &u32) -> bool {
+    *n == 0
+}
+
+/// Starts that may end with an unresolved entry before the Keychain step stops asking. The tokens stay under the legacy
+/// service; the user re-enters them in the settings (the new service then wins).
+pub const MAX_SECRET_ATTEMPTS: u32 = 3;
 
 const IN_PROGRESS: &str = "in-progress";
 const DONE: &str = "done";
@@ -291,16 +307,17 @@ pub fn migrate_secrets(legacy: &dyn Backend, current: &dyn Backend) -> Vec<(Secr
 }
 
 fn migrate_entry(legacy: &dyn Backend, current: &dyn Backend, entry: SecretEntry) -> EntryOutcome {
-    let value = match legacy.get(entry) {
-        Ok(Some(value)) => value,
-        Ok(None) => return EntryOutcome::Absent,
-        Err(_) => return EntryOutcome::Failed,
-    };
+    // The new service first: a value there wins and the legacy entry is not read (no prompt for it).
     match current.get(entry) {
         Ok(Some(_)) => return EntryOutcome::KeptNew,
         Ok(None) => {}
         Err(_) => return EntryOutcome::Failed,
     }
+    let value = match legacy.get(entry) {
+        Ok(Some(value)) => value,
+        Ok(None) => return EntryOutcome::Absent,
+        Err(_) => return EntryOutcome::Failed,
+    };
     if current.set(entry, &value).is_err() {
         return EntryOutcome::Failed;
     }
@@ -322,7 +339,9 @@ pub enum SecretsOutcome {
     AlreadyDone,
     /// All four entries resolved; the marker is written.
     Done(Vec<(SecretEntry, EntryOutcome)>),
-    /// At least one entry failed: no marker, retried at the next start.
+    /// Unresolved entries in [`MAX_SECRET_ATTEMPTS`] starts: the Keychain is not opened any more.
+    GaveUp,
+    /// At least one entry failed: no marker, retried at the next start (until the attempts run out).
     Incomplete(Vec<(SecretEntry, EntryOutcome)>),
     /// The marker could not be read or written.
     StateError(String),
@@ -345,11 +364,17 @@ pub fn run_secrets(
     if state.secrets.as_deref() == Some(DONE) {
         return SecretsOutcome::AlreadyDone;
     }
+    if state.secrets_attempts >= MAX_SECRET_ATTEMPTS {
+        return SecretsOutcome::GaveUp;
+    }
     let Some((legacy, current)) = backends() else {
         return SecretsOutcome::Incomplete(Vec::new());
     };
     let results = migrate_secrets(legacy.as_ref(), current.as_ref());
     if !results.iter().all(|(_, outcome)| outcome.resolved()) {
+        // Recorded before the next start can prompt again; a failed write only costs one more prompt round.
+        state.secrets_attempts += 1;
+        let _ = write_state(config_dir, &state);
         return SecretsOutcome::Incomplete(results);
     }
     state.secrets = Some(DONE.into());
@@ -396,6 +421,7 @@ fn log_secrets(outcome: &SecretsOutcome) {
                 "identifier migration: Keychain step {state}: {moved} moved, {absent} absent, {kept_new} kept new, {failed} failed, {legacy_kept} legacy entries not deleted"
             );
         }
+        SecretsOutcome::GaveUp => log::warn!("identifier migration: Keychain step gave up after {MAX_SECRET_ATTEMPTS} starts; the legacy entries stay, tokens are re-entered in the settings"),
         SecretsOutcome::StateError(reason) => log::warn!("identifier migration: Keychain step not run: {reason}"),
     }
 }
@@ -406,7 +432,26 @@ pub fn run(app: &tauri::AppHandle) -> Dirs {
     let config_dir = app.path().app_config_dir().expect("app config dir");
     let default_folder = app.path().app_data_dir().expect("app data dir");
     let identifier = app.config().identifier.clone();
-    run_with(&identifier, &config_dir, &default_folder, native_backends)
+    run_gated(cfg!(debug_assertions), &identifier, &config_dir, &default_folder, native_backends)
+}
+
+/// Runs the migration in a release build only when it would act on the production identity. `tauri dev` and debug builds
+/// carry the production identifier too, so a dev run would otherwise move the tokens away from the installed app and
+/// mark the migration done ahead of the real update; they touch neither the legacy folder nor the Keychain and use the
+/// directories as they are. A sandbox identifier (`docs/testing/tauri-dev-sandbox.md`, a debug build by nature) still
+/// runs the data step against its throwaway `HOME`; its Keychain step is skipped by [`run_secrets`].
+pub fn run_gated(
+    debug_build: bool,
+    identifier: &str,
+    config_dir: &Path,
+    default_folder: &Path,
+    backends: impl FnOnce() -> Option<(Box<dyn Backend>, Box<dyn Backend>)>,
+) -> Dirs {
+    if debug_build && identifier == PRODUCTION_IDENTIFIER {
+        log::info!("identifier migration: skipped (debug build with the production identifier)");
+        return Dirs { config_dir: config_dir.to_path_buf(), default_folder: default_folder.to_path_buf() };
+    }
+    run_with(identifier, config_dir, default_folder, backends)
 }
 
 /// [`run`] without a running app, for tests.
