@@ -77,7 +77,7 @@ const isWaiting = computed(() => props.status === TaskStatus.Waiting);
   }
 
   .waiting-header h2 {
-    margin-top: 1.25rem;
+    margin-top: 2.5rem;
   }
   
 </style>
