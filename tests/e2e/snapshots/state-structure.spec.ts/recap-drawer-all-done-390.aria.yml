@@ -1,0 +1,11 @@
+- dialog "Kurzer Rückblick":
+  - heading "Kurzer Rückblick" [level=2]
+  - paragraph: Du hast gestern alle Aufgaben erledigt.
+  - region "4 erledigt":
+    - heading "4 erledigt" [level=2]
+    - group "4 erledigt, mit Pfeiltasten wechseln"
+    - button "Vorherige Aufgabe"
+    - button "Nächste Aufgabe"
+  - switch "Erledigte archivieren" [checked]
+  - text: Erledigte archivieren
+  - button "Weiter zum Board"
