@@ -404,14 +404,31 @@ fn a_denied_prompt_is_recorded_and_the_step_backs_off_after_a_few_starts() {
 }
 
 #[test]
-fn a_debug_build_runs_neither_step_and_touches_neither_folder_nor_keychain() {
+fn a_debug_build_with_the_production_identifier_keeps_using_the_legacy_folder_and_never_creates_the_new_one() {
     let t = Support::new();
     t.seed_default_install();
     let before = snapshot(&t.old);
     let dirs = run_gated(true, PRODUCTION_IDENTIFIER, &t.new, &t.new, || panic!("a debug build must not open the Keychain"));
-    assert_eq!(dirs, Dirs { config_dir: t.new.clone(), default_folder: t.new.clone() });
-    assert!(!t.new.exists(), "no state file, no copied data");
-    assert_eq!(snapshot(&t.old), before);
+    // `tauri dev` behaves as before the rename: the legacy folder is the data folder, so nothing it writes can make a
+    // later release see a populated new folder and skip the migration.
+    assert_eq!(dirs, Dirs { config_dir: t.old.clone(), default_folder: t.old.clone() });
+    assert!(!t.new.exists(), "no state file, no copied data, no new folder");
+    assert_eq!(snapshot(&t.old), before, "resolving the folder writes nothing");
+}
+
+#[test]
+fn a_dev_run_that_writes_to_the_legacy_folder_does_not_make_the_release_skip_the_migration() {
+    let t = Support::new();
+    t.seed_default_install();
+    let dirs = run_gated(true, PRODUCTION_IDENTIFIER, &t.new, &t.new, || panic!("no Keychain in a debug build"));
+    // What the dev run's `DataFile` does: it writes where the dirs point.
+    fs::write(dirs.default_folder.join(FILE_NAME), b"{\"dev\":true}").unwrap();
+    assert!(!t.new.exists());
+    let (legacy, current) = (full_legacy(), Arc::new(Mem::default()));
+    run_gated(false, PRODUCTION_IDENTIFIER, &t.new, &t.new, || Some((boxed(&legacy), boxed(&current))));
+    let state = read_state(&t.new).unwrap();
+    assert_eq!((state.data.as_deref(), state.secrets.as_deref()), (Some(DONE), Some(DONE)), "the release migrates what the dev run left");
+    assert_eq!(fs::read(t.new.join(FILE_NAME)).unwrap(), b"{\"dev\":true}");
 }
 
 #[test]

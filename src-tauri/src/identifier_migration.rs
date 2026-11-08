@@ -13,7 +13,8 @@
 //!    retried for [`MAX_SECRET_ATTEMPTS`] starts, then the step gives up. Only for the production identifier: the service
 //!    is a fixed constant and sandbox runs must never read or create real entries.
 //!
-//! Debug builds with the production identifier (`tauri dev`) run neither step, see [`run_gated`].
+//! Debug builds with the production identifier (`tauri dev`) run neither step and keep using the legacy folder and
+//! Keychain service, see [`run_gated`].
 //!
 //! Progress lives in `identifier-migration.json` in the new config dir (states only, never a value). Token values never
 //! reach a log line, an error or that file. Log lines name steps and counts, never paths with user content.
@@ -436,10 +437,12 @@ pub fn run(app: &tauri::AppHandle) -> Dirs {
 }
 
 /// Runs the migration in a release build only when it would act on the production identity. `tauri dev` and debug builds
-/// carry the production identifier too, so a dev run would otherwise move the tokens away from the installed app and
-/// mark the migration done ahead of the real update; they touch neither the legacy folder nor the Keychain and use the
-/// directories as they are. A sandbox identifier (`docs/testing/tauri-dev-sandbox.md`, a debug build by nature) still
-/// runs the data step against its throwaway `HOME`; its Keychain step is skipped by [`run_secrets`].
+/// carry the production identifier too: they keep the pre-rename behaviour, that is the legacy folder as the data folder
+/// and (see `secrets::service_for`) the legacy Keychain service. They never create or write the new folder, so a dev run
+/// cannot make the first release see a populated destination and record the migration as skipped, and they never move
+/// the tokens away from the installed app. The first release build is the only thing that migrates (it copies whatever
+/// the legacy folder holds by then). A sandbox identifier (`docs/testing/tauri-dev-sandbox.md`, a debug build by nature)
+/// still runs the data step against its throwaway `HOME`; its Keychain step is skipped by [`run_secrets`].
 pub fn run_gated(
     debug_build: bool,
     identifier: &str,
@@ -448,8 +451,11 @@ pub fn run_gated(
     backends: impl FnOnce() -> Option<(Box<dyn Backend>, Box<dyn Backend>)>,
 ) -> Dirs {
     if debug_build && identifier == PRODUCTION_IDENTIFIER {
-        log::info!("identifier migration: skipped (debug build with the production identifier)");
-        return Dirs { config_dir: config_dir.to_path_buf(), default_folder: default_folder.to_path_buf() };
+        log::info!("identifier migration: skipped, debug build with the production identifier keeps using the legacy folder");
+        return match (legacy_sibling(config_dir), legacy_sibling(default_folder)) {
+            (Some(config_dir), Some(default_folder)) => Dirs { config_dir, default_folder },
+            _ => Dirs { config_dir: config_dir.to_path_buf(), default_folder: default_folder.to_path_buf() },
+        };
     }
     run_with(identifier, config_dir, default_folder, backends)
 }

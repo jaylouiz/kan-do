@@ -19,6 +19,18 @@ use tauri::{AppHandle, Manager, State};
 /// identifier moves the app's data and tokens: see `identifier_migration` and ADR 019 (which amends ADR 007).
 pub const SERVICE: &str = "io.github.jaylouiz.kan-do";
 
+/// The Keychain service the running build uses. A debug build (`tauri dev`) carries the production identifier but keeps
+/// the legacy service of the installed 0.11.0, exactly as before the rename, so a dev run neither creates entries under
+/// the new service (which would make the release's Keychain step keep them as "new wins") nor strands the real tokens;
+/// only a release build migrates and then uses [`SERVICE`] (#42, ADR 019).
+pub fn service_for(debug_build: bool) -> &'static str {
+    if debug_build {
+        crate::identifier_migration::LEGACY_IDENTIFIER
+    } else {
+        SERVICE
+    }
+}
+
 /// The only account names the store accepts.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -159,9 +171,9 @@ impl KeyringBackend {
         Self { store, service: service.to_owned() }
     }
 
-    /// The login Keychain via the native macOS store.
+    /// The login Keychain via the native macOS store, under the service of this build ([`service_for`]).
     pub fn native() -> Result<Self, SecretError> {
-        Self::native_for(SERVICE)
+        Self::native_for(service_for(cfg!(debug_assertions)))
     }
 
     /// The login Keychain via the native macOS store, entries under `service`.
@@ -499,6 +511,14 @@ mod tests {
         let conf: serde_json::Value = serde_json::from_str(include_str!("../tauri.conf.json")).unwrap();
         assert_eq!(conf["identifier"], SERVICE);
         assert_eq!(conf["identifier"], crate::identifier_migration::PRODUCTION_IDENTIFIER);
+    }
+
+    #[test]
+    fn a_debug_build_keeps_the_legacy_keychain_service_and_a_release_build_uses_the_new_one() {
+        // `tauri dev` carries the production identifier; its tokens stay where the installed 0.11.0 keeps them, so the
+        // release's Keychain step (never run in a debug build) is the only thing that moves them (#42).
+        assert_eq!(service_for(true), crate::identifier_migration::LEGACY_IDENTIFIER);
+        assert_eq!(service_for(false), SERVICE);
     }
 
     #[test]
