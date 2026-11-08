@@ -5,4 +5,4 @@
   - button "Noch nirgends"
   - button "In Notion"
   - paragraph: Weitere Verbindungen kannst du später in den Einstellungen hinzufügen.
-  - paragraph: "/Version: \\d+\\.\\d+\\.0/"
+  - paragraph: "/Version: \\d+\\.\\d+\\.\\d+/"
