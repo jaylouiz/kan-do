@@ -709,3 +709,55 @@ test.describe('App bar: resize and routes without a bar', () => {
     }
   })
 })
+
+/** Issue #23 (U5): the ⋯ panel looks like a menu, so ↑/↓/Home/End move through its controls. */
+test.describe('App bar: arrow keys in the Mehr panel (#23)', () => {
+  test.beforeEach(async ({ context, page }) => {
+    await seedLocalBoard(context)
+    await page.goto('/tasks')
+    await expect(appNav(page)).toBeVisible()
+  })
+
+  test('↑/↓ step through the controls without wrapping, Home/End jump to the ends', async ({ page }) => {
+    const panel = await openMore(page)
+    const controls = panel.locator('button:not([disabled]), a[href]')
+    const count = await controls.count()
+    expect(count).toBeGreaterThan(3)
+    const first = controls.first()
+    const last = controls.nth(count - 1)
+    await first.focus()
+    await page.keyboard.press('ArrowDown')
+    await expect(controls.nth(1)).toBeFocused()
+    await page.keyboard.press('ArrowUp')
+    await expect(first).toBeFocused()
+    await page.keyboard.press('ArrowUp')
+    await expect(first).toBeFocused()
+    await page.keyboard.press('End')
+    await expect(last).toBeFocused()
+    await page.keyboard.press('ArrowDown')
+    await expect(last).toBeFocused()
+    await page.keyboard.press('Home')
+    await expect(first).toBeFocused()
+  })
+})
+
+/** Issue #40: closing the ⋯ panel returns focus to ⋯; that focus must not open the tooltip on the new page. */
+test.describe('App bar: ⋯ tooltip after a page change (#40)', () => {
+  test('choosing Einstellungen leaves no tooltip on ⋯', async ({ context, page }) => {
+    await seedLocalBoard(context)
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto('/tasks')
+    await expect(appNav(page)).toBeVisible()
+    await openMore(page)
+    await page.getByTestId('more-settings').click()
+    await expect(page).toHaveURL(/\/settings/)
+    await expect(morePanel(page)).toBeHidden()
+    await expect(moreButton(page)).toBeFocused()
+    await expect(page.getByRole('tooltip')).toHaveCount(0)
+    // a later hover on ⋯ still teaches: enter, leave, enter again (the tooltip opens on a pointer move over the trigger)
+    await moreButton(page).hover()
+    await page.mouse.move(2, 2)
+    await moreButton(page).hover()
+    await expect(page.getByRole('tooltip')).toBeVisible()
+  })
+})
