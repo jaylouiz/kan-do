@@ -109,6 +109,7 @@ import { useTaskSheet } from "~/composables/useTaskSheet";
 import { useCarryOverTracking } from "~/composables/useCarryOver";
 import { useDayEndTracking } from "~/composables/useDayEndTracking";
 import { useTaskDeletion } from "~/composables/useTaskDeletion";
+import { useUndoDeleteShortcut } from "~/composables/useUndoDeleteShortcut";
 import { useTaskMove } from "~/composables/useTaskMove";
 import { usePropertyOptionsSync } from "~/composables/usePropertyOptionsSync";
 import SyncWarningModal from "~/components/sync/SyncWarningModal.vue";
@@ -135,7 +136,9 @@ useCarryOverTracking();
 useDayEndTracking();
 
 // Deletes left over from a closed app or queued while offline commit on start and on reconnect (#99)
-const { resumePendingDeletes } = useTaskDeletion();
+const { resumePendingDeletes, undoLatestDelete } = useTaskDeletion();
+// ⌘Z / Ctrl+Z undoes the newest delete still inside its window (#27); a text field keeps its own undo
+useUndoDeleteShortcut(undoLatestDelete);
 // Moves left over from a closed app or queued while the target was unreachable continue the same way (#322)
 const { resumePendingMoves } = useTaskMove();
 // Back online: queued deletes go out, and a fetch of every source also pushes the tasks waiting behind a

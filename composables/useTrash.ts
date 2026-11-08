@@ -8,9 +8,12 @@
  */
 import { computed, ref } from 'vue'
 import { useTrashStore } from '~/store/trash'
+import { useTasksStore } from '~/store/tasks'
+import { useTaskDeletion } from '~/composables/useTaskDeletion'
+import type { TrashEntry } from '~/types/trash'
 import { useTaskSync } from '~/composables/useTaskSync'
 import { useErrorHandler } from '~/composables/useErrorHandler'
-import { groupTrashByDay } from '~/lib/trash'
+import { groupTrashByDay, TRASH_SHEET_LIMIT } from '~/lib/trash'
 
 /** Entries whose restore is running (one at a time per entry, shared across instances). */
 const restoring = ref<string[]>([])
@@ -20,16 +23,37 @@ export function useTrash() {
   const { restoreTask } = useTaskSync()
   const { handleError } = useErrorHandler()
 
-  const entries = computed(() => trashStore.entries)
-  const recent = computed(() => trashStore.recent)
-  const count = computed(() => trashStore.count)
-  const hasMore = computed(() => trashStore.count > trashStore.recent.length)
-  const groups = computed(() => groupTrashByDay(trashStore.entries, Date.now()))
+  const tasksStore = useTasksStore()
+  const { undoDelete } = useTaskDeletion()
+
+  /**
+   * A delete inside its undo window is already in the trash (#27): its entry is derived from the pending
+   * delete, restoring it is the undo. Once the window closes the real entry replaces it (same task id).
+   */
+  const pendingEntries = computed<TrashEntry[]>(() => Object.values(tasksStore.pendingDeletes)
+    .filter(pending => pending.state === 'waiting' && !trashStore.entry(pending.taskId))
+    .map(pending => ({
+      taskId: pending.taskId,
+      task: { ...pending.task, timerId: null },
+      deletedAt: pending.requestedAt,
+      fromStatus: pending.fromStatus ?? pending.task.status,
+      carryOver: pending.carryOver,
+    })))
+  const entries = computed(() => [...pendingEntries.value, ...trashStore.entries].sort((a, b) => b.deletedAt - a.deletedAt))
+  const recent = computed(() => entries.value.slice(0, TRASH_SHEET_LIMIT))
+  const count = computed(() => entries.value.length)
+  const hasMore = computed(() => count.value > recent.value.length)
+  const groups = computed(() => groupTrashByDay(entries.value, Date.now()))
 
   const isRestoring = (taskId: string): boolean => restoring.value.includes(taskId)
 
   /** Restores the entry; resolves to whether it is back on the board. A failure keeps it in the trash. */
   async function restoreFromTrash(taskId: string): Promise<boolean> {
+    const pending = pendingEntries.value.find(item => item.taskId === taskId)
+    if (pending) {
+      undoDelete(taskId)
+      return !!tasksStore.task(taskId)
+    }
     const entry = trashStore.entry(taskId)
     if (!entry || isRestoring(taskId)) return false
     restoring.value = [...restoring.value, taskId]

@@ -5,8 +5,8 @@
 `decorative` next to text that already names the count (task sheet).
 @responsibility
 - Shows up to CARRY_OVER_DOT_CAP dots; only past the cap a "+" and the muted numeral follow (#584; never in decorative mode)
-- Names the meaning for hover, keyboard focus and screen readers ("Tag 3 auf dem Board")
-- Never interactive beyond focus: no click handler, so it adds no drag-vs-click target
+- Names the meaning for hover and screen readers; not a tab stop (#27: 8+ extra stops on a board of carried-over cards) ("Tag 3 auf dem Board")
+- Never interactive: no click handler and no focus, so it adds no drag-vs-click target
 -->
 <template>
   <span v-if="isVisible && decorative" class="carry-over-dots" aria-hidden="true" data-testid="carry-over-dots" :data-day="day">
@@ -17,7 +17,6 @@
     <span
       class="carry-over-dots"
       role="img"
-      tabindex="0"
       :aria-label="label"
       data-testid="carry-over-dots"
       :data-day="day"
@@ -60,8 +59,7 @@ const label = computed(() => t('task.carryOver.label', { n: props.day }))
 .carry-over-dots {
   display: inline-flex;
   /* The item that gives way in a footer row that is too narrow (#323, #584): the end of the dots is clipped.
-     The focus ring of the tab stop is drawn inside the box (see below), so the clip cannot cut it;
-     `overflow-clip-margin` would let it sit outside but WKWebView (Tauri macOS) lacks it. */
+     The dots take no focus (#27), so nothing outside the box needs to be drawn. */
   min-width: 0;
   overflow: hidden;
   align-items: center;
@@ -71,11 +69,6 @@ const label = computed(() => t('task.carryOver.label', { n: props.day }))
   border-radius: var(--ui-radius);
   color: var(--ui-text-muted);
   cursor: inherit;
-}
-
-.carry-over-dots:focus-visible {
-  outline: 2px solid var(--ui-primary);
-  outline-offset: -2px;
 }
 
 .carry-over-dot {

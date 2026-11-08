@@ -345,6 +345,24 @@ export function useTaskDeletion() {
     return true
   }
 
+  /** The newest delete that is still inside its undo window (#27); undo the one the user just did first. */
+  function latestOpenDeleteId(): string | null {
+    let latest: PendingTaskDelete | null = null
+    for (const pending of Object.values(tasksStore.pendingDeletes)) {
+      if (pending.state !== 'waiting' || !undoWindow.isOpen(pending.taskId)) continue
+      if (!latest || pending.requestedAt >= latest.requestedAt) latest = pending
+    }
+    return latest?.taskId ?? null
+  }
+
+  /** ⌘Z / Ctrl+Z (#27): undoes the newest delete in its window; false when there is none. */
+  function undoLatestDelete(): boolean {
+    const taskId = latestOpenDeleteId()
+    if (taskId === null) return false
+    undoDelete(taskId)
+    return true
+  }
+
   /**
    * Closes every pending delete without an open window: deletes left over from a closed app (they enter
    * the trash now) and deletes queued while offline. Call on board start and on reconnect.
@@ -360,6 +378,7 @@ export function useTaskDeletion() {
     deleteTaskWithUndo,
     resumePendingDeletes,
     undoDelete,
+    undoLatestDelete,
     pauseDelete: undoWindow.pause,
     resumeDelete: undoWindow.resume,
   }
