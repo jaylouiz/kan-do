@@ -65,6 +65,25 @@ test.describe('Mobile swipe axis lock', () => {
     await expect.poll(active).toEqual([2]);
   });
 
+  test('the page dots stay put on the Jetzt + Wartet page when the document scrolls, and are painted above the cards (#26)', async ({ page }) => {
+    await showColumnPage(page, 1);
+    await page.evaluate(() => {
+      const spacer = document.createElement('div');
+      spacer.style.height = '3000px';
+      document.querySelector('.column-group-mid')!.appendChild(spacer);
+      window.scrollTo(0, 400);
+    });
+    const dots = page.getByTestId('page-dots');
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(100);
+    const top = await dots.evaluate(el => el.getBoundingClientRect().top);
+    expect(top).toBe(0);
+    // Veiled and above the cards (pointer-events: none hides it from elementsFromPoint, so read the style)
+    const style = await dots.evaluate(el => ({ position: getComputedStyle(el).position, z: getComputedStyle(el).zIndex, bg: getComputedStyle(el).backgroundImage }));
+    expect(style.position).toBe('fixed');
+    expect(Number(style.z)).toBeGreaterThan(1);
+    expect(style.bg).toContain('linear-gradient');
+  });
+
   test('a vertical scroll never switches the page or moves the board', async ({ context, page }) => {
     const touch = finger(await context.newCDPSession(page), page);
     await touch.start(200, 600);
@@ -178,5 +197,22 @@ test.describe('Page dots on desktop (#26)', () => {
     await page.goto('/tasks');
     await expect(page.locator('#column-open')).toBeVisible();
     await expect(page.getByTestId('page-dots')).toBeHidden();
+  });
+});
+
+test.describe('Page dots under the focus overlay (#26)', () => {
+  test.use({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
+  test('the overlay paints above the dots, so they are dimmed with the board', async ({ context, page }) => {
+    await seedLocalBoard(context, SEED_TASKS, {}, undefined, { focus: true });
+    await page.goto('/tasks');
+    await showColumnPage(page, 1);
+    await expect(page.locator('.board')).toHaveAttribute('data-focus', '');
+    // Rendered before .board with the z-index dropped, so the board's stacking context (overlay inside) paints over the dots
+    const order = await page.evaluate(() => {
+      const dots = document.querySelector('[data-testid="page-dots"]')!;
+      const board = document.querySelector('.board')!;
+      return { before: !!(dots.compareDocumentPosition(board) & Node.DOCUMENT_POSITION_FOLLOWING), z: getComputedStyle(dots).zIndex };
+    });
+    expect(order).toEqual({ before: true, z: '0' });
   });
 });

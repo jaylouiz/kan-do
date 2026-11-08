@@ -23,6 +23,9 @@
     <!-- Stacks opening and closing (TaskStack), read out politely -->
     <div class="sr-only" role="status" aria-live="polite" aria-atomic="true">{{ stackAnnouncement }}</div>
     <img class="background-img" src="~/assets/img/plants.svg" alt="" aria-hidden="true">
+    <!-- Phone page indicator (#26): fixed to the viewport above the sliding pages, never interactive -->
+    <BoardPageDots :page="activeMobileTab" :offset-px="swipeOffsetPx" :live="isSwiping" />
+
     <div
       class="board"
       :class="{ 'dragging': isDragging, 'swiping': isSwiping }"
@@ -93,9 +96,6 @@
         </template>
       </BoardColumn>
     </div>
-
-    <!-- Phone page indicator (#26): fixed above the sliding pages, never interactive -->
-    <BoardPageDots :page="activeMobileTab" :offset-px="swipeOffsetPx" :live="isSwiping" />
 
     <!-- Mobile edge-scroll indicators: appear while dragging near the screen edge -->
     <template v-if="isDragging">

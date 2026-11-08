@@ -45,10 +45,16 @@ const progress = computed(() =>
 <style scoped>
 .page-dots {
   /* Under the status bar; the column pages reserve this strip (--page-dots-strip, board.css) */
-  position: absolute;
-  top: env(safe-area-inset-top, 0px);
+  /* Fixed to the viewport, not the board: the Jetzt + Wartet page scrolls the document, and fixed keeps the dots put on all
+     three pages. A page-coloured veil (like the app bar's, app-nav.css) keeps scrolled cards off the dots. Rendered before
+     .board: in focus mode board-focus-overlay.css drops the z-index so the overlay dims the dots with the rest. */
+  position: fixed;
+  top: 0;
   inset-inline: 0;
-  height: var(--page-dots-strip);
+  box-sizing: border-box;
+  height: calc(env(safe-area-inset-top, 0px) + var(--page-dots-strip));
+  padding-top: env(safe-area-inset-top, 0px);
+  background: linear-gradient(var(--ui-page-bg) 70%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
