@@ -106,7 +106,7 @@ Deep detail per subsystem lives in path-scoped rule files in [.claude/rules/](.c
 
 ## Quality gate
 
-GitHub Actions (`.github/workflows/ci.yml`) runs only when the maintainer starts it by hand; pull requests and pushes start no run. The local gate below is the check, and a pull request is not ready until it passes:
+GitHub Actions (`.github/workflows/ci.yml`) runs lint, typecheck, unit tests and the full E2E suite on every pull request and every push to `main` (docs-only changes skip). The local gate below is still the main one, and a pull request is not ready until it passes:
 
 ```bash
 npm run verify        # lint:ci + typecheck + design:detect + vitest (run before opening a PR)
@@ -131,7 +131,7 @@ PORT=3101 npm run test:e2e -- tests/e2e/task-detail.spec.ts --reporter=list
 - Visual baselines (`tests/e2e/snapshots/`, macOS-rendered, so the spec skips itself when `CI` is set): after an intentional UI change run `PORT=3101 npm run test:e2e -- tests/e2e/visual-regression.spec.ts --update-snapshots` and commit the PNGs. Never record them against a dev server.
 - Rust changes: `cargo test --lib` (see [.claude/rules/persistence.md](.claude/rules/persistence.md)).
 - Merging runs a tiered E2E set from a pre-merge hook (docs-only changes skip it; others run smoke plus the specs mapped to the touched area). List the specs you ran in the PR body as `E2E-specs: a b c`. Tier rules: [.claude/rules/e2e-gate.md](.claude/rules/e2e-gate.md).
-- Opt in to `npm run verify` before every push: `git config core.hooksPath .githooks`.
+- Opt in to checks before every push: `git config core.hooksPath .githooks` (`npm run verify`; in testing mode `fast` only the unit tests of changed code).
 
 Issue and PR numbers (`#n`) up to #704 in code, docs and commit history refer to the private archive of the project's earlier history, `jaylouiz/kan-do-archive`, which is not public.
 

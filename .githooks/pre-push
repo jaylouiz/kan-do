@@ -1,6 +1,34 @@
 #!/usr/bin/env bash
-# Opt-in: git config core.hooksPath .githooks
-# Runs the same checks as the CI `quality` job so a failing push never costs Actions minutes.
-# Bypass once with `git push --no-verify`.
+# Opt-in: git config core.hooksPath .githooks (worktrees share it). Checks a push before it reaches GitHub,
+# at the checkout's testing mode (#693, .claude/testing-mode; anything but `fast` is quality):
+#   quality: `npm run verify` (lint:ci, typecheck, design:detect, vitest run)
+#   fast:    the same, but only the unit tests of code changed against origin/main (as the Stop hook)
+# GitHub CI then runs everything in full on the PR and on main. Bypass once with `git push --no-verify`.
+# Skips branch deletions, proto/* (throwaway prototypes) and checkouts without node_modules.
+
+# Git runs hooks with GIT_DIR (and friends) set to this checkout. Tests that run git in a temp dir would then
+# write into this repository instead (a 2026-11-08 run set core.bare=true and a test identity in .git/config).
+# shellcheck disable=SC2046
+unset $(git rev-parse --local-env-vars)
+deleting_only=1
+while read -r _ local_sha _ _; do
+  [ "$local_sha" = 0000000000000000000000000000000000000000 ] || deleting_only=0
+done
+[ "$deleting_only" = 1 ] && exit 0
+case "$(git branch --show-current)" in proto/*) exit 0 ;; esac
 [ -d node_modules ] || exit 0
-exec npm run verify
+[ -d .nuxt ] || npx nuxt prepare >/dev/null 2>&1
+
+if [ "$(tr -d '[:space:]' 2>/dev/null <.claude/testing-mode)" != fast ]; then
+  echo "pre-push: testing mode quality, running npm run verify" >&2
+  exec npm run verify
+fi
+echo "pre-push: testing mode fast, unit tests of changed code only" >&2
+set -e
+npm run lint:ci
+npm run typecheck
+npm run design:detect
+if git rev-parse --verify --quiet origin/main >/dev/null; then
+  exec npx vitest run --changed origin/main --passWithNoTests
+fi
+exec npx vitest run
