@@ -110,6 +110,14 @@ describe('TaskCard open gesture (#111, #25)', () => {
     expect(w.emitted('open')).toEqual([['t1']])
   })
 
+  it('a click with a modifier held does not open: Ctrl+click is the context menu on macOS (#25)', async () => {
+    for (const modifier of ['ctrlKey', 'metaKey', 'shiftKey', 'altKey']) {
+      const w = render()
+      w.element.dispatchEvent(new MouseEvent('click', { [modifier]: true, bubbles: true }))
+      expect(w.emitted('open'), modifier).toBeUndefined()
+    }
+  })
+
   it('no longer reacts to dblclick: the click is the one gesture (#25)', async () => {
     const w = render()
     await w.trigger('dblclick')

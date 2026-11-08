@@ -54,6 +54,29 @@ describe('TaskSheet', () => {
     expect(wrapper.emitted('update:open')).toEqual([[false]])
   })
 
+  it('swallows an outside press right after opening (the second click of a double-click), not a later one (#25)', async () => {
+    const now = vi.spyOn(performance, 'now')
+    now.mockReturnValue(1000)
+    const wrapper = await mountSheet(false)
+    await wrapper.setProps({ open: true, hideTitle: true })
+    const content = wrapper.findComponent(UDrawer).vm.$attrs.content as { onPointerDownOutside: (e: Event) => void }
+    const early = new Event('pointerdown', { cancelable: true })
+    now.mockReturnValue(1400)
+    content.onPointerDownOutside(early)
+    expect(early.defaultPrevented).toBe(true)
+    const late = new Event('pointerdown', { cancelable: true })
+    now.mockReturnValue(1000 + 5000)
+    content.onPointerDownOutside(late)
+    expect(late.defaultPrevented).toBe(false)
+    // The add route is not opened by a card click: its overlay click is never swallowed
+    await wrapper.setProps({ hideTitle: false })
+    now.mockReturnValue(1100)
+    const add = new Event('pointerdown', { cancelable: true })
+    content.onPointerDownOutside(add)
+    expect(add.defaultPrevented).toBe(false)
+    now.mockRestore()
+  })
+
   it('gives the drawer footer the sheet-footer hook class', async () => {
     const wrapper = await mountSheet(true)
     const ui = wrapper.findComponent(UDrawer).vm.$attrs.ui as { footer?: string }

@@ -5,6 +5,7 @@
 @responsibility
 - Hosted by ResponsiveOverlay: a slideover (side right) at >=768px and a bottom drawer below; the shell owns the breakpoint, the frozen variant and the open/close echo guard
 - Focus on open (the drawer: ResponsiveOverlay moves it in, #566), focus trap and focus return come from reka's FocusScope
+- Detail route: ignores an outside pointer-down in the first moments after it opened: the second click of a double-click on a card lands on the overlay and must not dismiss the sheet (#25)
 - Keeps Escape inside an active inline editor (and the topic editor, #430) from closing the sheet
 - Falls back to the board when there is no trigger to return focus to (deep link)
 - After adding a task, focus goes to the saved card instead of the add slot (#125)
@@ -124,8 +125,11 @@ const findSavedCard = findSavedCardElement; // shared with the in-card add flow 
  * The temporary tabindex is removed on blur, so the board does not stay a click-focus target.
  */
 let opener: Element | null = null;
+/** `performance.now()` of the last open; the double-click guard below reads it. */
+let openedAt = Number.NEGATIVE_INFINITY;
 watch(() => props.open, (isOpen) => {
   if (!isOpen) return;
+  openedAt = performance.now();
   opener = document.activeElement;
   // A save target left over from a close that never reached onCloseAutoFocus must not steer this one
   takeReturnFocusTaskId();
@@ -171,5 +175,16 @@ const onOpenAutoFocus = (event: Event) => {
   if (event.target instanceof HTMLElement) event.target.focus({ preventScroll: true });
 };
 
-const contentProps = { onOpenAutoFocus, onEscapeKeyDown, onCloseAutoFocus };
+/**
+ * A card opens on click (#25). A person double-clicking it sends the second press 80-400 ms later, when the sheet's
+ * overlay is already over the card: reka reads that as a press outside and would dismiss the sheet. Within the OS
+ * double-click interval of the open (detail route), an outside press is that second click and is swallowed; later ones dismiss as usual.
+ */
+const DOUBLE_CLICK_GUARD_MS = 600;
+const onPointerDownOutside = (event: Event) => {
+  // Detail route only (`hideTitle`): the add route is not opened by a card click
+  if (props.hideTitle && performance.now() - openedAt < DOUBLE_CLICK_GUARD_MS) event.preventDefault();
+};
+
+const contentProps = { onOpenAutoFocus, onEscapeKeyDown, onCloseAutoFocus, onPointerDownOutside };
 </script>

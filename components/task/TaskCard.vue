@@ -296,10 +296,12 @@ onBeforeUnmount(() => footerObserver?.disconnect());
  * The one open gesture (#25): a click, a tap or Enter on the focused card (SortableTaskWrapper dispatches a click with
  * `detail` 0). Nothing opens while a drag runs or when the card's sheet is already open (the second click of a
  * double-click lands on the same card beside the sheet), nor for a card inside a collapsed stack or the rest of the
- * click sequence that expanded one (`shouldBlockModal`).
+ * click sequence that expanded one (`shouldBlockModal`). A click with Ctrl, Cmd, Shift or Alt held is not an open: on macOS
+ * Ctrl+click is the context menu's gesture, and the others stay free for selection.
  */
 const openDetails = (event: MouseEvent) => {
   if (props.readonly || dragState.value.isDragging || spotlightTaskId.value === props.task.id) return;
+  if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
   const target = event.currentTarget as HTMLElement;
 
   if (import.meta.dev) {

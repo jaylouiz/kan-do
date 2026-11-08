@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test'
 import { seedLocalBoard, type SeedTask } from './helpers/seed'
 import { pickUp, hover, dropSettled } from './helpers/dnd'
-import { flushFrames, focusUntilActive, settleAnimations, settleStack } from './helpers/settle'
+import { dwell, flushFrames, focusUntilActive, settleAnimations, settleStack } from './helpers/settle'
 
 /**
  * One open gesture for every pointer (#25): a click opens the task sheet on desktop too, a double-click opens it once,
@@ -70,6 +70,50 @@ test.describe('Card click opens (#25): plain cards', () => {
     await page.waitForURL(/\/tasks\/p2/)
     await settleAnimations(page)
     expect(await page.evaluate(() => history.length)).toBe(before + 1)
+  })
+
+  // page.dblclick() fires both clicks before the sheet's overlay mounts; a person's second click comes 80-400 ms later and
+  // lands on that overlay, which must not dismiss the sheet (review of #36)
+  for (const gap of [80, 150, 250, 400]) {
+    test(`a double-click with a ${gap} ms gap leaves the sheet open`, async ({ page }) => {
+      const box = (await face(page, 'p2').boundingBox())!
+      const x = box.x + box.width / 2
+      const y = box.y + box.height / 2
+      await page.mouse.move(x, y)
+      await page.mouse.click(x, y)
+      await page.waitForTimeout(gap)
+      await page.mouse.click(x, y)
+      await page.waitForURL(/\/tasks\/p2/)
+      await settleAnimations(page)
+      await dwell(page, 700) // a dismiss goes through the leave animation and a history step
+      await expect(page).toHaveURL(/\/tasks\/p2/)
+      await expect(page.getByRole('dialog')).toBeVisible()
+    })
+  }
+
+  // macOS Ctrl+click is the context menu's gesture (spec implementation note): it must not also open the sheet
+  for (const modifier of ['Control', 'Meta', 'Shift'] as const) {
+    test(`a ${modifier}+click does not open the sheet`, async ({ page }) => {
+      await face(page, 'p2').click({ modifiers: [modifier] })
+      await flushFrames(page)
+      await dwell(page, 300)
+      await noSheet(page)
+    })
+  }
+
+  test('Ctrl+click opens the context menu and no sheet', async ({ page }) => {
+    await face(page, 'p2').dispatchEvent('contextmenu', { ctrlKey: true, button: 0 })
+    await expect(page.getByRole('menu')).toBeVisible()
+    await noSheet(page)
+  })
+
+  test('a click on the overlay later still closes the sheet', async ({ page }) => {
+    await face(page, 'p2').click()
+    await page.waitForURL(/\/tasks\/p2/)
+    await settleAnimations(page)
+    await dwell(page, 700)
+    await page.mouse.click(40, 600)
+    await expect(page).toHaveURL(/\/tasks$/)
   })
 
   test('Enter on a focused card still opens the sheet', async ({ page }) => {
