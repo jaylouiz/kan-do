@@ -1232,6 +1232,9 @@
       "roleDescription": "Stack",
       "label": "{label}, switch with arrow keys"
     },
+    "switcher": {
+      "label": "Choose a deck"
+    },
     "archiveToggle": "Archive done tasks",
     "continue": "Continue to the board"
   },

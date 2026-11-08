@@ -20,7 +20,23 @@ vi.mock('~/store/taskStatistics', () => ({
 // Thursday 22 Oct 2026, 09:00 local
 const NOW = new Date(2026, 9, 22, 9, 0)
 
+/** Slot-rendering shell for UModal / UDrawer (jsdom has no portal or dialog support); emits like the real ones. */
+const OverlayShell = {
+  props: ['open', 'title', 'content', 'ui', 'close'],
+  emits: ['update:open', 'after:leave', 'after:enter'],
+  template: `<div v-if="open" role="dialog" :aria-label="title" :data-testid="content?.['data-testid']"><header><slot name="title" /><slot name="description" /></header><slot name="body" /><slot name="footer" /></div>`,
+}
+
+function setDesktop(matches: boolean) {
+  // Only the desktop breakpoint query matches; prefers-reduced-motion stays off
+  window.matchMedia = vi.fn((query: string) => ({
+    matches: matches && query.includes('min-width'), addEventListener: vi.fn(), removeEventListener: vi.fn(), addListener: vi.fn(), removeListener: vi.fn(),
+  })) as unknown as typeof window.matchMedia
+}
+
 const stubs = {
+  UModal: OverlayShell,
+  UDrawer: OverlayShell,
   TaskCard: { props: ['task'], template: '<div class="task-card">{{ task.title }}</div>' },
   USwitch: {
     inheritAttrs: false,
@@ -29,7 +45,7 @@ const stubs = {
     template: '<label><input type="checkbox" role="switch" :checked="modelValue" v-bind="$attrs" @change="$emit(\'update:modelValue\', $event.target.checked)" />{{ label }}</label>',
   },
   UButton: {
-    props: ['color', 'variant', 'size'],
+    props: ['color', 'variant', 'size', 'icon', 'trailingIcon'],
     template: '<button type="button" v-bind="$attrs"><slot /></button>',
   },
 }
@@ -62,6 +78,7 @@ describe('NewDayRecap', () => {
     setActivePinia(createPinia())
     resetNewDayRecap()
     setTestLocale('de')
+    setDesktop(true)
     toastAddMock.mockClear()
     document.body.innerHTML = ''
   })
@@ -77,15 +94,12 @@ describe('NewDayRecap', () => {
     expect(page()).toBeNull()
   })
 
-  it('is a labelled modal dialog with the headline and the partial sentence', async () => {
+  it('is hosted by the overlay, titled "Kurzer Rückblick", with the partial sentence', async () => {
     await open([doneAt(1, 'a'), doneAt(1, 'b'), task('o', TaskStatus.Open), task('w', TaskStatus.Waiting), task('j', TaskStatus.Progress)])
-    const dialog = page()!
-    expect(dialog.getAttribute('role')).toBe('dialog')
-    expect(dialog.getAttribute('aria-modal')).toBe('true')
-    const title = q('h1')
-    expect(dialog.getAttribute('aria-labelledby')).toBe(title.id)
-    expect(title.textContent).toContain('Kurzer Rückblick')
+    expect(q('[role="dialog"]').getAttribute('aria-label')).toBe('Kurzer Rückblick')
+    expect(q('header .font-display').textContent).toContain('Kurzer Rückblick')
     expect(q('[data-testid="recap-summary"]').textContent).toBe('Du hast gestern 2 von 5 Aufgaben erledigt.')
+    expect(wrapper!.findComponent({ name: 'ResponsiveOverlay' }).props('closeButton')).toBe(false)
   })
 
   it('reads "alle Aufgaben" and shows only the Erledigt deck when nothing is open', async () => {
@@ -109,7 +123,7 @@ describe('NewDayRecap', () => {
   it('has English copy', async () => {
     setTestLocale('en')
     await open([doneAt(3), task('o', TaskStatus.Open)])
-    expect(q('h1').textContent).toContain('Quick look back')
+    expect(q('header .font-display').textContent).toContain('Quick look back')
     expect(q('[data-testid="recap-summary"]').textContent).toBe('You got 1 of 2 tasks done on Monday.')
   })
 
@@ -290,11 +304,6 @@ describe('NewDayRecap', () => {
     expect(window.location.href).toBe(before)
   })
 
-  it('focuses "Weiter zum Board" on open', async () => {
-    await open([doneAt(1, 'a')])
-    expect(document.activeElement).toBe(q('[data-testid="recap-continue"]'))
-  })
-
   it('the switch writes the store at once', async () => {
     await open([doneAt(1, 'a')])
     const input = q<HTMLInputElement>('[data-testid="recap-archive-toggle"]')
@@ -314,9 +323,12 @@ describe('NewDayRecap', () => {
     expect(useNewDayRecap().isOpen.value).toBe(false)
   })
 
-  it('Escape does what the button does: archives when the switch is on, nothing when it is off', async () => {
+  /** Escape, scrim click and swipe down all reach the host as `update:open` = false. */
+  const dismiss = () => wrapper!.findComponent(OverlayShell).vm.$emit('update:open', false)
+
+  it('a dismissal (Escape, scrim, swipe) does what the button does: archives when the switch is on, nothing when it is off', async () => {
     await open([doneAt(1, 'a')])
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    dismiss()
     await nextTick()
     expect(useTasksStore().archivedTaskIds).toEqual(['a'])
 
@@ -327,21 +339,80 @@ describe('NewDayRecap', () => {
     toastAddMock.mockClear()
     await open([doneAt(1, 'a')])
     useDayRecapStore().setArchiveDone(false)
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    dismiss()
     await nextTick()
     expect(useTasksStore().archivedTaskIds).toEqual([])
     expect(toastAddMock).not.toHaveBeenCalled()
     expect(useNewDayRecap().isOpen.value).toBe(false)
   })
 
-  it('wraps Tab inside the page', async () => {
+  it('hands focus to the button on open and keeps the browser from restoring focus on close', async () => {
     await open([doneAt(1, 'a')])
-    const last = q('[data-testid="recap-continue"]')
-    last.focus()
-    const event = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true })
-    document.dispatchEvent(event)
+    const content = wrapper!.findComponent(OverlayShell).props('content') as Record<string, (e: Event) => void>
+    const event = new Event('focus', { cancelable: true })
+    content.onCloseAutoFocus!(event)
     expect(event.defaultPrevented).toBe(true)
-    expect(page()!.contains(document.activeElement)).toBe(true)
-    expect(document.activeElement).not.toBe(last)
+    const open2 = new Event('focus', { cancelable: true })
+    content.onOpenAutoFocus!(open2)
+    expect(open2.defaultPrevented).toBe(true)
+    expect(document.activeElement).toBe(q('[data-testid="recap-continue"]'))
+  })
+
+  describe('on a phone', () => {
+    beforeEach(() => setDesktop(false))
+    const pressed = () => [...document.querySelectorAll('[data-testid^="recap-switch-"]')].filter(b => b.getAttribute('aria-pressed') === 'true').map(b => b.getAttribute('data-testid'))
+    const decks = () => [...document.querySelectorAll('[data-testid^="recap-deck-"][role="group"]')].map(el => el.getAttribute('data-testid'))
+
+    it('shows one deck at a time, starting on "noch offen", and the switcher counts say what is in each', async () => {
+      await open([doneAt(1, 'a'), doneAt(1, 'b'), task('o', TaskStatus.Open)])
+      expect(q('[data-testid="recap-switch-undone"]').textContent?.trim()).toBe('1 noch offen')
+      expect(q('[data-testid="recap-switch-done"]').textContent?.trim()).toBe('2 erledigt')
+      expect(pressed()).toEqual(['recap-switch-undone'])
+      expect(decks()).toEqual(['recap-deck-undone'])
+
+      q('[data-testid="recap-switch-done"]').click()
+      await nextTick()
+      expect(pressed()).toEqual(['recap-switch-done'])
+      expect(decks()).toEqual(['recap-deck-done'])
+
+      q('[data-testid="recap-switch-undone"]').click()
+      await nextTick()
+      expect(decks()).toEqual(['recap-deck-undone'])
+    })
+
+    it('the shown deck keeps its name for assistive tech while its heading is visually hidden', async () => {
+      await open([doneAt(1, 'a'), task('o', TaskStatus.Open)])
+      const heading = q('[data-testid="recap-deck-label"]')
+      expect(heading.parentElement!.classList.contains('sr-only')).toBe(true)
+      expect(q('[data-testid="recap-deck-undone"]').closest('section')!.getAttribute('aria-labelledby')).toBe(heading.id)
+    })
+
+    it('with nothing open there is no switcher, only the done deck with its heading', async () => {
+      await open([doneAt(1, 'a'), doneAt(1, 'b')])
+      expect(document.querySelector('[data-testid^="recap-switch-"]')).toBeNull()
+      expect(decks()).toEqual(['recap-deck-done'])
+      expect(q('[data-testid="recap-deck-label"]').parentElement!.classList.contains('sr-only')).toBe(false)
+    })
+
+    it('a reopened recap starts on "noch offen" again', async () => {
+      await open([doneAt(1, 'a'), task('o', TaskStatus.Open)])
+      useDayRecapStore().setArchiveDone(false)
+      q('[data-testid="recap-switch-done"]').click()
+      await nextTick()
+      q('[data-testid="recap-continue"]').click()
+      await nextTick()
+      resetNewDayRecap()
+      useDayRecapStore().lastShownDay = '2020-01-01'
+      useNewDayRecap().check('tasks')
+      await nextTick()
+      await nextTick()
+      expect(pressed()).toEqual(['recap-switch-undone'])
+    })
+  })
+
+  it('on desktop both decks show side by side and there is no switcher', async () => {
+    await open([doneAt(1, 'a'), task('o', TaskStatus.Open)])
+    expect(document.querySelector('[data-testid^="recap-switch-"]')).toBeNull()
+    expect(document.querySelectorAll('[data-testid^="recap-deck-"][role="group"]')).toHaveLength(2)
   })
 })

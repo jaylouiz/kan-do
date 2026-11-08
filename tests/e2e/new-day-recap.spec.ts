@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
+import { settleAnimations } from './helpers/settle'
 import {
   MIXED_SEED_TASKS, atDaysAgo, dayKeyDaysAgo, newDayTasks, seedDayRecapStore, seedMixedBoard, seedNewDayBoard,
   type SeedTask,
@@ -11,6 +12,9 @@ const recap = (page: Page) => page.getByTestId('new-day-recap')
 const summary = (page: Page) => page.getByTestId('recap-summary')
 const continueButton = (page: Page) => page.getByTestId('recap-continue')
 const archiveSwitch = (page: Page) => page.getByTestId('recap-archive-toggle')
+/** The footer panel (container) that holds the switch and the button. */
+const panelOf = (page: Page) => archiveSwitch(page).locator('xpath=ancestor::div[contains(@class,"@container")][1]')
+const switcher = (page: Page, kind: 'done' | 'undone') => page.getByTestId(`recap-switch-${kind}`)
 const board = (page: Page) => page.locator('main[data-task-sheet-return]')
 const doneColumn = (page: Page) => page.locator('#column-done')
 const marker = (page: Page) =>
@@ -36,7 +40,7 @@ const frontTitle = (page: Page, kind: 'done' | 'undone') => deck(page, kind).loc
 async function layoutSnapshot(page: Page) {
   const box = async (locator: ReturnType<Page['locator']>) => (await locator.boundingBox())
   const parts = {
-    headline: recap(page).locator('h1'),
+    headline: recap(page).getByRole('heading', { name: 'Kurzer Rückblick' }),
     summary: summary(page),
     headingUndone: page.getByTestId('recap-deck-label').first(),
     headingDone: page.getByTestId('recap-deck-label').last(),
@@ -44,12 +48,23 @@ async function layoutSnapshot(page: Page) {
     deckDone: deck(page, 'done'),
     barUndone: deck(page, 'undone').locator('xpath=following-sibling::div[1]'),
     barDone: deck(page, 'done').locator('xpath=following-sibling::div[1]'),
-    panel: archiveSwitch(page).locator('xpath=ancestor::div[contains(@class,"ring")][1]'),
+    panel: panelOf(page),
   }
   const boxes: Record<string, unknown> = {}
   for (const [name, locator] of Object.entries(parts)) boxes[name] = await box(locator.first())
   const scroll = await recap(page).evaluate(el => ({ scrollHeight: el.scrollHeight, scrollWidth: el.scrollWidth, clientWidth: el.clientWidth, scrollTop: el.scrollTop }))
   return { boxes, scroll }
+}
+
+/** Boxes that must not move on a phone while the shown deck advances. */
+async function layoutSnapshot2(page: Page) {
+  const box = async (locator: ReturnType<Page['locator']>) => (await locator.boundingBox())
+  return {
+    deck: await box(deck(page, 'done')),
+    panel: await box(panelOf(page)),
+    drawer: await box(recap(page)),
+    page: await page.evaluate(() => [document.documentElement.scrollHeight, document.documentElement.scrollWidth]),
+  }
 }
 
 /** A done task with a long title, notes and topic: the deck height must not depend on it (#451). */
@@ -65,7 +80,6 @@ test.describe('New-day recap (#385)', () => {
 
     await expect(recap(page)).toBeVisible()
     await expect(recap(page)).toHaveAttribute('role', 'dialog')
-    await expect(recap(page)).toHaveAttribute('aria-modal', 'true')
     await expect(page.getByRole('dialog', { name: 'Kurzer Rückblick' })).toBeVisible()
     await expect(summary(page)).toHaveText('Du hast gestern 4 von 6 Aufgaben erledigt.')
     await expect(deck(page, 'done')).toHaveAccessibleName('4 erledigt, mit Pfeiltasten wechseln')
@@ -216,7 +230,7 @@ test.describe('New-day recap (#385)', () => {
   test('the submit panel groups switch and button: side by side when wide, the arrow icon after the label', async ({ page, context }) => {
     await seedNewDayBoard(context)
     await page.goto('/tasks')
-    const panel = archiveSwitch(page).locator('xpath=ancestor::div[contains(@class,"ring")][1]')
+    const panel = panelOf(page)
     const panelBox = (await panel.boundingBox())!
     const toggle = (await archiveSwitch(page).boundingBox())!
     const button = (await continueButton(page).boundingBox())!
@@ -354,6 +368,7 @@ test.describe('New-day recap (#385)', () => {
     await seedNewDayBoard(context, { tasks: [...newDayTasks(1), recapLongTask()] })
     await page.goto('/tasks')
     await expect(deck(page, 'done')).toBeVisible()
+    await settleAnimations(page) // the modal scales in: boxes are measured at rest
     const rest = await layoutSnapshot(page)
     expect(rest.scroll.scrollWidth).toBe(rest.scroll.clientWidth)
 
@@ -396,6 +411,8 @@ test.describe('New-day recap (#385)', () => {
   test('a long title, notes and topic do not change the deck or card height', async ({ page, context }) => {
     await seedNewDayBoard(context, { tasks: [...newDayTasks(1), recapLongTask()] })
     await page.goto('/tasks')
+    await expect(deck(page, 'done')).toBeVisible()
+    await settleAnimations(page) // the modal scales in: boxes are measured at rest
     const heights = new Set<number>()
     for (let i = 0; i < 5; i++) {
       heights.add(Math.round((await deck(page, 'done').boundingBox())!.height))
@@ -459,51 +476,59 @@ test.describe('New-day recap (#385)', () => {
   test.describe('390px', () => {
     test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true })
 
-    test('decks sit under each other, Offen first, and the submit panel stays pinned with the page scrolled', async ({ page, context }) => {
-      await seedNewDayBoard(context, { tasks: [...newDayTasks(1), ...Array.from({ length: 6 }, (_, i): SeedTask => ({
-        id: `nd-extra-${i}`, title: `Weitere erledigte Aufgabe ${i + 1}`, status: 3, priority: 3, timeSpentSeconds: 0, timeBoxSeconds: null, custom: {}, completedAt: atDaysAgo(1, 9, i),
-      }))] })
+    test('a drawer without scroll bar: one deck at a time under a switcher, the panel pinned, the page never scrolls', async ({ page, context }) => {
+      await seedNewDayBoard(context)
       await page.goto('/tasks')
 
-      const undone = (await deck(page, 'undone').boundingBox())!
-      const done = (await deck(page, 'done').boundingBox())!
-      expect(done.y).toBeGreaterThan(undone.y + undone.height - 1)
-      await expect(counter(page, 'done')).toHaveText('1 / 10')
+      await expect(recap(page)).toBeVisible()
+      await expect(recap(page)).toHaveAttribute('data-vaul-drawer', '')
+      const noScroll = () => page.evaluate(() => {
+        const body = document.querySelector('[data-testid="new-day-recap"] .overflow-y-auto') as HTMLElement
+        return { page: document.documentElement.scrollHeight <= innerHeight, pageX: document.documentElement.scrollWidth <= innerWidth, body: body.scrollHeight <= body.clientHeight }
+      })
+      expect(await noScroll()).toEqual({ page: true, pageX: true, body: true })
 
-      // The panel stacks: switch above, full-width button below, pinned in the viewport at every scroll position
+      // One deck, "noch offen" first; the switcher says how many are in each
+      await expect(switcher(page, 'undone')).toHaveText('2 noch offen')
+      await expect(switcher(page, 'done')).toHaveText('4 erledigt')
+      await expect(switcher(page, 'undone')).toHaveAttribute('aria-pressed', 'true')
+      await expect(deck(page, 'undone')).toBeVisible()
+      await expect(deck(page, 'done')).toHaveCount(0)
+      await expect(deck(page, 'undone')).toHaveAccessibleName('2 noch offen, mit Pfeiltasten wechseln')
+
+      await switcher(page, 'done').tap()
+      await expect(switcher(page, 'done')).toHaveAttribute('aria-pressed', 'true')
+      await expect(deck(page, 'done')).toBeVisible()
+      await expect(deck(page, 'undone')).toHaveCount(0)
+      expect(await noScroll()).toEqual({ page: true, pageX: true, body: true })
+
+      // The panel stacks in the thumb zone: switch above, full-width button below, both in view
       const button = continueButton(page)
       await expect(button).toBeInViewport({ ratio: 1 })
-      await expect(archiveSwitch(page)).toBeInViewport()
       const toggleBox = (await archiveSwitch(page).boundingBox())!
       const box = (await button.boundingBox())!
       expect(toggleBox.y + toggleBox.height).toBeLessThanOrEqual(box.y)
       expect(box.width).toBeGreaterThan(390 - 2 * 40)
-      await recap(page).evaluate(el => { el.scrollTop = el.scrollHeight })
-      await expect(button).toBeInViewport({ ratio: 1 })
-      await recap(page).evaluate(el => { el.scrollTop = 0 })
-      await expect(button).toBeInViewport({ ratio: 1 })
+      expect(box.y + box.height).toBeGreaterThan(844 * 0.8)
 
-      // a tap and a mouse drag past 80px advance; the page never overflows horizontally, nor does it move
-      const rest = await layoutSnapshot(page)
-      expect(rest.scroll.scrollWidth).toBe(rest.scroll.clientWidth)
-      await deck(page, 'done').scrollIntoViewIfNeeded()
-      const before = await layoutSnapshot(page)
+      // a tap and a mouse drag past 80px advance the deck without moving anything
+      const before = await layoutSnapshot2(page)
       await deck(page, 'done').tap({ position: { x: 140, y: 60 } })
-      await expect(counter(page, 'done')).toHaveText('2 / 10')
-      const mid = await layoutSnapshot(page)
-      expect(mid.scroll).toEqual(before.scroll)
-      expect(mid.boxes).toEqual(before.boxes)
-      const target = (await deck(page, 'done').boundingBox())!
-      await page.mouse.move(target.x + 60, target.y + 60)
-      await page.mouse.down()
-      await page.mouse.move(target.x + 220, target.y + 60, { steps: 5 })
-      expect((await layoutSnapshot(page)).scroll.scrollWidth).toBe(rest.scroll.clientWidth)
-      await page.mouse.up()
-      expect((await layoutSnapshot(page)).scroll.scrollWidth).toBe(rest.scroll.clientWidth) // fly-off
-      await expect(counter(page, 'done')).toHaveText('3 / 10')
+      await expect(counter(page, 'done')).toHaveText('2 / 4')
+      expect(await layoutSnapshot2(page)).toEqual(before)
 
       await button.tap()
       await expect(recap(page)).toBeHidden()
+    })
+
+    test('with nothing open there is no switcher, only the done deck', async ({ page, context }) => {
+      await seedNewDayBoard(context, { allDone: true })
+      await page.goto('/tasks')
+      await expect(deck(page, 'done')).toBeVisible()
+      await expect(switcher(page, 'undone')).toHaveCount(0)
+      await expect(switcher(page, 'done')).toHaveCount(0)
+      await expect(deck(page, 'undone')).toHaveCount(0)
+      await expect(continueButton(page)).toBeInViewport({ ratio: 1 })
     })
   })
 })
