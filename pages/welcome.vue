@@ -35,7 +35,7 @@
     <div class="top-safe-3 absolute inset-x-4 z-10 mx-auto max-w-3xl in-data-[shell=desktop]:pt-(--app-bar-offset-top)">
       <DataStorageNotice />
     </div>
-    <div class="welcome-sheet relative mt-40 w-full rounded-t-2xl bg-default p-6 shadow-lg sm:mt-0 sm:max-w-lg sm:rounded-2xl sm:p-10">
+    <div class="welcome-sheet relative mt-40 w-full rounded-t-2xl bg-default px-6 pt-6 shadow-lg sm:mt-0 sm:max-w-lg sm:rounded-2xl sm:px-10 sm:pt-10">
       <header class="mb-8">
         <p class="font-display tracking-display text-4xl leading-(--lh-tight) text-highlighted sm:text-5xl">{{ t('nav.brand') }}</p>
         <p class="mt-2 text-base text-default">{{ t('onboarding.page.tagline') }}</p>

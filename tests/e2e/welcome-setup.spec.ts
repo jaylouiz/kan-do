@@ -138,3 +138,33 @@ test('welcome: the small texts on the sheet keep AA contrast (#14)', async ({ pa
   await expectContrast(page, page.getByText(/^Version:/), 4.5)
   await expectContrast(page, page.getByText('Ein ruhiges Board für die Aufgaben des Tages.'), 4.5)
 })
+
+test('welcome sheet pads its bottom by the safe-area inset on a phone, 40px on desktop', async ({ page, baseURL }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto(baseURL! + '/welcome')
+  const sheet = page.locator('.welcome-sheet')
+  await expect(sheet).toBeVisible()
+  await expect.poll(() => sheet.evaluate((el) => getComputedStyle(el).paddingBottom)).toBe('24px')
+
+  // Emulate a 34px home indicator: rewrite the real rule in place (keeps its cascade layer), so a utility that
+  // out-ranks it would still win and the padding would stay 24px.
+  const rewritten = await page.evaluate(() => {
+    const walk = (rules: CSSRuleList): boolean => {
+      for (const rule of Array.from(rules)) {
+        const style = rule as CSSStyleRule
+        if (style.selectorText === '.welcome-sheet' && style.style.paddingBottom.includes('safe-area-inset-bottom')) {
+          style.style.paddingBottom = 'calc(1.5rem + 34px)'
+          return true
+        }
+        if ('cssRules' in rule && walk((rule as CSSGroupingRule).cssRules)) return true
+      }
+      return false
+    }
+    return Array.from(document.styleSheets).some((sheet) => walk(sheet.cssRules))
+  })
+  expect(rewritten).toBe(true)
+  await expect.poll(() => sheet.evaluate((el) => getComputedStyle(el).paddingBottom)).toBe('58px')
+
+  await page.setViewportSize({ width: 1280, height: 800 })
+  await expect.poll(() => sheet.evaluate((el) => getComputedStyle(el).paddingBottom)).toBe('40px')
+})
