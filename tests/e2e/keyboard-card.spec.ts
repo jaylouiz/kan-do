@@ -141,7 +141,7 @@ test.describe('Keyboard: delete the focused card (#579)', () => {
     await expect(wrapper(page, firstId)).toBeVisible();
   });
 
-  test.describe('context menu by key (#23)', () => {
+  test.describe('context menu by key (kd#23)', () => {
     const menu = (page: Page) => page.getByRole('menu');
 
     test('the Menu key opens the card menu, Esc closes it and focus is back on the card', async ({ page }) => {

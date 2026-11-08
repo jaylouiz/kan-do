@@ -81,7 +81,7 @@ test.describe('error states', () => {
   })
 })
 
-test.describe('welcome page (#14)', () => {
+test.describe('welcome page (kd#14)', () => {
   test('first run: wordmark, tagline, question and the two answers (1280)', async ({ page }) => {
     await page.goto('/welcome')
     await expect(page.getByTestId('welcome-choice-local')).toBeVisible()
@@ -118,7 +118,7 @@ test.describe('task sheet', () => {
   })
 })
 
-test.describe('task sheet: time spent row (#4)', () => {
+test.describe('task sheet: time spent row (kd#4)', () => {
   // A waiting task (no timer ticks): 30 of 60 min, with a Timebox
   const WAITING_WITH_TIME: SeedTask = {
     id: 'time-edit-1', title: 'Wartende Aufgabe', status: 2, priority: 1, activity: null, topic: null, topicColorCode: null,
@@ -163,7 +163,7 @@ test.describe('guided new card (#649)', () => {
     await seedLocalBoard(context, [
       ...SEED_TASKS,
       { ...SEED_TASKS[0]!, id: 'ncf-extra', title: 'Weitere', topic: 'Büro', activity: 'Abstimmung', status: 2 },
-      // a fourth topic, so the Mehr list holds a value behind the three pills (#16)
+      // a fourth topic, so the Mehr list holds a value behind the three pills (kd#16)
       { ...SEED_TASKS[0]!, id: 'ncf-extra-2', title: 'Noch eine', topic: 'Vertrieb', activity: 'Telefonat', status: 2 },
     ])
     await gotoBoard(page)
@@ -183,7 +183,7 @@ test.describe('guided new card (#649)', () => {
     const list = page.getByRole('group', { name: 'Thema?' }).last()
     await expect(list.getByRole('button', { name: 'Vertrieb' })).toBeVisible()
     await expect(list).toMatchAriaSnapshot({ name: 'new-card-all-options-1280.aria.yml' })
-    // typing a name no value has: the "Neu" row (#16)
+    // typing a name no value has: the "Neu" row (kd#16)
     await page.getByTestId('new-card-search').fill('Gartenpflege')
     await expect(page.getByTestId('new-card-new')).toBeVisible()
     await expect(list).toMatchAriaSnapshot({ name: 'new-card-search-new-1280.aria.yml' })

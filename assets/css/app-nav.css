@@ -2,7 +2,7 @@
  * Global app bar (#470, ADR 017): components/nav/AppNav.vue. Imported by main.css; components layer.
  *
  * Desktop (>=768px): a sticky row at the top, the group centred: the brand, one pill (the two places) and a round
- * ⋯ pill. Phone: the same pills float centred at the bottom, without the brand (#24: no backing, it printed over the cards). This file is the one place that declares the two
+ * ⋯ pill. Phone: the same pills float centred at the bottom, without the brand (kd#24: no backing, it printed over the cards). This file is the one place that declares the two
  * page offsets: `--app-bar-offset-top` (desktop) and `--phone-bar-offset` (phone); pages, the board and the
  * toaster read them instead of knowing the bar's geometry.
  *
@@ -156,7 +156,7 @@
   }
 
   /* The brand sits outside the grey pill (#642), first in the group, on the paper veil. It is a one-column grid so that
-     it is display:none on a phone (#24) */
+     it is display:none on a phone (kd#24) */
   .app-nav-brand {
     position: relative;
     display: grid;
@@ -375,7 +375,7 @@
       padding-inline: 0.75rem;
     }
 
-    /* The wordmark has no backing on a phone and would print over the cards scrolling under the bar (#24): it is not
+    /* The wordmark has no backing on a phone and would print over the cards scrolling under the bar (kd#24): it is not
        shown below 768px (display none: not focusable, not announced). Heute links to /tasks. The third segment
        tightens the segments' padding on the one timeline. */
     .app-nav-brand {

@@ -44,7 +44,7 @@ test.describe('Mobile swipe axis lock', () => {
     await expect.poll(() => activeColumnPage(page)).toBe(1);
   });
 
-  test('three non-interactive page dots follow the active page (#26)', async ({ context, page }) => {
+  test('three non-interactive page dots follow the active page (kd#26)', async ({ context, page }) => {
     const dots = page.getByTestId('page-dots');
     const active = () => page.locator('[data-testid="page-dots"] .page-dot[data-active]').evaluateAll(
       els => els.map(el => Array.from(el.parentElement!.children).indexOf(el)),
@@ -65,7 +65,7 @@ test.describe('Mobile swipe axis lock', () => {
     await expect.poll(active).toEqual([2]);
   });
 
-  test('the page dots stay put on the Jetzt + Wartet page when the document scrolls, and are painted above the cards (#26)', async ({ page }) => {
+  test('the page dots stay put on the Jetzt + Wartet page when the document scrolls, and are painted above the cards (kd#26)', async ({ page }) => {
     await showColumnPage(page, 1);
     await page.evaluate(() => {
       const spacer = document.createElement('div');
@@ -190,7 +190,7 @@ test.describe('Mobile swipe with a pinned clock', () => {
   });
 });
 
-test.describe('Page dots on desktop (#26)', () => {
+test.describe('Page dots on desktop (kd#26)', () => {
   test.use({ viewport: { width: 1280, height: 800 } });
   test('are not shown', async ({ context, page }) => {
     await seedLocalBoard(context, SEED_TASKS);
@@ -200,7 +200,7 @@ test.describe('Page dots on desktop (#26)', () => {
   });
 });
 
-test.describe('Page dots under the focus overlay (#26)', () => {
+test.describe('Page dots under the focus overlay (kd#26)', () => {
   test.use({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
   test('the overlay paints above the dots, so they are dimmed with the board', async ({ context, page }) => {
     await seedLocalBoard(context, SEED_TASKS, {}, undefined, { focus: true });

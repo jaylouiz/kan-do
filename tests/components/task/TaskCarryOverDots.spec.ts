@@ -20,7 +20,7 @@ describe('TaskCarryOverDots (#99, #121)', () => {
     expect(dots.findAll('.carry-over-dot')).toHaveLength(2)
     expect(dots.find('[data-testid="carry-over-count"]').exists()).toBe(false)
     expect(dots.attributes('aria-label')).toBe('Tag 2 auf dem Board')
-    expect(dots.attributes('tabindex')).toBeUndefined() // not a tab stop (#27)
+    expect(dots.attributes('tabindex')).toBeUndefined() // not a tab stop (kd#27)
     expect(wrapper.get('.tooltip').attributes('data-text')).toBe('Tag 2 auf dem Board')
   })
 

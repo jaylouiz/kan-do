@@ -4,7 +4,7 @@
 @usage Wraps content that switches between a read-only display view and an editable input view.
 @responsibility
 - Handle read/edit mode toggling
-- `required`: an empty value is never saved; Enter shows `requiredMessage` and stays in the editor, Esc and blur restore (#27)
+- `required`: an empty value is never saved; Enter shows `requiredMessage` and stays in the editor, Esc and blur restore (kd#27)
 - Emit update events on save
 - Provide slots for custom display and input components
 - Keyboard-reachable edit: the read-mode trigger is `role="button"` `tabindex="0"` named "<field>: <value>";
@@ -150,7 +150,7 @@ const props = withDefaults(defineProps<{
    */
   interactiveDisplay?: boolean;
   /**
-   * An empty value cannot be saved (#27): Enter keeps the editor open and shows `requiredMessage`; Escape and
+   * An empty value cannot be saved (kd#27): Enter keeps the editor open and shows `requiredMessage`; Escape and
    * leaving the field restore the old value. Needs `requiredMessage`.
    */
   required?: boolean;

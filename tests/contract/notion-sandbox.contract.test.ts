@@ -259,7 +259,7 @@ describe.skipIf(!enabled).each(['select', 'status'] as const)('NotionIntegration
     expect(await integration.getActiveBoardTasks()).toHaveLength(9)
   }, 60_000)
 
-  // #16: the new-card flow writes a typed value as a new select option; the property's own type decides the write shape
+  // kd#16: the new-card flow writes a typed value as a new select option; the property's own type decides the write shape
   it('writes a new topic (select) and a new activity (multi_select) as options; a name in another case reuses the option', async () => {
     const topic = `Frisch-${statusType}`
     const activity = `Neu-Akt-${statusType}`
@@ -277,7 +277,7 @@ describe.skipIf(!enabled).each(['select', 'status'] as const)('NotionIntegration
     expect(names(schema.properties['Aktivität']!.multi_select?.options).filter((name) => name.toLowerCase() === activity.toLowerCase())).toEqual([activity])
   }, 60_000)
 
-  // #39: an edit of Thema or Aktivität on an existing task is written; clearing is written; an unrelated update leaves them
+  // kd#39: an edit of Thema or Aktivität on an existing task is written; clearing is written; an unrelated update leaves them
   it('updateTask writes a changed and a cleared topic and activity, and leaves them on an unrelated update', async () => {
     const read = async (id: string) => summarizePage((await notion.pages.retrieve({ page_id: id })) as unknown as Record<string, unknown>)
     const created = await integration.createTask({ title: `Labeltest ${statusType}`, status: TaskStatus.Open, topic: `Alt-${statusType}`, activity: `Alt-Akt-${statusType}` })
@@ -307,7 +307,7 @@ describe.skipIf(!enabled).each(['select', 'status'] as const)('NotionIntegration
     expect(summarizePage((await notion.pages.retrieve({ page_id: task!.id })) as unknown as Record<string, unknown>)).toMatchObject({ status: 'Archiv' })
   }, 60_000)
 
-  it('a total the user set (#4) is written lowered and cleared; an ordinary push at 0 leaves the property alone', async () => {
+  it('a total the user set (kd#4) is written lowered and cleared; an ordinary push at 0 leaves the property alone', async () => {
     const created = await integration.createTask({ title: `Zeittest ${statusType}`, status: TaskStatus.Open })
 
     const raised = await integration.updateTask({ ...created, timeSpentSeconds: 1800 }, { timeEdited: true })

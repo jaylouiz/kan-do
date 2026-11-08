@@ -8,7 +8,7 @@ Speicher, and on desktop Updates and GitHub-Zugriff).
 `/settings/sources` redirects here.
 @usage Board gear, command palette "Einstellungen", the sync popover's "Verbindung reparieren"
 @responsibility
-- "Fokus": one switch row, "Jetzt-Karte im Fokus" (`settingsStore.focusEnabled`); takes effect on the board at once; on phone the 36×20 switch has a 44 px hit area (an invisible `::after`, #27)
+- "Fokus": one switch row, "Jetzt-Karte im Fokus" (`settingsStore.focusEnabled`); takes effect on the board at once; on phone the 36×20 switch has a 44 px hit area (an invisible `::after`, kd#27)
 - List Lokal (always) and the connected integrations as hairline rows; the default carries the "Standard" badge
 - "Als Standard festlegen" changes the default at once (`boardStore.setDefaultSource`)
 - Repair of a broken Notion (rejected token, missing config) opens the Notion setup at the token step

@@ -100,7 +100,7 @@ test.describe('timebox nudge on a card that lands in Jetzt (desktop)', () => {
     await nudgeBtn(page, '15 min').click()
 
     await expect(nudge(page)).toHaveCount(0)
-    await expect(page).toHaveURL(/\/tasks$/) // the answer is not also a click on the card (#25)
+    await expect(page).toHaveURL(/\/tasks$/) // the answer is not also a click on the card (kd#25)
     const card = jetzt(page).locator('.task')
     await expect(card.locator('[data-testid="task-progress-chip"] .chip__box')).toHaveText('15 min')
     await expect.poll(() => card.locator('.task-title-text').evaluate(el => getComputedStyle(el).opacity)).toBe('1')

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 import { seedLocalBoard, SEED_TASKS } from './helpers/seed'
 
 /**
- * Usability polish batch (#27): the sheet title cannot be emptied silently (U14), floating layers do not scale or
+ * Usability polish batch (kd#27): the sheet title cannot be emptied silently (U14), floating layers do not scale or
  * fade under reduced motion (U12), the Fokus switch has a 44 px hit area on phone (U16). The undo shortcut and the
  * pending delete in the trash (U10, U11) live in trash.spec.ts, the carry-over tab stop (U13) in carry-over.spec.ts.
  */

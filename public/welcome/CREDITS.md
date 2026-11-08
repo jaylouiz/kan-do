@@ -1,4 +1,4 @@
-# Welcome page photo (#14)
+# Welcome page photo (kd#14)
 
 `blinds-2000.webp` and `blinds-800.webp`: "blinds" by Pawel Czerwinski, https://unsplash.com/photos/TmxUTyL3pvg
 (beige wall with slatted-blind shadows).

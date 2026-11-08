@@ -45,7 +45,7 @@ test.describe('Carried-over cue (#99), local tasks', () => {
     })
   }
 
-  test('the dots show the meaning on hover and are not a tab stop (#27)', async ({ page, baseURL }) => {
+  test('the dots show the meaning on hover and are not a tab stop (kd#27)', async ({ page, baseURL }) => {
     await page.goto(`${baseURL}/tasks`)
     await expect(dots(page, 'seed-open-2')).not.toHaveAttribute('tabindex', /.*/)
     await dots(page, 'seed-open-2').hover()

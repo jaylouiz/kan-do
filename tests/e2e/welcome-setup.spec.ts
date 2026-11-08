@@ -131,7 +131,7 @@ test('"In Notion" -> setup on the stub -> Notion is connected and the default, o
   await expect(page.getByTestId('source-more-notion')).toHaveCount(0)
 })
 
-test('welcome: the small texts on the sheet keep AA contrast (#14)', async ({ page, baseURL }) => {
+test('welcome: the small texts on the sheet keep AA contrast (kd#14)', async ({ page, baseURL }) => {
   await page.goto(baseURL! + '/welcome')
   await expect(page.getByTestId('welcome-photo')).toHaveCSS('opacity', '1')
   await expectContrast(page, page.getByText('Weitere Verbindungen kannst du später'), 4.5)

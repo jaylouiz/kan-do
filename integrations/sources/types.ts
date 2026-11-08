@@ -44,7 +44,7 @@ export interface TaskSourceAdapter {
    * (Todoist completes, or reopens when it was `Done`; `useTaskSync` takes it from the task's `pendingSync.upstreamDone`
    * when there is one, so a replay after a restart reopens too, #344). Resolves to the task as the source now holds it (Notion), or
    * `null` when the source returns nothing to merge back (Todoist, Local). `change.timeEdited`: the user set the
-   * task's total time spent (#4), so a source that stores time writes it even at 0 (Notion clears the property).
+   * task's total time spent (kd#4), so a source that stores time writes it even at 0 (Notion clears the property).
    */
   update(task: Task, change?: { previousStatus?: TaskStatus; timeEdited?: boolean }): Promise<Task | null>
 

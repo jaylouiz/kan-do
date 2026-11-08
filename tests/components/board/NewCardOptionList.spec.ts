@@ -45,7 +45,7 @@ const names = () => w.findAll('button').map((button) => button.text())
 
 afterEach(() => w?.unmount())
 
-describe('NewCardOptionList (#16)', () => {
+describe('NewCardOptionList (kd#16)', () => {
   it('lists the values behind the pills and filters them by the typed text, any case', async () => {
     mountList()
     expect(names()).toEqual(['Büro', 'Kunde A', 'Kunde B'])

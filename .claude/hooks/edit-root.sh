@@ -4,7 +4,7 @@
 # and no Stop verification for it, because every hook keyed on $CLAUDE_PROJECT_DIR. Now each hook works in the
 # file's own checkout, and the Stop hook verifies every checkout the session edited.
 
-# Hook input is read through hook-input.sh (jq, else perl; #9), for this file and for every hook that sources it.
+# Hook input is read through hook-input.sh (jq, else perl; kd#9), for this file and for every hook that sources it.
 # shellcheck source=hook-input.sh
 . "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/hook-input.sh"
 

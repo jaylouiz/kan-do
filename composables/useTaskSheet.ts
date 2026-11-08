@@ -25,7 +25,7 @@ let returnFocusTaskId: string | null = null;
 const BACK_TIMEOUT_MS = 1500;
 
 /**
- * Leaves the sheet route without growing history (#22): `router.back()` when the entry before
+ * Leaves the sheet route without growing history (kd#22): `router.back()` when the entry before
  * the sheet is the board, else a replace (deep link, reload, opened from another page or sheet).
  */
 const leaveSheetRoute = async () => {

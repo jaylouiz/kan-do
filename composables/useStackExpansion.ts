@@ -19,7 +19,7 @@ const expandedByStatus = ref<Record<number, string[]>>({});
 /**
  * Armed by a pointer expand, so the rest of that click sequence cannot open a sheet: a double-click
  * (or double-tap) on a collapsed stack expands it with the first click, and the second click lands on
- * the first member (a card opens on click, #25). Event-scoped, no timer: see `shouldBlockModal`.
+ * the first member (a card opens on click, kd#25). Event-scoped, no timer: see `shouldBlockModal`.
  */
 let postExpandArmed = false;
 

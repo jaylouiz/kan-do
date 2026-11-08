@@ -415,7 +415,7 @@ describe('NotionIntegration – priority mapping and time parsing edge cases', (
     expect(body.properties[propertyMapping.timeSpent].number).toBe(1.5)
   })
 
-  it('clears the time property when the user set the total to 0 (#4); an ordinary push at 0 leaves it alone', async () => {
+  it('clears the time property when the user set the total to 0 (kd#4); an ordinary push at 0 leaves it alone', async () => {
     const jsonMock = vi.fn().mockResolvedValue({ ok: true })
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: jsonMock }))
     const ni = makeSutWithUnit('minutes')
@@ -1045,7 +1045,7 @@ describe('NotionIntegration.createTask', () => {
   })
 })
 
-describe('NotionIntegration.createTask: topic and activity in the property type (#16)', () => {
+describe('NotionIntegration.createTask: topic and activity in the property type (kd#16)', () => {
   const mapping = { ...propertyMapping, topic: 'Thema', activity: 'Aktivität' }
   const task = { title: 'T', topic: 'Frisch', activity: 'Neu-Akt', status: TaskStatus.Open, priority: 2 } as any
 

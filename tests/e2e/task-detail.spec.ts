@@ -145,7 +145,7 @@ const mockTasks = [
   },
   {
     id: 'test-task-8',
-    // Waiting, 30 min 5 s tracked: the edit field shows whole minutes and must not round the total by itself (#4)
+    // Waiting, 30 min 5 s tracked: the edit field shows whole minutes and must not round the total by itself (kd#4)
     title: 'Wartende Aufgabe mit krummer Zeit',
     status: 2, // Waiting
     priority: 2,
@@ -314,7 +314,7 @@ test.describe('Task Detail View', () => {
     });
   });
 
-  // #22: closing the sheet must not stack a /tasks entry
+  // kd#22: closing the sheet must not stack a /tasks entry
   test('closing a sheet opened from the board returns by history: Back leaves the board, not into the sheet', async ({ page, baseURL }) => {
     await page.goto(`${baseURL}/tasks`);
     // The click may land before hydration attached the handler: retry it until the route changes
@@ -397,7 +397,7 @@ test.describe('Task Detail View', () => {
     // Task 2 is unplanned (isUnplanned: true)
     await expect.soft(page.getByText('Ungeplant').first(), 'shows unplanned status for ad-hoc task').toBeVisible();
 
-    // no separate time block and no ring (#4): the time spent is a property row, empty reads "+ hinzufügen"
+    // no separate time block and no ring (kd#4): the time spent is a property row, empty reads "+ hinzufügen"
     await expect.soft(page.getByTestId('time-stats-data'), 'no time block: time-stats-data').not.toBeAttached();
     await expect.soft(page.locator('[data-section="time-stats"]'), 'no time block: section').toHaveCount(0);
     await expect.soft(page.getByRole('button', { name: 'Aufgewendete Zeit: + hinzufügen' }), 'time spent row: empty state').toBeVisible();
@@ -426,7 +426,7 @@ test.describe('Task Detail View', () => {
     await expect.soft(page.getByRole('button', { name: /^Timebox: 1 h/ }), 'time spent row: timebox row').toBeVisible();
   });
 
-  test.describe('editing the time spent (#4)', () => {
+  test.describe('editing the time spent (kd#4)', () => {
     const openRow = async (page: Page, baseURL: string | undefined, id: string) => {
       await page.goto(`${baseURL}/tasks/${id}`);
       const row = page.getByTestId('task-property-row').filter({ hasText: 'Aufgewendete Zeit' });
@@ -704,7 +704,7 @@ test.describe('Task Detail View', () => {
       await expect(page.getByRole('button', { name: 'Timebox: 25 min' })).toBeVisible();
     });
 
-    test('Esc in the timebox field cancels instead of saving the typed value (#12)', async ({ page, baseURL }) => {
+    test('Esc in the timebox field cancels instead of saving the typed value (kd#12)', async ({ page, baseURL }) => {
       await openSheet(page, baseURL, 'test-task-2');
 
       const trigger = page.getByRole('button', { name: /^Timebox: / });

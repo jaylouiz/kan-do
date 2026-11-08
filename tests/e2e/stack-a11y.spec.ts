@@ -207,7 +207,7 @@ test('an outside click closes the stack, a click inside it does not', async ({ p
   await expect(member(page, 'a1')).toBeVisible()
   await settleStack(page)
 
-  // A click on a member opens its sheet (#25) and leaves the group expanded
+  // A click on a member opens its sheet (kd#25) and leaves the group expanded
   await member(page, 'a2').locator('.task').click()
   await page.waitForURL(/\/tasks\/a2/)
   await expect(page.locator('#column-open-list [data-from-stack="Design"]')).toHaveCount(3)

@@ -4,7 +4,7 @@ import { pickUp, hover, dropSettled } from './helpers/dnd'
 import { dwell, flushFrames, focusUntilActive, settleAnimations, settleStack } from './helpers/settle'
 
 /**
- * One open gesture for every pointer (#25): a click opens the task sheet on desktop too, a double-click opens it once,
+ * One open gesture for every pointer (kd#25): a click opens the task sheet on desktop too, a double-click opens it once,
  * a drag release and a click on a collapsed stack open nothing, Enter still opens. The hover lift shows on a pointer
  * that can hover and not on touch. Drags use page.mouse (docs/testing/e2e-dnd-patterns.md).
  */
@@ -52,7 +52,7 @@ async function cardClicksDuring(page: Page, run: () => Promise<void>) {
   return page.evaluate(() => (window as unknown as { __cardClicks: number }).__cardClicks)
 }
 
-test.describe('Card click opens (#25): plain cards', () => {
+test.describe('Card click opens (kd#25): plain cards', () => {
   test.beforeEach(async ({ context, page }) => {
     await seedLocalBoard(context, PLAIN)
     await page.goto('/tasks')
@@ -73,7 +73,7 @@ test.describe('Card click opens (#25): plain cards', () => {
   })
 
   // page.dblclick() fires both clicks before the sheet's overlay mounts; a person's second click comes 80-400 ms later and
-  // lands on that overlay, which must not dismiss the sheet (review of #36)
+  // lands on that overlay, which must not dismiss the sheet (review of kd#36)
   for (const gap of [80, 150, 250, 400]) {
     test(`a double-click with a ${gap} ms gap leaves the sheet open`, async ({ page }) => {
       const box = (await face(page, 'p2').boundingBox())!
@@ -184,7 +184,7 @@ test.describe('Card click opens (#25): plain cards', () => {
   })
 })
 
-test.describe('Card click opens (#25): stacks', () => {
+test.describe('Card click opens (kd#25): stacks', () => {
   test.beforeEach(async ({ context, page }) => {
     await seedLocalBoard(context, STACKED, {}, { enabled: true, key: 'topic' })
     await page.goto('/tasks')
@@ -226,7 +226,7 @@ test.describe('Card click opens (#25): stacks', () => {
   })
 })
 
-test.describe('Card click opens (#25): touch', () => {
+test.describe('Card click opens (kd#25): touch', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true })
 
   test('a tap opens the sheet and the card has no hover lift', async ({ context, page }) => {

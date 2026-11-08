@@ -9,7 +9,7 @@
 - App-Update only in the desktop app (`isTauri()`, absent in the web build, never disabled)
 - Sync footer: a failing source shows its worst problem (title, hint, "Verbindung reparieren") above "Jetzt synchronisieren" + last sync; silent while every source is healthy
 - While a sync runs (manual or background) the row's second line reads "Wird synchronisiert…" (spinner from the button's `loading`), so the accessible name carries the state, and a sibling `role="status"` announces it (#647)
-- Board, desktop only: "Befehle" with the palette shortcut hint opens the command palette (U7 of #17: the hint was tooltip-only; the palette has no phone entry). AppNav closes the panel and returns focus to ⋯ first, like `dayClose`
+- Board, desktop only: "Befehle" with the palette shortcut hint opens the command palette (U7 of kd#17: the hint was tooltip-only; the palette has no phone entry). AppNav closes the panel and returns focus to ⋯ first, like `dayClose`
 - Keyboard: ↑/↓ move focus to the previous/next enabled control (clamped, no wrap), Home/End to the first/last; Tab order and roles stay (a popover, not role=menu)
 - Emits `close` when a navigation row is chosen and `dayClose` for "Tag abschließen": AppNav closes the panel and returns focus to ⋯ first, then opens the dialog
 -->

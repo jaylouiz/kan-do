@@ -12,7 +12,7 @@ input=$(cat)
 # shellcheck source=hook-input.sh
 . "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/hook-input.sh"
 if ! cmd=$(hook_command "$input"); then
-  # Neither jq nor perl's JSON::PP could read the input (#2): never wave a possible merge through.
+  # Neither jq nor perl's JSON::PP could read the input (kd#2): never wave a possible merge through.
   # Any `merge` in the raw input counts: a quoted or encoded `gh` (`$'\x67h'`) is not visible to a text check.
   printf '%s' "$input" | grep -Fiq merge && { echo "e2e-before-merge: cannot read the hook input (no working jq, and perl's JSON::PP failed), and the input mentions merge (any text, a plain git merge too). Install jq (brew install jq), then retry." >&2; exit 2; }
   exit 0
@@ -47,7 +47,7 @@ if [ "$parse_status" -ne 0 ]; then
   exit 0
 fi
 [ -n "$parsed" ] || exit 0
-# Everything below reads GitHub's answers with jq: without it the gate cannot decide, so it blocks (#2).
+# Everything below reads GitHub's answers with jq: without it the gate cannot decide, so it blocks (kd#2).
 command -v jq >/dev/null 2>&1 || { echo "e2e-before-merge: jq is missing, so the E2E gate cannot run. Install it (brew install jq), then retry the merge." >&2; exit 2; }
 if [ "$(printf '%s' "$parsed" | sed -n 3p)" = REST:unresolved ]; then
   echo "e2e-before-merge: the REST merge path has no literal PR number (a variable, a substitution or not plain digits), so the gate cannot tell which PR it merges. Write the number into the path: gh api -X PUT repos/<owner>/<repo>/pulls/<n>/merge ..." >&2
@@ -71,7 +71,7 @@ cd "${CLAUDE_PROJECT_DIR:-.}" || exit 0
 # One row per run for the workflow retro (agent-workflow `workflow-retro`, profile "Retro"): date, hook, ref, tier, specs, seconds, result, flaky.
 log_check() {
   local f
-  # KANDO_CHECKS_LEDGER overrides the file (tests must not write fake rows into the real retro metrics, #10).
+  # KANDO_CHECKS_LEDGER overrides the file (tests must not write fake rows into the real retro metrics, kd#10).
   f="${KANDO_CHECKS_LEDGER:-$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)/agent-ledgers/checks.tsv}" || return 0
   mkdir -p "${f%/*}" && (IFS=$'\t'; printf '%s\t%s\n' "$(date '+%F %T')" "$*") >>"$f"
 }
