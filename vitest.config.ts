@@ -13,7 +13,7 @@ export default defineConfig({
   },
   test: {
     globals: true,
-    setupFiles: ['tests/setup/i18n.ts'],
+    setupFiles: ['tests/setup/git-env.ts', 'tests/setup/i18n.ts'],
     environment: 'jsdom',
     // Server API tests opt into Node via a `// @vitest-environment node` docblock
     // (`environmentMatchGlobs` was removed in Vitest 4).
