@@ -159,6 +159,25 @@ export class NotionIntegration {
     }
   }
 
+  /**
+   * Puts a topic or activity into `target` when it differs from what the page holds (#39): names compared trimmed
+   * and case-insensitive, an empty local value against a held one clears it. The write shape is the property's own
+   * type (`labelPropertyType`), `fallbackType` when it cannot be told, as `createTask` does.
+   */
+  private async writeChangedLabel(
+    target: Record<string, unknown>,
+    heldProperties: Record<string, unknown> | undefined,
+    propertyName: string,
+    value: string | null | undefined,
+    fallbackType: LabelPropertyType,
+  ): Promise<void> {
+    const held = this.readTopicProperty(heldProperties?.[propertyName] as NotionTopicProperty | undefined).text?.trim() || null;
+    const wanted = value?.trim() || null;
+    if ((held?.toLowerCase() ?? null) === (wanted?.toLowerCase() ?? null)) return;
+    const type = await this.labelPropertyType(propertyName);
+    target[propertyName] = this.labelValue(type ?? fallbackType, wanted);
+  }
+
   /** `{ property, select|status: { equals } }`: one status filter condition for the detected type. */
   private statusFilter(type: StatusPropertyType, name: string) {
     return type === 'status'
@@ -760,6 +779,10 @@ export class NotionIntegration {
       const priorityProperty = this.propertyMapping.priority;
       const priorityName = priorityProperty ? this.getPriorityName(task.priority) : '';
       const needsPriorityCheck = Boolean(priorityProperty && priorityName);
+      // Thema and Aktivität (#39): written only when the value Notion holds differs from the local one, so an
+      // unrelated push never rewrites them (a multi_select with several values reads back as "A, B", which must
+      // not become one new option). The page read is the same one as above.
+      const labelProperties = [this.propertyMapping.topic, this.propertyMapping.activity].filter((name): name is string => Boolean(name));
 
       // Determine which properties need merging (multi_select properties that might have external values)
       const mergeMultiSelectProperties: string[] = [];
@@ -773,9 +796,15 @@ export class NotionIntegration {
 
       // Handle multi_select merge if needed
       const finalProperties = properties as Record<string, unknown>;
-      if (mergeMultiSelectProperties.length > 0 || needsPriorityCheck) {
-        // Fetch current page to merge multi_select values and to compare the priority
+      if (mergeMultiSelectProperties.length > 0 || needsPriorityCheck || labelProperties.length > 0) {
+        // Fetch current page to merge multi_select values and to compare the priority and the labels
         const currentPage = await this.api.getPage(externalId);
+        if (this.propertyMapping.topic) {
+          await this.writeChangedLabel(finalProperties, currentPage.properties, this.propertyMapping.topic, task.topic, 'rich_text');
+        }
+        if (this.propertyMapping.activity) {
+          await this.writeChangedLabel(finalProperties, currentPage.properties, this.propertyMapping.activity, task.activity, 'multi_select');
+        }
         if (needsPriorityCheck && priorityProperty) {
           const heldSelect = currentPage.properties?.[priorityProperty] as { select?: { name?: string | null } | null } | undefined;
           if (notionNameToPriority(heldSelect?.select?.name, this.priorityMapping) !== normalizePriority(task.priority)) {
