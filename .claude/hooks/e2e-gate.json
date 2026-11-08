@@ -440,8 +440,9 @@
       ]
     },
     {
-      "area": "timebox: suggestion nudge, presets, progress chip and its memory",
+      "area": "timebox: suggestion nudge, presets, progress chip and its memory; carry-over dots (their tab stops are in the chip spec's Tab walk)",
       "paths": [
+        "components/task/TaskCarryOverDots.vue",
         "composables/useTimeboxSuggestion*",
         "lib/timeboxChipMemory.ts",
         "types/timeboxSuggestion.ts",
