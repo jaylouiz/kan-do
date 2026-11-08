@@ -92,7 +92,7 @@
           </button>
         </UTooltip>
         <template #content>
-          <MorePanel @close="open = false" @day-close="closeAndOpenDayClose" />
+          <MorePanel @close="open = false" @day-close="closeAndOpenDayClose" @commands="closeAndOpenCommands" />
         </template>
       </UPopover>
     </div>
@@ -103,6 +103,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useMediaQuery } from '@vueuse/core'
+import { openCommandPalette } from '~/composables/useCommandPalette'
 import MorePanel from '~/components/nav/MorePanel.vue'
 import { useAppNav, useLiveRoute, type ThirdItem } from '~/composables/useAppNav'
 import { useNavIndicator } from '~/composables/useNavIndicator'
@@ -304,5 +305,16 @@ async function closeAndOpenDayClose() {
   await nextTick()
   moreEl.value?.focus({ preventScroll: true })
   openDayClose()
+}
+
+/** Same hand-over for the command palette; it refuses to open while another dialog (the closing popover) is in the DOM */
+async function closeAndOpenCommands() {
+  open.value = false
+  await nextTick()
+  moreEl.value?.focus({ preventScroll: true })
+  for (let i = 0; i < 30 && document.querySelector('[data-testid="more-panel"]'); i++) {
+    await new Promise<void>(resolve => requestAnimationFrame(() => resolve()))
+  }
+  openCommandPalette()
 }
 </script>

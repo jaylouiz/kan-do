@@ -186,6 +186,19 @@ function findFocusedCard(): HTMLElement | null {
   return active instanceof HTMLElement ? active.closest<HTMLElement>('.task-wrapper[data-task-id]') : null
 }
 
+/** Opens unless the board is busy (keyboard drag in progress) or another sheet is open. Shared by the shortcut and the ⋯ panel row. */
+export function openCommandPalette(): void {
+  if (!import.meta.client || isOpen.value) return
+  if (document.querySelector('.board.dragging, .kando-dnd-dragged')) return
+  if (document.querySelector('[role="dialog"]')) return
+  const card = findFocusedCard()
+  focusedTaskId.value = card?.dataset.taskId ?? null
+  returnFocusTo = (document.activeElement instanceof HTMLElement ? document.activeElement : null)
+  skipFocusRestore = false
+  afterLeave = null
+  isOpen.value = true
+}
+
 export function useCommandPalette(handlers: Pick<PaletteActions, 'openStatistics' | 'openSettings'>) {
   const { t } = useI18n()
   const tasksStore = useTasksStore()
@@ -199,19 +212,6 @@ export function useCommandPalette(handlers: Pick<PaletteActions, 'openStatistics
   const appUpdater = useAppUpdater()
   const feedback = isTauri() ? useFeedback() : null
   const whatsNew = useWhatsNew()
-
-  /** Opens unless the board is busy (keyboard drag in progress) or another sheet is open. */
-  function open(): void {
-    if (!import.meta.client || isOpen.value) return
-    if (document.querySelector('.board.dragging, .kando-dnd-dragged')) return
-    if (document.querySelector('[role="dialog"]')) return
-    const card = findFocusedCard()
-    focusedTaskId.value = card?.dataset.taskId ?? null
-    returnFocusTo = (document.activeElement instanceof HTMLElement ? document.activeElement : null)
-    skipFocusRestore = false
-    afterLeave = null
-    isOpen.value = true
-  }
 
   /** Called after the close animation: returns focus to the card unless a command navigated away. */
   function restoreFocus(): void {
@@ -288,5 +288,5 @@ export function useCommandPalette(handlers: Pick<PaletteActions, 'openStatistics
 
   const hasCard = computed(() => !!focusedTaskId.value && !!tasksStore.task(focusedTaskId.value))
 
-  return { isOpen, groups, hasCard, open, restoreFocus }
+  return { isOpen, groups, hasCard, open: openCommandPalette, restoreFocus }
 }

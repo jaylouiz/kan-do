@@ -709,3 +709,34 @@ test.describe('App bar: resize and routes without a bar', () => {
     }
   })
 })
+
+/** Issue #23 (U5): the ⋯ panel looks like a menu, so ↑/↓/Home/End move through its controls. */
+test.describe('App bar: arrow keys in the Mehr panel (#23)', () => {
+  test.beforeEach(async ({ context, page }) => {
+    await seedLocalBoard(context)
+    await page.goto('/tasks')
+    await expect(appNav(page)).toBeVisible()
+  })
+
+  test('↑/↓ step through the controls without wrapping, Home/End jump to the ends', async ({ page }) => {
+    const panel = await openMore(page)
+    const controls = panel.locator('button:not([disabled]), a[href]')
+    const count = await controls.count()
+    expect(count).toBeGreaterThan(3)
+    const first = controls.first()
+    const last = controls.nth(count - 1)
+    await first.focus()
+    await page.keyboard.press('ArrowDown')
+    await expect(controls.nth(1)).toBeFocused()
+    await page.keyboard.press('ArrowUp')
+    await expect(first).toBeFocused()
+    await page.keyboard.press('ArrowUp')
+    await expect(first).toBeFocused()
+    await page.keyboard.press('End')
+    await expect(last).toBeFocused()
+    await page.keyboard.press('ArrowDown')
+    await expect(last).toBeFocused()
+    await page.keyboard.press('Home')
+    await expect(first).toBeFocused()
+  })
+})
