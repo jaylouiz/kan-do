@@ -202,9 +202,11 @@ test.describe('New-day recap (#385)', () => {
     const violations = async () => (await new AxeBuilder({ page }).include('[data-testid="new-day-recap"]').analyze())
       .violations.map(v => `${v.id}: ${v.help} ${JSON.stringify(v.nodes.map(n => n.html.slice(0, 200)))}`)
     await expect(deck(page, 'done')).toBeVisible()
+    await settleAnimations(page) // the modal scales and fades in: axe samples contrast at rest
     expect(await violations()).toEqual([])
     await nextChevron(page, 'done').click()
     await expect(counter(page, 'done')).toHaveText('2 / 4')
+    await settleAnimations(page)
     expect(await violations()).toEqual([])
   })
 
@@ -231,6 +233,8 @@ test.describe('New-day recap (#385)', () => {
     await seedNewDayBoard(context)
     await page.goto('/tasks')
     const panel = panelOf(page)
+    await expect(panel).toBeVisible()
+    await settleAnimations(page) // the modal scales in: boxes are measured at rest
     const panelBox = (await panel.boundingBox())!
     const toggle = (await archiveSwitch(page).boundingBox())!
     const button = (await continueButton(page).boundingBox())!
