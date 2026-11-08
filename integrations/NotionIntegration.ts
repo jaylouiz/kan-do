@@ -175,11 +175,13 @@ export class NotionIntegration {
   ): Promise<void> {
     const heldProperty = heldProperties?.[propertyName] as NotionTopicProperty | undefined;
     const held = this.readTopicProperty(heldProperty).text?.trim() || null;
+    const same = (a: string | null, b: string | null) => (a?.toLowerCase() ?? null) === (b?.toLowerCase() ?? null);
+    if (same(held, value?.trim() || null)) return; // nothing to write: no schema read
     const type = (await this.labelPropertyType(propertyName)) ?? fallbackType;
     // A select or multi_select option name takes the source's rules (no comma, 100 characters), as the new-card flow cleans it
     let wanted = value?.trim() || null;
     if (wanted && type !== 'rich_text') wanted = cleanNewValue(wanted, fieldsForSource('notion').newValues!) || null;
-    if ((held?.toLowerCase() ?? null) === (wanted?.toLowerCase() ?? null)) return;
+    if (same(held, wanted)) return;
     // A multi-value Aktivität reads as "A, B" (several options): a local label with a comma is that flattened text, possibly
     // stale, and no option name. Writing it would be one option that Notion rejects, so leave the property alone.
     const heldCount = (heldProperty as { multi_select?: unknown[] } | undefined)?.multi_select?.length ?? 0;
