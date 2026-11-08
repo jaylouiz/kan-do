@@ -277,6 +277,27 @@ describe.skipIf(!enabled).each(['select', 'status'] as const)('NotionIntegration
     expect(names(schema.properties['Aktivität']!.multi_select?.options).filter((name) => name.toLowerCase() === activity.toLowerCase())).toEqual([activity])
   }, 60_000)
 
+  // #39: an edit of Thema or Aktivität on an existing task is written; clearing is written; an unrelated update leaves them
+  it('updateTask writes a changed and a cleared topic and activity, and leaves them on an unrelated update', async () => {
+    const read = async (id: string) => summarizePage((await notion.pages.retrieve({ page_id: id })) as unknown as Record<string, unknown>)
+    const created = await integration.createTask({ title: `Labeltest ${statusType}`, status: TaskStatus.Open, topic: `Alt-${statusType}`, activity: `Alt-Akt-${statusType}` })
+
+    const topic = `Geaendert-${statusType}`
+    const activity = `Geaendert-Akt-${statusType}`
+    const changed = await integration.updateTask({ ...created, topic, activity })
+    expect(changed.topic).toBe(topic)
+    expect(changed.activity).toBe(activity)
+    expect(await read(created.id)).toMatchObject({ thema: topic, activity: [activity] })
+
+    await integration.updateTask({ ...changed, status: TaskStatus.Progress })
+    expect(await read(created.id)).toMatchObject({ thema: topic, activity: [activity] })
+
+    const cleared = await integration.updateTask({ ...changed, topic: null, activity: null })
+    expect(cleared.topic).toBeNull()
+    expect(cleared.activity).toBeNull()
+    expect(await read(created.id)).toMatchObject({ thema: null, activity: [] })
+  }, 60_000)
+
   it('archives through the archive status and finds the task with the archive filter', async () => {
     const [task] = await integration.getActiveBoardTasks()
     await integration.updateTask({ ...task!, archivedAt: new Date() })
