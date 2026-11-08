@@ -4,6 +4,7 @@ import { setActivePinia, createPinia } from 'pinia'
 import { onMounted } from 'vue'
 import TaskCard from '~/components/task/TaskCard.vue'
 import { TaskStatus } from '~/types/taskStatus'
+import { useBoardDragState } from '~/composables/useBoardDragState'
 import type { Task } from '~/types/task'
 
 // TaskCard reads the done confirmation (#124) from the board store
@@ -18,8 +19,9 @@ vi.mock('~/composables/useStackExpansion', () => ({
     shouldBlockModal: (event: MouseEvent) => blocked.value && event.detail >= blocked.minDetail,
   }),
 }))
+const spotlight = vi.hoisted(() => ({ value: null as string | null }))
 vi.mock('~/composables/useSheetSpotlight', () => ({
-  useSheetSpotlight: () => ({ spotlightTaskId: { value: null } }),
+  useSheetSpotlight: () => ({ spotlightTaskId: spotlight }),
 }))
 vi.stubGlobal('onMounted', onMounted)
 window.matchMedia = ((q: string) => ({ matches: false, media: q })) as unknown as typeof window.matchMedia
@@ -46,16 +48,20 @@ const render = (attrs: Record<string, unknown> = {}) =>
     global: { stubs: { UCard: { template: '<div><slot /><slot name="footer" /></div>' }, UBadge: true, TaskProgressChip: true, 'task-priority-badge': true, TaskCarryOverDots: true } },
   })
 
-describe('TaskCard open gesture (#111)', () => {
+const { dragState } = useBoardDragState()
+
+describe('TaskCard open gesture (#111, #25)', () => {
   beforeEach(() => {
     blocked.value = false
     blocked.minDetail = 0
     navigateTo.mockClear()
+    spotlight.value = null
+    dragState.value.isDragging = false
   })
 
-  it('emits open with the task id on dblclick and does not navigate itself', async () => {
+  it('emits open with the task id on click and does not navigate itself', async () => {
     const w = render()
-    await w.trigger('dblclick')
+    await w.trigger('click')
     expect(w.emitted('open')).toEqual([['t1']])
     expect(navigateTo).not.toHaveBeenCalled()
   })
@@ -63,7 +69,7 @@ describe('TaskCard open gesture (#111)', () => {
   it('does not emit open while a stack has just expanded', async () => {
     blocked.value = true
     const w = render()
-    await w.trigger('dblclick')
+    await w.trigger('click')
     expect(w.emitted('open')).toBeUndefined()
   })
 
@@ -71,16 +77,59 @@ describe('TaskCard open gesture (#111)', () => {
     blocked.value = true
     blocked.minDetail = 2
     const w = render()
-    w.element.dispatchEvent(new MouseEvent('dblclick', { detail: 2, bubbles: true }))
+    w.element.dispatchEvent(new MouseEvent('click', { detail: 2, bubbles: true }))
     expect(w.emitted('open')).toBeUndefined()
-    // Enter on a member dispatches a synthetic dblclick with detail 0
-    w.element.dispatchEvent(new MouseEvent('dblclick', { detail: 0, bubbles: true }))
+    // Enter on a member dispatches a synthetic click with detail 0
+    w.element.dispatchEvent(new MouseEvent('click', { detail: 0, bubbles: true }))
     expect(w.emitted('open')).toEqual([['t1']])
   })
 
   it('does not emit open for a card inside a collapsed stack', async () => {
     const w = render({ 'data-stack-index': 0 })
+    await w.trigger('click')
+    expect(w.emitted('open')).toBeUndefined()
+  })
+  it('does not open while a drag runs (#25)', async () => {
+    dragState.value.isDragging = true
+    const w = render()
+    await w.trigger('click')
+    expect(w.emitted('open')).toBeUndefined()
+  })
+
+  it('does nothing for the card whose sheet is already open, so a double-click opens once (#25)', async () => {
+    spotlight.value = 't1'
+    const w = render()
+    await w.trigger('click')
+    expect(w.emitted('open')).toBeUndefined()
+  })
+
+  it('opens another card while a sheet is open (#25)', async () => {
+    spotlight.value = 'other'
+    const w = render()
+    await w.trigger('click')
+    expect(w.emitted('open')).toEqual([['t1']])
+  })
+
+  it('a click with a modifier held does not open: Ctrl+click is the context menu on macOS (#25)', async () => {
+    for (const modifier of ['ctrlKey', 'metaKey', 'shiftKey', 'altKey']) {
+      const w = render()
+      w.element.dispatchEvent(new MouseEvent('click', { [modifier]: true, bubbles: true }))
+      expect(w.emitted('open'), modifier).toBeUndefined()
+    }
+  })
+
+  it('no longer reacts to dblclick: the click is the one gesture (#25)', async () => {
+    const w = render()
     await w.trigger('dblclick')
+    expect(w.emitted('open')).toBeUndefined()
+  })
+
+  it('a trash entry (readonly) never opens (#422)', async () => {
+    const w = mount(TaskCard, {
+      props: { task, readonly: true },
+      global: { stubs: { UCard: { template: '<div><slot /><slot name="footer" /></div>' }, UBadge: true, TaskProgressChip: true, 'task-priority-badge': true, TaskCarryOverDots: true } },
+    })
+    await w.trigger('click')
     expect(w.emitted('open')).toBeUndefined()
   })
 })

@@ -125,11 +125,12 @@ test('Space picks the whole stack up instead of opening it (#150); Esc puts it b
 })
 
 test('a held Enter opens the stack once and no task sheet (#156)', async ({ page }) => {
-  // Enter on a member opens the sheet through a synthetic dblclick, dispatched synchronously in the
+  // Enter on a member opens the sheet through a synthetic click (detail 0), dispatched synchronously in the
   // keydown. Counting it catches a missing repeat guard even before the sheet's route resolves.
   await page.evaluate(() => {
-    (window as unknown as { dblclicks: number }).dblclicks = 0
-    document.addEventListener('dblclick', () => { (window as unknown as { dblclicks: number }).dblclicks++ }, true)
+    (window as unknown as { openClicks: number }).openClicks = 0
+    // The keyboard's open click has no pointer behind it (detail 0) and does not bubble: count it in the capture phase
+    document.addEventListener('click', (event) => { if (event.detail === 0) (window as unknown as { openClicks: number }).openClicks++ }, true)
   })
   await control(page).focus()
   // A second keyboard.down of a key that is already down is an auto-repeat (event.repeat)
@@ -144,7 +145,7 @@ test('a held Enter opens the stack once and no task sheet (#156)', async ({ page
   // nothing is waited out. Settle instead of sleeping: two frames let the key events and any navigation they caused run,
   // then every finite animation (the sheet's open transition) has finished
   await settleAnimations(page)
-  expect(await page.evaluate(() => (window as unknown as { dblclicks: number }).dblclicks)).toBe(0)
+  expect(await page.evaluate(() => (window as unknown as { openClicks: number }).openClicks)).toBe(0)
   await expect(page).not.toHaveURL(/\/tasks\/a1/)
   await expect(page.locator('#column-open-list [data-from-stack="Design"]')).toHaveCount(3)
 })
@@ -206,7 +207,13 @@ test('an outside click closes the stack, a click inside it does not', async ({ p
   await expect(member(page, 'a1')).toBeVisible()
   await settleStack(page)
 
+  // A click on a member opens its sheet (#25) and leaves the group expanded
   await member(page, 'a2').locator('.task').click()
+  await page.waitForURL(/\/tasks\/a2/)
+  await expect(page.locator('#column-open-list [data-from-stack="Design"]')).toHaveCount(3)
+  await page.keyboard.press('Escape')
+  await expect(page).toHaveURL(/\/tasks$/)
+  await expect(page.getByRole('dialog')).toHaveCount(0)
   await expect(page.locator('#column-open-list [data-from-stack="Design"]')).toHaveCount(3)
 
   await page.locator('#column-open-list .task-wrapper[data-task-id="u1"] .task').click()

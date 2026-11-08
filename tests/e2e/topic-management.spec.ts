@@ -470,7 +470,7 @@ for (const vp of VIEWPORTS) {
       await expect(card(page, 'tm-open')).toBeVisible()
       // The card's handlers attach at mount: repeat the open gesture until the route changes
       await expect(async () => {
-        await page.evaluate(() => document.querySelector('.task[data-task-id="tm-open"]')?.dispatchEvent(new MouseEvent('dblclick', { bubbles: true })))
+        await page.evaluate(() => document.querySelector('.task[data-task-id="tm-open"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true })))
         await expect(page).toHaveURL(/\/tasks\/tm-open$/, { timeout: 1000 })
       }).toPass()
       await openEditorFromPicker(page, 'Wrk')
@@ -483,7 +483,7 @@ for (const vp of VIEWPORTS) {
       expect((await storedTopics(page)).find(([id]) => id === 'tm-open')?.[1]).toBe('Wrk')
       // Nothing is left locked by a half-closed drawer: the body takes pointer events, a card opens the sheet again
       expect(await page.evaluate(() => getComputedStyle(document.body).pointerEvents)).not.toBe('none')
-      await page.evaluate(() => document.querySelector('.task[data-task-id="tm-home"]')?.dispatchEvent(new MouseEvent('dblclick', { bubbles: true })))
+      await page.evaluate(() => document.querySelector('.task[data-task-id="tm-home"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true })))
       await expect(page).toHaveURL(/\/tasks\/tm-home$/)
       await page.getByTestId('task-topic-select').click()
       await expect(page.getByRole('option', { name: /Wrk/ })).toBeVisible()

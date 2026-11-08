@@ -24,7 +24,7 @@ for (const viewport of [{ name: 'desktop', width: 1280, height: 800 }, { name: '
       await expect(card(page, OPEN_ID)).toBeAttached()
       for (const id of OTHER_IDS) expect(await opacity(page, id)).toBe(1)
 
-      await page.evaluate((id) => document.querySelector<HTMLElement>(`.task[data-task-id="${id}"]`)?.dispatchEvent(new MouseEvent('dblclick', { bubbles: true })), OPEN_ID)
+      await page.evaluate((id) => document.querySelector<HTMLElement>(`.task[data-task-id="${id}"]`)?.dispatchEvent(new MouseEvent('click', { bubbles: true })), OPEN_ID)
       await expect(page.getByRole('dialog')).toBeVisible()
       for (const id of OTHER_IDS) await expect.poll(() => opacity(page, id)).toBeLessThan(0.6)
       expect(await opacity(page, OPEN_ID)).toBe(1)

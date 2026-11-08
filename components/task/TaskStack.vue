@@ -38,7 +38,6 @@
     :data-stack-task-ids="preview ? undefined : stackTaskIdsAttr"
     :aria-hidden="preview ? 'true' : undefined"
     @click="!preview && emit('expand', 'pointer', $event)"
-    @dblclick.stop
   >
     <!-- The one control of the stack, and the sortable's handle. A sibling of the cards, not their
          container: axe's label-in-name rule (WCAG 2.5.3) would demand the cards' visible text in a

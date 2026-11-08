@@ -317,9 +317,9 @@ test.describe('Task Detail View', () => {
   // #22: closing the sheet must not stack a /tasks entry
   test('closing a sheet opened from the board returns by history: Back leaves the board, not into the sheet', async ({ page, baseURL }) => {
     await page.goto(`${baseURL}/tasks`);
-    // The dblclick may land before hydration attached the handler: retry it until the route changes
+    // The click may land before hydration attached the handler: retry it until the route changes
     await expect(async () => {
-      await page.evaluate(() => document.querySelector<HTMLElement>('.task[data-task-id="test-task-7"]')?.dispatchEvent(new MouseEvent('dblclick', { bubbles: true })));
+      await page.evaluate(() => document.querySelector<HTMLElement>('.task[data-task-id="test-task-7"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true })));
       await expect(page).toHaveURL(/\/tasks\/test-task-7$/, { timeout: 1000 });
     }).toPass({ timeout: 10000 });
     await expect(page.getByTestId('task-property-list')).toBeVisible();

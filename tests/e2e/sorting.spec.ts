@@ -266,13 +266,7 @@ test.describe('Board Sorting', () => {
       const startY = dragBox.y + dragBox.height / 2;
       await page.mouse.move(startX, startY);
       
-      // Click first to ensure focus/interactivity
-      await page.mouse.down();
-      await page.mouse.up();
-      await page.waitForTimeout(100);
-
-      // Start drag
-      await page.mouse.move(startX, startY);
+      // Start drag (a plain press and release would open the task sheet, #25)
       await page.mouse.down();
       await page.waitForTimeout(500); // Increased wait for drag init
       

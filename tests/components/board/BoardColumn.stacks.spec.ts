@@ -276,7 +276,7 @@ describe('BoardColumn: expanded stacks (#147)', () => {
   it('a held Enter expands once and opens no sheet: the repeats land on the first member (#156)', async () => {
     mountColumn()
     const sheet = vi.fn()
-    document.addEventListener('dblclick', sheet)
+    document.addEventListener('click', sheet, true)
     await control().trigger('keydown', { key: 'Enter' })
     await flush()
     const member = wrapper!.find('.task-wrapper[data-task-id="a1"]')
@@ -285,7 +285,7 @@ describe('BoardColumn: expanded stacks (#147)', () => {
     // the key repeats on the focused member
     await member.trigger('keydown', { key: 'Enter', repeat: true })
     await member.trigger('keydown', { key: 'Enter', repeat: true })
-    document.removeEventListener('dblclick', sheet)
+    document.removeEventListener('click', sheet, true)
 
     expect(sheet).not.toHaveBeenCalled()
     expect(items()).toEqual(['u1', 'a1', 'a2', 'a3', 'b1'])
@@ -296,9 +296,9 @@ describe('BoardColumn: expanded stacks (#147)', () => {
     mountColumn()
     await expandWithClick()
     const sheet = vi.fn()
-    document.addEventListener('dblclick', sheet)
+    document.addEventListener('click', sheet, true)
     await wrapper!.find('.task-wrapper[data-task-id="a1"]').trigger('keydown', { key: 'Enter' })
-    document.removeEventListener('dblclick', sheet)
+    document.removeEventListener('click', sheet, true)
     expect(sheet).toHaveBeenCalledOnce()
   })
 
