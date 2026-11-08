@@ -242,7 +242,7 @@ test.describe('desktop, mouse', () => {
   test('the task sheet turns it off and closing it brings it back', async ({ page }) => {
     await openBoard(page)
     await expectOn(page)
-    await page.locator('#column-open .task-wrapper').first().dblclick()
+    await page.locator('#column-open .task-wrapper').first().click()
     await expect(page).toHaveURL(/\/tasks\/seed-open-/)
     await expectAbsent(page)
     await page.keyboard.press('Escape')

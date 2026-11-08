@@ -21,6 +21,8 @@
   spring, around the card for ~0.9 s; decorative, none under reduced motion
 - Timebox nudge (#389): a Jetzt card without a timebox shows the in-card question (board store
   `timeboxNudgeTaskId`); its own content is hidden under it (`task--nudged`, rules in TaskTimeboxNudge)
+- Opens the task sheet on a click or tap (#25, one gesture for every pointer; Enter via SortableTaskWrapper), lifts to the
+  hovered shadow under a hovering pointer; a collapsed stack's cards never open
 - Provides drag-and-drop styling
 - `readonly` (#422): the card of a trash entry. Same face, but no task id on the DOM (board selectors never match it), no
   open gesture and no pointer cursor; a card that came back from an undo plays its grow-back (`task--returning`)
@@ -34,8 +36,7 @@
     :data-sheet-active="spotlightTaskId === task.id ? '' : undefined"
     variant="task"
     :ui="cardUi"
-    @click="handleCardClick"
-    @dblclick="openDetails"
+    @click="openDetails"
   >
     <!-- Done (#124): the teal corner check, with or without a timebox -->
     <span
@@ -137,6 +138,7 @@ import { useLocaleFormat } from "~/composables/useLocaleFormat";
 import { useBoardStore, DONE_CONFIRMATION_MS } from "~/store/board";
 import { useStackExpansion } from "~/composables/useStackExpansion";
 import { useSheetSpotlight } from "~/composables/useSheetSpotlight";
+import { useBoardDragState } from "~/composables/useBoardDragState";
 import TaskProgressChip from "~/components/task/TaskProgressChip.vue";
 import TaskCarryOverDots from "~/components/task/TaskCarryOverDots.vue";
 import TaskSourceIcon from "~/components/task/TaskSourceIcon.vue";
@@ -153,6 +155,7 @@ import { integrationLabel, isIntegrationSourceId } from "~/lib/taskSources";
 defineOptions({ name: "TaskCard" });
 
 const { spotlightTaskId } = useSheetSpotlight();
+const { dragState } = useBoardDragState();
 
 const props = withDefaults(
   defineProps<{
@@ -184,8 +187,6 @@ const { shouldBlockModal } = useStackExpansion();
 
 /** Carried-over cue (#99): board days this not-done card has stayed on the board. */
 const { displayDay: carryOverDay } = useTaskCarryOver(() => props.task);
-
-const isTouchDevice = ref(false);
 
 const computeTaskClass = (): string =>
   "task-" + TaskStatus[props.task.status].toLowerCase();
@@ -287,26 +288,20 @@ onMounted(() => {
       footerObserver.observe(el);
     }
   }
-  if (import.meta.client) {
-    isTouchDevice.value = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
-  }
 });
 
 onBeforeUnmount(() => footerObserver?.disconnect());
 
 /**
- * On touch devices a single tap opens the detail view.
- * On desktop, single-click is ignored (double-click opens details).
+ * The one open gesture (#25): a click, a tap or Enter on the focused card (SortableTaskWrapper dispatches a click with
+ * `detail` 0). Nothing opens while a drag runs or when the card's sheet is already open (the second click of a
+ * double-click lands on the same card beside the sheet), nor for a card inside a collapsed stack or the rest of the
+ * click sequence that expanded one (`shouldBlockModal`). A click with Ctrl, Cmd, Shift or Alt held is not an open: on macOS
+ * Ctrl+click is the context menu's gesture, and the others stay free for selection.
  */
-const handleCardClick = (event: MouseEvent) => {
-  if (props.readonly) return;
-  if (isTouchDevice.value) {
-    openDetails(event);
-  }
-};
-
 const openDetails = (event: MouseEvent) => {
-  if (props.readonly) return;
+  if (props.readonly || dragState.value.isDragging || spotlightTaskId.value === props.task.id) return;
+  if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
   const target = event.currentTarget as HTMLElement;
 
   if (import.meta.dev) {
@@ -388,6 +383,15 @@ const openDetails = (event: MouseEvent) => {
 
 .task:not(.kando-dnd-placeholder) {
   box-shadow: var(--shadow-task);
+}
+
+/* Hover (#25): the card is a click target, so it lifts to the "sheet hovered" shadow under a pointer that can hover.
+   Not on a trash entry or the add-sheet draft, not while a drag runs (dnd.css owns the dragged look), and never inside
+   a collapsed stack (TaskStack pins its cards to the resting shadow) or on the lit Jetzt card (focus overlay). */
+@media (hover: hover) {
+  .board:not(.dragging) .task:not(.task--readonly, .task--draft, .kando-dnd-placeholder):hover {
+    box-shadow: var(--shadow-task-hover);
+  }
 }
 
 /* A trash entry (#422) is a picture of the card, not a control */

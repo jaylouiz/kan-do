@@ -66,14 +66,15 @@ const { isDragging } = useColumnSortable(
 
 /**
  * Enter opens details. dnd-kit's keyboard sensor only starts on Space (see useBoardAnnouncements),
- * so Enter reaches us. Reuses TaskCard's dblclick handler to keep the stack/animation guards in one place.
+ * so Enter reaches us. Dispatches a click (detail 0) on the card, so TaskCard's open handler keeps the stack/drag
+ * guards in one place. It does not bubble: the board's outside-click listeners must not take a key press for a pointer click.
  */
 function openDetails(event: KeyboardEvent) {
   // A held Enter repeats: the one that expanded a stack lands here on its first member, and a
   // repeat must not open the sheet
   if (event.repeat) return
   event.preventDefault()
-  element.value?.querySelector<HTMLElement>('.task')?.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }))
+  element.value?.querySelector<HTMLElement>('.task')?.dispatchEvent(new MouseEvent('click'))
 }
 
 const { deleteTaskWithUndo } = useTaskDeletion()

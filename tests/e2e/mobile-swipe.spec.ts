@@ -44,6 +44,46 @@ test.describe('Mobile swipe axis lock', () => {
     await expect.poll(() => activeColumnPage(page)).toBe(1);
   });
 
+  test('three non-interactive page dots follow the active page (#26)', async ({ context, page }) => {
+    const dots = page.getByTestId('page-dots');
+    const active = () => page.locator('[data-testid="page-dots"] .page-dot[data-active]').evaluateAll(
+      els => els.map(el => Array.from(el.parentElement!.children).indexOf(el)),
+    );
+    await expect(dots.locator('.page-dot')).toHaveCount(3);
+    expect(await dots.evaluate(el => getComputedStyle(el).pointerEvents)).toBe('none');
+    await expect(dots).toHaveAttribute('aria-hidden', 'true');
+    await expect.poll(active).toEqual([0]);
+
+    const touch = finger(await context.newCDPSession(page), page);
+    await touch.start(300, 400);
+    await touch.moveTo(80, 410, 12);
+    await touch.end();
+    await expect.poll(() => activeColumnPage(page)).toBe(1);
+    await expect.poll(active).toEqual([1]);
+
+    await showColumnPage(page, 2);
+    await expect.poll(active).toEqual([2]);
+  });
+
+  test('the page dots stay put on the Jetzt + Wartet page when the document scrolls, and are painted above the cards (#26)', async ({ page }) => {
+    await showColumnPage(page, 1);
+    await page.evaluate(() => {
+      const spacer = document.createElement('div');
+      spacer.style.height = '3000px';
+      document.querySelector('.column-group-mid')!.appendChild(spacer);
+      window.scrollTo(0, 400);
+    });
+    const dots = page.getByTestId('page-dots');
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(100);
+    const top = await dots.evaluate(el => el.getBoundingClientRect().top);
+    expect(top).toBe(0);
+    // Veiled and above the cards (pointer-events: none hides it from elementsFromPoint, so read the style)
+    const style = await dots.evaluate(el => ({ position: getComputedStyle(el).position, z: getComputedStyle(el).zIndex, bg: getComputedStyle(el).backgroundImage }));
+    expect(style.position).toBe('fixed');
+    expect(Number(style.z)).toBeGreaterThan(1);
+    expect(style.bg).toContain('linear-gradient');
+  });
+
   test('a vertical scroll never switches the page or moves the board', async ({ context, page }) => {
     const touch = finger(await context.newCDPSession(page), page);
     await touch.start(200, 600);
@@ -147,5 +187,42 @@ test.describe('Mobile swipe with a pinned clock', () => {
     expect(new Date(first).toDateString()).toBe(pinnedNow().toDateString());
     expect(first).toBeGreaterThanOrEqual(pinned.getTime());
     await expect.poll(() => page.evaluate(() => Date.now())).toBeGreaterThan(first);
+  });
+});
+
+test.describe('Page dots on desktop (#26)', () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+  test('are not shown', async ({ context, page }) => {
+    await seedLocalBoard(context, SEED_TASKS);
+    await page.goto('/tasks');
+    await expect(page.locator('#column-open')).toBeVisible();
+    await expect(page.getByTestId('page-dots')).toBeHidden();
+  });
+});
+
+test.describe('Page dots under the focus overlay (#26)', () => {
+  test.use({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
+  test('the overlay paints above the dots, so they are dimmed with the board', async ({ context, page }) => {
+    await seedLocalBoard(context, SEED_TASKS, {}, undefined, { focus: true });
+    await page.goto('/tasks');
+    await showColumnPage(page, 1);
+    await expect(page.locator('.board')).toHaveAttribute('data-focus', '');
+    // Rendered before .board with the z-index dropped, so the board's stacking context (overlay inside) paints over the dots
+    const order = await page.evaluate(() => {
+      const dots = document.querySelector('[data-testid="page-dots"]')!;
+      const board = document.querySelector('.board')!;
+      return { before: !!(dots.compareDocumentPosition(board) & Node.DOCUMENT_POSITION_FOLLOWING), z: getComputedStyle(dots).zIndex };
+    });
+    expect(order).toEqual({ before: true, z: '0' });
+    // Paint check: pointer-events none hides both layers from hit-testing, so compare the pixels of the dots with and
+    // without the overlay; if the overlay paints over them they differ (a stacking regression makes them identical)
+    const box = (await page.getByTestId('page-dots').boundingBox())!;
+    const clip = { x: box.x, y: box.y, width: box.width, height: box.height };
+    await expect(page.locator('.focus-overlay.is-on')).toBeAttached();
+    await expect.poll(() => page.evaluate(() => getComputedStyle(document.querySelector('.focus-overlay__tint')!).opacity)).toBe('1');
+    const withOverlay = await page.screenshot({ clip, animations: 'disabled' });
+    await page.addStyleTag({ content: '.focus-overlay { display: none !important; }' });
+    const withoutOverlay = await page.screenshot({ clip, animations: 'disabled' });
+    expect(withOverlay.equals(withoutOverlay)).toBe(false);
   });
 });

@@ -123,3 +123,25 @@ describe('SortableTaskWrapper: Delete key (#579)', () => {
     expect(document.activeElement).toBe(second!.element)
   })
 })
+
+describe('SortableTaskWrapper: Enter key (#25)', () => {
+  it('Enter clicks the card without a pointer (detail 0) and the click does not bubble', async () => {
+    mountWrapper()
+    const clicks: MouseEvent[] = []
+    wrapper!.find('.task').element.addEventListener('click', e => clicks.push(e as MouseEvent))
+    const bubbled = vi.fn()
+    wrapper!.element.addEventListener('click', bubbled)
+    await root().trigger('keydown', { key: 'Enter' })
+    expect(clicks).toHaveLength(1)
+    expect(clicks[0]!.detail).toBe(0)
+    expect(bubbled).not.toHaveBeenCalled()
+  })
+
+  it('a held Enter does not click again', async () => {
+    mountWrapper()
+    const click = vi.fn()
+    wrapper!.find('.task').element.addEventListener('click', click)
+    await root().trigger('keydown', { key: 'Enter', repeat: true })
+    expect(click).not.toHaveBeenCalled()
+  })
+})

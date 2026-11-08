@@ -4,7 +4,7 @@
 @usage Inside TaskCard (the Jetzt card only); the board store's `timeboxNudgeTaskId` decides which card shows it
 @responsibility
 - Non-modal layer over the card face: no focus move, no trap; only its controls take pointer events, so the
-  card stays draggable and a double click on the face still opens the sheet (on touch the layer swallows the click)
+  card stays draggable and a click on the face still opens the sheet (on touch the layer swallows the tap)
 - One-click presets (15, 30 min) and an inline minutes field (1 to 480); Escape steps back, then dismisses
 - Auto-dismisses after TIMEBOX_NUDGE_MS; the hairline countdown pauses while the pointer or focus is on the layer or the field is open
 - Ends itself when the card leaves Jetzt, is deleted, gets a timebox elsewhere or opens its sheet
@@ -34,7 +34,6 @@ In-card question pattern (DESIGN.md "Ask in place"; this is its first user, extr
       @focusin="focused = true"
       @focusout="onFocusOut"
       @click.stop
-      @dblclick.stop
       @keydown.esc.stop="onEscape"
     >
       <span class="nudge__wash" aria-hidden="true" />
@@ -238,7 +237,7 @@ const onBarEnd = (event: AnimationEvent) => {
   inset: 0;
   z-index: 30; /* above the corner glyph (10) and the done layer (20), inside the card's own stacking context */
   border-radius: var(--task-card-radius);
-  pointer-events: none; /* only the controls take pointer events: the card stays draggable and its face still double-clicks open */
+  pointer-events: none; /* only the controls take pointer events: the card stays draggable and its face still clicks open */
   --nudge-ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
 

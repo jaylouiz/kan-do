@@ -4,7 +4,7 @@ import { focusUntilActive, settleAnimations, settleStack } from './helpers/settl
 
 /**
  * Opening cards of a stack (#111, #147): a double-click on a collapsed stack expands it and never
- * opens a sheet; an expanded member behaves like any other card (double-click opens it).
+ * opens a sheet; an expanded member behaves like any other card (a click opens it, #25).
  */
 
 const NOW = new Date().toISOString()
@@ -66,12 +66,12 @@ test.describe('Task stack: opening cards', () => {
     await expect(members(page)).toHaveCount(3)
   })
 
-  test('double-clicking a member of an expanded stack opens its sheet', async ({ page }) => {
+  test('clicking a member of an expanded stack opens its sheet (#25)', async ({ page }) => {
     await stack(page).click()
     await expect(members(page)).toHaveCount(3)
 
     // A new click sequence ends the post-expand guard: no waiting needed (#154)
-    await members(page).first().locator('.task').dblclick()
+    await members(page).first().locator('.task').click()
 
     await page.waitForURL(/\/tasks\/task-1/)
     await expect(page.locator('[aria-labelledby="notes-heading"]')).toBeVisible()
