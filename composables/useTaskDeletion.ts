@@ -379,6 +379,8 @@ export function useTaskDeletion() {
     resumePendingDeletes,
     undoDelete,
     undoLatestDelete,
+    /** Whether the delete's undo window is still open (reactive). */
+    isUndoOpen: (taskId: string): boolean => undoWindow.isOpen(taskId),
     pauseDelete: undoWindow.pause,
     resumeDelete: undoWindow.resume,
   }

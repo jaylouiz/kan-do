@@ -24,14 +24,14 @@ export function useTrash() {
   const { handleError } = useErrorHandler()
 
   const tasksStore = useTasksStore()
-  const { undoDelete } = useTaskDeletion()
+  const { undoDelete, isUndoOpen } = useTaskDeletion()
 
   /**
    * A delete inside its undo window is already in the trash (#27): its entry is derived from the pending
    * delete, restoring it is the undo. Once the window closes the real entry replaces it (same task id).
    */
   const pendingEntries = computed<TrashEntry[]>(() => Object.values(tasksStore.pendingDeletes)
-    .filter(pending => pending.state === 'waiting' && !trashStore.entry(pending.taskId))
+    .filter(pending => pending.state === 'waiting' && isUndoOpen(pending.taskId) && !trashStore.entry(pending.taskId))
     .map(pending => ({
       taskId: pending.taskId,
       task: { ...pending.task, timerId: null },

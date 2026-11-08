@@ -47,6 +47,17 @@ describe('useUndoDeleteShortcut (#27)', () => {
     wrapper.unmount()
   })
 
+  it('ignores a key pressed inside a dialog', () => {
+    const undo = vi.fn(() => true)
+    const wrapper = mountWith(undo)
+    const dialog = document.createElement('div')
+    dialog.setAttribute('role', 'dialog')
+    document.body.appendChild(dialog)
+    press(dialog, { key: 'z', ctrlKey: true })
+    expect(undo).not.toHaveBeenCalled()
+    wrapper.unmount()
+  })
+
   it('stops listening after unmount', () => {
     const undo = vi.fn(() => true)
     mountWith(undo).unmount()
