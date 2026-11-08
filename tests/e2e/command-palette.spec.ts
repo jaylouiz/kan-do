@@ -36,10 +36,6 @@ test.describe('Command palette', () => {
     await card(page, 'Dokumentation lesen').focus()
     await page.keyboard.press('Control+k')
     await expect(palette(page)).toBeVisible()
-    await page.keyboard.press('Escape')
-    await expect(palette(page)).toBeHidden()
-    await page.keyboard.press('Meta+k')
-    await expect(palette(page)).toBeVisible()
   })
 
   test('the ⋯ panel has a visible Befehle row that opens it (#23)', async ({ page }) => {

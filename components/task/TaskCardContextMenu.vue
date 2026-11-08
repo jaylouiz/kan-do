@@ -237,6 +237,14 @@ function isEditable(el: EventTarget | null) {
   return el instanceof HTMLElement && (el.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName));
 }
 
+/** Until this time a native contextmenu is the Menu key's own keyup event (Windows Chromium/WebView2 fires it after keydown) */
+let nativeGuardUntil = 0;
+function swallowNativeContextmenu(event: MouseEvent) {
+  if (Date.now() > nativeGuardUntil || keyboardEvents.has(event)) return;
+  event.preventDefault();
+  event.stopPropagation();
+}
+
 function handleCardKeydown(event: KeyboardEvent) {
   const isMenuKey = event.key === "ContextMenu" || (event.key === "F10" && event.shiftKey);
   if (!isMenuKey || event.repeat || event.defaultPrevented || isEditable(event.target)) return;
@@ -244,6 +252,7 @@ function handleCardKeydown(event: KeyboardEvent) {
   // Stops the browser's own contextmenu event, which would open the menu a second time
   event.preventDefault();
   keyboardOpener = cardEl;
+  nativeGuardUntil = Date.now() + 500;
   const rect = cardEl.getBoundingClientRect();
   const synthetic = new MouseEvent("contextmenu", {
     bubbles: true,
@@ -260,6 +269,11 @@ function handleCardKeydown(event: KeyboardEvent) {
 onMounted(() => {
   cardEl = wrapperEl.value?.closest<HTMLElement>(".task-wrapper") ?? null;
   cardEl?.addEventListener("keydown", handleCardKeydown);
+  document.addEventListener("contextmenu", swallowNativeContextmenu, true);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener("contextmenu", swallowNativeContextmenu, true);
 });
 
 watch(isOpen, async (open) => {
