@@ -521,6 +521,35 @@ test.describe('New-day recap (#385)', () => {
       await expect(recap(page)).toBeHidden()
     })
 
+    test('a touch swipe on the deck advances it and never drag-closes the drawer (closing would archive the done tasks)', async ({ page, context }) => {
+      await seedNewDayBoard(context)
+      await page.goto('/tasks')
+      await expect(recap(page)).toBeVisible()
+      await switcher(page, 'done').tap()
+      await expect(counter(page, 'done')).toHaveText('1 / 4')
+      const box = (await deck(page, 'done').boundingBox())!
+      const cdp = await context.newCDPSession(page)
+      const touch = (type: 'touchStart' | 'touchMove' | 'touchEnd', x: number, y: number) =>
+        cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y }] })
+      // a thumb swipe: mostly sideways, drifting down as it goes (vaul reads the vertical part as a drawer drag)
+      const swipe = async (dx: number, dy: number) => {
+        const x0 = box.x + box.width / 2 - dx / 2
+        const y0 = box.y + 50
+        await touch('touchStart', x0, y0)
+        for (let i = 1; i <= 8; i++) await touch('touchMove', x0 + (dx * i) / 8, y0 + (dy * i) / 8)
+        // the drawer must not follow the finger down, even before the release decides anything
+        expect(await recap(page).evaluate(el => new DOMMatrixReadOnly(getComputedStyle(el).transform).m42)).toBe(0)
+        await touch('touchEnd', x0 + dx, y0 + dy)
+      }
+      await swipe(120, 40)
+      await expect(counter(page, 'done')).toHaveText('2 / 4')
+      await swipe(-160, 70)
+      await expect(counter(page, 'done')).toHaveText('3 / 4')
+      await page.waitForTimeout(500)
+      await expect(recap(page)).toBeVisible()
+      expect(await archived(page)).toEqual([])
+    })
+
     test('with nothing open there is no switcher, only the done deck', async ({ page, context }) => {
       await seedNewDayBoard(context, { allDone: true })
       await page.goto('/tasks')

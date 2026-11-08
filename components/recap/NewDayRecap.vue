@@ -116,12 +116,12 @@ const recapStore = useDayRecapStore()
 const DESKTOP_UI = {
   content: MODAL_WIDTH.lg,
   header: 'justify-center text-center',
-  body: 'min-h-0 overflow-y-auto overscroll-contain',
+  body: 'min-h-0 overflow-x-clip overflow-y-auto overscroll-contain',
 }
 const MOBILE_UI = {
   content: 'max-h-9/10',
   header: 'px-4 pb-2 text-center',
-  body: 'min-h-0 overflow-y-auto overscroll-contain px-4 py-4',
+  body: 'min-h-0 overflow-x-clip overflow-y-auto overscroll-contain px-4 py-4',
   footer: 'border-t border-default p-4',
 }
 
