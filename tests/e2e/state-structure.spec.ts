@@ -1,5 +1,5 @@
 import { expect, test, type Page, type Route } from '@playwright/test'
-import { seedLocalBoard, seedMixedBoard, SEED_TASKS, type SeedTask } from './helpers/seed'
+import { seedLocalBoard, seedMixedBoard, seedNewDayBoard, SEED_TASKS, type SeedTask } from './helpers/seed'
 import { openMore } from './helpers/appNav'
 import { settleAnimations } from './helpers/settle'
 
@@ -207,5 +207,35 @@ test.describe('guided new card (#649)', () => {
     await expect(page.getByTestId('new-card-step')).toHaveAttribute('data-step', 'timebox')
     await settleAnimations(page)
     await expect(page.getByTestId('new-card-flow')).toMatchAriaSnapshot({ name: 'new-card-timebox-390.aria.yml' })
+  })
+})
+
+test.describe('new-day recap (#44)', () => {
+  const recap = (page: Page) => page.getByTestId('new-day-recap')
+
+  test('modal over the board with both decks (1280)', async ({ context, page }) => {
+    await seedNewDayBoard(context)
+    await page.goto('/tasks')
+    await expect(recap(page)).toBeVisible()
+    await settleAnimations(page)
+    await expect(recap(page)).toMatchAriaSnapshot({ name: 'recap-modal-1280.aria.yml' })
+  })
+
+  test('drawer with the deck switcher (390)', async ({ context, page }) => {
+    await page.setViewportSize(MOBILE)
+    await seedNewDayBoard(context)
+    await page.goto('/tasks')
+    await expect(recap(page)).toBeVisible()
+    await settleAnimations(page)
+    await expect(recap(page)).toMatchAriaSnapshot({ name: 'recap-drawer-390.aria.yml' })
+  })
+
+  test('nothing open: the drawer shows only the done deck, no switcher (390)', async ({ context, page }) => {
+    await page.setViewportSize(MOBILE)
+    await seedNewDayBoard(context, { allDone: true })
+    await page.goto('/tasks')
+    await expect(recap(page)).toBeVisible()
+    await settleAnimations(page)
+    await expect(recap(page)).toMatchAriaSnapshot({ name: 'recap-drawer-all-done-390.aria.yml' })
   })
 })

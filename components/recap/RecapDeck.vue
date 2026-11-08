@@ -5,18 +5,20 @@ shows with up to two layers peeking behind it; swiping, tapping, ←/→ or the 
 changes size, so nothing on the page moves while it is looked at.
 @usage Rendered by NewDayRecap, kind `undone` (left) and kind `done` (right). The parent skips the `undone` group when it is empty; the `done` group is always rendered and copes with an empty list itself (counter "0 / 0", no card, chevrons and keys inert, not a tab stop), as it does with a single card.
 @responsibility
+- `hideHeading`: the heading row turns visually hidden (still the section's name) when the phone switcher already says which deck it is (#44)
 - Layout: heading row (`min-h-10`, `h2` above the cards), the deck (card height + 1.25rem, whatever the card content or n), the bar (chevron, counter "1 / n", chevron)
 - Cards are view-only: inert, hidden from the accessibility tree, no task sheet. Front card = newest completion (done) or Jetzt/Offen first (undone)
 - With 2+ cards the deck is one tab stop: `role="group"`, `tabindex="0"`, roledescription "Stapel", name "{label}, mit Pfeiltasten wechseln"; ←/→ act only while the deck itself has focus. With 0 or 1 card there is nothing to switch to (#478): no `tabindex`, no roledescription, the name is just "{label}"; all three follow `canMove` when the count crosses 1 <-> 2
 - A visually hidden polite live region announces "2 von 4: Titel" after a settled change (the cards are inert, so this is how a screen reader hears the front card); the counter is decorative
 - Geometry: layer d (max 2) at `translateY(d*8px) scale(1 - d*0.04)`, deeper cards hidden; front card follows the pointer with `rotate(dx/24 deg)`
 - Motion (#690): the travelling card (next: front, prev: back) slides sideways 50% of the deck width at full opacity (130ms), then takes its new depth, so it passes behind the stack (next) or comes to the front (prev); settle 240ms `cubic-bezier(0.22, 1, 0.36, 1)` on transform. Nothing fades out; a card deeper than layer 2 stays visible while it travels. With prefers-reduced-motion cards swap at once (the drag still follows the pointer)
+- The grab area carries `data-vaul-no-drag`: on phones the deck sits in a drawer, and a card swipe must never drag it closed (closing archives the done tasks, #44)
 - Gesture, queue and timers live in `useSwipeDeck` (drag past 80px or tap = next, 6px tap slop, queue of 8)
 - Accepted trade-offs (#451): one card at a time, no list view; two chevrons per deck stay focusable (six tab stops for two decks) so keyboard users need not discover the arrow keys
 -->
 <template>
   <section class="recap-deck-group" :aria-labelledby="headingId">
-    <header class="recap-deck__heading">
+    <header class="recap-deck__heading" :class="{ 'sr-only': hideHeading }">
       <h2 :id="headingId" class="font-display text-headline text-muted" data-testid="recap-deck-label">
         {{ label }}
       </h2>
@@ -47,6 +49,7 @@ changes size, so nothing on the page moves while it is looked at.
       <div
         ref="grabRef"
         class="recap-deck__grab"
+        data-vaul-no-drag
         @pointerdown="onPointerDown"
         @pointermove="deck.onPointerMove"
         @pointerup="deck.onPointerUp"
@@ -96,6 +99,8 @@ defineOptions({ name: 'RecapDeck' })
 const props = defineProps<{
   tasks: Task[]
   kind: 'done' | 'undone'
+  /** The switcher above names the deck (phone, #44): the heading stays for assistive tech only. */
+  hideHeading?: boolean
 }>()
 
 const { t } = useI18n()
