@@ -598,13 +598,6 @@
           <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div class="rounded-lg border border-default bg-elevated p-4 flex flex-col gap-3">
               <div>
-                <h4 class="font-medium">LocalSetupModal</h4>
-                <p class="mt-1 text-sm text-muted">Lokaler Modus ohne externe Verbindung.</p>
-              </div>
-              <UButton icon="i-ph-desktop" variant="soft" class="self-start" @click="() => { showLocalSetup = true; }">Öffnen</UButton>
-            </div>
-            <div class="rounded-lg border border-default bg-elevated p-4 flex flex-col gap-3">
-              <div>
                 <h4 class="font-medium">NotionSetupModal</h4>
                 <p class="mt-1 text-sm text-muted">Notion Integration mit Schritt-für-Schritt Wizard.</p>
               </div>
@@ -650,7 +643,6 @@
 
 
 
-    <LocalSetupModal v-model:open="showLocalSetup" @complete="showLocalSetup = false" />
     <NotionSetupModal v-model:open="showNotionSetup" @complete="showNotionSetup = false" />
   </div>
 </template>
@@ -674,7 +666,6 @@ import SectionHeader from '~/components/ui/SectionHeader.vue'
 import ExpandingButton from '~/components/ui/ExpandingButton.vue'
 import InlineEditable from '~/components/ui/inline/InlineEditable.vue'
 import SyncWarningModal from '~/components/sync/SyncWarningModal.vue'
-import LocalSetupModal from '~/components/local/LocalSetupModal.vue'
 import NotionSetupModal from '~/components/notion/setup/NotionSetupModal.vue'
 
 // No app bar here (#470): first run, developer pages and the empty redirect page
@@ -718,7 +709,6 @@ function scrollToSection(id: string) {
 const showTaskDetailModal = ref(false)
 const showTaskSheet = ref(false)
 const showSyncWarning = ref(false)
-const showLocalSetup = ref(false)
 const showNotionSetup = ref(false)
 
 // ── Misc state ─────────────────────────────────────────────────────────────

@@ -352,23 +352,21 @@ test.describe('Notion Setup Stepper', () => {
   })
 
   test.describe('Setup mode', () => {
-    test('shows 5 steps when opened from welcome', async ({ page, baseURL }) => {
+    test('shows the guide rail on the welcome page (no dialog) with the first step current (#43)', async ({ page, baseURL }) => {
       await page.goto(baseURL! + '/welcome')
 
       const setupButton = page.getByRole('button', { name: /Notion/i })
       await expect(setupButton).toBeVisible()
       await setupButton.click()
 
-      const modal = page.getByRole('dialog')
-      // Stepper steps (setup mode)
-      await expect(modal.getByText('Token', { exact: true })).toBeVisible()
-      await expect(modal.getByText('Datenbank', { exact: true })).toBeVisible()
-      await expect(modal.getByText('Eigenschaften', { exact: true })).toBeVisible()
-      await expect(modal.getByText('Weitere Eigenschaften', { exact: true })).toBeVisible()
-      await expect(modal.getByText('Status', { exact: true })).toBeVisible()
+      const flow = page.getByTestId('notion-setup-flow')
+      await expect(page.getByRole('dialog')).toHaveCount(0)
+      const steps = flow.getByTestId('notion-setup-steps')
+      for (const label of ['Token', 'Datenbank', 'Eigenschaften', 'Weitere Eigenschaften', 'Status']) {
+        await expect(steps.getByText(label, { exact: true })).toBeVisible()
+      }
 
-      // Progress indicator is non-interactive: no focusable/dead buttons, active step exposed
-      const steps = modal.getByTestId('notion-setup-steps')
+      // The rail is non-interactive: no focusable/dead buttons, active step exposed
       await expect(steps.getByRole('button')).toHaveCount(0)
       await expect(steps.locator('[aria-current="step"]')).toHaveCount(1)
       await expect(steps.locator('[aria-current="step"]')).toContainText('Token')

@@ -47,21 +47,37 @@ test('welcome has no horizontal overflow and the headline stays within two lines
   }
 })
 
-test('"In Notion" opens the Notion setup from the first step and Cancel leaves the page as it was', async ({ page, baseURL }) => {
+test('"In Notion" shows the setup on the page (no dialog) and Back returns to the choice with focus on its row (#43)', async ({ page, baseURL }) => {
   await page.goto(baseURL! + '/welcome')
   await page.getByRole('button', { name: 'In Notion' }).click()
 
-  await expect(page.getByText('Mit Notion verbinden')).toBeVisible()
+  const flow = page.getByTestId('notion-setup-flow')
+  await expect(flow).toBeVisible()
+  await expect(flow.getByRole('heading', { name: 'Notion-Token' })).toBeFocused()
   await expect(page.getByTestId('wizard-proceed')).toBeVisible()
-  await page.getByRole('button', { name: 'Abbrechen' }).click()
   await expect(page.getByRole('dialog')).toHaveCount(0)
-  await expect(page.getByRole('button', { name: 'In Notion' })).toBeFocused() // focus returns to the row
   await expect(page).toHaveURL(/\/welcome$/)
+
+  await page.getByTestId('setup-back').click()
+  await expect(flow).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'In Notion' })).toBeFocused() // focus returns to the row
   expect(await storedSources(page)).toBeNull()
 })
 
+test('the Notion setup is wider than the start screen and the sheet does not overflow at 390px (#43)', async ({ page, baseURL }) => {
+  await page.goto(baseURL! + '/welcome')
+  const sheet = page.locator('.welcome-sheet')
+  await expect.poll(async () => Math.round((await sheet.boundingBox())!.width)).toBe(512)
+  await page.getByRole('button', { name: 'In Notion' }).click()
+  await expect.poll(async () => Math.round((await sheet.boundingBox())!.width)).toBe(768)
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(page.getByTestId('setup-progress')).toBeVisible()
+  await expect(page.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '1')
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0)
+})
+
 for (const viewport of [{ width: 1280, height: 800 }, { width: 390, height: 844 }]) {
-  test(`the Notion setup footer at ${viewport.width}px: the proceed button is the lg CTA, Abbrechen its md sibling (#552)`, async ({ page, baseURL }) => {
+  test(`the Notion setup footer at ${viewport.width}px: the proceed button is the lg CTA, Back a 44px target (#552, #43)`, async ({ page, baseURL }) => {
     await page.setViewportSize(viewport)
     await page.goto(baseURL! + '/welcome')
     await page.getByRole('button', { name: 'In Notion' }).click()
@@ -69,29 +85,68 @@ for (const viewport of [{ width: 1280, height: 800 }, { width: 390, height: 844 
     await expect(proceed).toBeVisible()
     const height = async (locator: ReturnType<Page['locator']>) => Math.round((await locator.boundingBox())!.height)
     const phone = viewport.width === 390
-    // A footer wrapper that stretches its children would lift the sibling to the CTA's height
     await expect.poll(() => height(proceed)).toBe(phone ? 48 : 36)
-    expect(await height(page.getByRole('button', { name: 'Abbrechen' }))).toBe(phone ? 44 : 32)
+    expect(await height(page.getByTestId('setup-back'))).toBeGreaterThanOrEqual(44)
   })
 }
+
+test('local setup: nothing happens on the pick alone, Back returns to the choice (#43)', async ({ page, baseURL }) => {
+  await page.goto(baseURL! + '/welcome')
+  await page.getByRole('button', { name: 'Noch nirgends' }).click()
+  await page.getByRole('radio', { name: /Mit Beispielaufgaben starten/ }).click()
+  await expect(page).toHaveURL(/\/welcome$/)
+  expect(await storedSources(page)).toBeNull()
+  await page.getByTestId('setup-back').click()
+  await expect(page.getByRole('button', { name: 'Noch nirgends' })).toBeFocused()
+})
 
 test('"Noch nirgends" -> local setup (fresh) -> Local is the only source and the default, on the board', async ({ page, baseURL }) => {
   await page.goto(baseURL! + '/welcome')
   await page.getByRole('button', { name: 'Noch nirgends' }).click()
 
-  const dialog = page.getByRole('dialog')
-  await expect(dialog.getByText('Wie möchtest du starten?')).toBeVisible()
-  await dialog.getByRole('button', { name: 'Neu starten' }).click()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await expect(page.getByRole('radiogroup', { name: 'Wie möchtest du starten?' })).toBeVisible()
+  await expect(page.getByRole('radio', { name: /Neu starten/ })).toHaveAttribute('aria-checked', 'true')
+  await page.getByRole('button', { name: 'Los geht’s' }).click()
 
   await expect(page).toHaveURL(/\/tasks$/)
   await expect(moreButton(page)).toBeVisible()
   await expect.poll(() => storedSources(page)).toEqual({ connected: [], default: 'local' })
 })
 
+test('Local radio cards follow the radio keyboard contract: one Tab stop, arrows move and select (#43)', async ({ page, baseURL }) => {
+  await page.goto(baseURL! + '/welcome')
+  await page.getByRole('button', { name: 'Noch nirgends' }).click()
+
+  const fresh = page.getByRole('radio', { name: /Neu starten/ })
+  const samples = page.getByRole('radio', { name: /Mit Beispielaufgaben starten/ })
+  await expect(fresh).toHaveAttribute('aria-checked', 'true')
+  // One Tab stop: Tab from the Back button enters the group on the checked radio, never on the second one
+  await page.getByTestId('setup-back').focus()
+  await page.keyboard.press('Tab')
+  await expect(fresh).toBeFocused()
+  await expect(samples).toHaveAttribute('tabindex', '-1')
+  // reka-ui checks the radio focused by an arrow while the key is still down (a zero-delay timeout reads it), so hold it until the check shows
+  await page.keyboard.down('ArrowDown')
+  await expect(samples).toBeFocused()
+  await expect(samples).toHaveAttribute('aria-checked', 'true')
+  await page.keyboard.up('ArrowDown')
+  await expect(fresh).toHaveAttribute('aria-checked', 'false')
+  await page.keyboard.down('ArrowUp')
+  await expect(fresh).toBeFocused()
+  await expect(fresh).toHaveAttribute('aria-checked', 'true')
+  await page.keyboard.up('ArrowUp')
+
+  // Tab leaves the group after one stop: the next stop is the confirmation, not the second radio
+  await page.keyboard.press('Tab')
+  await expect(page.getByTestId('local-confirm')).toBeFocused()
+})
+
 test('"Noch nirgends" -> "Mit Beispielaufgaben starten" -> the demo board (#527): every column filled, topics with symbols, carry-over kept', async ({ page, baseURL }) => {
   await page.goto(baseURL! + '/welcome')
   await page.getByRole('button', { name: 'Noch nirgends' }).click()
-  await page.getByRole('dialog').getByRole('button', { name: 'Mit Beispielaufgaben starten' }).click()
+  await page.getByRole('radio', { name: /Mit Beispielaufgaben starten/ }).click()
+  await page.getByRole('button', { name: 'Los geht’s' }).click()
 
   await expect(page).toHaveURL(/\/tasks$/)
   await expect(page.getByText('Bagger für Montag disponieren')).toBeVisible() // Offen

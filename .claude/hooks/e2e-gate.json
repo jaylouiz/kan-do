@@ -719,7 +719,7 @@
     },
     {
       "paths": [
-        "components/local/**",
+        "components/setup/**",
         "pages/welcome.vue",
         "pages/index.vue",
         "lib/demo-board.ts",

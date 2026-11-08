@@ -10,7 +10,7 @@
 -->
 <template>
   <div class="notion-setup">
-    <div v-auto-animate class="p-4">
+    <div ref="animateRef" class="p-4">
       <!-- Token Step -->
       <TokenStep
         v-if="step === 'token'"
@@ -79,6 +79,7 @@
  * transitions between steps, and final save.
  */
 import { ref, computed, onMounted, watch } from "vue";
+import { useAutoAnimate } from "@formkit/auto-animate/vue";
 import { useI18n } from "vue-i18n";
 import { useNotionConfigStore } from "~/store/notionConfig";
 import { useErrorHandler } from '~/composables/useErrorHandler';
@@ -138,7 +139,15 @@ const props = defineProps<{
   mode?: "setup" | "settings";
   /** Whether the integration is currently in a broken state */
   broken?: boolean;
+  /** Animate step content changes (auto-animate); the welcome page animates the whole pane itself (#43) */
+  animate?: boolean;
 }>();
+
+const [animateRef, setAnimate] = useAutoAnimate();
+// The controller only exists after useAutoAnimate's own onMounted, so apply the prop from a later onMounted (registered
+// after it, so it runs after it) and on every change; an immediate watch in setup would hit a no-op setEnabled (#43)
+onMounted(() => setAnimate(props.animate !== false));
+watch(() => props.animate, (on) => setAnimate(on !== false));
 
 const emit = defineEmits<{
   (e: "cancel" | "complete" | "back"): void;

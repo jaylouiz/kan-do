@@ -2,7 +2,7 @@
  * @module demo-board
  * @description The shared demo board (#527): one coherent sample set for the managing director of a landscaping
  * business (offers, building sites, staff, vehicle fleet, bookkeeping), built so that every board feature has
- * something to show. Used by the onboarding button "Mit Beispielaufgaben starten" (`LocalSetupModal`) and by the dev
+ * something to show. Used by the onboarding button "Mit Beispielaufgaben starten" (`LocalSetupFlow`) and by the dev
  * seed `?seed=demo` (`plugins/e2e-seed.client.ts`). `?seed=local` stays the E2E fixture and is not built from this.
  *
  * Task titles, notes, topics and activities are sample DATA in German, not UI copy: no i18n keys

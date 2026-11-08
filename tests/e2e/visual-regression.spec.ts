@@ -359,14 +359,14 @@ test.describe('focus states', () => {
   test('focus: primary button', async ({ page }) => {
     await page.goto('/welcome')
     await page.getByRole('button', { name: 'Noch nirgends' }).click()
-    // The modal opens under the pointer; park it so the button shows its focus state, not hover
+    // The local setup is page content now (#43). Park the pointer so the button shows its focus state, not hover
     await page.mouse.move(0, 0)
-    const dialog = page.getByRole('dialog')
-    const button = dialog.locator('button.bg-primary').first()
+    const setup = page.getByTestId('local-setup-flow')
+    const button = setup.locator('button.bg-primary').first()
     await expect(button).toBeVisible()
     await tabTo(page, button)
     await expect(button).toBeFocused()
-    await expect(dialog).toHaveScreenshot('focus-button-primary.png')
+    await expect(setup).toHaveScreenshot('focus-button-primary.png')
   })
 
   test('focus: task card', async ({ page }) => {

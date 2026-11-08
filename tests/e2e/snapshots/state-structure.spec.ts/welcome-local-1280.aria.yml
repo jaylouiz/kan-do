@@ -1,0 +1,8 @@
+- region "Lokal starten":
+  - button "Zur Auswahl"
+  - heading "Lokal starten" [level=2]
+  - paragraph: Deine Aufgaben bleiben auf diesem Gerät. Eine Verbindung wie Notion kannst du später in den Einstellungen hinzufügen.
+  - radiogroup "Wie möchtest du starten?":
+    - radio "Neu starten Ein leeres Board. Die erste Aufgabe legst du selbst an." [checked]
+    - radio "Mit Beispielaufgaben starten Ein gefülltes Board zum Ausprobieren. Du kannst es jederzeit leeren."
+  - button "Los geht’s"

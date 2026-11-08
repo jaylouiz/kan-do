@@ -1178,6 +1178,31 @@
       "howToStart": "How would you like to start?",
       "startFresh": "Start fresh",
       "startSamples": "Start with sample tasks"
+    },
+    "flow": {
+      "backToChoice": "Back to choice",
+      "local": {
+        "label": "Start locally",
+        "title": "Start locally",
+        "intro": "Your tasks stay on this device. You can add a connection like Notion later in settings.",
+        "freshHint": "An empty board. You add the first task yourself.",
+        "samplesHint": "A filled board to try things out. You can clear it any time.",
+        "confirm": "Let’s go"
+      },
+      "notion": {
+        "label": "Connect to Notion",
+        "connect": "Connect",
+        "connected": "Notion is connected",
+        "loading": "Loading your board …"
+      },
+      "help": {
+        "token": "You need a Notion token. It is stored on this device only.",
+        "database": "Pick the database that holds your tasks. It must be shared with your integration.",
+        "mapping": "Tell the app which property is the title, the status and the due date. Matching ones are preselected.",
+        "custom-properties": "Optional: bring along more properties such as topic or activity.",
+        "priority-mapping": "Match the values of your priority property to the three levels.",
+        "status-mapping": "Last: which Notion status belongs to which column. Then you are set."
+      }
     }
   },
   "commandPalette": {
