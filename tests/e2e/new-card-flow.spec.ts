@@ -3,6 +3,7 @@ import AxeBuilder from '@axe-core/playwright'
 import { DEFAULT_NOTION_SEED_CONFIG, seedLocalBoard, seedMixedBoard, seedNotionBoard, SEED_TASKS, type SeedTask } from './helpers/seed'
 import { openAddSheet } from './helpers/addSheet'
 import { settleAnimations } from './helpers/settle'
+import { expectContrast } from './helpers/contrast'
 
 /**
  * #649: the Offen add button turns the slot into a card that takes the title, then asks Thema, Aktivität, Timebox
@@ -519,6 +520,15 @@ test.describe('guided new card, keyboard and steps (desktop)', () => {
     await page.keyboard.press('Enter') // empty note saves
     await expect(card(page)).toHaveCount(0)
     await expect.poll(async () => (await storedTask(page, 'Neues Thema per Taste'))?.topic).toBe('Gartenpflege')
+  })
+
+  test('#16: the Mehr cell and the value pills keep the text contrast over the wash', async ({ page }) => {
+    await openCard(page)
+    await confirmTitle(page, 'Kontrast')
+    await settleAnimations(page)
+    await page.mouse.move(2, 2)
+    await expectContrast(page, page.getByTestId('new-card-more').locator('.truncate'), 4.5)
+    await expectContrast(page, page.getByTestId('new-card-options').locator('button.ncf__pill:not(.ncf__pill--more) .truncate').first(), 4.5)
   })
 
   test('#16: no match shows a status line, an exact name picks the existing value and offers no "Neu"', async ({ page }) => {
