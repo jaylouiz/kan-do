@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
 import { completeNotionWizard } from './helpers/notionWizard'
+import { expectContrast } from './helpers/contrast'
 import { moreButton, openSettings } from './helpers/appNav'
 
 // E2E: the welcome page asks one question with two equal answers (#324); both end on the board
@@ -128,4 +129,12 @@ test('"In Notion" -> setup on the stub -> Notion is connected and the default, o
   await expect(page.getByTestId('source-default-notion')).toBeVisible()
   await expect(page.getByTestId('source-set-default-local')).toBeVisible()
   await expect(page.getByTestId('source-more-notion')).toHaveCount(0)
+})
+
+test('welcome: the small texts on the sheet keep AA contrast (#14)', async ({ page, baseURL }) => {
+  await page.goto(baseURL! + '/welcome')
+  await expect(page.getByTestId('welcome-photo')).toHaveCSS('opacity', '1')
+  await expectContrast(page, page.getByText('Weitere Verbindungen kannst du später'), 4.5)
+  await expectContrast(page, page.getByText(/^Version:/), 4.5)
+  await expectContrast(page, page.getByText('Ein ruhiges Board für die Aufgaben des Tages.'), 4.5)
 })

@@ -8,16 +8,38 @@
 - Keine gefüllte Schaltfläche: beide Antworten sind ganze Zeilen (Button, min. 64px), keine hervorgehoben
 - Todoist wird nicht angeboten; weitere Verbindungen kommen später in den Einstellungen dazu
 - Reagiert auf globalen Notion-Setup-Trigger (Fehlerbehandlung)
+- Ein ruhiges Foto (Jalousie-Schatten, gebündelt in public/welcome, Quelle in CREDITS.md) füllt die Seite; es ist nur
+  Stimmung: Text steht nie direkt darauf. Mittig ein heller Bogen (Oberfläche und Schatten wie ein Dialog) trägt
+  Wortmarke, Zeile, Frage, Antworten, Hinweis und Version. Am Telefon füllt der Bogen die Breite, darüber bleibt ein Foto-Streifen.
+- Das Foto blendet beim Laden ein (ohne Layoutsprung); lädt es nicht, bleibt die Seite auf Papierfarbe, der Bogen unverändert
 -->
 <template>
   <div class="px-safe bg-page">
-  <main class="relative flex min-h-screen items-center justify-center bg-page px-4 py-16 sm:px-6">
+  <main class="relative flex min-h-dvh flex-col justify-end overflow-hidden bg-page sm:items-center sm:justify-center sm:p-6">
+    <!-- Atmosphere only (alt=""): fades in once loaded, a failed load leaves the paper colour -->
+    <img
+      ref="photo"
+      src="/welcome/blinds-2000.webp"
+      srcset="/welcome/blinds-800.webp 800w, /welcome/blinds-2000.webp 2000w"
+      sizes="100vw"
+      alt=""
+      aria-hidden="true"
+      decoding="async"
+      data-testid="welcome-photo"
+      class="pointer-events-none absolute inset-0 size-full object-cover transition-opacity duration-700 motion-reduce:transition-none"
+      :class="photoLoaded ? 'opacity-100' : 'opacity-0'"
+      @load="photoLoaded = true"
+    >
     <!-- A launch with an unreachable data folder lands here with empty stores: say so (#224). On desktop it starts
          below the bar row: the window drag strip (app.vue, #614) and the traffic lights occupy that row. -->
     <div class="top-safe-3 absolute inset-x-4 z-10 mx-auto max-w-3xl in-data-[shell=desktop]:pt-(--app-bar-offset-top)">
       <DataStorageNotice />
     </div>
-    <div class="mx-auto w-full max-w-lg">
+    <div class="relative mt-40 w-full rounded-t-2xl bg-default p-6 shadow-lg sm:mt-0 sm:max-w-lg sm:rounded-2xl sm:p-10">
+      <header class="mb-8">
+        <p class="font-display tracking-display text-4xl leading-(--lh-tight) text-highlighted sm:text-5xl">{{ t('nav.brand') }}</p>
+        <p class="mt-2 text-base text-default">{{ t('onboarding.page.tagline') }}</p>
+      </header>
       <h1 class="font-display tracking-display text-3xl leading-(--lh-tight) text-balance text-highlighted sm:text-4xl">
         {{ t('onboarding.page.title') }}
       </h1>
@@ -36,6 +58,9 @@
         </button>
       </div>
       <p class="mt-6 text-sm text-muted">{{ t('onboarding.page.later') }}</p>
+      <p class="mt-8 text-xs text-muted">
+        {{ t('onboarding.page.version') }} {{ $config.public.clientVersion }}
+      </p>
 
       <NotionSetupModal
         v-model:open="isNotionSetupModalOpen"
@@ -47,15 +72,12 @@
         @complete="handleLocalSetupComplete"
       />
     </div>
-    <p class="absolute right-2 bottom-2 text-xs text-muted">
-      {{ t('onboarding.page.version') }} {{ $config.public.clientVersion }}
-    </p>
   </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue';
+import { ref, computed, nextTick, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import DataStorageNotice from '~/components/settings/DataStorageNotice.vue';
 import { useBoardStore } from '~/store/board';
@@ -71,6 +93,12 @@ const boardStore = useBoardStore();
 const tasksStore = useTasksStore();
 const { fetchTasks } = useIntegrationManager();
 const { handleError } = useErrorHandler();
+const photo = ref<HTMLImageElement | null>(null);
+const photoLoaded = ref(false);
+// A cached or early-loaded photo can finish before hydration: its load event is gone, so check once on mount
+onMounted(() => {
+  if (photo.value?.complete && photo.value.naturalWidth > 0) photoLoaded.value = true;
+});
 const isNotionSetupModalOpen = ref(false); // State for modal visibility
 const isLocalSetupModalOpen = ref(false); // State for local setup modal
 

@@ -1158,11 +1158,8 @@
     }
   },
   "onboarding": {
-    "welcome": {
-      "title": "Willkommen bei Kan-Do",
-      "tagline": "Dein täglicher Begleiter für fokussiertes Arbeiten"
-    },
     "page": {
+      "tagline": "Ein ruhiges Board für die Aufgaben des Tages.",
       "version": "Version:",
       "title": "Wo sind deine Aufgaben heute?",
       "nowhere": "Noch nirgends",

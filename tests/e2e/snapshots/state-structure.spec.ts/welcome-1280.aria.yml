@@ -1,0 +1,8 @@
+- main:
+  - paragraph: kan-do
+  - paragraph: Ein ruhiges Board für die Aufgaben des Tages.
+  - heading "Wo sind deine Aufgaben heute?" [level=1]
+  - button "Noch nirgends"
+  - button "In Notion"
+  - paragraph: Weitere Verbindungen kannst du später in den Einstellungen hinzufügen.
+  - paragraph: "/Version: \\d+\\.\\d+\\.0/"
