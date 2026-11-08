@@ -231,7 +231,7 @@ describe('MorePanel: the Mehr panel (#470)', () => {
     })
   })
 
-  describe('keyboard (#23)', () => {
+  describe('keyboard (kd#23)', () => {
     const press = async (w: VueWrapper, key: string) => {
       await w.find('[data-testid="more-panel"]').trigger('keydown', { key })
     }

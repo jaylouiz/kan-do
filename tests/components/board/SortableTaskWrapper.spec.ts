@@ -124,7 +124,7 @@ describe('SortableTaskWrapper: Delete key (#579)', () => {
   })
 })
 
-describe('SortableTaskWrapper: Enter key (#25)', () => {
+describe('SortableTaskWrapper: Enter key (kd#25)', () => {
   it('Enter clicks the card without a pointer (detail 0) and the click does not bubble', async () => {
     mountWrapper()
     const clicks: MouseEvent[] = []

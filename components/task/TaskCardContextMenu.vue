@@ -5,7 +5,7 @@
   On mobile/touch: a 750ms long press opens the menu; moving more than 14px
   (grace pixels) cancels it so a drag gesture is never interrupted.
   Keyboard: the ContextMenu key or Shift+F10 on the focused card (its `.task-wrapper`, a parent of this
-  component) opens the menu at the card; on close focus returns to the card (#23).
+  component) opens the menu at the card; on close focus returns to the card (kd#23).
   If a drag starts while the menu is open it is closed immediately.
 @usage Used in BoardColumn to provide right-click / long-press menu on task cards
 @responsibility
@@ -222,7 +222,7 @@ function handleContextMenu(event: MouseEvent) {
   }
 }
 
-// ── Keyboard: ContextMenu key / Shift+F10 on the focused card (#23) ──────────
+// ── Keyboard: ContextMenu key / Shift+F10 on the focused card (kd#23) ──────────
 // The focus holder is the parent `.task-wrapper`, so its keydown never reaches this component's own
 // wrapper. reka opens only from a `contextmenu` event with coordinates: dispatch one at the card.
 

@@ -32,13 +32,13 @@ test.describe('Command palette', () => {
     await expect(card(page, 'Dokumentation lesen')).toBeFocused()
   })
 
-  test('Ctrl+K opens it on every platform (#23: Meta+K alone left Windows/Linux out)', async ({ page }) => {
+  test('Ctrl+K opens it on every platform (kd#23: Meta+K alone left Windows/Linux out)', async ({ page }) => {
     await card(page, 'Dokumentation lesen').focus()
     await page.keyboard.press('Control+k')
     await expect(palette(page)).toBeVisible()
   })
 
-  test('the ⋯ panel has a visible Befehle row that opens it (#23)', async ({ page }) => {
+  test('the ⋯ panel has a visible Befehle row that opens it (kd#23)', async ({ page }) => {
     await moreButton(page).click()
     const row = morePanel(page).getByTestId('more-commands')
     await expect(row).toContainText('Befehle')

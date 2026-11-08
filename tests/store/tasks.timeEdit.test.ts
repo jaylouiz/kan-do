@@ -1,5 +1,5 @@
 /**
- * #4: a user edit of a task's total time spent. The edit is absolute: it wins over a fetch (Notion's
+ * kd#4: a user edit of a task's total time spent. The edit is absolute: it wins over a fetch (Notion's
  * `mergeTasks` otherwise keeps the larger time), survives a later timer tick, and a completed task's
  * statistics record follows it. Work sessions are never written.
  */
@@ -21,7 +21,7 @@ function task(id: string, overrides: Partial<Task> = {}): Task {
   }
 }
 
-describe('setTimeSpent (#4)', () => {
+describe('setTimeSpent (kd#4)', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.spyOn(console, 'log').mockImplementation(() => {})
@@ -111,7 +111,7 @@ describe('setTimeSpent (#4)', () => {
   })
 })
 
-describe('mergeTasks with an edited total (#4)', () => {
+describe('mergeTasks with an edited total (kd#4)', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.spyOn(console, 'log').mockImplementation(() => {})

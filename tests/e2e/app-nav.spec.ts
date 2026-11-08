@@ -470,7 +470,7 @@ for (const { label, size } of VIEWPORTS) {
         await appNav(page).getByTestId('app-nav-brand').focus()
         await page.keyboard.press('Tab')
       } else {
-        await expect(appNav(page).getByTestId('app-nav-brand')).toBeHidden() // no wordmark on a phone (#24)
+        await expect(appNav(page).getByTestId('app-nav-brand')).toBeHidden() // no wordmark on a phone (kd#24)
         await heute(page).focus()
       }
       await expect(heute(page)).toBeFocused()
@@ -538,7 +538,7 @@ test.describe('App bar: third segment on a phone (#583)', () => {
     await seedLocalBoard(context, SEED_TASKS, {}, undefined, { once: true })
   })
 
-  test('no wordmark on a phone (#24); the bar keeps its width when the third segment comes and goes', async ({ page }) => {
+  test('no wordmark on a phone (kd#24); the bar keeps its width when the third segment comes and goes', async ({ page }) => {
     await page.goto('/tasks')
     const brand = appNav(page).getByTestId('app-nav-brand')
     await expect(brand).toBeHidden() // display none: not focusable, not announced
@@ -710,8 +710,8 @@ test.describe('App bar: resize and routes without a bar', () => {
   })
 })
 
-/** Issue #23 (U5): the ⋯ panel looks like a menu, so ↑/↓/Home/End move through its controls. */
-test.describe('App bar: arrow keys in the Mehr panel (#23)', () => {
+/** Issue kd#23 (U5): the ⋯ panel looks like a menu, so ↑/↓/Home/End move through its controls. */
+test.describe('App bar: arrow keys in the Mehr panel (kd#23)', () => {
   test.beforeEach(async ({ context, page }) => {
     await seedLocalBoard(context)
     await page.goto('/tasks')
@@ -741,8 +741,8 @@ test.describe('App bar: arrow keys in the Mehr panel (#23)', () => {
   })
 })
 
-/** Issue #40: closing the ⋯ panel returns focus to ⋯; that focus must not open the tooltip on the new page. */
-test.describe('App bar: ⋯ tooltip after a page change (#40)', () => {
+/** Issue kd#40: closing the ⋯ panel returns focus to ⋯; that focus must not open the tooltip on the new page. */
+test.describe('App bar: ⋯ tooltip after a page change (kd#40)', () => {
   test('choosing Einstellungen leaves no tooltip on ⋯', async ({ context, page }) => {
     await seedLocalBoard(context)
     await page.setViewportSize({ width: 1280, height: 800 })

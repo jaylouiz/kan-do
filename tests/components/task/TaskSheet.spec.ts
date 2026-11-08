@@ -54,7 +54,7 @@ describe('TaskSheet', () => {
     expect(wrapper.emitted('update:open')).toEqual([[false]])
   })
 
-  it('swallows an outside press right after opening (the second click of a double-click), not a later one (#25)', async () => {
+  it('swallows an outside press right after opening (the second click of a double-click), not a later one (kd#25)', async () => {
     const now = vi.spyOn(performance, 'now')
     now.mockReturnValue(1000)
     const wrapper = await mountSheet(false)

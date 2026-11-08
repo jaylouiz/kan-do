@@ -27,7 +27,7 @@ export function useTrash() {
   const { undoDelete, isUndoOpen } = useTaskDeletion()
 
   /**
-   * A delete inside its undo window is already in the trash (#27): its entry is derived from the pending
+   * A delete inside its undo window is already in the trash (kd#27): its entry is derived from the pending
    * delete, restoring it is the undo. Once the window closes the real entry replaces it (same task id).
    */
   const pendingEntries = computed<TrashEntry[]>(() => Object.values(tasksStore.pendingDeletes)

@@ -49,7 +49,7 @@ describe('fieldsForSource (#321)', () => {
     for (const source of SOURCE_IDS) expect(fieldsForSource(source, mapping())).toBeTruthy()
   })
 
-  it('new Thema/Aktivität values (#16): Local takes any text, Notion cleans it, Todoist has no free values', () => {
+  it('new Thema/Aktivität values (kd#16): Local takes any text, Notion cleans it, Todoist has no free values', () => {
     expect(fieldsForSource('local').newValues).toEqual({ maxLength: null, stripCommas: false })
     expect(fieldsForSource('notion', mapping({ topic: 'Thema' })).newValues).toEqual({ maxLength: 100, stripCommas: true })
     expect(fieldsForSource('todoist').newValues).toBeNull()

@@ -1,6 +1,6 @@
 /**
  * @module quickAddSuggestions
- * @description Pure suggestion logic of the guided new-card flow (#649, #16): which values a step offers as pills and
+ * @description Pure suggestion logic of the guided new-card flow (#649, kd#16): which values a step offers as pills and
  * which stay behind "all options" (Thema and Aktivität: three pills and the Mehr cell with a search and "Neu", Timebox: two pills and "···"). No Pinia here, so the rules are testable on their own; `NewCardFlow` feeds
  * it the tasks and the option pools.
  *
@@ -12,7 +12,7 @@
 /** Pills shown on the Timebox step; everything else sits behind "all options" */
 export const SUGGESTION_COUNT = 2
 
-/** Pills shown on Thema and Aktivität (#16): the fourth grid cell is Mehr, which opens the rest with a search */
+/** Pills shown on Thema and Aktivität (kd#16): the fourth grid cell is Mehr, which opens the rest with a search */
 export const ENTRY_PILL_COUNT = 3
 
 /** The full timebox list behind "all options", in minutes */
@@ -27,7 +27,7 @@ export interface SuggestionStep {
   suggestions: string[]
   /**
    * What the list behind the pills holds. Timebox ("···"): all values, the picked pills stay in it, empty when no third
-   * pill is needed. Thema and Aktivität (Mehr, #16): only the values that are not pills.
+   * pill is needed. Thema and Aktivität (Mehr, kd#16): only the values that are not pills.
    */
   rest: string[]
 }
@@ -54,7 +54,7 @@ interface TaskLike {
   activity?: string | null
 }
 
-/** Thema and Aktivität (#16): three pills, the Mehr list holds the values after them. */
+/** Thema and Aktivität (kd#16): three pills, the Mehr list holds the values after them. */
 function toEntryStep(all: string[]): SuggestionStep {
   return { all, suggestions: all.slice(0, ENTRY_PILL_COUNT), rest: all.slice(ENTRY_PILL_COUNT) }
 }

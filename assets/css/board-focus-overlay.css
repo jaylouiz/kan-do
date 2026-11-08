@@ -121,7 +121,7 @@
   }
 }
 
-/* Phone page dots (#26): normally above the pages, in focus mode below the overlay so they are dimmed with the board (the dots
+/* Phone page dots (kd#26): normally above the pages, in focus mode below the overlay so they are dimmed with the board (the dots
    are rendered before .board, so a non-raised z-index puts them under its stacking context, overlay included) */
 .board-container:has(.board[data-focus]) .page-dots {
   z-index: 0;

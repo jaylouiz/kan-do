@@ -16,7 +16,7 @@ afterEach(() => {
   for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true })
 })
 
-describe('local git env scrub (#41)', () => {
+describe('local git env scrub (kd#41)', () => {
   it('covers every variable `git rev-parse --local-env-vars` lists', () => {
     const listed = execFileSync('git', ['rev-parse', '--local-env-vars'], { encoding: 'utf8' }).split('\n').filter(Boolean)
     // A superset: older git lists fewer variables, and the scrub may be broader than the installed git.

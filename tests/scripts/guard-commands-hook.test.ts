@@ -238,8 +238,8 @@ describe('guard-commands hook', () => {
   })
 })
 
-// #2: a missing `jq` used to leave the command empty, so the guard saw nothing and let every guarded command through.
-describe('guard-commands hook without jq (#2)', () => {
+// kd#2: a missing `jq` used to leave the command empty, so the guard saw nothing and let every guarded command through.
+describe('guard-commands hook without jq (kd#2)', () => {
   const noJqBin = (extra: Record<string, string> = {}) => {
     const dir = mkdtempSync(join(tmpdir(), 'kando-guard-nojq-'))
     for (const tool of ['bash', 'sh', 'cat', 'sed', 'tr', 'grep', 'head', 'dirname', 'mktemp', 'rm', 'perl']) {

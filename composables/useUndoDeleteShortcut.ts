@@ -1,6 +1,6 @@
 /**
  * @composable useUndoDeleteShortcut
- * @description ⌘Z (macOS) / Ctrl+Z (elsewhere) runs `undo` while a delete is still inside its undo window (#27).
+ * @description ⌘Z (macOS) / Ctrl+Z (elsewhere) runs `undo` while a delete is still inside its undo window (kd#27).
  * Ignored in text fields (native text undo wins), inside a dialog or menu, with Shift or Alt (redo, other chords) and when another handler
  * already took the key. Only a handled undo calls `preventDefault`.
  * @responsibility The key handler; which delete is undone lives in `useTaskDeletion.undoLatestDelete`.

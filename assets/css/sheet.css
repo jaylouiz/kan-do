@@ -9,7 +9,7 @@
     padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
   }
 
-  /* Welcome sheet (#14) rests on the bottom edge on phones: keep the version line clear of the home indicator.
+  /* Welcome sheet (kd#14) rests on the bottom edge on phones: keep the version line clear of the home indicator.
      The element sets only px/pt utilities: a p-* utility would out-rank this components-layer rule. */
   .welcome-sheet {
     padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));

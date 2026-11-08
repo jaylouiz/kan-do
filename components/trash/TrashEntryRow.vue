@@ -6,7 +6,7 @@
 - Shows the standard TaskCard (`readonly`, `preview`: no sheet, no drag, no swipe, no task id on the DOM); a Wartet card is muted as on the board
 - "Gelöscht vor …", "War in <Spalte>" ("War in Jetzt, kommt zurück nach Offen" for a task from Jetzt) beside the card on desktop, below it at 390px
 - "Wiederherstellen: <title>" for every entry; "Endgültig löschen: <title>" on the page only (`forever`), the sheet is a one-action surface
-- The ✕ asks in place (#21, aligned with "Papierkorb leeren"): question, "Endgültig löschen", "Abbrechen" (focused); Esc or Abbrechen returns focus to the ✕
+- The ✕ asks in place (kd#21, aligned with "Papierkorb leeren"): question, "Endgültig löschen", "Abbrechen" (focused); Esc or Abbrechen returns focus to the ✕
 - A failed restore leaves the entry where it is (`useTrash` reports the error)
 -->
 <template>
@@ -85,7 +85,7 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const { isRestoring } = useTrash()
 
-// Remove-forever asks in place (#21): focus to "Abbrechen", Esc / Abbrechen put it back on the ✕
+// Remove-forever asks in place (kd#21): focus to "Abbrechen", Esc / Abbrechen put it back on the ✕
 const confirming = ref(false)
 const cancelBtn = ref<{ $el: HTMLElement } | null>(null)
 const removeBtn = ref<{ $el: HTMLElement } | null>(null)

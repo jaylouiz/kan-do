@@ -21,7 +21,7 @@ describe('quickAddSuggestions (#649)', () => {
     expect(topicStep([], []).suggestions).toEqual([])
   })
 
-  it('Thema and Aktivität (#16): three pills, the Mehr list holds only the values after them', () => {
+  it('Thema and Aktivität (kd#16): three pills, the Mehr list holds only the values after them', () => {
     const three = topicStep([], ['A', 'B', 'C'])
     expect(three.suggestions).toEqual(['A', 'B', 'C'])
     expect(three.rest).toEqual([])
@@ -51,7 +51,7 @@ describe('quickAddSuggestions (#649)', () => {
     expect(timeboxStep(0).suggestions).toEqual(['15', '30'])
   })
 
-  describe('new values (#16)', () => {
+  describe('new values (kd#16)', () => {
     const local = { maxLength: null, stripCommas: false }
     const notion = { maxLength: 100, stripCommas: true }
 

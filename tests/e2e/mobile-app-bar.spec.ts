@@ -67,7 +67,7 @@ test.describe('Mobile app bar', () => {
     await openBoard(page);
     const pill = (await bar(page).boundingBox())!;
     const more = (await moreButton(page).boundingBox())!;
-    // No wordmark on a phone (#24): the group starts at the pill
+    // No wordmark on a phone (kd#24): the group starts at the pill
     await expect(page.getByTestId('app-nav-brand')).toBeHidden();
     const left = pill.x;
     const right = 390 - (more.x + more.width);

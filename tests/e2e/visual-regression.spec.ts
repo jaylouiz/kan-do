@@ -322,7 +322,7 @@ async function tabTo(page: Page, target: Locator, maxTabs = 60) {
   throw new Error('Target was not reached via Tab')
 }
 
-test.describe('welcome page (#14)', () => {
+test.describe('welcome page (kd#14)', () => {
   const shot = async (page: Page, name: string) => {
     await page.goto('/welcome')
     await expect(page.getByTestId('welcome-choice-local')).toBeVisible()

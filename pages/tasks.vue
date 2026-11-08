@@ -137,7 +137,7 @@ useDayEndTracking();
 
 // Deletes left over from a closed app or queued while offline commit on start and on reconnect (#99)
 const { resumePendingDeletes, undoLatestDelete } = useTaskDeletion();
-// ⌘Z / Ctrl+Z undoes the newest delete still inside its window (#27); a text field keeps its own undo
+// ⌘Z / Ctrl+Z undoes the newest delete still inside its window (kd#27); a text field keeps its own undo
 useUndoDeleteShortcut(undoLatestDelete);
 // Moves left over from a closed app or queued while the target was unreachable continue the same way (#322)
 const { resumePendingMoves } = useTaskMove();

@@ -5,7 +5,7 @@
 @responsibility
 - Hosted by ResponsiveOverlay: a slideover (side right) at >=768px and a bottom drawer below; the shell owns the breakpoint, the frozen variant and the open/close echo guard
 - Focus on open (the drawer: ResponsiveOverlay moves it in, #566), focus trap and focus return come from reka's FocusScope
-- Detail route: ignores an outside pointer-down in the first moments after it opened: the second click of a double-click on a card lands on the overlay and must not dismiss the sheet (#25)
+- Detail route: ignores an outside pointer-down in the first moments after it opened: the second click of a double-click on a card lands on the overlay and must not dismiss the sheet (kd#25)
 - Keeps Escape inside an active inline editor (and the topic editor, #430) from closing the sheet
 - Falls back to the board when there is no trigger to return focus to (deep link)
 - After adding a task, focus goes to the saved card instead of the add slot (#125)
@@ -176,7 +176,7 @@ const onOpenAutoFocus = (event: Event) => {
 };
 
 /**
- * A card opens on click (#25). A person double-clicking it sends the second press 80-400 ms later, when the sheet's
+ * A card opens on click (kd#25). A person double-clicking it sends the second press 80-400 ms later, when the sheet's
  * overlay is already over the card: reka reads that as a press outside and would dismiss the sheet. Within the OS
  * double-click interval of the open (detail route), an outside press is that second click and is swallowed; later ones dismiss as usual.
  */

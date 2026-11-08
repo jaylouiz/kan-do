@@ -25,7 +25,7 @@
   transform: translateY(0);
 }
 
-/* Reduced motion (#27): Nuxt UI floating layers (command palette modal, ⋯ popover, menus, tooltips) scale and fade in
+/* Reduced motion (kd#27): Nuxt UI floating layers (command palette modal, ⋯ popover, menus, tooltips) scale and fade in
    through `data-[state]` animations. Dropping the animation makes reka-ui unmount them at once. */
 @media (prefers-reduced-motion: reduce) {
   [data-state][role="dialog"],

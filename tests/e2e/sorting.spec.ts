@@ -266,7 +266,7 @@ test.describe('Board Sorting', () => {
       const startY = dragBox.y + dragBox.height / 2;
       await page.mouse.move(startX, startY);
       
-      // Start drag (a plain press and release would open the task sheet, #25)
+      // Start drag (a plain press and release would open the task sheet, kd#25)
       await page.mouse.down();
       await page.waitForTimeout(500); // Increased wait for drag init
       

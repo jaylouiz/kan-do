@@ -15,7 +15,7 @@ export interface SourceFields {
   topic: boolean
   /** Enabled custom properties, shown as the "Eigenschaften" section */
   customProperties: NotionCustomPropertyConfig[]
-  /** What a new Thema or Aktivität may look like (#16); `null` = the source has no free values, the new-card flow only searches */
+  /** What a new Thema or Aktivität may look like (kd#16); `null` = the source has no free values, the new-card flow only searches */
   newValues: NewValueRules | null
 }
 
@@ -25,7 +25,7 @@ const LOCAL_FIELDS: SourceFields = {
   newValues: { maxLength: null, stripCommas: false },
 }
 
-/** Notion creates a select option on the page write; it rejects a comma and keeps 100 characters (checked against the sandbox, #16) */
+/** Notion creates a select option on the page write; it rejects a comma and keeps 100 characters (checked against the sandbox, kd#16) */
 const NOTION_NEW_VALUES: NewValueRules = { maxLength: 100, stripCommas: true }
 
 /**

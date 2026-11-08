@@ -4,7 +4,7 @@ import { focusUntilActive, settleAnimations, settleStack } from './helpers/settl
 
 /**
  * Opening cards of a stack (#111, #147): a double-click on a collapsed stack expands it and never
- * opens a sheet; an expanded member behaves like any other card (a click opens it, #25).
+ * opens a sheet; an expanded member behaves like any other card (a click opens it, kd#25).
  */
 
 const NOW = new Date().toISOString()
@@ -66,7 +66,7 @@ test.describe('Task stack: opening cards', () => {
     await expect(members(page)).toHaveCount(3)
   })
 
-  test('clicking a member of an expanded stack opens its sheet (#25)', async ({ page }) => {
+  test('clicking a member of an expanded stack opens its sheet (kd#25)', async ({ page }) => {
     await stack(page).click()
     await expect(members(page)).toHaveCount(3)
 

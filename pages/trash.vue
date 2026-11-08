@@ -8,7 +8,7 @@
 - "Papierkorb leeren" sits right after the retention line, not at the column's far edge past a dead strip (#683). It is irreversible and confirms in place (the button row turns into the question), no dialog
 - Reached with an empty trash it says "Noch keine gelöschten Aufgaben." (the "Noch keine X." empty-state rule)
 - No visible page header (#670): the app bar's third segment reads "Papierkorb"; the layout keeps the title as an sr-only h1
-- The empty-trash question moves focus to "Abbrechen"; Esc cancels and returns focus to "Papierkorb leeren" (#21)
+- The empty-trash question moves focus to "Abbrechen"; Esc cancels and returns focus to "Papierkorb leeren" (kd#21)
 - Focus: when the focused entry leaves, focus goes to the page heading
 -->
 <template>
@@ -76,7 +76,7 @@ const headingEl = ref<HTMLElement | null>(null)
 const cancelEl = ref<{ $el: HTMLElement } | null>(null)
 const emptyEl = ref<{ $el: HTMLElement } | null>(null)
 
-/** The empty-trash question (#21): focus lands on "Abbrechen"; Esc and Abbrechen hand it back to "Papierkorb leeren". */
+/** The empty-trash question (kd#21): focus lands on "Abbrechen"; Esc and Abbrechen hand it back to "Papierkorb leeren". */
 const openEmpty = async () => {
   confirming.value = true
   await nextTick()
