@@ -160,9 +160,9 @@ for (const { name, viewport, touch } of [
 
       await openCard(page)
       await confirmTitle(page, 'Mit Farbpunkt')
-      // Design is a pill; typing its name into Mehr and Enter picks that very value (any case, #16)
+      // Design is a pill; typing part of its name into Mehr and Enter picks that very value, never creates "des" (#16)
       await page.getByTestId('new-card-more').click()
-      await page.getByTestId('new-card-search').fill('design')
+      await page.getByTestId('new-card-search').fill('des')
       await page.keyboard.press('Enter')
       await expect(step(page)).toHaveAttribute('data-step', 'activity')
       await expect(card(page).getByTestId('topic-mark')).toHaveAttribute('data-hue', siblingHue!)

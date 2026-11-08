@@ -53,6 +53,15 @@ describe('NewCardOptionList (#16)', () => {
     expect(names()).toEqual(['Neu: „KUNDE“', 'Kunde A', 'Kunde B'])
   })
 
+  it('searches the pill values too: "des" lists Design and Enter picks it instead of creating "des"', async () => {
+    const m = mountList()
+    await search().setValue('des')
+    expect(names()).toEqual(['Neu: „des“', 'Design'])
+    await search().trigger('keydown.enter')
+    expect(m.emitted('pick')).toEqual([['Design']])
+    expect(m.emitted('create')).toBeUndefined()
+  })
+
   it('shows "Neu" only when no value has that name, pills included', async () => {
     mountList()
     await search().setValue('design')

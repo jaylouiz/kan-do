@@ -3,7 +3,7 @@
 @description The list behind "Mehr" (Thema, Aktivität, #16) and "···" (Timebox) of the guided new-card flow: the values that are not pills, with a search field and a "Neu: „text“" row on Thema and Aktivität
 @usage Inside NewCardFlow's popover (desktop) and drawer (phone); the parent owns open/close, the picks and the focus hand-back
 @responsibility
-- Search (Thema, Aktivität): the text filters the values; a "Neu" row shows when no value has that name (any case) and the source allows free values (`newValues`, the source's rules clean the text: Notion turns commas into spaces and cuts at 100 characters, so the row shows what would be created); without free values the field only searches
+- Search (Thema, Aktivität): the text filters every value of the step, pills included; a "Neu" row shows when no value has that name (any case) and the source allows free values (`newValues`, the source's rules clean the text: Notion turns commas into spaces and cuts at 100 characters, so the row shows what would be created); without free values the field only searches
 - Enter in the field: a value named exactly as typed (any case) is picked, else the first match, else the text is created (a partial match never creates by accident: the "Neu" row is the first stop of ArrowDown, or a tap); no match shows "Keine Treffer gefunden." (a status line)
 - Keys: ↑/↓ (wrapping) walk field, "Neu" row and options; Home/End jump between options only while focus is not in the field (there they move the caret); handled keys stop here so no surrounding handler sees them (#15). Digits typed in the field never reach the step's 1-4 keys (the parent ignores keys while the list is open)
 - Options are plain buttons with one shared handler (not UDropdownMenu: the drawer has no menu primitive, #15)
@@ -97,7 +97,8 @@ const { t } = useI18n();
 const query = ref('');
 const searchEl = ref<{ inputRef: HTMLInputElement | null } | null>(null);
 
-const shown = computed(() => (props.searchable ? filterRest(props.values, query.value) : [...props.values]));
+// A typed text searches every value of the step, pills included ("des" finds the pill "Design"); blank shows only the values behind the pills
+const shown = computed(() => (props.searchable && query.value.trim() ? filterRest(props.all, query.value) : [...props.values]));
 const creatable = computed(() => (props.searchable ? newValueFor(query.value, props.all, props.newValues) : null));
 const existing = computed(() => (props.searchable ? existingValueFor(query.value, props.all, props.newValues) : null));
 
