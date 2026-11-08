@@ -82,6 +82,25 @@ describe('NotionIntegration.updateTask writes Thema and Aktivität (#39)', () =>
     expect(state.patches[0]['Aktivität']).toBeUndefined()
   })
 
+  it('does not write a stale flattened multi-value Aktivität when Notion holds more values now', async () => {
+    const state = stubNotion({ Thema: 'select', 'Aktivität': 'multi_select' }, { Thema: sel(null), 'Aktivität': multi('A', 'B', 'C') })
+    await update({ topic: null, activity: 'A, B' })
+    expect(state.patches[0]['Aktivität']).toBeUndefined()
+  })
+
+  it('cleans a sheet value for a select or multi_select (comma becomes a space, 100 characters)', async () => {
+    const state = stubNotion({ Thema: 'select', 'Aktivität': 'multi_select' }, { Thema: sel(null), 'Aktivität': multi() })
+    await update({ topic: 'Haus, Garten', activity: 'x'.repeat(120) })
+    expect(state.patches[0].Thema).toEqual({ select: { name: 'Haus Garten' } })
+    expect(state.patches[0]['Aktivität']).toEqual({ multi_select: [{ name: 'x'.repeat(100) }] })
+  })
+
+  it('keeps a comma in a rich_text property', async () => {
+    const state = stubNotion({ Thema: 'rich_text', 'Aktivität': 'rich_text' }, { Thema: text(''), 'Aktivität': text('') })
+    await update({ topic: 'Haus, Garten' })
+    expect(state.patches[0].Thema).toEqual({ rich_text: [{ text: { content: 'Haus, Garten' } }] })
+  })
+
   it('writes nothing for a label with no value on either side', async () => {
     const state = stubNotion({ Thema: 'select', 'Aktivität': 'multi_select' }, { Thema: sel(null), 'Aktivität': multi() })
     await update({ topic: null, activity: undefined })

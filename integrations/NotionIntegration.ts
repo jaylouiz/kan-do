@@ -11,6 +11,8 @@ import type {
 } from "~/types/notion";
 import { parseTimeValue } from "~/utils/common";
 import { externalIdOf } from "~/lib/taskSources";
+import { cleanNewValue } from "~/lib/quickAddSuggestions";
+import { fieldsForSource } from "~/utils/sourceFields";
 import { DEFAULT_PRIORITY, normalizePriority, normalizePriorityMapping, notionNameToPriority, priorityToNotionName } from "~/lib/priority";
 import { useErrorHandler } from '~/composables/useErrorHandler';
 import { NotionClientAPI } from './NotionClientAPI';
@@ -171,11 +173,18 @@ export class NotionIntegration {
     value: string | null | undefined,
     fallbackType: LabelPropertyType,
   ): Promise<void> {
-    const held = this.readTopicProperty(heldProperties?.[propertyName] as NotionTopicProperty | undefined).text?.trim() || null;
-    const wanted = value?.trim() || null;
+    const heldProperty = heldProperties?.[propertyName] as NotionTopicProperty | undefined;
+    const held = this.readTopicProperty(heldProperty).text?.trim() || null;
+    const type = (await this.labelPropertyType(propertyName)) ?? fallbackType;
+    // A select or multi_select option name takes the source's rules (no comma, 100 characters), as the new-card flow cleans it
+    let wanted = value?.trim() || null;
+    if (wanted && type !== 'rich_text') wanted = cleanNewValue(wanted, fieldsForSource('notion').newValues!) || null;
     if ((held?.toLowerCase() ?? null) === (wanted?.toLowerCase() ?? null)) return;
-    const type = await this.labelPropertyType(propertyName);
-    target[propertyName] = this.labelValue(type ?? fallbackType, wanted);
+    // A multi-value Aktivität reads as "A, B" (several options): a local label with a comma is that flattened text, possibly
+    // stale, and no option name. Writing it would be one option that Notion rejects, so leave the property alone.
+    const heldCount = (heldProperty as { multi_select?: unknown[] } | undefined)?.multi_select?.length ?? 0;
+    if (heldCount > 1 && value?.includes(',')) return;
+    target[propertyName] = this.labelValue(type, wanted);
   }
 
   /** `{ property, select|status: { equals } }`: one status filter condition for the detected type. */
