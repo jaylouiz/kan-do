@@ -1178,6 +1178,31 @@
       "howToStart": "Wie möchtest du starten?",
       "startFresh": "Neu starten",
       "startSamples": "Mit Beispielaufgaben starten"
+    },
+    "flow": {
+      "backToChoice": "Zur Auswahl",
+      "local": {
+        "label": "Lokal starten",
+        "title": "Lokal starten",
+        "intro": "Deine Aufgaben bleiben auf diesem Gerät. Eine Verbindung wie Notion kannst du später in den Einstellungen hinzufügen.",
+        "freshHint": "Ein leeres Board. Die erste Aufgabe legst du selbst an.",
+        "samplesHint": "Ein gefülltes Board zum Ausprobieren. Du kannst es jederzeit leeren.",
+        "confirm": "Los geht’s"
+      },
+      "notion": {
+        "label": "Mit Notion verbinden",
+        "connect": "Verbinden",
+        "connected": "Notion ist verbunden",
+        "loading": "Dein Board wird geladen …"
+      },
+      "help": {
+        "token": "Du brauchst ein Notion-Token. Es wird nur auf diesem Gerät gespeichert.",
+        "database": "Wähle die Datenbank mit deinen Aufgaben. Die Datenbank muss mit deiner Integration geteilt sein.",
+        "mapping": "Sag der App, welche Eigenschaft der Titel, der Status und die Fälligkeit ist. Passende sind vorausgewählt.",
+        "custom-properties": "Optional: weitere Eigenschaften wie Thema oder Aktivität mitnehmen.",
+        "priority-mapping": "Ordne die Werte deiner Prioritäts-Eigenschaft den drei Stufen zu.",
+        "status-mapping": "Zuletzt: welcher Notion-Status zu welcher Spalte gehört. Danach geht es los."
+      }
     }
   },
   "commandPalette": {

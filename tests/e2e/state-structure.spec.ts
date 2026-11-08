@@ -97,6 +97,22 @@ test.describe('welcome page (kd#14)', () => {
   })
 })
 
+test.describe('welcome setup on the page (#43)', () => {
+  test('Notion: first step with the guide rail (1280)', async ({ page }) => {
+    await page.goto('/welcome')
+    await page.getByTestId('welcome-choice-notion').click()
+    await expect(page.getByRole('heading', { name: 'Notion-Token' })).toBeFocused()
+    await expect(page.getByTestId('notion-setup-flow')).toMatchAriaSnapshot({ name: 'welcome-notion-first-step-1280.aria.yml' })
+  })
+
+  test('Local: the two radio cards and the confirmation (1280)', async ({ page }) => {
+    await page.goto('/welcome')
+    await page.getByTestId('welcome-choice-local').click()
+    await expect(page.getByTestId('local-confirm')).toBeVisible()
+    await expect(page.getByTestId('local-setup-flow')).toMatchAriaSnapshot({ name: 'welcome-local-1280.aria.yml' })
+  })
+})
+
 test.describe('task sheet', () => {
   test('open from the board (1280)', async ({ context, page }) => {
     await seedLocalBoard(context)

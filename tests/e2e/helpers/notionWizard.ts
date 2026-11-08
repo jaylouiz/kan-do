@@ -8,27 +8,26 @@ import { expect, type Page } from '@playwright/test'
 import { notionStubSessionToken } from './seed'
 
 /**
- * Enters a stub token and presses "Weiter" / "Fertig stellen" until the dialog is gone. Every press waits for
+ * Enters a stub token and presses "Weiter" / "Fertig stellen" (settings dialog) or "Verbinden" (welcome page, #43) until the setup is gone. Every press waits for
  * the step to change first (the token and database steps validate against the stub before they advance), so
  * no step is pressed twice. The stub's defaults need no input beyond the token.
  *
  * "Weiter" on the properties step stays disabled until the schema is auto-mapped (#358), so waiting for the
- * enabled button is enough. The step text is compared as `innerText` (the stepper's `textContent` has no space
- * between number and title, so a `textContent` comparison never differs).
+ * enabled button is enough. The current step is the `aria-current` item of the dialog's stepper or of the page's rail (one of the two is rendered).
  */
 export async function completeNotionWizard(page: Page, token: string = notionStubSessionToken()): Promise<void> {
-  const dialog = page.getByRole('dialog')
+  const dialog = page.getByRole('dialog').or(page.getByTestId('notion-setup-flow'))
   const proceed = page.getByTestId('wizard-proceed')
-  const currentStep = dialog.locator('[aria-current="step"]')
+  const currentStep = dialog.locator('[aria-current="step"]').first()
 
   await dialog.getByPlaceholder('Integrationstoken eingeben').fill(token)
   for (let press = 0; press < 16; press++) {
     await expect(proceed).toBeEnabled()
-    const isLastStep = (await proceed.innerText()).trim() === 'Fertig stellen'
+    const isLastStep = ['Fertig stellen', 'Verbinden'].includes((await proceed.innerText()).trim())
     const before = await currentStep.innerText()
     await proceed.click()
     if (isLastStep) break
     await expect(currentStep).not.toHaveText(before, { useInnerText: true })
   }
-  await expect(dialog).toHaveCount(0)
+  await expect(dialog).toHaveCount(0, { timeout: 10_000 })
 }
