@@ -53,7 +53,7 @@ const text = (content: string) => ({ rich_text: content ? [{ plain_text: content
 beforeEach(() => resetStatusTypeCache())
 afterEach(() => vi.unstubAllGlobals())
 
-describe('NotionIntegration.updateTask writes Thema and Aktivität (#39)', () => {
+describe('NotionIntegration.updateTask writes Thema and Aktivität (kd#39)', () => {
   it('writes a changed Thema (select) and Aktivität (multi_select) in the property type', async () => {
     const state = stubNotion({ Thema: 'select', 'Aktivität': 'multi_select' }, { Thema: sel('Alt'), 'Aktivität': multi('Alt') })
     await update({ topic: 'Neu', activity: 'Neu-Akt' })

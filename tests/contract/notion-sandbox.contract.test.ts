@@ -277,7 +277,7 @@ describe.skipIf(!enabled).each(['select', 'status'] as const)('NotionIntegration
     expect(names(schema.properties['Aktivität']!.multi_select?.options).filter((name) => name.toLowerCase() === activity.toLowerCase())).toEqual([activity])
   }, 60_000)
 
-  // #39: an edit of Thema or Aktivität on an existing task is written; clearing is written; an unrelated update leaves them
+  // kd#39: an edit of Thema or Aktivität on an existing task is written; clearing is written; an unrelated update leaves them
   it('updateTask writes a changed and a cleared topic and activity, and leaves them on an unrelated update', async () => {
     const read = async (id: string) => summarizePage((await notion.pages.retrieve({ page_id: id })) as unknown as Record<string, unknown>)
     const created = await integration.createTask({ title: `Labeltest ${statusType}`, status: TaskStatus.Open, topic: `Alt-${statusType}`, activity: `Alt-Akt-${statusType}` })

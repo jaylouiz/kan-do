@@ -162,7 +162,7 @@ export class NotionIntegration {
   }
 
   /**
-   * Puts a topic or activity into `target` when it differs from what the page holds (#39): names compared trimmed
+   * Puts a topic or activity into `target` when it differs from what the page holds (kd#39): names compared trimmed
    * and case-insensitive, an empty local value against a held one clears it. The write shape is the property's own
    * type (`labelPropertyType`), `fallbackType` when it cannot be told, as `createTask` does.
    */
@@ -790,7 +790,7 @@ export class NotionIntegration {
       const priorityProperty = this.propertyMapping.priority;
       const priorityName = priorityProperty ? this.getPriorityName(task.priority) : '';
       const needsPriorityCheck = Boolean(priorityProperty && priorityName);
-      // Thema and Aktivität (#39): written only when the value Notion holds differs from the local one, so an
+      // Thema and Aktivität (kd#39): written only when the value Notion holds differs from the local one, so an
       // unrelated push never rewrites them (a multi_select with several values reads back as "A, B", which must
       // not become one new option). The page read is the same one as above.
       const labelProperties = [this.propertyMapping.topic, this.propertyMapping.activity].filter((name): name is string => Boolean(name));

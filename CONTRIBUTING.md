@@ -133,7 +133,7 @@ PORT=3101 npm run test:e2e -- tests/e2e/task-detail.spec.ts --reporter=list
 - Merging runs a tiered E2E set from a pre-merge hook (docs-only changes skip it; others run smoke plus the specs mapped to the touched area). List the specs you ran in the PR body as `E2E-specs: a b c`. Tier rules: [.claude/rules/e2e-gate.md](.claude/rules/e2e-gate.md).
 - Opt in to checks before every push: `git config core.hooksPath .githooks` (`npm run verify`; in testing mode `fast` only the unit tests of changed code).
 
-Issue and PR numbers (`#n`) up to #704 in code, docs and commit history refer to the private archive of the project's earlier history, `jaylouiz/kan-do-archive`, which is not public.
+Issue and PR numbers: in code, comments, test names and docs a bare `#n` always means the private archive of the project's earlier history, `jaylouiz/kan-do-archive` (numbers up to #704, not public); a reference to an issue or PR of this repo is written `kd#n`. GitHub text (issues, PRs, commit messages) keeps the plain `#n`, which GitHub links to this repo; commit messages up to `cda2fa7b` use archive numbers.
 
 ## How work flows
 
