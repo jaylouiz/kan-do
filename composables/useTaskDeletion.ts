@@ -345,7 +345,7 @@ export function useTaskDeletion() {
     return true
   }
 
-  /** The newest delete that is still inside its undo window (#27); undo the one the user just did first. */
+  /** The newest delete that is still inside its undo window (kd#27); undo the one the user just did first. */
   function latestOpenDeleteId(): string | null {
     let latest: PendingTaskDelete | null = null
     for (const pending of Object.values(tasksStore.pendingDeletes)) {
@@ -355,7 +355,7 @@ export function useTaskDeletion() {
     return latest?.taskId ?? null
   }
 
-  /** ⌘Z / Ctrl+Z (#27): undoes the newest delete in its window; false when there is none. */
+  /** ⌘Z / Ctrl+Z (kd#27): undoes the newest delete in its window; false when there is none. */
   function undoLatestDelete(): boolean {
     const taskId = latestOpenDeleteId()
     if (taskId === null) return false

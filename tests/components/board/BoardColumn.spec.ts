@@ -202,7 +202,7 @@ describe('BoardColumn', () => {
     })
   })
 
-  describe('opening a card (#111, #25)', () => {
+  describe('opening a card (#111, kd#25)', () => {
     const openTasks = [{ id: 'a', title: 'A', status: TaskStatus.Open } as any]
     const mountOpen = (extra: Record<string, unknown> = {}) =>
       mount(BoardColumn, {

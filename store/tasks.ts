@@ -587,7 +587,7 @@ export const useTasksStore = defineStore("tasks", () => {
   }
 
   /**
-   * A user's edit of a task's total time spent (#4). Unlike the timer tick (`updateTaskTimespent`, which
+   * A user's edit of a task's total time spent (kd#4). Unlike the timer tick (`updateTaskTimespent`, which
    * accumulates and queues only for a task in Jetzt) the edit is absolute, for any status: the total is
    * written at once and, for a source that stores time, queued as an `absolute` entry. While that entry
    * exists `mergeTasks` takes the local total over a higher fetched one, and the Notion push writes the time
@@ -790,7 +790,7 @@ export const useTasksStore = defineStore("tasks", () => {
         const externalTimeSpent = fetchedTask.timeSpentSeconds || 0;
         const pendingUpdate = mapHelpers.get(pendingTimeUpdates.value, resolvedId);
         const pendingLocal = pendingUpdate?.timeSpentSeconds || 0;
-        // A total the user set (#4) wins over the fetched one, also when it is lower; otherwise the larger value stays
+        // A total the user set (kd#4) wins over the fetched one, also when it is lower; otherwise the larger value stays
         const userSetTime = pendingUpdate?.absolute === true;
         const effectiveLocal = userSetTime ? localTimeSpent : Math.max(localTimeSpent, pendingLocal);
 

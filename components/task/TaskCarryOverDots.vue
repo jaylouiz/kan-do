@@ -5,7 +5,7 @@
 `decorative` next to text that already names the count (task sheet).
 @responsibility
 - Shows up to CARRY_OVER_DOT_CAP dots; only past the cap a "+" and the muted numeral follow (#584; never in decorative mode)
-- Names the meaning for hover and screen readers; not a tab stop (#27: 8+ extra stops on a board of carried-over cards) ("Tag 3 auf dem Board")
+- Names the meaning for hover and screen readers; not a tab stop (kd#27: 8+ extra stops on a board of carried-over cards) ("Tag 3 auf dem Board")
 - Never interactive: no click handler and no focus, so it adds no drag-vs-click target
 -->
 <template>
@@ -59,7 +59,7 @@ const label = computed(() => t('task.carryOver.label', { n: props.day }))
 .carry-over-dots {
   display: inline-flex;
   /* The item that gives way in a footer row that is too narrow (#323, #584): the end of the dots is clipped.
-     The dots take no focus (#27), so nothing outside the box needs to be drawn. */
+     The dots take no focus (kd#27), so nothing outside the box needs to be drawn. */
   min-width: 0;
   overflow: hidden;
   align-items: center;

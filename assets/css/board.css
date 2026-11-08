@@ -72,7 +72,7 @@
     }
 
     .board-container {
-      /* Strip the page dots (BoardPageDots, #26) take above the column title */
+      /* Strip the page dots (BoardPageDots, kd#26) take above the column title */
       --page-dots-strip: 1.25rem;
       width: 100vw;
       max-width: 100vw;

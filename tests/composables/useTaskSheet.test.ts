@@ -51,7 +51,7 @@ describe('useTaskSheet return focus (#125)', () => {
   })
 })
 
-describe('useTaskSheet close navigation (#22)', () => {
+describe('useTaskSheet close navigation (kd#22)', () => {
   const setup = (back: string | null) => {
     const hooks: Array<(to: { path: string }, from: unknown, failure?: unknown) => void> = []
     const router = {

@@ -22,7 +22,7 @@ input=$(cat)
 . "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/hook-input.sh"
 shopt -s nocasematch
 if ! cmd=$(hook_command "$input"); then
-  # Neither jq nor perl's JSON::PP could read the input (#2): block anything the guard's own pre-filter would look at.
+  # Neither jq nor perl's JSON::PP could read the input (kd#2): block anything the guard's own pre-filter would look at.
   case "$input" in
     *pkill*|*killall*|*pgrep*|*tauri*|*release*|*npm*|*copy-terms*|*osascript*|*screencapture*)
       echo "guard-commands: cannot read the hook input (no working jq, and perl's JSON::PP failed), and it may hold a guarded command. Install jq (brew install jq), then retry." >&2

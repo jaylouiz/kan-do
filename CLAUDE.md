@@ -131,7 +131,7 @@ GitHub issues are the work queue; lanes `needs-design` → `needs-spec` → `rea
 
 After merge: GitHub deletes the remote head branch (repo setting "Automatically delete head branches"); the `SessionStart` hook `.claude/hooks/cleanup-merged.sh` removes local worktrees and branches of merged PRs, Orca-managed ones via `orca worktree rm` (skips dirty worktrees and branches with commits after the merge; a lone modified `package-lock.json` counts as clean and is discarded, because Orca's repo setup script `npm install` rewrites it with local npm 11.6). After merging a PR yourself, run it right away; `--dry-run` previews.
 
-Issue and PR numbers `#n` up to #704 in code, docs and commit history refer to the private archive `jaylouiz/kan-do-archive` (`gh issue view <n> -R jaylouiz/kan-do-archive`). The issue body is the single current spec; comments hold the history. `inbox` issues (rule in `~/.claude/CLAUDE.md`) are out of scope until the user relabels or names them.
+Issue and PR numbers: a bare `#n` in code, comments, docs and commits up to `cda2fa7b` refers to the private archive `jaylouiz/kan-do-archive` (`gh issue view <n> -R jaylouiz/kan-do-archive`, numbers up to #704). Numbers overlap, so a reference to an issue or PR of this repo is written `kd#n` in code, comments, test names and docs (`gh issue view <n>`); GitHub text (issues, PRs, commit messages) keeps the plain `#n`, which GitHub links to this repo. The issue body is the single current spec; comments hold the history. `inbox` issues (rule in `~/.claude/CLAUDE.md`) are out of scope until the user relabels or names them.
 
 ## CI
 

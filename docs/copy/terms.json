@@ -667,7 +667,7 @@
     "avoidDe": ["App & Daten", "Sonstiges"],
     "avoidEn": ["Other", "App & data"],
     "status": "proposed",
-    "note": "Named by the user in the #691 design round: user-data maintenance, not board behaviour, so Themen und Aktivitäten lives here too. The tab strip reads Board, Aufgabenquellen, Verwaltung (en: Board, Connections, Manage; en avoids \"task source\" because of the task-source term). Not \"Mehr\" / \"More\" as a catch-all tab name; the words moved out of the avoid lists in #16, where \"Mehr\" names the new-card flow's fourth cell (quick-add-more-values) and the registry test forbids one term's avoid form being another's preferred form."
+    "note": "Named by the user in the #691 design round: user-data maintenance, not board behaviour, so Themen und Aktivitäten lives here too. The tab strip reads Board, Aufgabenquellen, Verwaltung (en: Board, Connections, Manage; en avoids \"task source\" because of the task-source term). Not \"Mehr\" / \"More\" as a catch-all tab name; the words moved out of the avoid lists in kd#16, where \"Mehr\" names the new-card flow's fourth cell (quick-add-more-values) and the registry test forbids one term's avoid form being another's preferred form."
   },
   {
     "id": "request-limit",
@@ -700,12 +700,12 @@
   },
   {
     "id": "quick-add-more-values",
-    "concept": "The fourth cell of the new-card flow's Thema and Aktivität steps: opens the rest of the values with a search and \"Neu\" (#16)",
+    "concept": "The fourth cell of the new-card flow's Thema and Aktivität steps: opens the rest of the values with a search and \"Neu\" (kd#16)",
     "de": "Mehr",
     "en": "More",
     "avoidDe": [],
     "avoidEn": [],
     "status": "proposed",
-    "note": "Named by the maintainer in the #16 design round (the cell looks like an input and says \"Mehr\"). The settings tab \"Verwaltung\" avoids \"Mehr\" as a catch-all name; this cell is the opposite, an action that shows more values of one list."
+    "note": "Named by the maintainer in the kd#16 design round (the cell looks like an input and says \"Mehr\"). The settings tab \"Verwaltung\" avoids \"Mehr\" as a catch-all name; this cell is the opposite, an action that shows more values of one list."
   }
 ]

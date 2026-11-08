@@ -293,7 +293,7 @@ test.describe('timebox progress chip (#388)', () => {
 
   test('Tab never lands on a control hidden under the Jetzt bar', async ({ context, page }) => {
     // The footer's start group (dots) sits under the bar on the Jetzt card: nothing in it may take focus (the dots themselves
-    // are no tab stop since #27, but the group is inert so a future control there cannot become one)
+    // are no tab stop since kd#27, but the group is inert so a future control there cannot become one)
     await seedLocalBoard(context, SEED_TASKS, { [JETZT_ID]: carriedOverDays(2), 'seed-open-1': carriedOverDays(2) })
     await page.goto('/tasks')
     await expectBar(page, JETZT_ID)

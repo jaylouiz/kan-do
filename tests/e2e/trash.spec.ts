@@ -137,7 +137,7 @@ test.describe('delete is confirmed in the card slot (#422)', () => {
     await expect(gap(page)).toHaveCount(0)
   })
 
-  test('Ctrl+Z undoes the newest delete inside its window, and only inside it (#27)', async ({ page }) => {
+  test('Ctrl+Z undoes the newest delete inside its window, and only inside it (kd#27)', async ({ page }) => {
     await page.goto('/tasks')
     await deleteCard(page, OPEN_TITLE)
     await expect(gap(page)).toHaveCount(1)
@@ -153,7 +153,7 @@ test.describe('delete is confirmed in the card slot (#422)', () => {
     expect(await storedTrash(page)).toHaveLength(1)
   })
 
-  test('Ctrl+Z in a text field keeps the native text undo and leaves the delete alone (#27)', async ({ page }) => {
+  test('Ctrl+Z in a text field keeps the native text undo and leaves the delete alone (kd#27)', async ({ page }) => {
     await page.goto('/tasks')
     await deleteCard(page, OPEN_TITLE)
     await page.keyboard.press('Control+k')
@@ -163,7 +163,7 @@ test.describe('delete is confirmed in the card slot (#422)', () => {
     await expect(gap(page)).toHaveCount(1)
   })
 
-  test('a delete inside its window is already in the trash; restoring it there is the undo (#27)', async ({ page }) => {
+  test('a delete inside its window is already in the trash; restoring it there is the undo (kd#27)', async ({ page }) => {
     await page.goto('/tasks')
     await deleteCard(page, OPEN_TITLE)
     await expectTrashRow(page, 'Papierkorb (1)')
@@ -175,7 +175,7 @@ test.describe('delete is confirmed in the card slot (#422)', () => {
     await expect(trashPage(page).getByTestId('trash-entry')).toHaveCount(1) // no duplicate once the window closes
   })
 
-  test('restoring a pending delete from the trash page puts the card back (#27)', async ({ page }) => {
+  test('restoring a pending delete from the trash page puts the card back (kd#27)', async ({ page }) => {
     await page.goto('/tasks')
     await deleteCard(page, OPEN_TITLE)
     await openTrash(page)
@@ -407,7 +407,7 @@ test.describe('the trash page (#422)', () => {
     await page.getByRole('button', { name: 'Wiederherstellen: Gestern gelöscht' }).click()
     await expect(page.getByTestId('trash-entry')).toHaveCount(3)
     await page.getByRole('button', { name: 'Endgültig löschen: Früher gelöscht A' }).click()
-    await expect(page.getByTestId('trash-entry')).toHaveCount(3) // asks first (#21)
+    await expect(page.getByTestId('trash-entry')).toHaveCount(3) // asks first (kd#21)
     await expect(page.getByTestId('trash-remove-cancel')).toBeFocused()
     await page.keyboard.press('Escape')
     await expect(page.getByTestId('trash-remove-confirm')).toHaveCount(0)

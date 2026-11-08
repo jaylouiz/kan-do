@@ -10,7 +10,7 @@ import { describe, expect, it } from 'vitest'
 // reaches the gate and skips.
 
 const root = resolve(__dirname, '../..')
-// The hook logs one row per run into <git common dir>/agent-ledgers/checks.tsv, the retro's metric file (#10). Every run
+// The hook logs one row per run into <git common dir>/agent-ledgers/checks.tsv, the retro's metric file (kd#10). Every run
 // here goes to a temp ledger instead: the fake gh answers (head abc123, tier skip) must not land among real gate rows.
 const ledger = join(mkdtempSync(join(tmpdir(), 'kando-hook-ledger-')), 'checks.tsv')
 process.env.KANDO_CHECKS_LEDGER = ledger
@@ -806,7 +806,7 @@ describe('e2e-before-merge hook arguments', () => {
     expect(run(`git commit -m "x\n${restMerge()}"`)).toEqual({ status: 0, calls: '' })
   })
 
-  it('writes its gate row to KANDO_CHECKS_LEDGER, not to the real checks.tsv (#10)', () => {
+  it('writes its gate row to KANDO_CHECKS_LEDGER, not to the real checks.tsv (kd#10)', () => {
     const own = join(mkdtempSync(join(tmpdir(), 'kando-hook-ledger-own-')), 'rows.tsv')
     const { GH_REPO: _inherited, ...inherited } = process.env
     const spawn = (env: Record<string, string>) => spawnSync('bash', [resolve(root, '.claude/hooks/e2e-before-merge.sh')], {
@@ -882,8 +882,8 @@ describe('e2e-before-merge hook arguments', () => {
   })
 })
 
-// #2: a missing `jq` used to leave the command empty, so the hook saw no merge and let it through unchecked.
-describe('e2e-before-merge hook without jq (#2)', () => {
+// kd#2: a missing `jq` used to leave the command empty, so the hook saw no merge and let it through unchecked.
+describe('e2e-before-merge hook without jq (kd#2)', () => {
   it('with jq, an odd payload shape is blocked like the same shape without jq, and the block message runs no command', () => {
     for (const tool_input of [{ command: [merge()] }, merge()]) {
       const result = spawnSync('bash', [resolve(root, '.claude/hooks/e2e-before-merge.sh')], {

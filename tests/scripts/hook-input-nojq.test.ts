@@ -1,6 +1,6 @@
 // @vitest-environment node
 /**
- * #9: the per-edit and Stop hooks (`eslint-file.sh`, `impeccable-worktree.sh`, `verify.sh`) read their input through
+ * kd#9: the per-edit and Stop hooks (`eslint-file.sh`, `impeccable-worktree.sh`, `verify.sh`) read their input through
  * `hook-input.sh`, so a contributor without `jq` keeps the feedback. Same payloads run with and without jq on PATH.
  */
 import { execFileSync, spawnSync } from 'node:child_process'
@@ -72,7 +72,7 @@ afterEach(() => {
   for (const d of dirs.splice(0)) rmSync(d, { recursive: true, force: true })
 })
 
-describe('per-edit hooks without jq (#9)', () => {
+describe('per-edit hooks without jq (kd#9)', () => {
   it('the test PATH really has no jq', () => {
     expect(spawnSync('sh', ['-c', 'command -v jq'], { env: { PATH: noJqBin() } }).status).not.toBe(0)
   })

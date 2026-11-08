@@ -1,6 +1,6 @@
 /**
  * Repository-selecting variables git exports to hooks and to `rebase --exec` (`git rev-parse --local-env-vars`).
- * While one is set, `cwd` and `git -C` are ignored, so a temp-dir `git init` acts on the calling repo (#41).
+ * While one is set, `cwd` and `git -C` are ignored, so a temp-dir `git init` acts on the calling repo (kd#41).
  */
 export const LOCAL_GIT_ENV_VARS = [
   'GIT_ALTERNATE_OBJECT_DIRECTORIES',

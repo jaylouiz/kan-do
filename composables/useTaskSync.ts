@@ -339,7 +339,7 @@ export const useTaskSync = () => {
     }
   };
 
-  /** `timeEdited` for a write that carries a total the user set (#4), even at 0; empty otherwise. */
+  /** `timeEdited` for a write that carries a total the user set (kd#4), even at 0; empty otherwise. */
   const timeEditFlag = (taskId: string): { timeEdited?: true } =>
     tasksStore.pendingTimeUpdates[taskId]?.absolute === true ? { timeEdited: true } : {};
 
@@ -363,7 +363,7 @@ export const useTaskSync = () => {
         const sentDone = task.status === TaskStatus.Done;
         const synced = await adapter.update(task, {
           previousStatus: heldDone === undefined ? previousStatus : heldDone ? TaskStatus.Done : TaskStatus.Open,
-          // A total the user set (#4) is written even at 0; the entry lives until the push carried it
+          // A total the user set (kd#4) is written even at 0; the entry lives until the push carried it
           ...timeEditFlag(task.id),
         });
         if (synced) applySyncedTask(task.id, synced, operationVersion);
@@ -431,7 +431,7 @@ export const useTaskSync = () => {
       return;
     }
 
-    // A total the user set after this write started (#4) is not yet in the source: keep it over the echo
+    // A total the user set after this write started (kd#4) is not yet in the source: keep it over the echo
     const timeKept = tasksStore.pendingTimeUpdates[taskId]?.absolute === true;
     tasksStore.updateTask(taskId, {
       isUnplanned: synced.isUnplanned,
@@ -488,7 +488,7 @@ export const useTaskSync = () => {
 
         try {
           // update returns the synced task with the source's current state
-          // The write drops the queued time entry, so it has to carry a user-set total (#4)
+          // The write drops the queued time entry, so it has to carry a user-set total (kd#4)
           const syncedTask = await adapter.update(task, timeEditFlag(taskId));
           tasksStore.clearPendingSync(taskId, revision);
           restoreSourceAfterPush(source);

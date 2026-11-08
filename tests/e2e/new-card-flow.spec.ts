@@ -17,7 +17,7 @@ const step = (page: Page) => page.getByTestId('new-card-step')
 const addButton = (page: Page) => offen(page).locator('.add-task-button')
 const box = async (locator: Locator) => (await locator.boundingBox())!
 
-/** More than three topics and activities, so the Mehr list has something behind the three pills (#16) */
+/** More than three topics and activities, so the Mehr list has something behind the three pills (kd#16) */
 const RICH_TASKS: SeedTask[] = [
   ...SEED_TASKS,
   ...['Marketing:Recherche', 'Büro:Abstimmung', 'Vertrieb:Telefonat', 'Finanzen:Auswertung'].map((pair, index): SeedTask => {
@@ -89,7 +89,7 @@ for (const { name, viewport, touch } of [
       expect(Math.abs(title1.check! - title1.height! / 2)).toBeLessThanOrEqual(1)
       await expect(page.getByTestId('new-card-confirm-title')).toBeDisabled()
 
-      // ... and the steps hold the 2x2 answer grid: the card grows by about 20 px (#16) and the grid stands inside it
+      // ... and the steps hold the 2x2 answer grid: the card grows by about 20 px (kd#16) and the grid stands inside it
       await confirmTitle(page, 'Angebot schreiben')
       await expect(page.getByTestId('new-card-options')).toBeVisible()
       const next = await offsets()
@@ -160,7 +160,7 @@ for (const { name, viewport, touch } of [
 
       await openCard(page)
       await confirmTitle(page, 'Mit Farbpunkt')
-      // Design is a pill; typing part of its name into Mehr and Enter picks that very value, never creates "des" (#16)
+      // Design is a pill; typing part of its name into Mehr and Enter picks that very value, never creates "des" (kd#16)
       await page.getByTestId('new-card-more').click()
       await page.getByTestId('new-card-search').fill('des')
       await page.keyboard.press('Enter')
@@ -437,7 +437,7 @@ test.describe('guided new card, keyboard and steps (desktop)', () => {
     await expect(page.getByTestId('new-card-more')).toBeFocused()
   })
 
-  test('#15: arrow keys, Home/End, Enter and Esc work inside the Mehr list; the search field takes the focus first (#16)', async ({ page }) => {
+  test('kd#15: arrow keys, Home/End, Enter and Esc work inside the Mehr list; the search field takes the focus first (kd#16)', async ({ page }) => {
     await openCard(page)
     await confirmTitle(page, 'Pfeiltasten')
     await page.keyboard.press('1') // Thema -> Aktivität
@@ -475,7 +475,7 @@ test.describe('guided new card, keyboard and steps (desktop)', () => {
     await expect(step(page)).toHaveAttribute('data-step', 'timebox')
   })
 
-  test('#15: a list opened with the mouse takes the arrows too, and the drawer at 390 px does', async ({ page }) => {
+  test('kd#15: a list opened with the mouse takes the arrows too, and the drawer at 390 px does', async ({ page }) => {
     await openCard(page)
     await confirmTitle(page, 'Pfeile per Maus')
     await page.keyboard.press('1')
@@ -495,7 +495,7 @@ test.describe('guided new card, keyboard and steps (desktop)', () => {
     }
   })
 
-  test('#16: the search filters the Mehr list, "Neu" creates a value, Home and End stay caret keys in the field', async ({ page }) => {
+  test('kd#16: the search filters the Mehr list, "Neu" creates a value, Home and End stay caret keys in the field', async ({ page }) => {
     await openCard(page)
     await confirmTitle(page, 'Neues Thema per Taste')
     await page.keyboard.press('4')
@@ -522,7 +522,7 @@ test.describe('guided new card, keyboard and steps (desktop)', () => {
     await expect.poll(async () => (await storedTask(page, 'Neues Thema per Taste'))?.topic).toBe('Gartenpflege')
   })
 
-  test('#16: the Mehr cell and the value pills keep the text contrast over the wash', async ({ page }) => {
+  test('kd#16: the Mehr cell and the value pills keep the text contrast over the wash', async ({ page }) => {
     await openCard(page)
     await confirmTitle(page, 'Kontrast')
     await settleAnimations(page)
@@ -531,7 +531,7 @@ test.describe('guided new card, keyboard and steps (desktop)', () => {
     await expectContrast(page, page.getByTestId('new-card-options').locator('button.ncf__pill:not(.ncf__pill--more) .truncate').first(), 4.5)
   })
 
-  test('#16: no match shows a status line, an exact name picks the existing value and offers no "Neu"', async ({ page }) => {
+  test('kd#16: no match shows a status line, an exact name picks the existing value and offers no "Neu"', async ({ page }) => {
     await openCard(page)
     await confirmTitle(page, 'Suche ohne Treffer')
     await page.getByTestId('new-card-more').click()
@@ -615,7 +615,7 @@ test.describe('guided new card on a mixed board', () => {
   })
 })
 
-test.describe('guided new card: a new value from the Mehr list (#16)', () => {
+test.describe('guided new card: a new value from the Mehr list (kd#16)', () => {
   test('at 390 px the drawer takes the typed value by tap and the card saves it', async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true })
     const page = await context.newPage()

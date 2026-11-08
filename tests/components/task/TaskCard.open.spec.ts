@@ -50,7 +50,7 @@ const render = (attrs: Record<string, unknown> = {}) =>
 
 const { dragState } = useBoardDragState()
 
-describe('TaskCard open gesture (#111, #25)', () => {
+describe('TaskCard open gesture (#111, kd#25)', () => {
   beforeEach(() => {
     blocked.value = false
     blocked.minDetail = 0
@@ -89,28 +89,28 @@ describe('TaskCard open gesture (#111, #25)', () => {
     await w.trigger('click')
     expect(w.emitted('open')).toBeUndefined()
   })
-  it('does not open while a drag runs (#25)', async () => {
+  it('does not open while a drag runs (kd#25)', async () => {
     dragState.value.isDragging = true
     const w = render()
     await w.trigger('click')
     expect(w.emitted('open')).toBeUndefined()
   })
 
-  it('does nothing for the card whose sheet is already open, so a double-click opens once (#25)', async () => {
+  it('does nothing for the card whose sheet is already open, so a double-click opens once (kd#25)', async () => {
     spotlight.value = 't1'
     const w = render()
     await w.trigger('click')
     expect(w.emitted('open')).toBeUndefined()
   })
 
-  it('opens another card while a sheet is open (#25)', async () => {
+  it('opens another card while a sheet is open (kd#25)', async () => {
     spotlight.value = 'other'
     const w = render()
     await w.trigger('click')
     expect(w.emitted('open')).toEqual([['t1']])
   })
 
-  it('a click with a modifier held does not open: Ctrl+click is the context menu on macOS (#25)', async () => {
+  it('a click with a modifier held does not open: Ctrl+click is the context menu on macOS (kd#25)', async () => {
     for (const modifier of ['ctrlKey', 'metaKey', 'shiftKey', 'altKey']) {
       const w = render()
       w.element.dispatchEvent(new MouseEvent('click', { [modifier]: true, bubbles: true }))
@@ -118,7 +118,7 @@ describe('TaskCard open gesture (#111, #25)', () => {
     }
   })
 
-  it('no longer reacts to dblclick: the click is the one gesture (#25)', async () => {
+  it('no longer reacts to dblclick: the click is the one gesture (kd#25)', async () => {
     const w = render()
     await w.trigger('dblclick')
     expect(w.emitted('open')).toBeUndefined()

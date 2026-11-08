@@ -3,7 +3,7 @@
 @description The global app bar (#470, ADR 017): the `kan-do` wordmark (outside any pill, #642), one pill with the two places (Heute, Statistik) plus, on a page behind ⋯, that page as a third segment (#583), then a separate round ⋯ pill that opens the Mehr panel
 @usage Mounted once in app.vue before <NuxtLayout>, so it survives page transitions; hidden on routes with `appNav: false`
 @responsibility
-- Brand (#642): the wordmark link sits first in the group, left of the pill and outside it, on the paper veil; DOM and tab order unchanged (brand, Heute, Statistik, third, ⋯). Not shown on a phone (#24: it has no backing and printed over the cards scrolling under the bar; Heute links to /tasks)
+- Brand (#642): the wordmark link sits first in the group, left of the pill and outside it, on the paper veil; DOM and tab order unchanged (brand, Heute, Statistik, third, ⋯). Not shown on a phone (kd#24: it has no backing and printed over the cards scrolling under the bar; Heute links to /tasks)
 - Desktop (≥768px): sticky bar at the top, the group centred. Phone: the same pills float at the bottom (assets/css/app-nav.css)
 - Separation from the content behind it (#615, DESIGN.md "The Glass Chrome Rule"): the two pills are frosted glass and a paper veil sits behind them (`.app-nav::before`, no pointer events, so the `.titlebar` drag strip and the page stay usable). Near-opaque fallback without `backdrop-filter` and under reduced transparency. Recipe: `--nav-glass-*` in app-nav.css. The page header is not sticky, so the bar is the only thing that stays
 - Selected state is a pure function of the route (useAppNav): Heute on /tasks*, Statistik on /statistics, the third segment (Papierkorb, Einstellungen) on /trash and /settings*. ⋯ is never selected and carries no aria-current. An open panel is an overlay, not a navigation: the place keeps its chip, ⋯ shows only a soft "open" fill and aria-expanded
@@ -129,7 +129,7 @@ const health = useIntegrationHealthStore()
 const open = ref(false)
 const moreEl = ref<HTMLButtonElement | null>(null)
 /**
- * ⋯ tooltip (#40): closing the panel returns focus to ⋯, and a focus-open tooltip would then sit on the page the
+ * ⋯ tooltip (kd#40): closing the panel returns focus to ⋯, and a focus-open tooltip would then sit on the page the
  * chosen row just opened. After a close the tooltip stays held back until ⋯ loses focus or the pointer moves over or leaves it.
  */
 const tipOpen = ref(false)

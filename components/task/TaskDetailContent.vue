@@ -5,7 +5,7 @@
 @responsibility
 - Display task properties as labelled rows (shared with the add form, #161), notes, and custom fields
 - Every property is a row in a stable position; unset Thema/Aktivität show the empty "Auswählen" state (#161)
-- Order: property rows (time spent last, with the time left beside it, #4), notes, custom properties, metadata (#386). Desktop slideover: the metadata is pinned to the bottom, the rest scrolls
+- Order: property rows (time spent last, with the time left beside it, kd#4), notes, custom properties, metadata (#386). Desktop slideover: the metadata is pinned to the bottom, the rest scrolls
 - Provide formatted display of all task metadata
 - Render error state when task not found
 - Handle inline updates and synchronization
@@ -13,7 +13,7 @@
   picker's footer ("Bearbeiten" / "Fertig") lists one button row per option, and a row closes the picker and opens the shared
   TopicEditorHost under the property row (#430, #431, #443); topics also get a "Themen verwalten" row
 - Host the carried-over triage block and line (#99)
-- Guard against drift (#161, #4): at most six always-visible standard rows (Status, Priorität, Thema, Aktivität, Timebox,
+- Guard against drift (#161, kd#4): at most six always-visible standard rows (Status, Priorität, Thema, Aktivität, Timebox,
   Aufgewendete Zeit),
   no per-row icons, no dividers; more always-visible rows must revisit the layout. The one hairline is the pin line
   above the desktop metadata footer, a boundary of the scroll region, not a row divider
@@ -205,7 +205,7 @@
           <span v-if="timeboxSuggestion" :id="suggestionHintId" class="sr-only">{{ timeboxSuggestion.matchDescription }}</span>
         </TaskPropertyRow>
 
-        <!-- Time spent (#4): the total in minutes, edited like the Timebox; what is left of the Timebox sits beside it as text -->
+        <!-- Time spent (kd#4): the total in minutes, edited like the Timebox; what is left of the Timebox sits beside it as text -->
         <TaskPropertyRow :label="t('task.field.timeSpent')">
           <InlineEditable
             :model-value="timeSpentInMinutes"
@@ -423,7 +423,7 @@ function updateAndSync(updates: Partial<Task>) {
   }
 }
 
-/** Sets the task's total time spent (#4); like `updateAndSync`, with the store action that queues the total for the source */
+/** Sets the task's total time spent (kd#4); like `updateAndSync`, with the store action that queues the total for the source */
 function setTimeSpentAndSync(seconds: number) {
   if (!task.value) return;
   const operationVersion = tasksStore.incrementTaskOperationVersion(task.value.id);
@@ -562,7 +562,7 @@ function updateTimebox(_val: string | number | null) {
   saveTimeboxEdit();
 }
 
-/** Esc (#12): the field goes back to the stored value, so the blur that follows the closing saves nothing */
+/** Esc (kd#12): the field goes back to the stored value, so the blur that follows the closing saves nothing */
 function abandonTimeboxEdit() {
   editTimeboxValue.value = timeboxInMinutes.value;
 }
@@ -573,7 +573,7 @@ function saveTimeboxEdit() {
   updateAndSync({ timeBoxSeconds: seconds });
 }
 
-// Time spent (#4): the total in whole minutes. A running timer changes the displayed minutes while the field is
+// Time spent (kd#4): the total in whole minutes. A running timer changes the displayed minutes while the field is
 // open, so the field is synced from the task only while it is closed, and an unchanged field writes nothing
 // (a total of "30 min 5 s" must not become "30 min" by opening and leaving the field).
 const timeSpentInMinutes = computed(() => {

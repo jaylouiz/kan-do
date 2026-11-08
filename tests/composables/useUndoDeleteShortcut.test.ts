@@ -19,7 +19,7 @@ const press = (target: EventTarget, init: KeyboardEventInit) => {
   return event
 }
 
-describe('useUndoDeleteShortcut (#27)', () => {
+describe('useUndoDeleteShortcut (kd#27)', () => {
   afterEach(() => { document.body.innerHTML = '' })
 
   it('Ctrl+Z and Cmd+Z undo and prevent the default', () => {

@@ -359,7 +359,7 @@ describe('NewCardFlow (#649)', () => {
     expect(sync.createTask.mock.calls[0]![0]).toMatchObject({ topic: 'Design', topicColorCode: null })
   })
 
-  it('#16: Thema and Aktivität show up to three pills and the Mehr cell (key 4); Timebox keeps two pills and "···" (key 3)', async () => {
+  it('kd#16: Thema and Aktivität show up to three pills and the Mehr cell (key 4); Timebox keeps two pills and "···" (key 3)', async () => {
     mountFlow()
     await confirmTitle()
     const pills = () => w.get('[data-testid="new-card-options"]').findAll('button.ncf__pill:not(.ncf__pill--more)')
@@ -378,7 +378,7 @@ describe('NewCardFlow (#649)', () => {
     expect(w.get('[data-testid="new-card-more"]').classes()).not.toContain('ncf__pill--mehr')
   })
 
-  it('#16: key 3 picks the third value; with one value Mehr stays for the new one, a step without values is still skipped', async () => {
+  it('kd#16: key 3 picks the third value; with one value Mehr stays for the new one, a step without values is still skipped', async () => {
     mountFlow()
     await confirmTitle()
     await pressOnPanel('3') // the third topic by use: Büro
@@ -396,7 +396,7 @@ describe('NewCardFlow (#649)', () => {
     expect(stepKey()).toBe('timebox') // no activities at all: the step is not asked
   })
 
-  it('#16: a source without free values shows no Mehr cell when three values fit the pills', async () => {
+  it('kd#16: a source without free values shows no Mehr cell when three values fit the pills', async () => {
     target.source = 'todoist'
     mountFlow()
     await confirmTitle()
@@ -411,7 +411,7 @@ describe('NewCardFlow (#649)', () => {
     expect(w.find('[data-testid="new-card-new"]').exists()).toBe(false)
   })
 
-  it('#16: a new topic typed into the Mehr list is picked and saved as typed', async () => {
+  it('kd#16: a new topic typed into the Mehr list is picked and saved as typed', async () => {
     mountFlow()
     await confirmTitle()
     const search = w.get('[data-testid="new-card-search"]')
@@ -427,7 +427,7 @@ describe('NewCardFlow (#649)', () => {
     expect(sync.createTask.mock.calls[0]![0]).toMatchObject({ topic: 'Frisch' })
   })
 
-  it('#16: Enter on a name an existing topic has picks that one, with its own spelling', async () => {
+  it('kd#16: Enter on a name an existing topic has picks that one, with its own spelling', async () => {
     mountFlow()
     await confirmTitle()
     await w.get('[data-testid="new-card-search"]').setValue('design')

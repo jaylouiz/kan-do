@@ -1,5 +1,5 @@
 /**
- * #4: a total the user set is pushed with `timeEdited` (Notion writes it even at 0), survives a fetch of the
+ * kd#4: a total the user set is pushed with `timeEdited` (Notion writes it even at 0), survives a fetch of the
  * older, higher Notion value while the push waits (offline), and is an ordinary max-merge task once pushed.
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
@@ -46,7 +46,7 @@ function task(id: string, overrides: Partial<Task> = {}): Task {
   }
 }
 
-describe('a user-set total reaches Notion and holds against a fetch (#4)', () => {
+describe('a user-set total reaches Notion and holds against a fetch (kd#4)', () => {
   beforeEach(() => {
     localStorage.clear()
     setActivePinia(createPinia())

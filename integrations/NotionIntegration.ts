@@ -63,11 +63,11 @@ type StatusPropertyType = 'select' | 'status';
  */
 const statusTypeCache = new Map<string, Promise<StatusPropertyType>>();
 
-/** Property types a topic or activity can be written in (#16): Notion rejects a value of the wrong shape with a 400 */
+/** Property types a topic or activity can be written in (kd#16): Notion rejects a value of the wrong shape with a 400 */
 type LabelPropertyType = 'select' | 'multi_select' | 'rich_text';
 
 /**
- * Property types of a data source's schema per data source id, for the app session (#16): which shape a topic or
+ * Property types of a data source's schema per data source id, for the app session (kd#16): which shape a topic or
  * activity is written in. Holds the pending read; a failed read is removed again and retried by the next create.
  */
 const schemaTypeCache = new Map<string, Promise<Record<string, string | undefined>>>();
@@ -510,13 +510,13 @@ export class NotionIntegration {
     }
 
     if (this.propertyMapping.topic && task.topic) {
-      // The property's own type (#16): a select Thema rejected the former rich_text write with a 400. Unknown type: rich_text, the most flexible
+      // The property's own type (kd#16): a select Thema rejected the former rich_text write with a 400. Unknown type: rich_text, the most flexible
       const type = await this.labelPropertyType(this.propertyMapping.topic);
       properties[this.propertyMapping.topic] = this.labelValue(type ?? 'rich_text', task.topic);
     }
 
     if (this.propertyMapping.activity) {
-      // The property's own type (#16). Unknown type: multi_select (single value array), compatible with both select kinds on read.
+      // The property's own type (kd#16). Unknown type: multi_select (single value array), compatible with both select kinds on read.
       // An empty value is still sent, so a required field is cleared rather than left out
       const type = await this.labelPropertyType(this.propertyMapping.activity);
       properties[this.propertyMapping.activity] = this.labelValue(type ?? 'multi_select', task.activity);
@@ -675,7 +675,7 @@ export class NotionIntegration {
    * Implements bidirectional sync: after updating, fetches the page to ensure local state
    * matches Notion (e.g., preserves tags added directly in Notion).
    * @param task The task to update; Notion is addressed by its `externalId` (the page id), never by `id`
-   * @param change `timeEdited`: the user set the total time spent (#4), so it is written even at 0 (the property
+   * @param change `timeEdited`: the user set the total time spent (kd#4), so it is written even at 0 (the property
    *   is cleared). An ordinary push at 0 leaves the property alone, so time another device recorded survives.
    * @returns The task with properties synced from Notion after the update
    */
@@ -701,7 +701,7 @@ export class NotionIntegration {
         };
       }
       else if (change.timeEdited && this.propertyMapping.timeSpent) {
-        // The user cleared the total (#4): an empty number, not a skipped property
+        // The user cleared the total (kd#4): an empty number, not a skipped property
         properties[this.propertyMapping.timeSpent] = { number: null };
       }
 

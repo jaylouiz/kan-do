@@ -6,12 +6,12 @@
 - Local state only (title, topic, activity, timebox, notes, step): it does not use `useTaskDraft`, which belongs to the sheet (draft card, spotlight, /tasks/add); saves through `useTaskSync().createTask` in the default source (`useAddTarget`), steps follow that source's fields (`fieldsForSource`); a step with nothing to offer is skipped
 - The face is the real TaskCard (`draft`), so the saved card and the cue behind the wash match by construction; the topic row exists only once a topic is picked (the title steps down then, as on a card)
 - Title step (no wash): the field is a textarea that grows with the title (#665; Enter confirms, line breaks become spaces, at most as tall as the face's title, which is what the card shows of it (a long title is clamped there), then it scrolls) and stands where the face's title stands: on the card body padding, or below the topic row once a topic is picked (measured from the face, #668: going back with a topic must not overlap it). The face's own title is hidden there, so the field is the only text; it keeps the field's right padding so both wrap alike. The confirm check is centred vertically on the card, on the line where the answer rows of the later steps stand, so the button controls keep one height; the field keeps the check's width clear (accepted: a short title wraps a few characters earlier)
-- Steps (one question at a time, over the card): head on the card padding (back left, question, skip right; none on Notiz), then the answers in a 2×2 grid (#16): Thema and Aktivität `[1] [2] / [3] [Mehr 4]`, Timebox `[1] [2] / [··· 3]`; the pills carry the name and the key cue only (a topic's mark shows in the list and on the face), a long name is cut with an ellipsis (half the row, not a third). The grid makes the steps about 20 px taller than the title card: the face's min-height is derived from the head, two control rows and the room under them (`--ncf-control-h`, `--ncf-grid-top`, `--ncf-grid-bottom`). Notiz is an input plus a check on the vertical centre; Enter saves. The step slides sideways (140 ms) into the next
+- Steps (one question at a time, over the card): head on the card padding (back left, question, skip right; none on Notiz), then the answers in a 2×2 grid (kd#16): Thema and Aktivität `[1] [2] / [3] [Mehr 4]`, Timebox `[1] [2] / [··· 3]`; the pills carry the name and the key cue only (a topic's mark shows in the list and on the face), a long name is cut with an ellipsis (half the row, not a third). The grid makes the steps about 20 px taller than the title card: the face's min-height is derived from the head, two control rows and the room under them (`--ncf-control-h`, `--ncf-grid-top`, `--ncf-grid-bottom`). Notiz is an input plus a check on the vertical centre; Enter saves. The step slides sideways (140 ms) into the next
 - Behind the steps the face sits under the stack pill's wash (`--stack-wash-*`) and softened (blur, 45 %), a cue that things are received, not text to read. A pick pulses the wash once (the only cue for Aktivität and Notiz, which a card does not show); saving lifts it
 - Keys: 1/2/3 pick (Timebox: 1/2, and 3 opens "···"), 4 opens Mehr on Thema and Aktivität, Enter skips (saves on Notiz), Esc goes back (cancels on the title step; with a typed title the slot offers "Rückgängig" in a toast, #665), Cmd/Ctrl+Enter saves now with what is entered, from any step once there is a title (#665; announced by `aria-keyshortcuts` and the check's title). Key cues sit inside the buttons (generated content, so the accessible name stays the label), fine pointers only. Tab order is the DOM order; every step change moves focus to the step (Notiz: its input)
 - A press outside cancels only while the title is blank; a save error keeps the card where it was (Notiz after Enter) with everything entered; the toast after a save is one row (title and Details, #665) so it stays clear of the saved card at 390 px
-- Mehr (Thema, Aktivität, #16): a cell that looks like the input it opens (dashed outline, transparent, search icon, muted "Mehr", key cue 4; hover is a soft fill, never the ink of a value pill). It opens the list (`NewCardOptionList`: popover from 768 px, drawer below) with the search field focused: the values that are not pills (a typed text searches every value, pills too), and a "Neu: „text“" row when no value has that name (any case) and the source allows free values (`fieldsForSource(...).newValues`: Local any text, Notion without commas and at most 100 characters, so the row shows what is created; Todoist none, then search only). Enter picks an exact match, else the first match, else creates (a partial match never creates by accident; the Neu row is one ↓ away). A step with no values at all is still skipped; the sheet creates a first topic. The new value is just a pick: Local derives topics from tasks, Notion creates the select option on the write (`NotionIntegration` writes the property's own type)
-- "···" (Timebox) and the lists: ↑/↓ (wrapping) walk field and options, Home/End jump between options (caret keys inside the field), Enter/Space pick, Esc closes (#15; plain buttons with one shared handler, not UDropdownMenu: the drawer has no menu primitive and the key-4/3 focus flow (#685) stays). Motion is instant under prefers-reduced-motion
+- Mehr (Thema, Aktivität, kd#16): a cell that looks like the input it opens (dashed outline, transparent, search icon, muted "Mehr", key cue 4; hover is a soft fill, never the ink of a value pill). It opens the list (`NewCardOptionList`: popover from 768 px, drawer below) with the search field focused: the values that are not pills (a typed text searches every value, pills too), and a "Neu: „text“" row when no value has that name (any case) and the source allows free values (`fieldsForSource(...).newValues`: Local any text, Notion without commas and at most 100 characters, so the row shows what is created; Todoist none, then search only). Enter picks an exact match, else the first match, else creates (a partial match never creates by accident; the Neu row is one ↓ away). A step with no values at all is still skipped; the sheet creates a first topic. The new value is just a pick: Local derives topics from tasks, Notion creates the select option on the write (`NotionIntegration` writes the property's own type)
+- "···" (Timebox) and the lists: ↑/↓ (wrapping) walk field and options, Home/End jump between options (caret keys inside the field), Enter/Space pick, Esc closes (kd#15; plain buttons with one shared handler, not UDropdownMenu: the drawer has no menu primitive and the key-4/3 focus flow (#685) stays). Motion is instant under prefers-reduced-motion
 - Accepted: unsaved input is lost when the page is left (the card saves only at the end, as the story asks); activity and note have no place on a card, so the pulse is their only cue
 -->
 <template>
@@ -313,7 +313,7 @@ const steps = computed<StepKey[]>(() => {
   return list;
 });
 
-/** Thema and Aktivität: three pills and Mehr (#16); Timebox: two pills and "···" */
+/** Thema and Aktivität: three pills and Mehr (kd#16); Timebox: two pills and "···" */
 const isEntryStep = computed(() => step.value === 'topic' || step.value === 'activity');
 
 const EMPTY_STEP: SuggestionStep = { all: [], suggestions: [], rest: [] };
@@ -452,7 +452,7 @@ watch(moreOpen, (open) => {
   moreOpenedByKey = openingByKey && isDesktop.value;
   openingByKey = false;
 });
-/** The drawer's focus scope lands on its container: take it over and focus the search field, or the first option when there is none, so typing and the arrows work at once (#15, #16; the popover already focuses one) */
+/** The drawer's focus scope lands on its container: take it over and focus the search field, or the first option when there is none, so typing and the arrows work at once (kd#15, kd#16; the popover already focuses one) */
 function onDrawerOpenAutoFocus(event: Event) {
   const first = (event.currentTarget as HTMLElement | null)?.querySelector<HTMLElement>('[data-testid="new-card-more-list"] input, [data-testid="new-card-more-list"] button');
   if (!first) return;
@@ -495,7 +495,7 @@ function pick(value: string) {
   }, prefersReducedMotion() ? 0 : 200);
 }
 
-/** A value typed in the Mehr list: the list cleaned it by the source's rules, so it is picked like any other; the save creates it (Local derives it from the task, Notion creates the select option on the write, #16) */
+/** A value typed in the Mehr list: the list cleaned it by the source's rules, so it is picked like any other; the save creates it (Local derives it from the task, Notion creates the select option on the write, kd#16) */
 function create(value: string) {
   pick(value);
 }
@@ -591,7 +591,7 @@ function onKeydown(event: KeyboardEvent) {
     // Timebox has two pills: its "···" is key 3
     else if (event.key === '3' && hasList.value && !isEntryStep.value) openList(event);
   } else if (event.key === '4' && hasList.value && isEntryStep.value) {
-    // Thema, Aktivität: Mehr opens the rest with its search (#16)
+    // Thema, Aktivität: Mehr opens the rest with its search (kd#16)
     openList(event);
   }
 }
@@ -670,7 +670,7 @@ onBeforeUnmount(() => {
   --ncf-pad-top: 0.5rem;
   /* What the title field keeps free for the check: 40 px button and a gap on a phone; with the key cue the check is wider */
   --ncf-check-clear: 2.75rem;
-  /* The answer grid (#16): control height, where the grid starts below the head, and the room under it; the steps' card height is derived from them */
+  /* The answer grid (kd#16): control height, where the grid starts below the head, and the room under it; the steps' card height is derived from them */
   --ncf-control-h: 2rem;
   --ncf-grid-top: 3.25rem;
   --ncf-grid-bottom: 0.75rem;
@@ -892,7 +892,7 @@ onBeforeUnmount(() => {
   min-width: 0;
 }
 
-/* ---------- Answer grid (#16) ----------
+/* ---------- Answer grid (kd#16) ----------
    Thema and Aktivität: three value pills and the Mehr cell; Timebox: its pills and "···". Two columns, so a long name has half
    the row instead of a third (it is still cut with an ellipsis, a title attribute carries it). The steps are as tall as the
    grid needs: head, two rows, the room under them (about 20 px more than a card with one row of pills). */
@@ -924,7 +924,7 @@ onBeforeUnmount(() => {
   justify-content: center;
 }
 
-/* Mehr: looks like the input it opens (dashed outline, search icon, muted text), so it reads as a field and not as a value (#16) */
+/* Mehr: looks like the input it opens (dashed outline, search icon, muted text), so it reads as a field and not as a value (kd#16) */
 .ncf__row--grid .ncf__pill--mehr {
   justify-content: flex-start;
   border: 1px dashed var(--ui-border-accented);

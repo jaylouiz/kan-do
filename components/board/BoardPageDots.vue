@@ -3,7 +3,7 @@
 @description Phone page indicator: three dots above the column title, the active one a stretched pill
 @usage Rendered once by Board.vue beside .board (so it does not slide with the pages)
 @responsibility
-- Says that three pages exist (Offen, Jetzt + Wartet, Erledigt) and which one is showing (#26)
+- Says that three pages exist (Offen, Jetzt + Wartet, Erledigt) and which one is showing (kd#26)
 - Follows a live swipe: the pill stretches from one dot to the next with the finger, then settles on the board's own timing
 - Pure indicator: not focusable, not tappable (`pointer-events: none`, `aria-hidden`), so it is no tab bar (#470, ADR 017); the page is
   already exposed by the column headings and `data-mobile-page`, a hidden "page 2 of 3" would say it twice

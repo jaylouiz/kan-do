@@ -1,4 +1,4 @@
-# Sourced by the PreToolUse gates (e2e-before-merge.sh, guard-commands.sh), never run on its own (#2).
+# Sourced by the PreToolUse gates (e2e-before-merge.sh, guard-commands.sh), never run on its own (kd#2).
 # hook_command "<hook input JSON>" prints .tool_input.command. A missing `jq` must not turn the gate off
 # silently (an empty command matches nothing and the hook exits 0), so without jq the JSON is read by perl's
 # core JSON::PP instead; the gates need perl anyway. Exit status is non-zero when neither can read the input
@@ -12,7 +12,7 @@ hook_command() {
   fi
 }
 
-# #9: the checks (Stop hook verify.sh, per-edit edit-root.sh, impeccable-worktree.sh) read their input through the helpers
+# kd#9: the checks (Stop hook verify.sh, per-edit edit-root.sh, impeccable-worktree.sh) read their input through the helpers
 # below. Same rule as hook_command: jq when present (the fast path, one process per call), else perl's core JSON::PP, so
 # a contributor without jq keeps the per-edit and Stop feedback. Each exits non-zero when the input cannot be read.
 
