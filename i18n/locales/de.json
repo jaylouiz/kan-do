@@ -1232,6 +1232,9 @@
       "roleDescription": "Stapel",
       "label": "{label}, mit Pfeiltasten wechseln"
     },
+    "switcher": {
+      "label": "Anzeige wählen"
+    },
     "archiveToggle": "Erledigte archivieren",
     "continue": "Weiter zum Board"
   },
