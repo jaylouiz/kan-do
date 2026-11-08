@@ -51,7 +51,7 @@ The design for a later screenshot stays as decided and is not built: upload the 
 
 ## Seams
 
-- **#225 (version, log), now wired.** The app version comes from `getVersion()` (the value the updates page shows). The log tail comes from the `log_tail(lines)` command in `src-tauri/src/logging.rs`: last 30 lines (hard caps 100 lines and 8 KB) of `~/Library/Logs/com.julius.kan-do/kan-do.log`, lines containing a credential marker (`ghp_`, `github_pat_`, `bearer `, `authorization`) dropped, an absent file is an empty tail (no log section). Both are loaded after the dialog opens and are best effort. The OS is still the user-agent name only: #225 added no `app_info` command.
+- **#225 (version, log), now wired.** The app version comes from `getVersion()` (the value the updates page shows). The log tail comes from the `log_tail(lines)` command in `src-tauri/src/logging.rs`: last 30 lines (hard caps 100 lines and 8 KB) of `~/Library/Logs/io.github.jaylouiz.kan-do/kan-do.log`, lines containing a credential marker (`ghp_`, `github_pat_`, `bearer `, `authorization`) dropped, an absent file is an empty tail (no log section). Both are loaded after the dialog opens and are best effort. The OS is still the user-agent name only: #225 added no `app_info` command.
 - **`api.github.com`** is reached by Rust only; no `http:default` entry was added for it. The CSP work (#228) can list it as already needed by the Rust client only.
 
 ## Consequences

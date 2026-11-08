@@ -1,6 +1,7 @@
 mod capture;
 mod data_file;
 mod github;
+mod identifier_migration;
 mod logging;
 mod menu;
 mod secrets;
@@ -102,9 +103,12 @@ pub fn run() {
       }
     })
     .setup(|app| {
-      app.manage(data_file::DataFile::for_app(app.handle()));
-      app.state::<data_file::DataFile>().start_watcher();
+      // The log first, so the migration can report; then the identifier migration (#42, ADR 019): it must finish before
+      // `DataFile` exists and before any command is served, so no call sees the pre-migration data or Keychain.
       app.handle().plugin(logging::plugin())?;
+      let dirs = identifier_migration::run(app.handle());
+      app.manage(data_file::DataFile::for_app(app.handle(), dirs));
+      app.state::<data_file::DataFile>().start_watcher();
       Ok(())
     })
     .build(tauri::generate_context!())

@@ -118,9 +118,15 @@ Updates the app downloads itself are not quarantined. Install into a folder you 
 - [ ] The release is marked *Latest* and not a draft.
 - [ ] An installed older version, without an `updates` token (the case every user has): *Nach Updates suchen* shows the new version, the dialog says data is backed up first, *Installieren und neu starten* installs and relaunches.
 - [ ] After the relaunch `/settings/updates` shows the new version; your tasks are intact and the `pre-update` backup exists in `backups/`.
-- [ ] `~/Library/Logs/com.julius.kan-do/kan-do.log` contains the check and install steps (status names and versions, never tokens or task titles).
+- [ ] `~/Library/Logs/io.github.jaylouiz.kan-do/kan-do.log` contains the check and install steps (status names and versions, never tokens or task titles).
 - [ ] Ad-hoc release: macOS asks once for Keychain access after the update (the ad-hoc signature changes with every build). Choose *Always Allow*; this is expected (#223). Developer ID release: it asks once at the identity switch and never again.
 - [ ] Developer ID release, on a Mac that never saw the app: opening the DMG-installed app passes Gatekeeper without right-click → *Open*, `spctl -a -vv /Applications/kan-do.app` says `accepted source=Notarized Developer ID`, and an update from release N to N+1 shows no Keychain prompt.
+- [ ] **First release under `io.github.jaylouiz.kan-do` (#42, [ADR 019](adr/019-bundle-identifier-and-migration.md)), on a Mac with 0.11.0 installed, with real data and tokens (back up `~/Library/Application Support/com.julius.kan-do/` first):**
+  - `codesign -dv /Applications/kan-do.app 2>&1 | grep Identifier` says `Identifier=io.github.jaylouiz.kan-do`, for the ad-hoc and for the Developer ID build; notarization accepted the new bundle.
+  - The in-place update from 0.11.0 starts; tasks, board, settings and `backups/` are as before, `/settings/data` shows `~/Library/Application Support/io.github.jaylouiz.kan-do`, and with a custom data folder the same custom folder.
+  - The four tokens work without re-entering them (Notion sync, Todoist if used, `/settings/github` shows both as present). Count the Keychain prompts (reading and deleting each legacy entry: up to eight, *Always Allow*) and note the number in ADR 019, which still lists it as `unverified`.
+  - `~/Library/Application Support/com.julius.kan-do/` still exists unchanged; `~/Library/Logs/io.github.jaylouiz.kan-do/kan-do.log` has `data copied from the legacy folder and verified` and `Keychain step done`.
+  - A second start migrates nothing (no new log lines about copying) and shows no Keychain prompt.
 - [ ] Offline: no toast at launch. With an `updates` token set: the check still finds the release (the token is sent, not required).
 
 ## CI release
@@ -184,4 +190,4 @@ A repository secret is readable by any workflow a repository writer can run (a w
 | Updater (Rust) | `src-tauri/src/updater.rs`, log setup `src-tauri/src/logging.rs` |
 | Updater UI | `pages/settings/updates.vue`, `components/updates/UpdateDialog.vue`, `composables/useAppUpdater.ts` |
 | Release notes (#226) | `release-notes/`, parser `lib/releaseNotesFormat.mjs`, gate `scripts/release/notes.mjs`, app `lib/releaseNotes.ts`, `composables/useWhatsNew.ts`, `components/updates/WhatsNewDialog.vue`, `lib/updateNotes.ts` |
-| Log file | `~/Library/Logs/com.julius.kan-do/kan-do.log` (5 files, about 1 MB each) |
+| Log file | `~/Library/Logs/io.github.jaylouiz.kan-do/kan-do.log` (5 files, about 1 MB each) |

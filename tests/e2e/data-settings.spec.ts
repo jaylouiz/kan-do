@@ -7,7 +7,7 @@ import { openAddSheet } from './helpers/addSheet'
 
 /** #222: the desktop data folder against the stubbed IPC (see helpers/tauriStub.ts). */
 
-const CURRENT = '/Users/test/Library/Application Support/com.julius.kan-do'
+const CURRENT = '/Users/test/Library/Application Support/io.github.jaylouiz.kan-do'
 const ENVELOPE = (tasks: unknown[], schemaVersion = 2) => ({
   schemaVersion,
   writtenAt: '2026-01-02T10:00:00.000Z',
@@ -129,7 +129,7 @@ test.describe('Data folder (desktop)', () => {
   test.describe('page', () => {
     test('shows folder, last save and schema, and the two actions', async ({ page }) => {
       await openDataPage(page, { envelope: ENVELOPE([]), folder: CURRENT })
-      await expect(page.getByTestId('data-folder-path')).toContainText('com.julius.kan-do')
+      await expect(page.getByTestId('data-folder-path')).toContainText('io.github.jaylouiz.kan-do')
       await expect(page.getByTestId('data-folder-saved')).toContainText('Zuletzt gespeichert')
       await expect(page.getByTestId('data-folder-saved')).toContainText('Schema 2')
       await expect(page.getByRole('button', { name: 'Ordner ändern…' })).toBeVisible()

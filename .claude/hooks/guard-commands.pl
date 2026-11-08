@@ -7,7 +7,7 @@
   $c =~ s/(<<-?[ \t]*(['"]?)(\w+)\2)(.*?\n[ \t]*\3[ \t]*)(?=\n|$)/$1 . $neutral->($4)/gse;
   $c =~ s/^[ \t]*#.*$//gm;
   $c =~ s/('[^']*'|"(?:\\.|[^"\\])*")/$neutral->($1)/ge;
-  my $sandbox = qr/\\?"identifier\\?"\s*:\s*\\?"com\.julius\.kan-do\.sandbox(?:-[\w\$\{\}]+)?\\?"/;
+  my $sandbox = qr/\\?"identifier\\?"\s*:\s*\\?"(?:io\.github\.jaylouiz|com\.julius)\.kan-do\.sandbox(?:-[\w\$\{\}]+)?\\?"/;
   for my $s (split /&&|\|\||[;&|\n]/, $c) {
     $s =~ s/^\s*(?:(?:\$\(|[({!])\s*)*//;
     $s =~ s/^(?:(?:then|do|else|time|sudo|exec|command|nohup|env)\s+|[A-Za-z_]\w*=\S*\s+)*//;

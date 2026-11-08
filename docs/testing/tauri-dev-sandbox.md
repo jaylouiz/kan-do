@@ -1,6 +1,6 @@
 # Sandboxed `tauri dev` smoke run (agents)
 
-A plain `npm run tauri:dev` uses the real app identity `com.julius.kan-do`: the user's data folder, `data-location.json` and Keychain entries. A worker run can change the user's first-run import state or write their data. **Agents never run `tauri dev` with the real identity.** Use this recipe, and only when a desktop E2E spec with `installTauriStub` cannot answer the question (Rust behaviour, window events).
+A plain `npm run tauri:dev` uses the real app identity `io.github.jaylouiz.kan-do`: the user's data folder, `data-location.json` and Keychain entries. A worker run can change the user's first-run import state or write their data. **Agents never run `tauri dev` with the real identity.** Use this recipe, and only when a desktop E2E spec with `installTauriStub` cannot answer the question (Rust behaviour, window events).
 
 ## Standing rules (#623)
 
@@ -21,9 +21,9 @@ DESKTOP_SHOTS_DIR=<scratchpad dir> PORT=3101 npm run test:e2e -- tests/e2e/deskt
 
 ## What is isolated
 
-- `app_config_dir` / `app_data_dir` derive from the bundle identifier and `HOME` (`src-tauri/src/data_file.rs`), so `HOME=<tmp>` plus the identifier override puts `data-location.json`, `kan-do-data.json` and `backups/` under `<tmp>/Library/Application Support/com.julius.kan-do.sandbox-<port>`.
+- `app_config_dir` / `app_data_dir` derive from the bundle identifier and `HOME` (`src-tauri/src/data_file.rs`), so `HOME=<tmp>` plus the identifier override puts `data-location.json`, `kan-do-data.json` and `backups/` under `<tmp>/Library/Application Support/io.github.jaylouiz.kan-do.sandbox-<port>`.
 - The single-instance socket is `/tmp/<identifier>_si.sock`, so it follows the identifier and not `HOME`. Two runs with the same identifier would share it: the second hands over to the first and exits. The identifier therefore carries the run's dev-server port (`…sandbox-3101`), and every worker uses its own port.
-- The Keychain service is the fixed const `secrets::SERVICE` (`com.julius.kan-do`) and is **not** isolated. A sandbox run must not exercise secret commands (`secret_set`, `secret_get`, `secret_delete`, `secret_status`): do not open integration settings or enter tokens.
+- The Keychain service is not isolated per identifier: a debug build (every `tauri dev`, sandbox included) uses the legacy service `com.julius.kan-do` (`secrets::service_for`), a release build `secrets::SERVICE` (`io.github.jaylouiz.kan-do`). A sandbox run must not exercise secret commands (`secret_set`, `secret_get`, `secret_delete`, `secret_status`): do not open integration settings or enter tokens. The start-up migration from the legacy identifier (#42) moves Keychain entries only when the running identifier is the production one in a release build (a debug build with it skips both steps and keeps using the legacy folder and Keychain service), so a `…sandbox-<port>` run skips that step and logs `Keychain step skipped`; its data step does run (see "Seeding a legacy folder").
 
 ## Recipe
 
@@ -31,7 +31,7 @@ DESKTOP_SHOTS_DIR=<scratchpad dir> PORT=3101 npm run test:e2e -- tests/e2e/deskt
 REAL_HOME="$HOME"
 PORT=3101                                    # your own free port: it also names the sandbox identifier (separate single-instance socket)
 SANDBOX="$(mktemp -d)"                       # throwaway HOME, delete afterwards
-find "$REAL_HOME/Library/Application Support/com.julius.kan-do" -type f -exec shasum {} \; > "$SANDBOX/before.txt"
+for ID in io.github.jaylouiz.kan-do com.julius.kan-do; do find "$REAL_HOME/Library/Application Support/$ID" -type f -exec shasum {} \; ; done > "$SANDBOX/before.txt" 2>/dev/null
 
 # 1. Own dev server on a free port (Bash tool: run_in_background), never the user's :3000
 PORT=$PORT npm run dev
@@ -42,7 +42,7 @@ node -e 'const c=require("./src-tauri/tauri.conf.json");require("fs").writeFileS
 # 3. Tauri against that server, own identity, no beforeDevCommand (step 1 is the server), no app activation
 KANDO_SANDBOX_BACKGROUND=1 HOME="${SANDBOX:?}" CARGO_HOME="$REAL_HOME/.cargo" RUSTUP_HOME="$REAL_HOME/.rustup" \
   "$REAL_HOME/.cargo/bin/cargo" tauri dev --no-dev-server-wait \
-  --config "{\"identifier\":\"com.julius.kan-do.sandbox-$PORT\",\"build\":{\"devUrl\":\"http://localhost:$PORT\",\"beforeDevCommand\":\"\"}}" \
+  --config "{\"identifier\":\"io.github.jaylouiz.kan-do.sandbox-$PORT\",\"build\":{\"devUrl\":\"http://localhost:$PORT\",\"beforeDevCommand\":\"\"}}" \
   --config "$SANDBOX/window.json"
 ```
 
@@ -52,7 +52,21 @@ Notes:
 - The first build in a fresh worktree compiles all crates (minutes).
 - Start the process with the Bash tool's `run_in_background`; never `nohup` or `( … & )`.
 - **No activation:** tao activates the app at launch (`activateIgnoringOtherApps(true)`) and no window config turns that off. `KANDO_SANDBOX_BACKGROUND=1` makes `src-tauri/src/lib.rs` call `activate_ignoring_other_apps(false)` (macOS debug builds only; the release build never reads it), so the app activates only if no other app is active. Together with `visible: false` the run shows nothing and takes no focus. Do not call `window.set_focus()` or `show()` from a check; that activates the app regardless. With the opt-in set, the single-instance callback (`lib.rs`) also skips its `show()`/`set_focus()`, so a second launch that does reach it (same identifier) cannot bring the window forward.
-- **Invisible window:** the webview still loads from the dev server and Rust runs (logs under `$SANDBOX/Library/Logs/com.julius.kan-do.sandbox-$PORT`). It cannot be captured: `screencapture -l` needs an on-screen window.
+- **Invisible window:** the webview still loads from the dev server and Rust runs (logs under `$SANDBOX/Library/Logs/io.github.jaylouiz.kan-do.sandbox-$PORT`). It cannot be captured: `screencapture -l` needs an on-screen window.
+
+## Seeding a legacy folder (identifier migration, #42)
+
+To watch the start-up migration copy an old install, create the legacy folder in the **sandbox** `HOME` before step 3 (never the real one):
+
+```bash
+LEGACY="$SANDBOX/Library/Application Support/com.julius.kan-do"
+mkdir -p "$LEGACY/backups"
+cp <a fixture kan-do-data.json> "$LEGACY/"                       # e.g. the file a `?seed=local` desktop session wrote, or a hand-made envelope
+printf '{"folder":"%s","deviceId":"sandbox-device"}' "$LEGACY" > "$LEGACY/data-location.json"
+find "$LEGACY" -type f -exec shasum {} \; > "$SANDBOX/legacy-before.txt"
+```
+
+After the run: `find "$LEGACY" -type f -exec shasum {} \; | diff "$SANDBOX/legacy-before.txt" -` must be empty (the legacy folder is never written), the new `$SANDBOX/Library/Application Support/io.github.jaylouiz.kan-do.sandbox-$PORT` holds the same files (pointer rewritten to the new folder, `deviceId` unchanged) plus `identifier-migration.json` with `"data": "done"`, and `$SANDBOX/Library/Logs/io.github.jaylouiz.kan-do.sandbox-$PORT/kan-do.log` contains `data copied from the legacy folder and verified` and `Keychain step skipped`.
 
 ## Capturing the window (only when a picture is needed)
 
@@ -84,8 +98,8 @@ Never `pkill -f nuxt`, `pkill -f target/debug/app`, `killall app` or `kill $(pgr
 ## Check that nothing real changed
 
 ```bash
-find "$REAL_HOME/Library/Application Support/com.julius.kan-do" -type f -exec shasum {} \; | diff "$SANDBOX/before.txt" - && echo untouched
-ls "$SANDBOX/Library/Application Support/"      # com.julius.kan-do.sandbox-<port> appears here
+for ID in io.github.jaylouiz.kan-do com.julius.kan-do; do find "$REAL_HOME/Library/Application Support/$ID" -type f -exec shasum {} \; ; done 2>/dev/null | diff "$SANDBOX/before.txt" - && echo untouched
+ls "$SANDBOX/Library/Application Support/"      # io.github.jaylouiz.kan-do.sandbox-<port> appears here
 ```
 
 ## Stub drift
