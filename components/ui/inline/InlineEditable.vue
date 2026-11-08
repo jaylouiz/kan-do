@@ -4,6 +4,7 @@
 @usage Wraps content that switches between a read-only display view and an editable input view.
 @responsibility
 - Handle read/edit mode toggling
+- `required`: an empty value is never saved; Enter shows `requiredMessage` and stays in the editor, Esc and blur restore (#27)
 - Emit update events on save
 - Provide slots for custom display and input components
 - Keyboard-reachable edit: the read-mode trigger is `role="button"` `tabindex="0"` named "<field>: <value>";
@@ -91,18 +92,23 @@
           :variant="variant"
           class="w-full"
           :autofocus="true"
-          @update:model-value="localValue = $event ?? null"
-          @blur="finishEdit()"
+          :aria-invalid="requiredError ? true : undefined"
+          :aria-describedby="requiredError ? requiredId : undefined"
+          @update:model-value="onInput($event)"
+          @blur="onBlur"
           @keydown.enter="handleEnter"
           @keydown.esc.stop="cancelEdit(true)"
         />
       </slot>
+      <p v-if="requiredError" :id="requiredId" class="mt-1 ms-2 text-sm text-error-700" role="alert" data-testid="inline-required-error">
+        {{ requiredMessage }}
+      </p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick, onBeforeUnmount, type ComponentPublicInstance } from 'vue';
+import { ref, computed, watch, nextTick, onBeforeUnmount, useId, type ComponentPublicInstance } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 defineOptions({ name: 'InlineEditable' });
@@ -143,7 +149,16 @@ const props = withDefaults(defineProps<{
    * This branch ignores `showEditIcon` and `affordance="rule"`: it renders no pencil and no rule styling.
    */
   interactiveDisplay?: boolean;
+  /**
+   * An empty value cannot be saved (#27): Enter keeps the editor open and shows `requiredMessage`; Escape and
+   * leaving the field restore the old value. Needs `requiredMessage`.
+   */
+  required?: boolean;
+  /** The text shown (and announced) when a required value is confirmed empty. */
+  requiredMessage?: string;
 }>(), {
+  required: false,
+  requiredMessage: undefined,
   interactiveDisplay: false,
   modelValue: '',
   placeholder: undefined,
@@ -247,9 +262,30 @@ function startEdit() {
   });
 }
 
+const requiredId = `inline-required-${useId()}`;
+const requiredError = ref(false);
+const isBlank = () => props.required && String(localValue.value ?? '').trim() === '';
+
+function onInput(value: string | number | null | undefined) {
+  localValue.value = value ?? null;
+  requiredError.value = false;
+}
+
+/** Leaving the field with nothing in it is a cancel, not an error trap. */
+function onBlur() {
+  if (isBlank()) cancelEdit();
+  else finishEdit();
+}
+
 function finishEdit(restoreFocus = false) {
   if (!isEditing.value) return;
-  
+  if (isBlank()) {
+    // Confirmed empty: stay in the editor and say why
+    requiredError.value = !!props.requiredMessage;
+    if (!requiredError.value) cancelEdit(restoreFocus);
+    return;
+  }
+
   isEditing.value = false;
   
   if (localValue.value !== props.modelValue) {
@@ -261,6 +297,7 @@ function finishEdit(restoreFocus = false) {
 
 function cancelEdit(restoreFocus = false) {
   isEditing.value = false;
+  requiredError.value = false;
   localValue.value = props.modelValue;
   emit('cancel');
   if (restoreFocus === true) focusTrigger();

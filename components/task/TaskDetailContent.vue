@@ -49,6 +49,8 @@
             data-private
             :model-value="task.title"
             :label="t('task.field.title')"
+            required
+            :required-message="t('task.form.titleRequired')"
             class="text-2xl/tight"
             container-class="-ms-2"
             display-class="font-display font-normal tracking-tight"

@@ -45,9 +45,10 @@ test.describe('Carried-over cue (#99), local tasks', () => {
     })
   }
 
-  test('keyboard focus on the dots shows the meaning', async ({ page, baseURL }) => {
+  test('the dots show the meaning on hover and are not a tab stop (#27)', async ({ page, baseURL }) => {
     await page.goto(`${baseURL}/tasks`)
-    await dots(page, 'seed-open-2').focus()
+    await expect(dots(page, 'seed-open-2')).not.toHaveAttribute('tabindex', /.*/)
+    await dots(page, 'seed-open-2').hover()
     await expect(page.getByRole('tooltip')).toContainText('Tag 3 auf dem Board')
   })
 
