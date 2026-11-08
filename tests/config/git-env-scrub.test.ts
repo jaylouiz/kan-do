@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process'
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { LOCAL_GIT_ENV_VARS, scrubLocalGitEnv } from '../helpers/gitEnv'
 
 const dirs: string[] = []
@@ -19,7 +19,8 @@ afterEach(() => {
 describe('local git env scrub (#41)', () => {
   it('covers every variable `git rev-parse --local-env-vars` lists', () => {
     const listed = execFileSync('git', ['rev-parse', '--local-env-vars'], { encoding: 'utf8' }).split('\n').filter(Boolean)
-    expect([...LOCAL_GIT_ENV_VARS].toSorted()).toEqual(listed.toSorted())
+    // A superset: older git lists fewer variables, and the scrub may be broader than the installed git.
+    expect(listed.filter((name) => !(LOCAL_GIT_ENV_VARS as readonly string[]).includes(name))).toEqual([])
   })
 
   it('keeps a temp-dir git init away from the repository GIT_DIR points at', () => {
@@ -40,8 +41,10 @@ describe('local git env scrub (#41)', () => {
 
   it('is applied to process.env by the global setup file', async () => {
     const decoy = tmp('decoy-')
-    process.env.GIT_DIR = decoy
-    await import('../setup/git-env?again')
+    vi.stubEnv('GIT_DIR', decoy)
+    vi.resetModules()
+    await import('../setup/git-env')
     expect(process.env.GIT_DIR).toBeUndefined()
+    vi.unstubAllEnvs()
   })
 })
