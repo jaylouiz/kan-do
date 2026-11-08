@@ -81,6 +81,22 @@ test.describe('error states', () => {
   })
 })
 
+test.describe('welcome page (#14)', () => {
+  test('first run: wordmark, tagline, question and the two answers (1280)', async ({ page }) => {
+    await page.goto('/welcome')
+    await expect(page.getByTestId('welcome-choice-local')).toBeVisible()
+    await expect(page.locator('main')).toMatchAriaSnapshot({ name: 'welcome-1280.aria.yml' })
+  })
+
+  test('the photo fails to load: the same structure on the paper colour', async ({ page }) => {
+    await page.route('**/welcome/*.webp', route => route.abort('failed'))
+    await page.goto('/welcome')
+    await expect(page.getByTestId('welcome-choice-local')).toBeVisible()
+    await expect(page.getByTestId('welcome-photo')).toHaveCSS('opacity', '0')
+    await expect(page.locator('main')).toMatchAriaSnapshot({ name: 'welcome-1280.aria.yml' })
+  })
+})
+
 test.describe('task sheet', () => {
   test('open from the board (1280)', async ({ context, page }) => {
     await seedLocalBoard(context)
