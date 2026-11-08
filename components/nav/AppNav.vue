@@ -77,7 +77,7 @@
         v-model:open="open"
         :content="{ side: isPhone ? 'top' : 'bottom', align: isPhone ? 'end' : 'center', sideOffset: 8, collisionPadding: 8 }"
       >
-        <UTooltip :text="tooltipText" :kbds="tooltipKbds" :disabled="isPhone || open">
+        <UTooltip :open="tipOpen" :text="tooltipText" :kbds="tooltipKbds" :disabled="isPhone || open" @update:open="onTipOpen">
           <button
             ref="moreEl"
             type="button"
@@ -85,6 +85,9 @@
             :class="{ 'is-open': open }"
             :aria-label="worstProblem ? t('nav.moreProblem') : t('nav.more')"
             data-testid="app-nav-more"
+            @blur="tipHeldBack = false"
+            @pointerenter="tipHeldBack = false"
+            @pointerleave="tipHeldBack = false"
           >
             <UChip :show="worstProblem !== null" size="lg" color="error" :ui="{ base: dotTone }" inset>
               <UIcon name="i-ph-dots-three-bold" class="app-nav-more-icon" aria-hidden="true" />
@@ -125,6 +128,18 @@ const health = useIntegrationHealthStore()
 
 const open = ref(false)
 const moreEl = ref<HTMLButtonElement | null>(null)
+/**
+ * ⋯ tooltip (#40): closing the panel returns focus to ⋯, and a focus-open tooltip would then sit on the page the
+ * chosen row just opened. After a close the tooltip stays held back until ⋯ loses focus or the pointer enters or leaves it.
+ */
+const tipOpen = ref(false)
+const tipHeldBack = ref(false)
+function onTipOpen(next: boolean) {
+  tipOpen.value = next && !tipHeldBack.value
+}
+watch(open, (isOpen) => {
+  if (isOpen) { tipOpen.value = false } else { tipHeldBack.value = true; tipOpen.value = false }
+})
 /** Phone layout: no hover (no tooltip) and the panel opens upward from the bottom bar */
 const isPhone = useMediaQuery('(max-width: 767px)')
 
