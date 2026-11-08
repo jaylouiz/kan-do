@@ -708,6 +708,23 @@ test.describe('App bar: resize and routes without a bar', () => {
       await fresh.close()
     }
   })
+
+  test('closing the panel with the pointer resting on ⋯ keeps the hover tooltip', async ({ context, page }) => {
+    await seedLocalBoard(context)
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto('/tasks')
+    await expect(appNav(page)).toBeVisible()
+    const rest = (await moreButton(page).boundingBox())!
+    await page.mouse.move(rest.x + rest.width / 2, rest.y + rest.height / 2)
+    await moreButton(page).focus()
+    await page.keyboard.press('Enter')
+    await expect(morePanel(page)).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(morePanel(page)).toBeHidden()
+    const box = (await moreButton(page).boundingBox())!
+    for (let i = 1; i <= 6; i++) await page.mouse.move(box.x + box.width / 2 + i, box.y + box.height / 2 + 3, { steps: 2 })
+    await expect(page.getByRole('tooltip')).toBeVisible()
+  })
 })
 
 /** Issue #23 (U5): the ⋯ panel looks like a menu, so ↑/↓/Home/End move through its controls. */
@@ -739,6 +756,23 @@ test.describe('App bar: arrow keys in the Mehr panel (#23)', () => {
     await page.keyboard.press('Home')
     await expect(first).toBeFocused()
   })
+
+  test('closing the panel with the pointer resting on ⋯ keeps the hover tooltip', async ({ context, page }) => {
+    await seedLocalBoard(context)
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto('/tasks')
+    await expect(appNav(page)).toBeVisible()
+    const rest = (await moreButton(page).boundingBox())!
+    await page.mouse.move(rest.x + rest.width / 2, rest.y + rest.height / 2)
+    await moreButton(page).focus()
+    await page.keyboard.press('Enter')
+    await expect(morePanel(page)).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(morePanel(page)).toBeHidden()
+    const box = (await moreButton(page).boundingBox())!
+    for (let i = 1; i <= 6; i++) await page.mouse.move(box.x + box.width / 2 + i, box.y + box.height / 2 + 3, { steps: 2 })
+    await expect(page.getByRole('tooltip')).toBeVisible()
+  })
 })
 
 test.describe('App bar: ⋯ tooltip after a page change (#40)', () => {
@@ -753,11 +787,27 @@ test.describe('App bar: ⋯ tooltip after a page change (#40)', () => {
     await expect(morePanel(page)).toBeHidden()
     await expect(moreButton(page)).toBeFocused()
     await expect(page.getByRole('tooltip')).toHaveCount(0)
-    // a later hover still teaches
     // a later hover on ⋯ still teaches: enter, leave, enter again (the tooltip opens on a pointer move over the trigger)
     await moreButton(page).hover()
     await page.mouse.move(2, 2)
     await moreButton(page).hover()
+    await expect(page.getByRole('tooltip')).toBeVisible()
+  })
+
+  test('closing the panel with the pointer resting on ⋯ keeps the hover tooltip', async ({ context, page }) => {
+    await seedLocalBoard(context)
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto('/tasks')
+    await expect(appNav(page)).toBeVisible()
+    const rest = (await moreButton(page).boundingBox())!
+    await page.mouse.move(rest.x + rest.width / 2, rest.y + rest.height / 2)
+    await moreButton(page).focus()
+    await page.keyboard.press('Enter')
+    await expect(morePanel(page)).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(morePanel(page)).toBeHidden()
+    const box = (await moreButton(page).boundingBox())!
+    for (let i = 1; i <= 6; i++) await page.mouse.move(box.x + box.width / 2 + i, box.y + box.height / 2 + 3, { steps: 2 })
     await expect(page.getByRole('tooltip')).toBeVisible()
   })
 })

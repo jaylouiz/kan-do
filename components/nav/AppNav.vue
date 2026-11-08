@@ -86,7 +86,7 @@
             :aria-label="worstProblem ? t('nav.moreProblem') : t('nav.more')"
             data-testid="app-nav-more"
             @blur="tipHeldBack = false"
-            @pointerenter="tipHeldBack = false"
+            @pointermove="tipHeldBack = false"
             @pointerleave="tipHeldBack = false"
           >
             <UChip :show="worstProblem !== null" size="lg" color="error" :ui="{ base: dotTone }" inset>
@@ -130,7 +130,7 @@ const open = ref(false)
 const moreEl = ref<HTMLButtonElement | null>(null)
 /**
  * ⋯ tooltip (#40): closing the panel returns focus to ⋯, and a focus-open tooltip would then sit on the page the
- * chosen row just opened. After a close the tooltip stays held back until ⋯ loses focus or the pointer enters or leaves it.
+ * chosen row just opened. After a close the tooltip stays held back until ⋯ loses focus or the pointer moves over or leaves it.
  */
 const tipOpen = ref(false)
 const tipHeldBack = ref(false)
