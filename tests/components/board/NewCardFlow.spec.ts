@@ -35,7 +35,17 @@ const stubs = {
   TaskCard: { props: ['task'], template: '<div class="task-face" :data-title="task.title" :data-topic="task.topic" :data-color="task.topicColorCode"><p class="task-title-text" /></div>' },
   TopicMark: true,
   UIcon: true,
-  UPopover: { template: '<div><slot /></div>' },
+  UPopover: { template: '<div><slot /><slot name="content" /></div>' },
+  UInput: {
+    props: ['modelValue'],
+    emits: ['update:modelValue'],
+    setup(_: unknown, { expose }: { expose: (e: Record<string, unknown>) => void }) {
+      const inputRef = ref<HTMLInputElement | null>(null)
+      expose({ inputRef })
+      return { inputRef }
+    },
+    template: '<input ref="inputRef" :value="modelValue" v-bind="$attrs" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+  },
   UDrawer: true,
   Transition: { template: '<slot />' },
 }
@@ -349,12 +359,30 @@ describe('NewCardFlow (#649)', () => {
     expect(sync.createTask.mock.calls[0]![0]).toMatchObject({ topic: 'Design', topicColorCode: null })
   })
 
-  it('offers "all options" as a third pill only with more than two values', async () => {
+  it('#16: Thema and Aktivität show up to three pills and the Mehr cell (key 4); Timebox keeps two pills and "···" (key 3)', async () => {
     mountFlow()
     await confirmTitle()
-    expect(w.find('[data-testid="new-card-more"]').exists()).toBe(true) // three topics
+    const pills = () => w.get('[data-testid="new-card-options"]').findAll('button.ncf__pill:not(.ncf__pill--more)')
+    expect(pills().map((pill) => pill.text())).toEqual(['Design', 'Backend', 'Büro'].map((v) => expect.stringContaining(v)))
+    expect(pills().map((pill) => pill.attributes('aria-keyshortcuts'))).toEqual(['1', '2', '3'])
+    const more = w.get('[data-testid="new-card-more"]')
+    expect(more.classes()).toContain('ncf__pill--mehr')
+    expect(more.text()).toBe('Mehr')
+    expect(more.attributes('aria-keyshortcuts')).toBe('4')
     await pressOnPanel('Enter')
-    expect(w.find('[data-testid="new-card-more"]').exists()).toBe(true) // three activities
+    expect(w.get('[data-testid="new-card-more"]').attributes('aria-keyshortcuts')).toBe('4')
+    await pressOnPanel('Enter')
+    expect(stepKey()).toBe('timebox')
+    expect(pills()).toHaveLength(2)
+    expect(w.get('[data-testid="new-card-more"]').attributes('aria-keyshortcuts')).toBe('3')
+    expect(w.get('[data-testid="new-card-more"]').classes()).not.toContain('ncf__pill--mehr')
+  })
+
+  it('#16: key 3 picks the third value; with one value Mehr stays for the new one, a step without values is still skipped', async () => {
+    mountFlow()
+    await confirmTitle()
+    await pressOnPanel('3') // the third topic by use: Büro
+    expect(w.get('.task-face').attributes('data-topic')).toBe('Büro')
     w.unmount()
 
     options.topics = ['Design']
@@ -362,11 +390,50 @@ describe('NewCardFlow (#649)', () => {
     options.activities = []
     mountFlow()
     await confirmTitle()
-    // no activities at all: the step is not asked; one topic: two pills at most and no third
+    expect(stepKey()).toBe('topic')
+    expect(w.find('[data-testid="new-card-more"]').exists()).toBe(true)
+    await pressOnPanel('Enter')
+    expect(stepKey()).toBe('timebox') // no activities at all: the step is not asked
+  })
+
+  it('#16: a source without free values shows no Mehr cell when three values fit the pills', async () => {
+    target.source = 'todoist'
+    mountFlow()
+    await confirmTitle()
     expect(stepKey()).toBe('topic')
     expect(w.find('[data-testid="new-card-more"]').exists()).toBe(false)
+    w.unmount()
+
+    options.topics = ['A', 'B', 'C', 'D']
+    mountFlow()
+    await confirmTitle()
+    expect(w.find('[data-testid="new-card-more"]').exists()).toBe(true) // the fourth value is behind Mehr, search only
+    expect(w.find('[data-testid="new-card-new"]').exists()).toBe(false)
+  })
+
+  it('#16: a new topic typed into the Mehr list is picked and saved as typed', async () => {
+    mountFlow()
+    await confirmTitle()
+    const search = w.get('[data-testid="new-card-search"]')
+    await search.setValue('  Frisch  ')
+    expect(w.get('[data-testid="new-card-new"]').text()).toBe('Neu: „Frisch“')
+    await search.trigger('keydown', { key: 'Enter' })
+    await afterPick()
+    expect(stepKey()).toBe('activity')
     await pressOnPanel('Enter')
-    expect(stepKey()).toBe('timebox')
+    await pressOnPanel('Enter')
+    await w.get('form.ncf__row').trigger('submit')
+    await flushPromises()
+    expect(sync.createTask.mock.calls[0]![0]).toMatchObject({ topic: 'Frisch' })
+  })
+
+  it('#16: Enter on a name an existing topic has picks that one, with its own spelling', async () => {
+    mountFlow()
+    await confirmTitle()
+    await w.get('[data-testid="new-card-search"]').setValue('design')
+    expect(w.find('[data-testid="new-card-new"]').exists()).toBe(false)
+    await w.get('[data-testid="new-card-search"]').trigger('keydown', { key: 'Enter' })
+    expect(w.get('.task-face').attributes('data-topic')).toBe('Design')
   })
 
   it('skips Thema and Aktivität on a board without values and when the source lacks the field', async () => {

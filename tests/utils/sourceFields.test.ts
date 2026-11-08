@@ -12,7 +12,7 @@ const mapping = (overrides: Partial<NotionPropertyMapping> = {}): NotionProperty
 describe('fieldsForSource (#321)', () => {
   it('Local offers the four standard fields and no custom properties, whatever Notion maps', () => {
     const fields = fieldsForSource('local', mapping({ priority: 'Prio', customProperties: [{ key: 'k', name: 'K', type: 'text', enabled: true }] }))
-    expect(fields).toEqual({ priority: true, timebox: true, activity: true, topic: true, customProperties: [] })
+    expect(fields).toEqual({ priority: true, timebox: true, activity: true, topic: true, customProperties: [], newValues: { maxLength: null, stripCommas: false } })
   })
 
   it('a board that was never set up behaves like Local', () => {
@@ -29,7 +29,7 @@ describe('fieldsForSource (#321)', () => {
   })
 
   it('Notion without a mapping offers no standard field', () => {
-    expect(fieldsForSource('notion', null)).toEqual({ priority: false, timebox: false, activity: false, topic: false, customProperties: [] })
+    expect(fieldsForSource('notion', null)).toMatchObject({ priority: false, timebox: false, activity: false, topic: false, customProperties: [] })
     expect(fieldsForSource('notion')).toMatchObject({ priority: false, topic: false })
   })
 
@@ -40,12 +40,18 @@ describe('fieldsForSource (#321)', () => {
   })
 
   it('Todoist offers what its integration maps today: priority and topic', () => {
-    expect(fieldsForSource('todoist', mapping({ priority: 'Prio' }))).toEqual({
+    expect(fieldsForSource('todoist', mapping({ priority: 'Prio' }))).toMatchObject({
       priority: true, timebox: false, activity: false, topic: true, customProperties: [],
     })
   })
 
   it('answers for every source id', () => {
     for (const source of SOURCE_IDS) expect(fieldsForSource(source, mapping())).toBeTruthy()
+  })
+
+  it('new Thema/Aktivität values (#16): Local takes any text, Notion cleans it, Todoist has no free values', () => {
+    expect(fieldsForSource('local').newValues).toEqual({ maxLength: null, stripCommas: false })
+    expect(fieldsForSource('notion', mapping({ topic: 'Thema' })).newValues).toEqual({ maxLength: 100, stripCommas: true })
+    expect(fieldsForSource('todoist').newValues).toBeNull()
   })
 })

@@ -1,4 +1,3 @@
 - group "Thema?":
-  - button "Design"
-  - button "Backend"
-  - button "Büro"
+  - textbox "Suchen oder neu …"
+  - button "Vertrieb"

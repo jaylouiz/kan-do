@@ -1045,6 +1045,74 @@ describe('NotionIntegration.createTask', () => {
   })
 })
 
+describe('NotionIntegration.createTask: topic and activity in the property type (#16)', () => {
+  const mapping = { ...propertyMapping, topic: 'Thema', activity: 'Aktivität' }
+  const task = { title: 'T', topic: 'Frisch', activity: 'Neu-Akt', status: TaskStatus.Open, priority: 2 } as any
+
+  /** A data source whose Thema and Aktivität have the given types; `schema: 'fail'` makes the schema read fail */
+  const mockProxy = (types: { Thema?: string; 'Aktivität'?: string; Status?: string }, schema: 'ok' | 'fail' = 'ok') => {
+    const fetchMock = vi.fn((url: string, _init?: { body?: string }) => {
+      if (url.startsWith('/api/notion/data-sources?id=')) {
+        return schema === 'fail'
+          ? Promise.resolve({ ok: false, status: 500, json: () => Promise.resolve({}) })
+          : Promise.resolve({ ok: true, json: () => Promise.resolve({ id: 'ds-123', properties: Object.fromEntries(Object.entries(types).map(([name, type]) => [name, { type }])) }) })
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({ success: true, page: { id: 'new-task-id' } }) })
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    return fetchMock
+  }
+  const written = (fetchMock: ReturnType<typeof mockProxy>) => {
+    const call = fetchMock.mock.calls.find(([url]) => String(url).includes('/api/notion/create-task'))!
+    return JSON.parse(call[1]!.body!).properties
+  }
+  const create = (t = task) => new NotionIntegration(token, db, mapping as any, statusMapping as any, undefined, 'ds-123').createTask(t)
+
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('a select Thema and a multi_select Aktivität get a name each: Notion creates a new option on the write', async () => {
+    const fetchMock = mockProxy({ Thema: 'select', 'Aktivität': 'multi_select' })
+    await create()
+    expect(written(fetchMock).Thema).toEqual({ select: { name: 'Frisch' } })
+    expect(written(fetchMock)['Aktivität']).toEqual({ multi_select: [{ name: 'Neu-Akt' }] })
+  })
+
+  it('a select Aktivität is written as a select, and cleared as null when empty', async () => {
+    const fetchMock = mockProxy({ Thema: 'select', 'Aktivität': 'select' })
+    await create()
+    expect(written(fetchMock)['Aktivität']).toEqual({ select: { name: 'Neu-Akt' } })
+    const empty = mockProxy({ Thema: 'select', 'Aktivität': 'select' })
+    resetStatusTypeCache()
+    await create({ ...task, activity: null })
+    expect(written(empty)['Aktivität']).toEqual({ select: null })
+  })
+
+  it('a rich_text Thema keeps the text write', async () => {
+    const fetchMock = mockProxy({ Thema: 'rich_text', 'Aktivität': 'multi_select' })
+    await create()
+    expect(written(fetchMock).Thema).toEqual({ rich_text: [{ text: { content: 'Frisch' } }] })
+  })
+
+  it('writes the former shapes when the schema cannot be read, and reads it again next time', async () => {
+    const failing = mockProxy({}, 'fail')
+    const ni = new NotionIntegration(token, db, mapping as any, statusMapping as any, undefined, 'ds-123')
+    await ni.createTask(task)
+    expect(written(failing).Thema).toEqual({ rich_text: [{ text: { content: 'Frisch' } }] })
+    expect(written(failing)['Aktivität']).toEqual({ multi_select: [{ name: 'Neu-Akt' }] })
+    const healthy = mockProxy({ Thema: 'select', 'Aktivität': 'select' })
+    await ni.createTask(task)
+    expect(written(healthy).Thema).toEqual({ select: { name: 'Frisch' } })
+  })
+
+  it('reads the schema once per data source across creates (next to the status type read)', async () => {
+    const fetchMock = mockProxy({ Thema: 'select', 'Aktivität': 'multi_select', Status: 'select' })
+    const ni = new NotionIntegration(token, db, mapping as any, statusMapping as any, undefined, 'ds-123')
+    await ni.createTask(task)
+    await ni.createTask(task)
+    expect(fetchMock.mock.calls.filter(([url]) => String(url).startsWith('/api/notion/data-sources?id='))).toHaveLength(2)
+  })
+})
+
 describe('NotionIntegration.getDatabaseSchema', () => {
   const dsSchema = { Name: { type: 'title' }, FromDataSource: { type: 'select' } }
   const dbSchema = { Name: { type: 'title' }, FromDatabase: { type: 'select' } }

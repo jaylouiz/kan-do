@@ -664,10 +664,10 @@
     "concept": "The third tab of Einstellungen: topics and activities, data and storage, updates and GitHub access (#691)",
     "de": "Verwaltung",
     "en": "Manage",
-    "avoidDe": ["App & Daten", "Sonstiges", "Mehr"],
-    "avoidEn": ["Other", "More", "App & data"],
+    "avoidDe": ["App & Daten", "Sonstiges"],
+    "avoidEn": ["Other", "App & data"],
     "status": "proposed",
-    "note": "Named by the user in the #691 design round: user-data maintenance, not board behaviour, so Themen und Aktivitäten lives here too. The tab strip reads Board, Aufgabenquellen, Verwaltung (en: Board, Connections, Manage; en avoids \"task source\" because of the task-source term)."
+    "note": "Named by the user in the #691 design round: user-data maintenance, not board behaviour, so Themen und Aktivitäten lives here too. The tab strip reads Board, Aufgabenquellen, Verwaltung (en: Board, Connections, Manage; en avoids \"task source\" because of the task-source term). Not \"Mehr\" / \"More\" as a catch-all tab name; the words moved out of the avoid lists in #16, where \"Mehr\" names the new-card flow's fourth cell (quick-add-more-values) and the registry test forbids one term's avoid form being another's preferred form."
   },
   {
     "id": "request-limit",
@@ -697,5 +697,15 @@
     "avoidEn": ["GitHub login", "GitHub profile"],
     "status": "proposed",
     "note": "Not the token: the token is the secret stored in the app (token entry); the account is the person's sign-in on github.com. German compound with the brand name takes a hyphen (DESIGN.md)."
+  },
+  {
+    "id": "quick-add-more-values",
+    "concept": "The fourth cell of the new-card flow's Thema and Aktivität steps: opens the rest of the values with a search and \"Neu\" (#16)",
+    "de": "Mehr",
+    "en": "More",
+    "avoidDe": [],
+    "avoidEn": [],
+    "status": "proposed",
+    "note": "Named by the maintainer in the #16 design round (the cell looks like an input and says \"Mehr\"). The settings tab \"Verwaltung\" avoids \"Mehr\" as a catch-all name; this cell is the opposite, an action that shows more values of one list."
   }
 ]

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { activityStep, rankValues, timeboxStep, toStep, topicStep } from '~/lib/quickAddSuggestions'
+import { activityStep, cleanNewValue, existingValueFor, filterRest, newValueFor, rankValues, timeboxStep, toStep, topicStep } from '~/lib/quickAddSuggestions'
 
 describe('quickAddSuggestions (#649)', () => {
   it('ranks by use, then pool order, ignoring blanks and duplicates', () => {
@@ -21,6 +21,15 @@ describe('quickAddSuggestions (#649)', () => {
     expect(topicStep([], []).suggestions).toEqual([])
   })
 
+  it('Thema and Aktivität (#16): three pills, the Mehr list holds only the values after them', () => {
+    const three = topicStep([], ['A', 'B', 'C'])
+    expect(three.suggestions).toEqual(['A', 'B', 'C'])
+    expect(three.rest).toEqual([])
+    const five = activityStep([], ['A', 'B', 'C', 'D', 'E'], null)
+    expect(five.suggestions).toEqual(['A', 'B', 'C'])
+    expect(five.rest).toEqual(['D', 'E'])
+  })
+
   it('activities: the chosen topic first, then the board', () => {
     const tasks = [
       { topic: 'A', activity: 'Plan' },
@@ -40,5 +49,39 @@ describe('quickAddSuggestions (#649)', () => {
     expect(timeboxStep(null).rest).toEqual(['15', '30', '45', '60', '90', '120'])
     expect(timeboxStep(50).rest).toEqual(['15', '30', '45', '50', '60', '90', '120'])
     expect(timeboxStep(0).suggestions).toEqual(['15', '30'])
+  })
+
+  describe('new values (#16)', () => {
+    const local = { maxLength: null, stripCommas: false }
+    const notion = { maxLength: 100, stripCommas: true }
+
+    it('cleans a new value by the source: spaces always, commas and length for Notion', () => {
+      expect(cleanNewValue('  Kunde   A ', local)).toBe('Kunde A')
+      expect(cleanNewValue('A, B', local)).toBe('A, B')
+      expect(cleanNewValue('A, B', notion)).toBe('A B')
+      expect(cleanNewValue(',,', notion)).toBe('')
+      expect(cleanNewValue('x'.repeat(120), notion)).toHaveLength(100)
+      expect(cleanNewValue('x'.repeat(120), local)).toHaveLength(120)
+    })
+
+    it('offers "Neu" only for text no value has (any case) and only when the source allows it', () => {
+      expect(newValueFor('Frisch', ['Kunde A'], local)).toBe('Frisch')
+      expect(newValueFor('kunde a', ['Kunde A'], local)).toBeNull()
+      expect(newValueFor('  ', ['Kunde A'], local)).toBeNull()
+      expect(newValueFor('A, B', ['A B'], notion)).toBeNull()
+      expect(newValueFor('Frisch', ['Kunde A'], null)).toBeNull()
+    })
+
+    it('finds the existing value a text names, with its own spelling', () => {
+      expect(existingValueFor('kunde a', ['Kunde A', 'Intern'], local)).toBe('Kunde A')
+      expect(existingValueFor('Kunde', ['Kunde A'], local)).toBeNull()
+      expect(existingValueFor('', ['Kunde A'], local)).toBeNull()
+    })
+
+    it('filters the Mehr list by the text, any case; blank shows everything', () => {
+      expect(filterRest(['Büro', 'Kunde A', 'Kunde B'], ' kunde ')).toEqual(['Kunde A', 'Kunde B'])
+      expect(filterRest(['Büro'], 'xyz')).toEqual([])
+      expect(filterRest(['Büro', 'Kunde A'], '')).toEqual(['Büro', 'Kunde A'])
+    })
   })
 })

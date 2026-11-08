@@ -163,6 +163,8 @@ test.describe('guided new card (#649)', () => {
     await seedLocalBoard(context, [
       ...SEED_TASKS,
       { ...SEED_TASKS[0]!, id: 'ncf-extra', title: 'Weitere', topic: 'Büro', activity: 'Abstimmung', status: 2 },
+      // a fourth topic, so the Mehr list holds a value behind the three pills (#16)
+      { ...SEED_TASKS[0]!, id: 'ncf-extra-2', title: 'Noch eine', topic: 'Vertrieb', activity: 'Telefonat', status: 2 },
     ])
     await gotoBoard(page)
     await page.locator('#column-open .add-task-button').click()
@@ -179,8 +181,12 @@ test.describe('guided new card (#649)', () => {
 
     await page.getByTestId('new-card-more').click()
     const list = page.getByRole('group', { name: 'Thema?' }).last()
-    await expect(list.getByRole('button', { name: 'Büro' })).toBeVisible()
+    await expect(list.getByRole('button', { name: 'Vertrieb' })).toBeVisible()
     await expect(list).toMatchAriaSnapshot({ name: 'new-card-all-options-1280.aria.yml' })
+    // typing a name no value has: the "Neu" row (#16)
+    await page.getByTestId('new-card-search').fill('Gartenpflege')
+    await expect(page.getByTestId('new-card-new')).toBeVisible()
+    await expect(list).toMatchAriaSnapshot({ name: 'new-card-search-new-1280.aria.yml' })
     await page.keyboard.press('Escape')
 
     await page.getByTestId('new-card-step').focus()

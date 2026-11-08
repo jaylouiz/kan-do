@@ -6,11 +6,12 @@
 - Local state only (title, topic, activity, timebox, notes, step): it does not use `useTaskDraft`, which belongs to the sheet (draft card, spotlight, /tasks/add); saves through `useTaskSync().createTask` in the default source (`useAddTarget`), steps follow that source's fields (`fieldsForSource`); a step with nothing to offer is skipped
 - The face is the real TaskCard (`draft`), so the saved card and the cue behind the wash match by construction; the topic row exists only once a topic is picked (the title steps down then, as on a card)
 - Title step (no wash): the field is a textarea that grows with the title (#665; Enter confirms, line breaks become spaces, at most as tall as the face's title, which is what the card shows of it (a long title is clamped there), then it scrolls) and stands where the face's title stands: on the card body padding, or below the topic row once a topic is picked (measured from the face, #668: going back with a topic must not overlap it). The face's own title is hidden there, so the field is the only text; it keeps the field's right padding so both wrap alike. The confirm check is centred vertically on the card, on the line where the answer rows of the later steps stand, so the button controls keep one height; the field keeps the check's width clear (accepted: a short title wraps a few characters earlier)
-- Steps (one question at a time, centred over the card): head on the card padding (back left, question, skip right; none on Notiz), answer row `[1] [2] [··· 3]` on the vertical centre; the pills carry the name and the key cue only (a topic's mark shows in the list and on the face), a long name is cut with an ellipsis. Notiz is an input plus a check; Enter saves. The step slides sideways (140 ms) into the next
+- Steps (one question at a time, over the card): head on the card padding (back left, question, skip right; none on Notiz), then the answers in a 2×2 grid (#16): Thema and Aktivität `[1] [2] / [3] [Mehr 4]`, Timebox `[1] [2] / [··· 3]`; the pills carry the name and the key cue only (a topic's mark shows in the list and on the face), a long name is cut with an ellipsis (half the row, not a third). The grid makes the steps about 20 px taller than the title card: the face's min-height is derived from the head, two control rows and the room under them (`--ncf-control-h`, `--ncf-grid-top`, `--ncf-grid-bottom`). Notiz is an input plus a check on the vertical centre; Enter saves. The step slides sideways (140 ms) into the next
 - Behind the steps the face sits under the stack pill's wash (`--stack-wash-*`) and softened (blur, 45 %), a cue that things are received, not text to read. A pick pulses the wash once (the only cue for Aktivität and Notiz, which a card does not show); saving lifts it
-- Keys: 1/2/3 pick, Enter skips (saves on Notiz), Esc goes back (cancels on the title step; with a typed title the slot offers "Rückgängig" in a toast, #665), Cmd/Ctrl+Enter saves now with what is entered, from any step once there is a title (#665; announced by `aria-keyshortcuts` and the check's title). Key cues sit inside the buttons (generated content, so the accessible name stays the label), fine pointers only. Tab order is the DOM order; every step change moves focus to the step (Notiz: its input)
+- Keys: 1/2/3 pick (Timebox: 1/2, and 3 opens "···"), 4 opens Mehr on Thema and Aktivität, Enter skips (saves on Notiz), Esc goes back (cancels on the title step; with a typed title the slot offers "Rückgängig" in a toast, #665), Cmd/Ctrl+Enter saves now with what is entered, from any step once there is a title (#665; announced by `aria-keyshortcuts` and the check's title). Key cues sit inside the buttons (generated content, so the accessible name stays the label), fine pointers only. Tab order is the DOM order; every step change moves focus to the step (Notiz: its input)
 - A press outside cancels only while the title is blank; a save error keeps the card where it was (Notiz after Enter) with everything entered; the toast after a save is one row (title and Details, #665) so it stays clear of the saved card at 390 px
-- "All options": popover from 768 px, drawer below; ↑/↓ (wrapping) and Home/End move between its options, Enter/Space pick, Esc closes (#15; plain buttons with one shared handler, not UDropdownMenu: the drawer has no menu primitive and the key-3 focus flow (#685) stays). Motion is instant under prefers-reduced-motion
+- Mehr (Thema, Aktivität, #16): a cell that looks like the input it opens (dashed outline, transparent, search icon, muted "Mehr", key cue 4; hover is a soft fill, never the ink of a value pill). It opens the list (`NewCardOptionList`: popover from 768 px, drawer below) with the search field focused: the values that are not pills, filtered by the text, and a "Neu: „text“" row when no value has that name (any case) and the source allows free values (`fieldsForSource(...).newValues`: Local any text, Notion without commas and at most 100 characters, so the row shows what is created; Todoist none, then search only). Enter picks an exact match, else the first match, else creates (a partial match never creates by accident; the Neu row is one ↓ away). A step with no values at all is still skipped; the sheet creates a first topic. The new value is just a pick: Local derives topics from tasks, Notion creates the select option on the write (`NotionIntegration` writes the property's own type)
+- "···" (Timebox) and the lists: ↑/↓ (wrapping) walk field and options, Home/End jump between options (caret keys inside the field), Enter/Space pick, Esc closes (#15; plain buttons with one shared handler, not UDropdownMenu: the drawer has no menu primitive and the key-4/3 focus flow (#685) stays). Motion is instant under prefers-reduced-motion
 - Accepted: unsaved input is lost when the page is left (the card saves only at the end, as the story asks); activity and note have no place on a card, so the pulse is their only cue
 -->
 <template>
@@ -134,7 +135,7 @@
             </button>
           </form>
 
-          <div v-else class="ncf__row" data-testid="new-card-options">
+          <div v-else class="ncf__row ncf__row--grid" data-testid="new-card-options">
             <button
               v-for="(value, index) in current.suggestions"
               :key="value"
@@ -149,50 +150,48 @@
               <kbd class="ncf__key" :data-key="index + 1" aria-hidden="true" />
             </button>
 
-            <template v-if="current.rest.length">
+            <template v-if="hasList">
               <UPopover
                 v-if="isDesktop"
                 v-model:open="moreOpen"
                 :content="{ side: 'bottom', align: 'center', sideOffset: 6, onCloseAutoFocus: onMoreCloseAutoFocus }"
-                :ui="{ content: 'max-h-64 min-w-44 overflow-auto p-1' }"
+                :ui="{ content: 'max-h-64 min-w-56 overflow-auto p-1' }"
               >
                 <button
                   type="button"
                   class="ncf__pill ncf__pill--more ncf__control"
-                  aria-keyshortcuts="3"
+                  :class="{ 'ncf__pill--mehr': isEntryStep }"
+                  :aria-keyshortcuts="String(listKey)"
                   :disabled="saving"
-                  :aria-label="t('board.quickAdd.allOptions')"
+                  :aria-label="isEntryStep ? undefined : t('board.quickAdd.allOptions')"
                   data-testid="new-card-more"
                 >
-                  <UIcon name="i-ph-dots-three-bold" class="size-4" aria-hidden="true" />
-                  <kbd class="ncf__key" data-key="3" aria-hidden="true" />
+                  <template v-if="isEntryStep">
+                    <UIcon name="i-ph-magnifying-glass" class="size-4 shrink-0" aria-hidden="true" />
+                    <span class="truncate">{{ t('board.quickAdd.more') }}</span>
+                  </template>
+                  <UIcon v-else name="i-ph-dots-three-bold" class="size-4" aria-hidden="true" />
+                  <kbd class="ncf__key" :data-key="listKey" aria-hidden="true" />
                 </button>
                 <template #content>
-                  <div class="flex flex-col gap-0.5" role="group" :aria-label="question" data-testid="new-card-more-list" @keydown="onMoreListKeydown">
-                    <button
-                      v-for="value in current.rest"
-                      :key="value"
-                      type="button"
-                      :aria-current="value === currentValue ? 'true' : undefined"
-                      class="flex min-h-8 w-full cursor-pointer items-center gap-2 rounded-md px-3 text-left text-sm text-default hover:bg-elevated focus-visible:bg-elevated aria-[current=true]:font-semibold aria-[current=true]:text-highlighted"
-                      @click="pick(value)"
-                    >
-                      <TopicMark v-if="step === 'topic'" :topic="value" />
-                      <span class="truncate" :data-private="step !== 'timebox' ? '' : undefined">{{ optionLabel(value) }}</span>
-                    </button>
-                  </div>
+                  <NewCardOptionList v-bind="listProps" @pick="pick" @create="create" />
                 </template>
               </UPopover>
               <template v-else>
                 <button
                   type="button"
                   class="ncf__pill ncf__pill--more ncf__control"
+                  :class="{ 'ncf__pill--mehr': isEntryStep }"
                   :disabled="saving"
-                  :aria-label="t('board.quickAdd.allOptions')"
+                  :aria-label="isEntryStep ? undefined : t('board.quickAdd.allOptions')"
                   data-testid="new-card-more"
                   @click="moreOpen = true"
                 >
-                  <UIcon name="i-ph-dots-three-bold" class="size-4" aria-hidden="true" />
+                  <template v-if="isEntryStep">
+                    <UIcon name="i-ph-magnifying-glass" class="size-4 shrink-0" aria-hidden="true" />
+                    <span class="truncate">{{ t('board.quickAdd.more') }}</span>
+                  </template>
+                  <UIcon v-else name="i-ph-dots-three-bold" class="size-4" aria-hidden="true" />
                 </button>
                 <UDrawer
                   v-model:open="moreOpen"
@@ -201,19 +200,7 @@
                   :description="t('board.quickAdd.allOptions')"
                 >
                   <template #content>
-                    <div class="flex flex-col gap-0.5 p-3 pb-6" role="group" :aria-label="question" data-testid="new-card-more-list" @keydown="onMoreListKeydown">
-                      <button
-                        v-for="value in current.rest"
-                        :key="value"
-                        type="button"
-                        :aria-current="value === currentValue ? 'true' : undefined"
-                        class="flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-md px-3 text-left text-base text-default hover:bg-elevated focus-visible:bg-elevated aria-[current=true]:font-semibold aria-[current=true]:text-highlighted"
-                        @click="pick(value)"
-                      >
-                        <TopicMark v-if="step === 'topic'" :topic="value" />
-                        <span class="truncate" :data-private="step !== 'timebox' ? '' : undefined">{{ optionLabel(value) }}</span>
-                      </button>
-                    </div>
+                    <NewCardOptionList v-bind="listProps" large @pick="pick" @create="create" />
                   </template>
                 </UDrawer>
               </template>
@@ -231,7 +218,7 @@ import { useI18n } from 'vue-i18n';
 import { useToast } from '#imports';
 import { navigateTo } from 'nuxt/app';
 import TaskCard from '~/components/task/TaskCard.vue';
-import TopicMark from '~/components/topic/TopicMark.vue';
+import NewCardOptionList from '~/components/board/NewCardOptionList.vue';
 import { useAddTarget } from '~/composables/useAddTarget';
 import { useErrorHandler } from '~/composables/useErrorHandler';
 import { useIsDesktop } from '~/composables/useIsDesktop';
@@ -326,6 +313,9 @@ const steps = computed<StepKey[]>(() => {
   return list;
 });
 
+/** Thema and Aktivität: three pills and Mehr (#16); Timebox: two pills and "···" */
+const isEntryStep = computed(() => step.value === 'topic' || step.value === 'activity');
+
 const EMPTY_STEP: SuggestionStep = { all: [], suggestions: [], rest: [] };
 const current = computed<SuggestionStep>(() => {
   if (step.value === 'topic') return topicOptions.value ?? EMPTY_STEP;
@@ -333,6 +323,10 @@ const current = computed<SuggestionStep>(() => {
   if (step.value === 'timebox') return timeboxOptions.value ?? EMPTY_STEP;
   return EMPTY_STEP;
 });
+/** Whether the step has a list behind its pills: the rest, or on Thema/Aktivität the search that creates a new value */
+const hasList = computed(() => current.value.rest.length > 0 || (isEntryStep.value && fields.value.newValues !== null));
+/** The key that opens it: 4 behind three pills, 3 behind two */
+const listKey = computed(() => (isEntryStep.value ? 4 : 3));
 const currentValue = computed(() => {
   if (step.value === 'topic') return topic.value;
   if (step.value === 'activity') return activity.value;
@@ -348,6 +342,16 @@ const question = computed(() => {
   }
 });
 const optionLabel = (value: string) => (step.value === 'timebox' ? t('task.timeboxNudge.preset', { minutes: value }) : value);
+const listProps = computed(() => ({
+  values: current.value.rest,
+  all: current.value.all,
+  current: currentValue.value,
+  searchable: isEntryStep.value,
+  newValues: fields.value.newValues,
+  showMark: step.value === 'topic',
+  label: question.value,
+  optionLabel,
+}));
 
 /** What the card behind the wash shows: the same task the save creates */
 const faceTask = computed<Task>(() => ({
@@ -448,9 +452,9 @@ watch(moreOpen, (open) => {
   moreOpenedByKey = openingByKey && isDesktop.value;
   openingByKey = false;
 });
-/** The drawer's focus scope lands on its container: take it over and focus the first option, so the arrows work at once (#15; the popover already focuses one) */
+/** The drawer's focus scope lands on its container: take it over and focus the search field, or the first option when there is none, so typing and the arrows work at once (#15, #16; the popover already focuses one) */
 function onDrawerOpenAutoFocus(event: Event) {
-  const first = (event.currentTarget as HTMLElement | null)?.querySelector<HTMLElement>('[data-testid="new-card-more-list"] button');
+  const first = (event.currentTarget as HTMLElement | null)?.querySelector<HTMLElement>('[data-testid="new-card-more-list"] input, [data-testid="new-card-more-list"] button');
   if (!first) return;
   event.preventDefault();
   first.focus({ preventScroll: true });
@@ -489,6 +493,11 @@ function pick(value: string) {
     picked.value = null;
     void advance();
   }, prefersReducedMotion() ? 0 : 200);
+}
+
+/** A value typed in the Mehr list: the list cleaned it by the source's rules, so it is picked like any other; the save creates it (Local derives it from the task, Notion creates the select option on the write, #16) */
+function create(value: string) {
+  pick(value);
 }
 
 /** Any navigation consumes a pick's pending advance: it must not fire a second step later (Enter then Notiz, Esc then forward) */
@@ -538,23 +547,10 @@ async function goBack() {
   focusStep();
 }
 
-/** Arrow keys inside the "all options" list (#15): ↑/↓ move between the options (wrapping), Home/End jump; Enter/Space pick natively. Handled keys stop here so they never reach a surrounding handler */
-function onMoreListKeydown(event: KeyboardEvent) {
-  if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
-  const keys = ['ArrowDown', 'ArrowUp', 'Home', 'End'];
-  if (!keys.includes(event.key)) return;
-  const list = event.currentTarget as HTMLElement;
-  const options = Array.from(list.querySelectorAll<HTMLButtonElement>('button:not(:disabled)'));
-  if (!options.length) return;
+function openList(event: KeyboardEvent) {
   event.preventDefault();
-  event.stopPropagation();
-  const at = options.indexOf(document.activeElement as HTMLButtonElement);
-  let next: number;
-  if (event.key === 'Home') next = 0;
-  else if (event.key === 'End') next = options.length - 1;
-  else if (event.key === 'ArrowDown') next = at < 0 ? 0 : (at + 1) % options.length;
-  else next = at < 0 ? options.length - 1 : (at - 1 + options.length) % options.length;
-  options[next]!.focus();
+  openingByKey = true;
+  moreOpen.value = true;
 }
 
 function onKeydown(event: KeyboardEvent) {
@@ -589,13 +585,14 @@ function onKeydown(event: KeyboardEvent) {
     event.preventDefault();
     if (step.value === 'notes') void submitNotes();
     else void skip();
-  } else if (event.key === '1' || event.key === '2') {
+  } else if (event.key === '1' || event.key === '2' || event.key === '3') {
     const value = current.value.suggestions[Number(event.key) - 1];
     if (value) pick(value);
-  } else if (event.key === '3' && current.value.rest.length) {
-    event.preventDefault();
-    openingByKey = true;
-    moreOpen.value = true;
+    // Timebox has two pills: its "···" is key 3
+    else if (event.key === '3' && hasList.value && !isEntryStep.value) openList(event);
+  } else if (event.key === '4' && hasList.value && isEntryStep.value) {
+    // Thema, Aktivität: Mehr opens the rest with its search (#16)
+    openList(event);
   }
 }
 
@@ -673,6 +670,10 @@ onBeforeUnmount(() => {
   --ncf-pad-top: 0.5rem;
   /* What the title field keeps free for the check: 40 px button and a gap on a phone; with the key cue the check is wider */
   --ncf-check-clear: 2.75rem;
+  /* The answer grid (#16): control height, where the grid starts below the head, and the room under it; the steps' card height is derived from them */
+  --ncf-control-h: 2rem;
+  --ncf-grid-top: 3.25rem;
+  --ncf-grid-bottom: 0.75rem;
   position: relative;
   width: 100%;
   max-width: var(--task-card-width);
@@ -891,13 +892,64 @@ onBeforeUnmount(() => {
   min-width: 0;
 }
 
+/* ---------- Answer grid (#16) ----------
+   Thema and Aktivität: three value pills and the Mehr cell; Timebox: its pills and "···". Two columns, so a long name has half
+   the row instead of a third (it is still cut with an ellipsis, a title attribute carries it). The steps are as tall as the
+   grid needs: head, two rows, the room under them (about 20 px more than a card with one row of pills). */
+.ncf__row--grid {
+  top: var(--ncf-grid-top);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  justify-content: stretch;
+  padding: 0 var(--ncf-pad-x);
+  transform: none;
+}
+
+.ncf.is-steps .ncf__face > :deep(*) {
+  box-sizing: border-box;
+  min-height: calc(var(--ncf-pad-top) + var(--ncf-grid-top) + 2 * var(--ncf-control-h) + 0.375rem + var(--ncf-grid-bottom));
+}
+
+.ncf__row--grid .ncf__pill {
+  justify-content: space-between;
+}
+
+.ncf__row--grid .ncf__pill > .truncate {
+  min-width: 0;
+  flex: 1 1 auto;
+  text-align: left;
+}
+
+.ncf__row--grid .ncf__pill--more {
+  justify-content: center;
+}
+
+/* Mehr: looks like the input it opens (dashed outline, search icon, muted text), so it reads as a field and not as a value (#16) */
+.ncf__row--grid .ncf__pill--mehr {
+  justify-content: flex-start;
+  border: 1px dashed var(--ui-border-accented);
+  background: transparent;
+  color: var(--ui-text-muted);
+  cursor: text;
+}
+
+.ncf__pill--mehr > .ncf__key {
+  margin-left: auto;
+}
+
+.ncf__control.ncf__pill--mehr:hover:not(:disabled),
+.ncf__control.ncf__pill--mehr:active:not(:disabled) {
+  background: var(--ui-bg-muted);
+  color: var(--ui-text-highlighted);
+}
+
 .ncf__control {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.375rem;
-  height: 2rem;
-  min-width: 2rem;
+  height: var(--ncf-control-h);
+  min-width: var(--ncf-control-h);
   padding: 0 0.75rem;
   border-radius: 9999px;
   background: var(--ui-bg-muted);
@@ -970,7 +1022,7 @@ onBeforeUnmount(() => {
 .ncf__note {
   flex: 1 1 auto;
   min-width: 0;
-  height: 2rem;
+  height: var(--ncf-control-h);
   padding: 0 0.75rem;
   border: 0;
   border-radius: 9999px;
@@ -1030,17 +1082,23 @@ onBeforeUnmount(() => {
   transform: translateX(-1.25rem);
 }
 
-.ncf__step > .ncf__row {
+.ncf__step > .ncf__row:not(.ncf__row--grid) {
   /* the slide moves the step as a whole; the row keeps its own centring transform */
   transform: translateY(-50%);
 }
 
-/* Phone: the card is 8 rem, touch targets 40 px, no key cues */
+/* Phone: touch targets 40 px, no key cues */
 @media (max-width: 767px) {
+  .ncf {
+    --ncf-control-h: 2.5rem;
+    --ncf-grid-top: 3rem;
+    --ncf-grid-bottom: 1.25rem;
+  }
+
   .ncf__control,
   .ncf__note {
-    height: 2.5rem;
-    min-width: 2.5rem;
+    height: var(--ncf-control-h);
+    min-width: var(--ncf-control-h);
   }
 
   .ncf__note {
