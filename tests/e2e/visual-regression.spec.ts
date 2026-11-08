@@ -322,6 +322,26 @@ async function tabTo(page: Page, target: Locator, maxTabs = 60) {
   throw new Error('Target was not reached via Tab')
 }
 
+test.describe('welcome page (#14)', () => {
+  const shot = async (page: Page, name: string) => {
+    await page.goto('/welcome')
+    await expect(page.getByTestId('welcome-choice-local')).toBeVisible()
+    // The photo fades in over 700 ms once loaded: wait for the end state, not a timer
+    await expect(page.getByTestId('welcome-photo')).toHaveCSS('opacity', '1')
+    await settle(page)
+    await expect(page).toHaveScreenshot(name)
+  }
+
+  test('photo and sheet (1280)', async ({ page }) => {
+    await shot(page, 'welcome-1280.png')
+  })
+
+  test('photo strip above the sheet (390)', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await shot(page, 'welcome-390.png')
+  })
+})
+
 test.describe('focus states', () => {
   test('focus: text input in task detail modal', async ({ page }) => {
     await page.goto('/tasks')

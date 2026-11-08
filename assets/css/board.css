@@ -72,6 +72,8 @@
     }
 
     .board-container {
+      /* Strip the page dots (BoardPageDots, #26) take above the column title */
+      --page-dots-strip: 1.25rem;
       width: 100vw;
       max-width: 100vw;
       overflow: hidden;      /* clip the off-screen columns */
@@ -140,7 +142,7 @@
          edge and the cards. */
       padding-inline: max(0.25rem, env(safe-area-inset-left, 0px)) max(0.25rem, env(safe-area-inset-right, 0px));
       /* viewport-fit=cover (#257): the page starts under the status bar / notch; padding, not height, keeps the 100svh page and its bar padding intact */
-      padding-top: env(safe-area-inset-top, 0px);
+      padding-top: calc(env(safe-area-inset-top, 0px) + var(--page-dots-strip));
       /* Extra bottom padding so content isn't hidden behind the floating app bar (--phone-bar-offset, app-nav.css) */
       padding-bottom: calc(var(--phone-bar-offset) + 0.75rem);
     }

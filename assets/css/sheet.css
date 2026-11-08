@@ -9,6 +9,18 @@
     padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
   }
 
+  /* Welcome sheet (#14) rests on the bottom edge on phones: keep the version line clear of the home indicator.
+     The element sets only px/pt utilities: a p-* utility would out-rank this components-layer rule. */
+  .welcome-sheet {
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  @media (min-width: 40rem) {
+    .welcome-sheet {
+      padding-bottom: 2.5rem;
+    }
+  }
+
   /* Spotlight (#96): while a task sheet is open, every card except the open one fades back.
      Board.vue sets data-sheet-task-id (route-driven), TaskCard marks the open one with
      data-sheet-active. The opacity transition lives on the cards (TaskCard.vue), never on .board;

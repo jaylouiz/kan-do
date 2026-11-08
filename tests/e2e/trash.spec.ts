@@ -137,6 +137,56 @@ test.describe('delete is confirmed in the card slot (#422)', () => {
     await expect(gap(page)).toHaveCount(0)
   })
 
+  test('Ctrl+Z undoes the newest delete inside its window, and only inside it (#27)', async ({ page }) => {
+    await page.goto('/tasks')
+    await deleteCard(page, OPEN_TITLE)
+    await expect(gap(page)).toHaveCount(1)
+    await page.keyboard.press('Control+z')
+    await expect(gap(page)).toHaveCount(0)
+    await expect(card(page, OPEN_TITLE)).toBeVisible()
+
+    await deleteCard(page, OPEN_TITLE)
+    await windowEnds(page)
+    await expect.poll(() => storedTrash(page)).toHaveLength(1)
+    await page.keyboard.press('Control+z')
+    await expect(page.locator('.task-wrapper', { hasText: OPEN_TITLE })).toHaveCount(0)
+    expect(await storedTrash(page)).toHaveLength(1)
+  })
+
+  test('Ctrl+Z in a text field keeps the native text undo and leaves the delete alone (#27)', async ({ page }) => {
+    await page.goto('/tasks')
+    await deleteCard(page, OPEN_TITLE)
+    await page.keyboard.press('Control+k')
+    const field = page.getByRole('combobox').or(page.getByRole('textbox')).first()
+    await expect(field).toBeFocused()
+    await page.keyboard.press('Control+z')
+    await expect(gap(page)).toHaveCount(1)
+  })
+
+  test('a delete inside its window is already in the trash; restoring it there is the undo (#27)', async ({ page }) => {
+    await page.goto('/tasks')
+    await deleteCard(page, OPEN_TITLE)
+    await expectTrashRow(page, 'Papierkorb (1)')
+    await openTrash(page)
+    const entry = trashPage(page).getByTestId('trash-entry').filter({ hasText: OPEN_TITLE })
+    await expect(entry).toHaveCount(1)
+    await windowEnds(page)
+    await expect.poll(() => storedTrash(page)).toHaveLength(1)
+    await expect(trashPage(page).getByTestId('trash-entry')).toHaveCount(1) // no duplicate once the window closes
+  })
+
+  test('restoring a pending delete from the trash page puts the card back (#27)', async ({ page }) => {
+    await page.goto('/tasks')
+    await deleteCard(page, OPEN_TITLE)
+    await openTrash(page)
+    await page.getByRole('button', { name: `Wiederherstellen: ${OPEN_TITLE}` }).click()
+    await expect(trashPage(page).getByTestId('trash-entry')).toHaveCount(0)
+    await windowEnds(page)
+    expect(await storedTrash(page)).toHaveLength(0)
+    await goToPlace(page, 'Heute')
+    await expect(card(page, OPEN_TITLE)).toBeVisible()
+  })
+
   test('the gap closes in 280 ms glide and focus goes on to the next card instead of falling to the body', async ({ page }) => {
     await page.goto('/tasks')
     await deleteCard(page, OPEN_TITLE)

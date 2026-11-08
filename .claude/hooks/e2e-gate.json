@@ -409,6 +409,7 @@
     {
       "area": "delete holds, deleted-gap placeholders and the undo window",
       "paths": [
+        "composables/useUndoDeleteShortcut.ts",
         "composables/useDeleteHold.ts",
         "composables/useDeletedGaps.ts",
         "composables/useUndoWindow.ts",
@@ -564,6 +565,7 @@
         "composables/useEdgeIndicatorTop*",
         "composables/useLongPress*",
         "lib/quickAddSuggestions.ts",
+        "lib/pageDots.ts",
         "utils/carryOver.ts",
         "utils/columnItems.ts",
         "utils/dayClose.ts",
@@ -829,6 +831,7 @@
         "new-card-flow",
         "new-day-recap",
         "notion-setup-stepper",
+        "usability-polish",
         "overlay-elevation",
         "overlay-scrim",
         "settings-tabs",

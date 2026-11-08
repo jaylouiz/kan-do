@@ -120,6 +120,14 @@ const SURFACES: Surface[] = [
     },
   },
   {
+    name: 'welcome (photo and sheet)',
+    open: async (page) => {
+      await page.goto('/welcome')
+      await expect(page.getByTestId('welcome-choice-local')).toBeVisible()
+      await expect(page.getByTestId('welcome-photo')).toHaveCSS('opacity', '1')
+    },
+  },
+  {
     name: 'trash',
     open: async (page, context) => {
       await seedLocalBoard(context)
