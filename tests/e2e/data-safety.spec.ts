@@ -7,7 +7,7 @@ import { openAddSheet } from './helpers/addSheet'
 
 /** #224: backups, restore, cloud-sync conflicts, the unavailable folder and export/import (stubbed IPC). */
 
-const CURRENT = '/Users/test/Library/Application Support/com.julius.kan-do'
+const CURRENT = '/Users/test/Library/Application Support/io.github.jaylouiz.kan-do'
 
 const envelope = (tasks: unknown[], extra: Record<string, unknown> = {}, schemaVersion = 2) => ({
   schemaVersion,

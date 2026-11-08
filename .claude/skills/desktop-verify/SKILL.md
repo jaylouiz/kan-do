@@ -5,7 +5,7 @@ description: Check kan-do desktop (Tauri) behaviour as an agent - render the des
 
 # Desktop verify
 
-Agents never run `tauri dev` with the real identity `com.julius.kan-do`: it touches the user's data folder and
+Agents never run `tauri dev` with the real identity `io.github.jaylouiz.kan-do`: it touches the user's data folder and
 Keychain (`.claude/hooks/guard-commands.sh` blocks it). Pick the lightest step that answers the question.
 
 ## 1. Desktop-only pages (no Tauri)
@@ -26,7 +26,7 @@ Most desktop behaviour is answered by a spec with `installTauriStub` (`.claude/r
 ## 3. Sandboxed `tauri dev` (Rust behaviour, window events)
 
 Only when 1 and 2 cannot answer it. Follow `docs/testing/tauri-dev-sandbox.md` exactly (the source of the
-recipe): throwaway `HOME`, identifier `com.julius.kan-do.sandbox-<port>` (own dev server port; the identifier names the single-instance socket, so runs do not hand over to each other), no secret commands,
+recipe): throwaway `HOME`, identifier `io.github.jaylouiz.kan-do.sandbox-<port>` (own dev server port; the identifier names the single-instance socket, so runs do not hand over to each other), no secret commands,
 stop only your own PIDs, then prove the real data folder is untouched.
 
 The user runs the production app on this machine while you work. Two standing rules (#623; the guard hook

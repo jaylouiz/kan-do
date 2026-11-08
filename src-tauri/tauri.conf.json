@@ -2,7 +2,7 @@
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "kan-do",
   "version": "0.11.0",
-  "identifier": "com.julius.kan-do",
+  "identifier": "io.github.jaylouiz.kan-do",
   "build": {
     "frontendDist": "../.output/public",
     "devUrl": "http://localhost:3000",

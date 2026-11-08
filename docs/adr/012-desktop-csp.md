@@ -62,7 +62,7 @@ Only requests that originate in the webview are subject to the CSP. That is why 
 - The static build (`npm run generate`) was served with this CSP as a header (plus the sha256 of its two inline scripts, as Tauri injects them) and driven with Playwright over the board, the task sheet, the command palette, a drag and drop, every settings page, `/welcome`, `/statistics` and `/styleguide`: the only violation report is the zod probe above. Chromium, not WKWebView, so the real-bundle smoke on the Mac stays a manual check in the PR.
 - `tauri build --debug --no-bundle` accepts the config and embeds the policy and the generated hashes in the binary.
 - A Playwright run of the static build served under the CSP header is not automated (it needs the built site served and per-hash script handling); the manual smoke above stays the behaviour check.
-- Not run by an agent: launching the built app. It shares the Keychain service `com.julius.kan-do` and the data folder with the user's real app.
+- Not run by an agent: launching the built app. It shares the Keychain service `io.github.jaylouiz.kan-do` and the data folder with the user's real app.
 
 ## Consequences
 

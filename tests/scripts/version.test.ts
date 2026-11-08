@@ -40,7 +40,7 @@ const PACKAGE_LOCK = `{
 const TAURI_CONF = `{
   "productName": "kan-do",
   "version": "0.1.0",
-  "identifier": "com.julius.kan-do"
+  "identifier": "io.github.jaylouiz.kan-do"
 }
 `
 const CARGO_TOML = `[package]
