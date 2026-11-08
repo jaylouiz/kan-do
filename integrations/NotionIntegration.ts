@@ -63,9 +63,19 @@ type StatusPropertyType = 'select' | 'status';
  */
 const statusTypeCache = new Map<string, Promise<StatusPropertyType>>();
 
-/** Forgets every detected status property type (unit tests). */
+/** Property types a topic or activity can be written in (#16): Notion rejects a value of the wrong shape with a 400 */
+type LabelPropertyType = 'select' | 'multi_select' | 'rich_text';
+
+/**
+ * Property types of a data source's schema per data source id, for the app session (#16): which shape a topic or
+ * activity is written in. Holds the pending read; a failed read is removed again and retried by the next create.
+ */
+const schemaTypeCache = new Map<string, Promise<Record<string, string | undefined>>>();
+
+/** Forgets every detected property type (unit tests). */
 export const resetStatusTypeCache = (): void => {
   statusTypeCache.clear();
+  schemaTypeCache.clear();
 };
 
 export class NotionIntegration {
@@ -109,6 +119,43 @@ export class NotionIntegration {
         console.warn('[NotionIntegration] Status property type unknown, assuming select:', error);
       }
       return 'select';
+    }
+  }
+
+  /**
+   * The type of a mapped topic or activity property (`select`, `multi_select`, `rich_text`) from the data source
+   * schema, or `null` when it cannot be told (no data source, the read failed, another type): the caller then writes
+   * its default shape, as before this detection. The failure is neither reported nor memoized.
+   */
+  private async labelPropertyType(propertyName: string): Promise<LabelPropertyType | null> {
+    const dataSourceId = this.dataSourceId;
+    if (!dataSourceId) return null;
+    let pending = schemaTypeCache.get(dataSourceId);
+    if (!pending) {
+      pending = this.api.getDataSource(dataSourceId).then((dataSource) => {
+        const types: Record<string, string | undefined> = {};
+        for (const [name, definition] of Object.entries(dataSource.properties ?? {})) types[name] = definition?.type;
+        return types;
+      });
+      schemaTypeCache.set(dataSourceId, pending);
+    }
+    try {
+      const type = (await pending)[propertyName];
+      return type === 'select' || type === 'multi_select' || type === 'rich_text' ? type : null;
+    } catch (error) {
+      if (schemaTypeCache.get(dataSourceId) === pending) schemaTypeCache.delete(dataSourceId);
+      if (import.meta.dev) console.warn('[NotionIntegration] Property type unknown, writing the default shape:', error);
+      return null;
+    }
+  }
+
+  /** A topic or activity as the property's own type holds it: a select or multi_select takes the name (Notion creates a new option on the write), rich text takes the text. An empty value clears the property. */
+  private labelValue(type: LabelPropertyType, value: string | null | undefined): Record<string, unknown> {
+    const name = value?.trim() || null;
+    switch (type) {
+      case 'select': return { select: name ? { name } : null };
+      case 'multi_select': return { multi_select: name ? [{ name }] : [] };
+      case 'rich_text': return { rich_text: name ? [{ text: { content: name } }] : [] };
     }
   }
 
@@ -463,30 +510,16 @@ export class NotionIntegration {
     }
 
     if (this.propertyMapping.topic && task.topic) {
-      // Topic can be select, rich_text, or multi_select depending on database schema
-      // Write as rich_text (most flexible)
-      properties[this.propertyMapping.topic] = {
-        rich_text: [
-          {
-            text: {
-              content: task.topic,
-            },
-          },
-        ],
-      };
+      // The property's own type (#16): a select Thema rejected the former rich_text write with a 400. Unknown type: rich_text, the most flexible
+      const type = await this.labelPropertyType(this.propertyMapping.topic);
+      properties[this.propertyMapping.topic] = this.labelValue(type ?? 'rich_text', task.topic);
     }
 
     if (this.propertyMapping.activity) {
-      // Activity can be select or multi_select depending on database schema
-      // Write as multi_select (single value array) for maximum compatibility
-      // Send empty array if no activity value to handle required fields
-      properties[this.propertyMapping.activity] = {
-        multi_select: task.activity ? [
-          {
-            name: task.activity,
-          },
-        ] : [],
-      };
+      // The property's own type (#16). Unknown type: multi_select (single value array), compatible with both select kinds on read.
+      // An empty value is still sent, so a required field is cleared rather than left out
+      const type = await this.labelPropertyType(this.propertyMapping.activity);
+      properties[this.propertyMapping.activity] = this.labelValue(type ?? 'multi_select', task.activity);
     }
 
     if (this.propertyMapping.dueDate && task.notes) {

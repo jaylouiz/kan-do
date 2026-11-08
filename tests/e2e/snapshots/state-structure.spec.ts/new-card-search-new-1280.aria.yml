@@ -1,0 +1,3 @@
+- group "Thema?":
+  - textbox "Suchen oder neu …": Gartenpflege
+  - 'button "Neu: „Gartenpflege“"'

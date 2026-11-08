@@ -259,6 +259,24 @@ describe.skipIf(!enabled).each(['select', 'status'] as const)('NotionIntegration
     expect(await integration.getActiveBoardTasks()).toHaveLength(9)
   }, 60_000)
 
+  // #16: the new-card flow writes a typed value as a new select option; the property's own type decides the write shape
+  it('writes a new topic (select) and a new activity (multi_select) as options; a name in another case reuses the option', async () => {
+    const topic = `Frisch-${statusType}`
+    const activity = `Neu-Akt-${statusType}`
+    const created = await integration.createTask({ title: `Optionstest ${statusType}`, status: TaskStatus.Open, topic, activity })
+    expect(summarizePage((await notion.pages.retrieve({ page_id: created.id })) as unknown as Record<string, unknown>)).toMatchObject({ thema: topic, activity: [activity] })
+
+    const again = await integration.createTask({ title: `Optionstest 2 ${statusType}`, status: TaskStatus.Open, topic: topic.toLowerCase(), activity: activity.toUpperCase() })
+    expect(summarizePage((await notion.pages.retrieve({ page_id: again.id })) as unknown as Record<string, unknown>)).toMatchObject({ thema: topic, activity: [activity] })
+
+    const schema = (await notion.dataSources.retrieve({ data_source_id: db.dataSourceId })) as unknown as {
+      properties: Record<string, { select?: { options: Array<{ name: string }> }; multi_select?: { options: Array<{ name: string }> } }>
+    }
+    const names = (options: Array<{ name: string }> | undefined) => (options ?? []).map((option) => option.name)
+    expect(names(schema.properties.Thema!.select?.options).filter((name) => name.toLowerCase() === topic.toLowerCase())).toEqual([topic])
+    expect(names(schema.properties['Aktivität']!.multi_select?.options).filter((name) => name.toLowerCase() === activity.toLowerCase())).toEqual([activity])
+  }, 60_000)
+
   it('archives through the archive status and finds the task with the archive filter', async () => {
     const [task] = await integration.getActiveBoardTasks()
     await integration.updateTask({ ...task!, archivedAt: new Date() })

@@ -1,8 +1,9 @@
 import { test, expect, type Locator, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
-import { seedLocalBoard, seedMixedBoard, SEED_TASKS, type SeedTask } from './helpers/seed'
+import { DEFAULT_NOTION_SEED_CONFIG, seedLocalBoard, seedMixedBoard, seedNotionBoard, SEED_TASKS, type SeedTask } from './helpers/seed'
 import { openAddSheet } from './helpers/addSheet'
 import { settleAnimations } from './helpers/settle'
+import { expectContrast } from './helpers/contrast'
 
 /**
  * #649: the Offen add button turns the slot into a card that takes the title, then asks Thema, Aktivität, Timebox
@@ -16,10 +17,10 @@ const step = (page: Page) => page.getByTestId('new-card-step')
 const addButton = (page: Page) => offen(page).locator('.add-task-button')
 const box = async (locator: Locator) => (await locator.boundingBox())!
 
-/** Four topics and four activities, so "Alle Optionen" has something behind the two pills */
+/** More than three topics and activities, so the Mehr list has something behind the three pills (#16) */
 const RICH_TASKS: SeedTask[] = [
   ...SEED_TASKS,
-  ...['Marketing:Recherche', 'Büro:Abstimmung'].map((pair, index): SeedTask => {
+  ...['Marketing:Recherche', 'Büro:Abstimmung', 'Vertrieb:Telefonat', 'Finanzen:Auswertung'].map((pair, index): SeedTask => {
     const [topic, activity] = pair.split(':')
     return { ...SEED_TASKS[0]!, id: `rich-${index}`, title: `Reich ${index}`, topic, activity, status: 2 }
   }),
@@ -88,11 +89,16 @@ for (const { name, viewport, touch } of [
       expect(Math.abs(title1.check! - title1.height! / 2)).toBeLessThanOrEqual(1)
       await expect(page.getByTestId('new-card-confirm-title')).toBeDisabled()
 
-      // ... and the answer row of the next step stands on the same line
+      // ... and the steps hold the 2x2 answer grid: the card grows by about 20 px (#16) and the grid stands inside it
       await confirmTitle(page, 'Angebot schreiben')
       await expect(page.getByTestId('new-card-options')).toBeVisible()
       const next = await offsets()
-      expect(Math.abs(next.row! - title1.check!)).toBeLessThanOrEqual(1)
+      expect(next.height! - title1.height!).toBeGreaterThanOrEqual(10)
+      expect(next.height! - title1.height!).toBeLessThanOrEqual(40)
+      const grid = await box(page.getByTestId('new-card-options'))
+      const flow = await box(card(page))
+      expect(grid.y).toBeGreaterThan(flow.y)
+      expect(grid.y + grid.height).toBeLessThanOrEqual(flow.y + flow.height)
     })
 
     test('axe finds nothing on the title step, a choice step and the Notiz step', async ({ page }) => {
@@ -154,8 +160,10 @@ for (const { name, viewport, touch } of [
 
       await openCard(page)
       await confirmTitle(page, 'Mit Farbpunkt')
+      // Design is a pill; typing part of its name into Mehr and Enter picks that very value, never creates "des" (#16)
       await page.getByTestId('new-card-more').click()
-      await page.getByRole('group', { name: 'Thema?' }).last().getByRole('button', { name: /Design/ }).click()
+      await page.getByTestId('new-card-search').fill('des')
+      await page.keyboard.press('Enter')
       await expect(step(page)).toHaveAttribute('data-step', 'activity')
       await expect(card(page).getByTestId('topic-mark')).toHaveAttribute('data-hue', siblingHue!)
 
@@ -365,9 +373,9 @@ test.describe('guided new card, keyboard and steps (desktop)', () => {
     await page.keyboard.press('1')
     await expect(step(page)).toHaveAttribute('data-step', 'activity')
     await expect(card(page).locator('.task-topic')).toBeVisible()
-    // Aktivität: key 3 opens all options, Enter on an option picks it
+    // Aktivität: key 4 opens Mehr (3 picks the third pill)
     await expect(step(page)).toBeFocused()
-    await page.keyboard.press('3')
+    await page.keyboard.press('4')
     await expect(page.getByRole('group', { name: 'Aktivität?' }).last().getByRole('button').first()).toBeVisible()
     await page.keyboard.press('Escape') // closes the list only
     await expect(page.getByRole('group', { name: 'Aktivität?' })).toHaveCount(1) // only the step itself: the list is closed
@@ -390,12 +398,12 @@ test.describe('guided new card, keyboard and steps (desktop)', () => {
     expect(saved.activity).toBeNull()
   })
 
-  test('#685: key 3 right after a pick keeps the list open through the slide; closing it hands the focus back to the step', async ({ page }) => {
+  test('#685: key 4 right after a pick keeps the list open through the slide; closing it hands the focus back to the step', async ({ page }) => {
     await openCard(page)
     await confirmTitle(page, 'Liste bleibt offen')
     await page.keyboard.press('1')
     await expect(step(page)).toHaveAttribute('data-step', 'activity')
-    await page.keyboard.press('3') // inside the slide: the step's content is not yet (or just) there
+    await page.keyboard.press('4') // inside the slide: the step's content is not yet (or just) there
     const list = page.getByRole('group', { name: 'Aktivität?' }).last()
     await expect(list.getByRole('button').first()).toBeVisible()
     // the slide's end must not pull the focus out of the list, which would dismiss it
@@ -416,7 +424,7 @@ test.describe('guided new card, keyboard and steps (desktop)', () => {
     await page.keyboard.press('1')
     await expect(step(page)).toHaveAttribute('data-step', 'activity')
     await expect(page.locator('.ncf-fwd-enter-active, .ncf-fwd-leave-active')).toHaveCount(0)
-    await page.keyboard.press('3') // opened by key, closed by a pick: leaves no flag behind
+    await page.keyboard.press('4') // opened by key, closed by a pick: leaves no flag behind
     await page.getByRole('group', { name: 'Aktivität?' }).last().getByRole('button').first().click()
     await expect(step(page)).toHaveAttribute('data-step', 'timebox')
     await page.keyboard.press('Escape') // back to Aktivität
@@ -429,23 +437,29 @@ test.describe('guided new card, keyboard and steps (desktop)', () => {
     await expect(page.getByTestId('new-card-more')).toBeFocused()
   })
 
-  test('#15: arrow keys, Home/End, Enter and Esc work inside the "all options" list', async ({ page }) => {
+  test('#15: arrow keys, Home/End, Enter and Esc work inside the Mehr list; the search field takes the focus first (#16)', async ({ page }) => {
     await openCard(page)
     await confirmTitle(page, 'Pfeiltasten')
     await page.keyboard.press('1') // Thema -> Aktivität
     await expect(step(page)).toHaveAttribute('data-step', 'activity')
-    await page.keyboard.press('3')
+    await page.keyboard.press('4')
+    const search = page.getByTestId('new-card-search')
     const options = page.getByTestId('new-card-more-list').getByRole('button')
-    await expect(options.nth(1)).toBeVisible() // at least two options
+    await expect(options.nth(1)).toBeVisible() // at least two values behind the pills
+    await expect(search).toBeFocused()
+    await page.keyboard.press('ArrowDown')
     await expect(options.first()).toBeFocused()
     await page.keyboard.press('ArrowDown')
     await expect(options.nth(1)).toBeFocused()
     await page.keyboard.press('ArrowUp')
     await expect(options.first()).toBeFocused()
-    await page.keyboard.press('ArrowUp') // wraps
+    await page.keyboard.press('ArrowUp') // back to the field
+    await expect(search).toBeFocused()
+    await page.keyboard.press('ArrowUp') // wraps to the last option
     await expect(options.last()).toBeFocused()
-    await page.keyboard.press('ArrowDown') // wraps
-    await expect(options.first()).toBeFocused()
+    await page.keyboard.press('ArrowDown') // wraps to the field
+    await expect(search).toBeFocused()
+    await page.keyboard.press('ArrowDown')
     await page.keyboard.press('End')
     await expect(options.last()).toBeFocused()
     await page.keyboard.press('Home')
@@ -455,7 +469,7 @@ test.describe('guided new card, keyboard and steps (desktop)', () => {
     await expect(page.getByTestId('new-card-more-list')).toHaveCount(0)
     await expect(step(page)).toHaveAttribute('data-step', 'activity')
     // Enter on a focused option picks it and moves on
-    await page.keyboard.press('3')
+    await page.keyboard.press('4')
     await page.keyboard.press('ArrowDown')
     await page.keyboard.press('Enter')
     await expect(step(page)).toHaveAttribute('data-step', 'timebox')
@@ -471,13 +485,67 @@ test.describe('guided new card, keyboard and steps (desktop)', () => {
       await page.setViewportSize(size)
       await page.getByTestId('new-card-more').click()
       await expect(options.nth(1)).toBeVisible()
+      await expect(page.getByTestId('new-card-search')).toBeFocused()
       await page.keyboard.press('ArrowDown')
-      await expect(options.nth(1)).toBeFocused()
+      await expect(options.first()).toBeFocused()
       await page.keyboard.press('End')
       await expect(options.last()).toBeFocused()
       await page.keyboard.press('Escape')
       await expect(page.getByTestId('new-card-more-list')).toHaveCount(0)
     }
+  })
+
+  test('#16: the search filters the Mehr list, "Neu" creates a value, Home and End stay caret keys in the field', async ({ page }) => {
+    await openCard(page)
+    await confirmTitle(page, 'Neues Thema per Taste')
+    await page.keyboard.press('4')
+    const search = page.getByTestId('new-card-search')
+    await expect(search).toBeFocused()
+    const options = page.getByTestId('new-card-more-list').getByRole('button')
+    const before = await options.count()
+    await search.fill('Fi')
+    await expect(options.filter({ hasText: 'Finanzen' })).toHaveCount(1)
+    await expect(options).toHaveCount(2) // "Neu: „Fi“" and Finanzen
+    await page.keyboard.press('Home') // caret key: the focus stays in the field
+    await expect(search).toBeFocused()
+    await search.fill('Gartenpflege')
+    await expect(page.getByTestId('new-card-new')).toHaveText('Neu: „Gartenpflege“')
+    await expect(options).toHaveCount(1)
+    expect(before).toBeGreaterThan(1)
+    await page.keyboard.press('Enter')
+    await expect(step(page)).toHaveAttribute('data-step', 'activity')
+    await expect(card(page).locator('.task-topic')).toContainText('Gartenpflege')
+    await page.keyboard.press('Enter') // skip Aktivität
+    await page.keyboard.press('Enter') // skip Timebox
+    await page.keyboard.press('Enter') // empty note saves
+    await expect(card(page)).toHaveCount(0)
+    await expect.poll(async () => (await storedTask(page, 'Neues Thema per Taste'))?.topic).toBe('Gartenpflege')
+  })
+
+  test('#16: the Mehr cell and the value pills keep the text contrast over the wash', async ({ page }) => {
+    await openCard(page)
+    await confirmTitle(page, 'Kontrast')
+    await settleAnimations(page)
+    await page.mouse.move(2, 2)
+    await expectContrast(page, page.getByTestId('new-card-more').locator('.truncate'), 4.5)
+    await expectContrast(page, page.getByTestId('new-card-options').locator('button.ncf__pill:not(.ncf__pill--more) .truncate').first(), 4.5)
+  })
+
+  test('#16: no match shows a status line, an exact name picks the existing value and offers no "Neu"', async ({ page }) => {
+    await openCard(page)
+    await confirmTitle(page, 'Suche ohne Treffer')
+    await page.getByTestId('new-card-more').click()
+    const search = page.getByTestId('new-card-search')
+    await search.fill('BÜRO')
+    await expect(page.getByTestId('new-card-new')).toHaveCount(0)
+    await search.fill('Büro')
+    await expect(page.getByTestId('new-card-new')).toHaveCount(0)
+    await page.keyboard.press('Enter')
+    await expect(step(page)).toHaveAttribute('data-step', 'activity')
+    await page.keyboard.press('Enter')
+    await page.keyboard.press('Enter')
+    await page.keyboard.press('Enter')
+    await expect.poll(async () => (await storedTask(page, 'Suche ohne Treffer'))?.topic).toBe('Büro')
   })
 
   test('the key cues sit inside the buttons; every control has a name; the panel is named by its question', async ({ page }) => {
@@ -486,10 +554,12 @@ test.describe('guided new card, keyboard and steps (desktop)', () => {
     const pills = page.getByTestId('new-card-options').getByRole('button')
     await expect(pills.nth(0)).toHaveAttribute('aria-keyshortcuts', '1')
     await expect(pills.nth(1)).toHaveAttribute('aria-keyshortcuts', '2')
+    await expect(pills.nth(2)).toHaveAttribute('aria-keyshortcuts', '3')
     await expect(pills.nth(0).locator('kbd')).toHaveAttribute('data-key', '1')
     await expect(page.getByRole('button', { name: 'Zurück' })).toHaveAttribute('aria-keyshortcuts', 'Escape')
     await expect(page.getByRole('button', { name: 'Überspringen' })).toBeVisible()
-    await expect(page.getByTestId('new-card-more')).toHaveAttribute('aria-keyshortcuts', '3')
+    await expect(page.getByTestId('new-card-more')).toHaveAttribute('aria-keyshortcuts', '4')
+    await expect(page.getByTestId('new-card-more')).toHaveText('Mehr')
   })
 
   test('the face behind the step shows only what the card shows: the title is not readable through the wash', async ({ page }) => {
@@ -542,6 +612,51 @@ test.describe('guided new card on a mixed board', () => {
     await expect.poll(async () => (await storedTask(page, 'Lokal angelegt'))?.source).toBe('local')
     // the sheet with the "Speichern in" switch stays one palette entry away
     await openAddSheet(page)
+  })
+})
+
+test.describe('guided new card: a new value from the Mehr list (#16)', () => {
+  test('at 390 px the drawer takes the typed value by tap and the card saves it', async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true })
+    const page = await context.newPage()
+    await seedLocalBoard(context, RICH_TASKS)
+    await page.goto('/tasks')
+    await expect(offen(page).locator('.task-wrapper').first()).toBeVisible()
+    await openCard(page)
+    await confirmTitle(page, 'Neues Thema am Telefon')
+    await page.getByTestId('new-card-more').tap()
+    const search = page.getByTestId('new-card-search')
+    await expect(search).toBeFocused()
+    await search.fill('Gartenpflege')
+    await page.getByTestId('new-card-new').tap()
+    await expect(step(page)).toHaveAttribute('data-step', 'activity')
+    await page.keyboard.press('Enter')
+    await page.keyboard.press('Enter')
+    await page.keyboard.press('Enter')
+    await expect.poll(async () => (await storedTask(page, 'Neues Thema am Telefon'))?.topic).toBe('Gartenpflege')
+    await context.close()
+  })
+
+  test('on a Notion board the typed value is written cleaned: commas become spaces', async ({ context, page }) => {
+    await seedNotionBoard(context, SEED_TASKS, {
+      propertyMapping: { ...DEFAULT_NOTION_SEED_CONFIG.propertyMapping, topic: 'Thema', activity: 'Aktivität' },
+    })
+    await page.goto('/tasks')
+    await expect(offen(page).locator('.task-wrapper').first()).toBeVisible()
+    await openCard(page)
+    await confirmTitle(page, 'Neues Thema in Notion')
+    await page.getByTestId('new-card-more').click()
+    await page.getByTestId('new-card-search').fill('Garten, Pflege')
+    await expect(page.getByTestId('new-card-new')).toHaveText('Neu: „Garten Pflege“')
+    const created = page.waitForRequest((request) => request.url().includes('/api/notion/create-task') && request.method() === 'POST')
+    await page.keyboard.press('Enter')
+    await expect(step(page)).toHaveAttribute('data-step', 'activity')
+    await page.keyboard.press('Enter')
+    await page.keyboard.press('Enter')
+    await page.keyboard.press('Enter')
+    const properties = (await created).postDataJSON().properties
+    expect(JSON.stringify(properties.Thema)).toContain('Garten Pflege')
+    await expect.poll(async () => (await storedTask(page, 'Neues Thema in Notion'))?.topic).toBe('Garten Pflege')
   })
 })
 
