@@ -74,7 +74,8 @@ test.describe('desktop slideover', () => {
 
   test('overlay click closes the sheet', async ({ page }) => {
     await openFromCard(page)
-    await page.waitForTimeout(400)
+    // Past the 600 ms double-click guard (#25): an earlier outside press is a second click of the opening double-click
+    await page.waitForTimeout(700)
     await page.mouse.click(100, 450)
     await expect(page).toHaveURL(/\/tasks$/)
   })

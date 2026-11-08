@@ -292,7 +292,8 @@ test.describe('timebox progress chip (#388)', () => {
   })
 
   test('Tab never lands on a control hidden under the Jetzt bar', async ({ context, page }) => {
-    // Day 3 carry-over dots are a tab stop on every card; under the bar they must not be one
+    // The footer's start group (dots) sits under the bar on the Jetzt card: nothing in it may take focus (the dots themselves
+    // are no tab stop since #27, but the group is inert so a future control there cannot become one)
     await seedLocalBoard(context, SEED_TASKS, { [JETZT_ID]: carriedOverDays(2), 'seed-open-1': carriedOverDays(2) })
     await page.goto('/tasks')
     await expectBar(page, JETZT_ID)
@@ -301,7 +302,7 @@ test.describe('timebox progress chip (#388)', () => {
     await expect(card(page, 'seed-open-1').locator('[data-testid="task-footer-lead"]')).toHaveJSProperty('inert', false)
 
     // Walk the page's tab order: every stop under the Jetzt card is outside its footer start group,
-    // and the same dots on an Offen card are reached (the walk really covers the board)
+    // and the Offen card is reached (the walk really covers the board)
     const stops: string[] = []
     for (let i = 0; i < 80; i++) {
       await page.keyboard.press('Tab')
@@ -309,13 +310,12 @@ test.describe('timebox progress chip (#388)', () => {
         const el = document.activeElement
         const inJetzt = !!el?.closest('.task[data-current] [data-testid="task-footer-lead"]')
         if (inJetzt) return 'HIDDEN-UNDER-BAR'
-        const dots = el?.closest('[data-testid="carry-over-dots"]')
-        return dots ? `dots:${dots.closest('.task')?.getAttribute('data-task-id')}` : ''
+        const task = el?.closest('[data-task-id]')
+        return task ? `card:${task.getAttribute('data-task-id')}` : ''
       }))
     }
     expect(stops).not.toContain('HIDDEN-UNDER-BAR')
-    expect(stops).not.toContain(`dots:${JETZT_ID}`)
-    expect(stops).toContain('dots:seed-open-1')
+    expect(stops).toContain('card:seed-open-1')
   })
 
   test('the chip never takes pointer events: a click over the bar opens the sheet', async ({ context, page }) => {
