@@ -214,5 +214,15 @@ test.describe('Page dots under the focus overlay (#26)', () => {
       return { before: !!(dots.compareDocumentPosition(board) & Node.DOCUMENT_POSITION_FOLLOWING), z: getComputedStyle(dots).zIndex };
     });
     expect(order).toEqual({ before: true, z: '0' });
+    // Paint check: pointer-events none hides both layers from hit-testing, so compare the pixels of the dots with and
+    // without the overlay; if the overlay paints over them they differ (a stacking regression makes them identical)
+    const box = (await page.getByTestId('page-dots').boundingBox())!;
+    const clip = { x: box.x, y: box.y, width: box.width, height: box.height };
+    await expect(page.locator('.focus-overlay.is-on')).toBeAttached();
+    await expect.poll(() => page.evaluate(() => getComputedStyle(document.querySelector('.focus-overlay__tint')!).opacity)).toBe('1');
+    const withOverlay = await page.screenshot({ clip, animations: 'disabled' });
+    await page.addStyleTag({ content: '.focus-overlay { display: none !important; }' });
+    const withoutOverlay = await page.screenshot({ clip, animations: 'disabled' });
+    expect(withOverlay.equals(withoutOverlay)).toBe(false);
   });
 });
