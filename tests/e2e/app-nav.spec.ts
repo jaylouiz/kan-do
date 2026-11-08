@@ -740,3 +740,24 @@ test.describe('App bar: arrow keys in the Mehr panel (#23)', () => {
     await expect(first).toBeFocused()
   })
 })
+
+/** Issue #40: closing the ⋯ panel returns focus to ⋯; that focus must not open the tooltip on the new page. */
+test.describe('App bar: ⋯ tooltip after a page change (#40)', () => {
+  test('choosing Einstellungen leaves no tooltip on ⋯', async ({ context, page }) => {
+    await seedLocalBoard(context)
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto('/tasks')
+    await expect(appNav(page)).toBeVisible()
+    await openMore(page)
+    await page.getByTestId('more-settings').click()
+    await expect(page).toHaveURL(/\/settings/)
+    await expect(morePanel(page)).toBeHidden()
+    await expect(moreButton(page)).toBeFocused()
+    await expect(page.getByRole('tooltip')).toHaveCount(0)
+    // a later hover on ⋯ still teaches: enter, leave, enter again (the tooltip opens on a pointer move over the trigger)
+    await moreButton(page).hover()
+    await page.mouse.move(2, 2)
+    await moreButton(page).hover()
+    await expect(page.getByRole('tooltip')).toBeVisible()
+  })
+})
