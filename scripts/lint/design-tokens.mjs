@@ -188,9 +188,11 @@ export const LITERAL_ALLOWLIST = {
   'components/task/TaskProgressBar.vue': 'dead component (only /styleguide used it), deleted by #86',
 }
 
-const NAMED_COLORS = 'white|black|red|green|blue|yellow|orange|purple|pink|brown|gray|grey|silver|gold|navy|teal|cyan|magenta|maroon|olive|lime|aqua|fuchsia|indigo|violet|crimson|coral|salmon|tomato|khaki|beige|ivory|lavender|turquoise|tan|plum|orchid|azure|snow|slategray|slategrey'
+const NAMED_COLORS = 'aliceblue|antiquewhite|aqua|aquamarine|azure|beige|bisque|black|blanchedalmond|blue|blueviolet|brown|burlywood|cadetblue|chartreuse|chocolate|coral|cornflowerblue|cornsilk|crimson|cyan|darkblue|darkcyan|darkgoldenrod|darkgray|darkgreen|darkgrey|darkkhaki|darkmagenta|darkolivegreen|darkorange|darkorchid|darkred|darksalmon|darkseagreen|darkslateblue|darkslategray|darkslategrey|darkturquoise|darkviolet|deeppink|deepskyblue|dimgray|dimgrey|dodgerblue|firebrick|floralwhite|forestgreen|fuchsia|gainsboro|ghostwhite|gold|goldenrod|gray|green|greenyellow|grey|honeydew|hotpink|indianred|indigo|ivory|khaki|lavender|lavenderblush|lawngreen|lemonchiffon|lightblue|lightcoral|lightcyan|lightgoldenrodyellow|lightgray|lightgreen|lightgrey|lightpink|lightsalmon|lightseagreen|lightskyblue|lightslategray|lightslategrey|lightsteelblue|lightyellow|lime|limegreen|linen|magenta|maroon|mediumaquamarine|mediumblue|mediumorchid|mediumpurple|mediumseagreen|mediumslateblue|mediumspringgreen|mediumturquoise|mediumvioletred|midnightblue|mintcream|mistyrose|moccasin|navajowhite|navy|oldlace|olive|olivedrab|orange|orangered|orchid|palegoldenrod|palegreen|paleturquoise|palevioletred|papayawhip|peachpuff|peru|pink|plum|powderblue|purple|rebeccapurple|red|rosybrown|royalblue|saddlebrown|salmon|sandybrown|seagreen|seashell|sienna|silver|skyblue|slateblue|slategray|slategrey|snow|springgreen|steelblue|tan|teal|thistle|tomato|turquoise|violet|wheat|white|whitesmoke|yellow|yellowgreen'
 const HEX_RE = /#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b/
-const COLOR_FN_RE = /\b(?:rgba?|hsla?|hwb|oklch|oklab)\(/
+const COLOR_FN_RE = /(?<![\w-])(?:rgba?|hsla?|hwb|oklch|oklab|lab|lch|color|device-cmyk)\(/
+/** Properties whose value can be a colour: a named colour is only a colour there (not in `animation-name`, `content`). */
+const COLOR_PROP_RE = /color|background|border|outline|fill|stroke|shadow|decoration|column-rule|^--/
 const NAMED_COLOR_RE = new RegExp(`(?<![\\w-])(?:${NAMED_COLORS})(?![\\w-])`, 'i')
 const HUES = 'slate|gray|zinc|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose'
 const PALETTE_CLASS_RE = new RegExp(`(?<![\\w-])(?:[\\w-]+:)*!?(?:bg|text|border|ring|fill|stroke|from|via|to|outline|shadow|divide|decoration|accent|caret)-(?:(?:${HUES})(?:-\\d{2,3})?|white|black|custom-[a-z]+(?:-\\d{2,3})?)(?:/\\d+)?(?![\\w-])`, 'g')
@@ -215,13 +217,16 @@ export function checkTokenLiterals(root, files = styleSources(root)) {
     const add = (/** @type {string} */ text, /** @type {number} */ index, /** @type {string} */ message) => findings.push({ file, line: lineIn(text, index), message })
 
     // Declarations (CSS files and <style> blocks): property + value
-    for (const decl of css.matchAll(/([\w-]+)\s*:\s*([^;{}]+)/g)) {
+    // Only real declarations: the property starts after `{`, `;`, `}` or the start of the text (not a `.a:not(.red)` in a
+    // selector) and the value ends at `;` or `}` (not at the `{` of a selector such as `a:hover {`).
+    for (const decl of css.matchAll(/(?:^|[;{}])\s*([\w-]+)\s*:\s*([^;{}]+)(?=[;}]|\s*$)/g)) {
       const prop = decl[1] ?? ''
       const value = (decl[2] ?? '').replace(/!important/g, '').trim()
-      const at = decl.index ?? 0
-      const bare = value.replace(/--[\w-]+/g, 'VARNAME') // custom-property names inside var() are tokens, not colours
+      const at = (decl.index ?? 0) + decl[0].indexOf(prop)
+      // custom-property names inside var() are tokens, `url(#fragment)` and quoted strings are not colours
+      const bare = value.replace(/--[\w-]+/g, 'VARNAME').replace(/url\([^)]*\)/g, 'URL').replace(/(["'])(?:(?!\1).)*\1/g, 'STR')
       if (HEX_RE.test(bare) || COLOR_FN_RE.test(bare)) add(css, at, `${prop}: ${value} holds a colour literal; use a token (semantic role, --ui-* or a composition of tokens)`)
-      else if (NAMED_COLOR_RE.test(bare.replace(/url\([^)]*\)/g, ''))) add(css, at, `${prop}: ${value} holds a named colour; use a token`)
+      else if (COLOR_PROP_RE.test(prop) && NAMED_COLOR_RE.test(bare)) add(css, at, `${prop}: ${value} holds a named colour; use a token`)
       if (/radius$/.test(prop)) {
         // var(--x) -> VAR; a calc() that holds a token -> CALCVAR (innermost first, until nothing changes)
         let v = value
@@ -240,10 +245,10 @@ export function checkTokenLiterals(root, files = styleSources(root)) {
       const text = readFileSync(file, 'utf8')
         .replace(/<!--[\s\S]*?-->/g, blank)
         .replace(/\/\*[\s\S]*?\*\//g, blank)
-        .replace(/(^|[\s;,{(])\/\/.*$/gm, (_m, lead) => lead + blank(_m.slice(lead.length)))
+        .replace(/(^|\s)\/\/(?:\s.*)?$/gm, (_m, lead) => lead + blank(_m.slice(lead.length))) // `// note` only: a `//` in a URL string is followed by a name
       const body = file.endsWith('.vue') ? text.replace(/<style[^>]*>[\s\S]*?<\/style>/g, blank) : text
       for (const m of body.matchAll(PALETTE_CLASS_RE)) add(body, m.index ?? 0, `${m[0]} is a raw palette class; use a semantic token (text-default, text-muted, bg-elevated …) or a role step (text-error-700)`)
-      for (const m of body.matchAll(/(['"`])#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\1/g)) add(body, m.index ?? 0, `${m[0]} is a hex colour literal; use a token`)
+      for (const m of body.matchAll(/(['"`])#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6})\1/g)) add(body, m.index ?? 0, `${m[0]} is a hex colour literal; use a token`)
       for (const m of body.matchAll(/(?<![\w-])(?:rgba?|hsla?|hwb|oklch|oklab)\([^)]*\)/g)) add(body, m.index ?? 0, `${m[0]} is a colour literal; use a token`)
       for (const m of body.matchAll(/\b(?:shadow|rounded(?:-[a-z]{1,2})?)-\[([^\]]*)\]/g)) {
         if (!/^(?:var\(--[\w-]+\)|calc\(.*var\(--.*\))$/.test(m[1] ?? '')) add(body, m.index ?? 0, `${m[0]} is an arbitrary shadow or radius value; use a token`)

@@ -53,6 +53,24 @@ describe('colour literals', () => {
   })
 })
 
+describe('false positives the review found', () => {
+  it('skips anchors, ids, url() fragments, selectors named like a colour and quoted strings', () => {
+    const source = [
+      '<script setup lang="ts">',
+      'const target = document.querySelector(\'#fade\') // see https://x.test/#cafe12',
+      'const href = \'//cdn.example/a\'; const bg = \'#b8256f\'',
+      '</script>',
+      '<template><a href="#add">x</a></template>',
+      '<style scoped>',
+      '.a:is(.red) { filter: url(#fade); mask: url(#cafe); }',
+      '.btn:not(.white):hover { content: "red"; animation-name: lime; --my-radius: var(--radius-xs); }',
+      '.probe { color: rebeccapurple; background: lab(50% 40 59); }',
+      '</style>',
+    ].join('\n')
+    expect(scan('Review.vue', source)).toEqual(['3: \'#b8256f\'', '9: color:', '9: background:'])
+  })
+})
+
 describe('palette classes', () => {
   it('flags a raw hue, a custom-* palette step and the white/black utilities, also behind variants', () => {
     expect(scan('Classes.vue', '<template>\n<p class="bg-red-500" />\n<p class="hover:text-slate-700" />\n<p class="bg-custom-ink-900" />\n<p class="text-white border-black/10" />\n</template>'))
