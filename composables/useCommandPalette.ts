@@ -32,6 +32,7 @@ import { useAppUpdater } from '~/composables/useAppUpdater'
 import { useFeedback } from '~/composables/useFeedback'
 import { useWhatsNew } from '~/composables/useWhatsNew'
 import { isTauri } from '~/utils/isTauri'
+import { paletteExtensionGroups } from '~/lib/paletteExtensions'
 
 type Translate = (key: string, ...args: unknown[]) => string
 
@@ -199,6 +200,12 @@ export function openCommandPalette(): void {
   isOpen.value = true
 }
 
+/** For commands registered through `lib/paletteExtensions.ts`: closes the palette; they start their own UI once it is gone. */
+export function closeCommandPalette(): void {
+  skipFocusRestore = true
+  isOpen.value = false
+}
+
 export function useCommandPalette(handlers: Pick<PaletteActions, 'openStatistics' | 'openSettings'>) {
   const { t } = useI18n()
   const tasksStore = useTasksStore()
@@ -269,7 +276,7 @@ export function useCommandPalette(handlers: Pick<PaletteActions, 'openStatistics
 
   const groups = computed(() => {
     const task = focusedTaskId.value ? tasksStore.task(focusedTaskId.value) ?? null : null
-    return buildCommandGroups({
+    return [...buildCommandGroups({
       t: t as Translate,
       task,
       canMove: canMoveToStatus,
@@ -283,7 +290,7 @@ export function useCommandPalette(handlers: Pick<PaletteActions, 'openStatistics
           })
         : [],
       actions,
-    })
+    }), ...paletteExtensionGroups()]
   })
 
   const hasCard = computed(() => !!focusedTaskId.value && !!tasksStore.task(focusedTaskId.value))

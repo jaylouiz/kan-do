@@ -7,7 +7,10 @@
  */
 
 const MAX_ENTRIES = 20000
-let byText = new Map<string, Set<string>>()
+// On globalThis under a registered symbol, so a hot-reloaded module keeps what the page already rendered.
+const STORE = Symbol.for('kando.copyEditor.recorder')
+const holder = globalThis as unknown as Record<symbol, Map<string, Set<string>> | undefined>
+const byText = (): Map<string, Set<string>> => (holder[STORE] ??= new Map())
 
 /** Collapses whitespace the way the browser renders it, so DOM text and message text compare equal. */
 export const normalizeText = (text: string) => text.replace(/\s+/g, ' ').trim()
@@ -17,18 +20,19 @@ export function recordTranslation(translated: string, key: string): string {
   if (typeof translated !== 'string' || typeof key !== 'string' || translated === key) return translated
   const text = normalizeText(translated)
   if (text === '') return translated
-  if (byText.size >= MAX_ENTRIES) byText = new Map()
-  const keys = byText.get(text)
+  const map = byText()
+  if (map.size >= MAX_ENTRIES) map.clear()
+  const keys = map.get(text)
   if (keys) keys.add(key)
-  else byText.set(text, new Set([key]))
+  else map.set(text, new Set([key]))
   return translated
 }
 
 /** Keys that rendered exactly `text` (after whitespace normalisation), in recording order. */
 export function keysForText(text: string): string[] {
-  return [...(byText.get(normalizeText(text)) ?? [])]
+  return [...(byText().get(normalizeText(text)) ?? [])]
 }
 
 export function resetRecorder(): void {
-  byText = new Map()
+  byText().clear()
 }

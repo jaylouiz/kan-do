@@ -1,12 +1,17 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import { defineNuxtConfig } from 'nuxt/config'
 import * as fs from 'fs'
+import { fileURLToPath } from 'node:url'
 
 // reading version to make it available in nuxt context for displaying
 const packageJson = fs.readFileSync('./package.json', 'utf8')
 const version = JSON.parse(packageJson).version || 0
 
 const isDev = process.env.NODE_ENV !== 'production'
+
+// Live copy editor (#59): in `nuxt dev`, and in the E2E build (scripts/e2e-server.mjs sets the flag so the specs can
+// drive it). Every other build gets `false`, which drops `dev-tools/copy-editor/` from the bundle.
+const copyEditor = isDev || process.env.KANDO_COPY_EDITOR === '1'
 
 // E2E build (#541): `scripts/e2e-server.mjs` sets this to a directory of its own, so the Playwright build never writes
 // `.nuxt` (a dev server or typecheck may be using it) or `.output` (`npm run generate` for Tauri). Unset for every other command.
@@ -143,6 +148,11 @@ export default defineNuxtConfig({
         watchOptions: {
           ignored: ['**/node_modules/**', '**/.git/**', '**/.output/**', '**/dist/**', '**/.e2e-build/**'],
         },
+        // Dev-only routes of the live copy editor (#59): registered here, outside `server/api`, so no build scans them in.
+        handlers: [
+          { route: '/api/dev/copy/translate', method: 'post', handler: fileURLToPath(new URL('./server/copy-editor/translate.post.ts', import.meta.url)) },
+          { route: '/api/dev/copy/publish', method: 'post', handler: fileURLToPath(new URL('./server/copy-editor/publish.post.ts', import.meta.url)) },
+        ],
       } as Record<string, unknown>
     : {
         preset: process.env.NITRO_PRESET || 'static',
@@ -205,6 +215,7 @@ export default defineNuxtConfig({
       },
     },
     define: {
+      '__COPY_EDITOR__': copyEditor,
       // Allow Notion sentinel token (notion_test_stub) in dev and Vercel preview deployments.
       // Tree-shaken to `false` in production.
       '__NOTION_STUB_ALLOWED__': process.env.VERCEL_ENV === 'preview'
