@@ -142,6 +142,16 @@ test('Local radio cards follow the radio keyboard contract: one Tab stop, arrows
   await expect(page.getByTestId('local-confirm')).toBeFocused()
 })
 
+test('the heading focus after the swap never steals focus the user already moved into the setup (#100)', async ({ page, baseURL }) => {
+  await page.goto(baseURL! + '/welcome')
+  await page.getByRole('button', { name: 'Noch nirgends' }).click()
+  // The swap's height animation (300 ms) is still running; the heading takes focus only when it ends, so a Tab or click before then must win
+  const back = page.getByTestId('setup-back')
+  await back.focus()
+  await page.waitForTimeout(800)
+  await expect(back).toBeFocused()
+})
+
 test('"Noch nirgends" -> "Mit Beispielaufgaben starten" -> the demo board (#527): every column filled, topics with symbols, carry-over kept', async ({ page, baseURL }) => {
   await page.goto(baseURL! + '/welcome')
   await page.getByRole('button', { name: 'Noch nirgends' }).click()
