@@ -284,3 +284,15 @@ test('settleAnimations returns despite an infinite and a cancelled animation (#1
   await settleAnimations(page)
   expect(await page.evaluate(() => document.getAnimations().filter(a => a.playState === 'running' && a.effect?.getComputedTiming().iterations !== Infinity).length)).toBe(0)
 })
+
+test('the close X shows a pointer cursor and a visibly darker fill on hover (kd#55)', async ({ page }) => {
+  await control(page).first().click()
+  const close = page.locator('.task-stack-header__close').first()
+  await expect(close).toBeVisible()
+  await settleStack(page)
+  const read = () => close.evaluate((el) => ({ bg: getComputedStyle(el).backgroundColor, cursor: getComputedStyle(el).cursor }))
+  const rest = await read()
+  await close.hover()
+  await expect.poll(async () => (await read()).bg).not.toBe(rest.bg)
+  expect((await read()).cursor).toBe('pointer')
+})

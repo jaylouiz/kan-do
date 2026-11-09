@@ -250,6 +250,20 @@ test.describe('desktop, mouse', () => {
     await expectOn(page)
   })
 
+  test('the in-card new-task form turns it off and cancelling it brings it back (kd#56)', async ({ page }) => {
+    await openBoard(page)
+    await expectOn(page)
+    await page.locator('#column-open .add-task-button').click()
+    await expect(page.getByTestId('new-card-title')).toBeFocused()
+    await expectAbsent(page)
+    // Time passing alone does not bring it back while the form is open
+    await elapse(page, FOCUS_MOUSE_IDLE_MS + 500)
+    await expectAbsent(page)
+    await page.keyboard.press('Escape')
+    await expect(page.getByTestId('new-card-flow')).toHaveCount(0)
+    await expectOn(page)
+  })
+
   test('the day-close dialog and the command palette each turn it off, with no layer left behind', async ({ page }) => {
     await openBoard(page)
     await expectOn(page)
