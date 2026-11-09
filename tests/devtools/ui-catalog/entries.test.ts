@@ -27,9 +27,9 @@ function files(dir: string, accept: (name: string) => boolean): string[] {
 }
 
 describe('catalog entries (#66)', () => {
-  it('ships entries for the proofs (UButton, ExternalLink) and for the Darstellung slice (#76), library components included', () => {
+  it('ships entries for the proofs (UButton, ExternalLink), the Darstellung slice (#76) and the feedback slice (#74)', () => {
     const names = loaded.map(l => l.entry.component)
-    expect(names).toEqual(expect.arrayContaining(['ExternalLink', 'UButton', 'ListRow', 'UBadge', 'UCard', 'UTable', 'UCollapsible', 'TaskCard']))
+    expect(names).toEqual(expect.arrayContaining(['ExternalLink', 'UButton', 'ListRow', 'UBadge', 'UCard', 'UTable', 'UCollapsible', 'TaskCard', 'UAlert', 'EmptyNote']))
   })
 
   it.each(loaded.map(l => [l.path, l.entry] as const))('%s validates against the manifest', (path, entry) => {
@@ -62,7 +62,7 @@ describe('catalog entries (#66)', () => {
   })
 
   it('a landed category needs an entry for each of its manifest components; a category that has not landed does not', () => {
-    expect(LANDED_CATEGORIES).toEqual(['display']) // the category slices (#71 to #77) add theirs here
+    expect(LANDED_CATEGORIES).toEqual(['display', 'feedback']) // the category slices (#71 to #77) add theirs here
     expect(missingEntries(manifest, loaded.map(l => l.entry))).toEqual([])
     const missing = missingEntries(manifest, loaded.map(l => l.entry), ['navigation'])
     expect(missing).not.toContain('ExternalLink')

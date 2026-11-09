@@ -246,6 +246,9 @@ test.describe('delete is confirmed in the card slot (#422)', () => {
 
     await restoreOnPage(page, WAITING_TITLE)
     await expect(page.getByTestId('trash-empty-state')).toHaveText('Noch keine gelöschten Aufgaben.')
+    // EmptyNote must resolve to its component (a `<p>` with text-sm text-muted), not an unknown element in default ink (#74)
+    await expect(page.getByTestId('trash-empty-state')).toHaveJSProperty('tagName', 'P')
+    await expect(page.getByTestId('trash-empty-state')).toHaveCSS('font-size', '14px')
     await goToPlace(page, 'Heute')
     await expect(column(page, 'waiting').getByText(WAITING_TITLE)).toBeVisible()
     await expectTrashRow(page, 'Papierkorb')

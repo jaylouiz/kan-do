@@ -5,8 +5,8 @@
 import { CATALOG_STATES, type CatalogEntry } from '~/catalog/types'
 import { isI18nRef, type ManifestRow } from './catalogModel'
 
-/** Categories whose slice has landed: every manifest component of such a category needs an entry. The category slices (#71 to #77) add theirs (Darstellung: #76). */
-export const LANDED_CATEGORIES: string[] = ['display']
+/** Categories whose slice has landed: every manifest component of such a category needs an entry. The category slices (#71 to #77) add theirs (Darstellung: #76, Rückmeldung: #74). */
+export const LANDED_CATEGORIES: string[] = ['display', 'feedback']
 
 /** Every i18n key an entry refers to (slots and props, nested). */
 export function referencedKeys(entry: CatalogEntry): string[] {

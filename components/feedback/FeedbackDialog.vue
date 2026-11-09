@@ -121,9 +121,15 @@ optional element, optional screenshot, automatic context line), the annotate ste
             </UButton>
             <p class="text-xs text-muted">{{ t('feedback.screenshot.hint') }}</p>
           </template>
-          <p v-if="captureFailure" class="text-sm text-error-700" role="alert" data-testid="feedback-screenshot-failed">
-            {{ captureFailure === 'too_large' ? t('feedback.screenshot.tooLarge') : t('feedback.screenshot.failed') }}
-          </p>
+          <UAlert
+            v-if="captureFailure"
+            color="error"
+            variant="subtle"
+            icon="i-ph-x-circle"
+            role="alert"
+            :description="captureFailure === 'too_large' ? t('feedback.screenshot.tooLarge') : t('feedback.screenshot.failed')"
+            data-testid="feedback-screenshot-failed"
+          />
         </div>
 
         <p class="text-sm text-toned" data-testid="feedback-public-note">
@@ -209,11 +215,28 @@ v-if="logTail" v-model="draft.include.log" :label="t('feedback.review.itemLog')"
         </p>
         <p v-if="fallbackKnown && prefilled.overflow" class="text-sm text-toned">{{ t('feedback.fallback.overflow') }}</p>
 
-        <p v-if="problem" class="text-sm text-error-700" role="alert" data-testid="feedback-problem">
-          {{ problemText }}
-          <ULink v-if="problem === 'rejected'" to="/settings/github" class="underline" @click="close">{{ t('feedback.fallback.accessLink') }}</ULink>
-        </p>
-        <p v-if="clipboardFailed" class="text-sm text-error-700" role="alert" data-testid="feedback-clipboard-failed">{{ t('feedback.problem.clipboardFailed') }}</p>
+        <UAlert
+          v-if="problem"
+          color="error"
+          variant="subtle"
+          icon="i-ph-x-circle"
+          role="alert"
+          data-testid="feedback-problem"
+        >
+          <template #description>
+            {{ problemText }}
+            <ULink v-if="problem === 'rejected'" to="/settings/github" class="underline" @click="close">{{ t('feedback.fallback.accessLink') }}</ULink>
+          </template>
+        </UAlert>
+        <UAlert
+          v-if="clipboardFailed"
+          color="error"
+          variant="subtle"
+          icon="i-ph-x-circle"
+          role="alert"
+          :description="t('feedback.problem.clipboardFailed')"
+          data-testid="feedback-clipboard-failed"
+        />
         <p v-if="sending" class="text-sm text-muted" role="status">{{ sendingText }}</p>
       </div>
     </template>
