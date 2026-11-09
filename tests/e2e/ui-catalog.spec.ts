@@ -2,6 +2,7 @@ import { test, expect, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { seedLocalBoard, type SeedTask } from './helpers/seed'
 import { FINGERPRINT_PROPERTIES, diffFingerprint, serializeFingerprint, type Fingerprint } from './helpers/fingerprint'
 
 /**
@@ -88,10 +89,10 @@ test.describe('/ui Components part: sections and texts', () => {
     await expect(link.getByText('Alternatives')).toHaveCount(0) // ExternalLink names none
     await expect(button(page).getByText('Alternatives')).toBeVisible()
     await expect(button(page).getByRole('link', { name: 'ExternalLink' })).toBeVisible()
-    // A component of a category that has not landed has no entry yet: it still shows its doc block and says its samples are pending
-    const entryless = page.locator('#component-Board')
-    await expect(entryless).toContainText('No catalog entry yet')
-    await expect(entryless.locator('[data-kd-sample]')).toHaveCount(0)
+    // Every category has landed (#77), so every component has an entry; a whole page such as Board says why it has no live sample
+    const noSample = page.locator('#component-Board')
+    await expect(noSample.getByTestId('catalog-sample-note')).toContainText('No live sample')
+    await expect(noSample.locator('[data-kd-sample]')).toHaveCount(0)
   })
 
   test('an alternative links to its component', async ({ page }) => {
@@ -170,7 +171,9 @@ test.describe('/ui style fingerprint', () => {
       const duplicates: string[] = []
       for (const wrapper of Array.from(document.querySelectorAll<HTMLElement>('[data-kd-sample]'))) {
         const key = wrapper.dataset.kdSample!
-        const element = wrapper.firstElementChild as HTMLElement | null
+        // A hosted sample (#77): the component sits inside the host's frame; the frame is not what the sample shows
+        const frame = wrapper.querySelector<HTMLElement>('[data-kd-board-host]')
+        const element = (frame ?? wrapper).firstElementChild as HTMLElement | null
         if (!element) throw new Error(`${key} rendered nothing`)
         if (key in result) duplicates.push(key)
         // A focus ring exists only while the element has focus
@@ -199,5 +202,28 @@ test.describe('/ui style fingerprint', () => {
     const expected = JSON.parse(readFileSync(FINGERPRINT_FILE, 'utf8')) as Fingerprint
     const problems = diffFingerprint(expected, actual)
     expect(problems.slice(0, 40), `${problems.length} differences (--update-snapshots records an intended change)`).toEqual([])
+  })
+})
+
+test.describe('/ui board samples and the real board', () => {
+  test('a visit to /ui leaves the stacks expanded on the board intact (#77: the samples keep their own stack state)', async ({ page, context }) => {
+    const now = new Date().toISOString()
+    const member = (id: string, title: string, topic: string): SeedTask => ({ id, title, status: 0, priority: 1, timeSpentSeconds: 0, timeBoxSeconds: null, topic, custom: {}, createdAt: now, updatedAt: now })
+    await seedLocalBoard(context, [member('a1', 'Konzept ausarbeiten', 'Design'), member('a2', 'Farben abstimmen', 'Design'), member('a3', 'Raster festlegen', 'Design')], {}, { enabled: true, key: 'topic' })
+    await page.goto('/tasks')
+    const control = page.locator('#column-open-list .task-stack__control')
+    const members = page.locator('#column-open-list [data-from-stack="Design"]')
+    await control.click()
+    await expect(members).toHaveCount(3)
+    await expect(control).toHaveCount(0)
+
+    // Client-side navigation: a reload would forget the (in-memory) expansion by itself
+    const go = (path: string) => page.evaluate(p => (window as unknown as { useNuxtApp: () => { $router: { push: (to: string) => Promise<unknown> } } }).useNuxtApp().$router.push(p), path)
+    await go('/ui')
+    await expect(page.locator('[data-kd-catalog-ready]')).toBeAttached()
+    await expect(page.locator('[data-kd-board-host]').first()).toBeAttached()
+    await go('/tasks')
+    await expect(members).toHaveCount(3)
+    await expect(control).toHaveCount(0)
   })
 })

@@ -32,6 +32,13 @@ export type CatalogValue = string | number | boolean | null | I18nRef | CatalogV
 export type CatalogProps = Record<string, CatalogValue>
 
 /** One rendered sample: props and the default slot of the component. */
+/** Which tasks of the demo board (`lib/demo-board.ts`, the content of `?seed=demo`) a board sample receives. */
+export type CatalogDemoTasks = 'open' | 'progress' | 'waiting' | 'done' | 'none'
+export const CATALOG_DEMO_TASKS: readonly CatalogDemoTasks[] = ['open', 'progress', 'waiting', 'done', 'none']
+
+/** The sample host an entry renders in: `board` = a throwaway Pinia filled with the demo board plus a drag-and-drop provider, so a block that reads the stores renders without touching the real ones (#77, D2). */
+export type CatalogHost = 'board'
+
 export interface CatalogExample {
   /** Unique within the entry; also the fingerprint key. */
   id: string
@@ -40,6 +47,8 @@ export interface CatalogExample {
   props?: CatalogProps
   /** Default slot content: text, or an i18n key. */
   slot?: string | I18nRef
+  /** Entries with `host: 'board'`: the column of the demo board whose tasks are passed as the `tasks` prop (`none`: an empty list). */
+  demoTasks?: CatalogDemoTasks
   /** Overlays: the sample renders open (`open: true` is passed as a prop); they need a trigger or `open` to show at all. */
   open?: boolean
   /** Overlays: the default slot text is the trigger of the overlay, shown as a button (a bare text node renders nothing as a trigger). */
@@ -77,6 +86,8 @@ export interface CatalogEntry {
   /** Named variants of an app component (the variants of a Nuxt UI component come from `matrix`). */
   variants?: CatalogExample[]
   states: CatalogStateExample[]
+  /** Store-bound blocks only: render the samples inside this host instead of bare (see `CatalogHost`). */
+  host?: CatalogHost
   /** Why the entry has no live sample (a block that reads a store, a composable or a page's data): shown instead of the samples; variants and states then stay empty. */
   sampleNote?: string
 }

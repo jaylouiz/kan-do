@@ -78,10 +78,22 @@ describe('catalog entries (#66)', () => {
     expect(entryProblems('catalog/overlay/UModal.catalog.ts', entry, manifest)).toEqual(expect.arrayContaining([expect.stringContaining('no slot')]))
   })
 
+  it('a sample host belongs to an app component and demoTasks to an entry with a host (#77)', () => {
+    const path = 'catalog/layout/BoardColumn.catalog.ts'
+    const column = { component: 'BoardColumn', source: 'app', alternatives: [], host: 'board', states: [{ id: 'e', state: 'empty', demoTasks: 'none' }] } as CatalogEntry
+    expect(entryProblems(path, column, manifest)).toEqual([])
+    const noHost = { ...column, host: undefined } as CatalogEntry
+    expect(entryProblems(path, noHost, manifest)).toEqual(expect.arrayContaining([expect.stringContaining('has no host')]))
+    const badTasks = { ...column, states: [{ id: 'e', state: 'empty', demoTasks: 'wobbly' }] } as unknown as CatalogEntry
+    expect(entryProblems(path, badTasks, manifest)).toEqual(expect.arrayContaining([expect.stringContaining('unknown demoTasks')]))
+    const library = { component: 'USeparator', source: 'nuxt-ui', theme: 'separator', alternatives: [], host: 'board', states: [{ id: 'x', state: 'focus' }] } as CatalogEntry
+    expect(entryProblems('catalog/layout/USeparator.catalog.ts', library, manifest)).toEqual(expect.arrayContaining([expect.stringContaining('`host` is for an app component')]))
+  })
+
   it('a landed category needs an entry for each of its manifest components; a category that has not landed does not', () => {
-    expect(LANDED_CATEGORIES).toEqual(['action', 'display', 'feedback', 'overlay', 'navigation', 'keyboard', 'input', 'form-structure']) // the category slices (#71 to #77) add theirs here
+    expect(LANDED_CATEGORIES).toEqual(['action', 'display', 'feedback', 'overlay', 'navigation', 'keyboard', 'input', 'form-structure', 'layout']) // the category slices (#71 to #77) add theirs here
     expect(missingEntries(manifest, loaded.map(l => l.entry))).toEqual([])
-    const missing = missingEntries(manifest, loaded.map(l => l.entry), ['layout'])
+    const missing = missingEntries(manifest, loaded.map(l => l.entry).filter(entry => entry.component !== 'PageHeader'), ['layout'])
     expect(missing).toContain('PageHeader')
     expect(missing.length).toBeGreaterThan(0)
   })

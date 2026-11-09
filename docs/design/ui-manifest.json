@@ -103,8 +103,16 @@
       "Handles visual states for different statuses and empty states",
       "Erledigt drop target (#124): a light teal wash under the list and a one-line hint while a card from another column hovers it"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "open",
+      "progress",
+      "waiting",
+      "done"
+    ],
+    "states": [
+      "empty",
+      "disabled"
+    ],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -180,8 +188,12 @@
       "Hosts the add-and-start slot while Jetzt is empty (#125); it morphs into the Jetzt draft card",
       "Manages specific layout requirements for the progress column"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "with-task"
+    ],
+    "states": [
+      "empty"
+    ],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -2636,8 +2648,14 @@
       "Support page-specific actions via slot",
       "`narrow`: the title and actions sit in the same 672 px column as the content below (sub-page layout, `pageWidth: 'narrow'`, #673)"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "default",
+      "title-only",
+      "narrow"
+    ],
+    "states": [
+      "long-text"
+    ],
     "usedBy": {
       "components": 0,
       "pages": 0,
@@ -2717,8 +2735,15 @@
       "Support optional icons",
       "Allow semantic HTML tag selection"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "default",
+      "h3",
+      "h2",
+      "icon"
+    ],
+    "states": [
+      "long-text"
+    ],
     "usedBy": {
       "components": 4,
       "pages": 0,
@@ -3342,6 +3367,48 @@
     ],
     "usedBy": {
       "components": 2,
+      "pages": 0,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "UApp",
+    "path": "catalog/layout/UApp.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "primitive",
+    "category": "layout",
+    "description": "The Nuxt UI provider every overlay, toast and tooltip needs: it hosts their portals and the global locale and tooltip settings. It has no look of its own.",
+    "usage": "Once, around the whole app (`app.vue`). Toasts, tooltips and overlays render only while a UApp is mounted above them.",
+    "avoid": "Never nested and never a layout container: it renders no layout, so use PageHeader and the page layout for structure.",
+    "responsibility": [],
+    "variants": [],
+    "states": [],
+    "usedBy": {
+      "components": 0,
+      "pages": 0,
+      "layouts": 0,
+      "app": 1
+    }
+  },
+  {
+    "name": "USeparator",
+    "path": "catalog/layout/USeparator.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "primitive",
+    "category": "layout",
+    "description": "A hairline between groups of content, horizontal or vertical, solid, dashed or dotted, optionally with a label or icon in the middle. The app sets no variant: the default `neutral` solid line.",
+    "usage": "Between the groups of a popover or menu panel (the app bar's MorePanel), with a `my-1` margin from the call site. Place it with a class; do not restyle its colour.",
+    "avoid": "Not a section heading (SectionHeader) and not a card edge: grouped content on a page is spaced, not ruled; do not stack one under every row of a list (ListRow carries its own hairline).",
+    "responsibility": [],
+    "variants": [
+      "color",
+      "size",
+      "type"
+    ],
+    "states": [],
+    "usedBy": {
+      "components": 1,
       "pages": 0,
       "layouts": 0,
       "app": 0

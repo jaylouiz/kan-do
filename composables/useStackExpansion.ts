@@ -1,5 +1,22 @@
-import { ref } from 'vue';
+import { hasInjectionContext, inject, ref, type InjectionKey, type Ref } from 'vue';
 import type { TaskStatus } from '~/types/taskStatus';
+
+export interface StackExpansionState {
+  expandedByStatus: Ref<Record<number, string[]>>;
+  /** Text for the board's polite live region: stacks opening and closing (one region, see Board.vue) */
+  stackAnnouncement: Ref<string>;
+}
+
+export function createStackExpansionState(): StackExpansionState {
+  return { expandedByStatus: ref<Record<number, string[]>>({}), stackAnnouncement: ref('') };
+}
+
+/**
+ * Isolation for the `/ui` board samples (#77): a component tree that provides its own state gets a
+ * private copy, so a sample column pruning or clearing "its" stacks cannot collapse the real board's.
+ * Nothing provides it in the app, which therefore always reads the shared state below.
+ */
+export const STACK_EXPANSION_STATE: InjectionKey<StackExpansionState> = Symbol('stackExpansionState');
 
 /**
  * Which stacks are expanded (#147), per column and group key. In memory only, never persisted:
@@ -14,7 +31,7 @@ import type { TaskStatus } from '~/types/taskStatus';
  * (the edge-scroll column switch, Board.vue `fireEdgeScroll`), and collapsing a stack then would
  * shift the layout under the dragged card.
  */
-const expandedByStatus = ref<Record<number, string[]>>({});
+const sharedState = createStackExpansionState();
 
 /**
  * Armed by a pointer expand, so the rest of that click sequence cannot open a sheet: a double-click
@@ -40,10 +57,9 @@ function disarmPostExpand() {
   document.removeEventListener('mousedown', onMouseDownCapture, true);
 }
 
-/** Text for the board's polite live region: stacks opening and closing (one region, see Board.vue) */
-const stackAnnouncement = ref('');
-
 export function useStackExpansion() {
+  const { expandedByStatus, stackAnnouncement } = (hasInjectionContext() && inject(STACK_EXPANSION_STATE, null)) || sharedState;
+
   /** Group keys expanded in the column of `status`, in the order they were opened */
   function expandedKeys(status: TaskStatus): string[] {
     return expandedByStatus.value[status] ?? [];
