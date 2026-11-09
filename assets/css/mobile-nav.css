@@ -37,7 +37,7 @@
   .edge-indicator--charging {
     opacity: 1;
     background: color-mix(in srgb, var(--ui-primary) 70%, transparent);
-    color: var(--ui-color-primary-50, white);
+    color: var(--ui-color-primary-50);
     animation: edge-charge 0.65s ease-out forwards;
   }
 

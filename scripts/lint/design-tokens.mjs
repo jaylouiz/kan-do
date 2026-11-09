@@ -170,11 +170,100 @@ export function checkCssVars(root, files = styleSources(root)) {
   return findings
 }
 
+/**
+ * Literal ratchet for colour, shadow and radius (#69). A value the redesign should swap lives in a token; this check
+ * keeps new literals out of the styling sources. What it flags, per declaration or class string:
+ * - a colour literal (`#hex`, `rgb()`, `rgba()`, `hsl()`, `hwb()`, `oklch()`, `oklab()`, a named colour such as `white`),
+ *   also inside `box-shadow` and `text-shadow` values and `shadow-[…]`;
+ * - a Tailwind hue or `custom-*` palette class (`bg-red-500`, `text-slate-700`, `bg-custom-ink-900`) and the
+ *   `white`/`black` utilities. A semantic role with a step (`text-error-700`, `var(--ui-color-success-700)`) is the
+ *   status-text rule of DESIGN.md and stays allowed;
+ * - a radius off the scale: only `0`, `50%`, `9999px` (the pill), `inherit` and `var(--…)`/`calc()` over a token pass.
+ * Compositions of tokens (`color-mix(… var(--ui-primary) …)`, `inset 0 0 0 1px var(--ui-border-accented)`) carry no
+ * literal and pass. The allowlist names what is a token source or data; an entry for a file that is gone is ignored.
+ */
+export const LITERAL_ALLOWLIST = {
+  'assets/css/main.css': 'the token source: palettes, `--shadow-*` and the other custom-property definitions',
+  'assets/css/integrations.css': 'Todoist brand colours: third-party data keyed by colour name at runtime, like lib/topicStyles.ts',
+  'components/task/TaskProgressBar.vue': 'dead component (only /styleguide used it), deleted by #86',
+}
+
+const NAMED_COLORS = 'aliceblue|antiquewhite|aqua|aquamarine|azure|beige|bisque|black|blanchedalmond|blue|blueviolet|brown|burlywood|cadetblue|chartreuse|chocolate|coral|cornflowerblue|cornsilk|crimson|cyan|darkblue|darkcyan|darkgoldenrod|darkgray|darkgreen|darkgrey|darkkhaki|darkmagenta|darkolivegreen|darkorange|darkorchid|darkred|darksalmon|darkseagreen|darkslateblue|darkslategray|darkslategrey|darkturquoise|darkviolet|deeppink|deepskyblue|dimgray|dimgrey|dodgerblue|firebrick|floralwhite|forestgreen|fuchsia|gainsboro|ghostwhite|gold|goldenrod|gray|green|greenyellow|grey|honeydew|hotpink|indianred|indigo|ivory|khaki|lavender|lavenderblush|lawngreen|lemonchiffon|lightblue|lightcoral|lightcyan|lightgoldenrodyellow|lightgray|lightgreen|lightgrey|lightpink|lightsalmon|lightseagreen|lightskyblue|lightslategray|lightslategrey|lightsteelblue|lightyellow|lime|limegreen|linen|magenta|maroon|mediumaquamarine|mediumblue|mediumorchid|mediumpurple|mediumseagreen|mediumslateblue|mediumspringgreen|mediumturquoise|mediumvioletred|midnightblue|mintcream|mistyrose|moccasin|navajowhite|navy|oldlace|olive|olivedrab|orange|orangered|orchid|palegoldenrod|palegreen|paleturquoise|palevioletred|papayawhip|peachpuff|peru|pink|plum|powderblue|purple|rebeccapurple|red|rosybrown|royalblue|saddlebrown|salmon|sandybrown|seagreen|seashell|sienna|silver|skyblue|slateblue|slategray|slategrey|snow|springgreen|steelblue|tan|teal|thistle|tomato|turquoise|violet|wheat|white|whitesmoke|yellow|yellowgreen'
+const HEX_RE = /#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b/
+const COLOR_FNS = 'rgba?|hsla?|hwb|oklch|oklab|lab|lch'
+const COLOR_FN_RE = new RegExp(`(?<![\\w-])(?:${COLOR_FNS}|color|device-cmyk)\\(`)
+/** Properties whose value holds names and keywords, never a colour (`animation-name: lime`, `content`, `font-family`): a named colour is flagged everywhere else, also inside `filter: drop-shadow(… red)`. */
+const NON_COLOR_PROP_RE = /^(?:animation|transition|content|font|grid|counter|will-change|cursor|quotes|src|view-transition|anchor|container|list-style|scroll|appearance|mask-image)|-name$|-timeline$/
+const NAMED_COLOR_RE = new RegExp(`(?<![\\w-])(?:${NAMED_COLORS})(?![\\w-])`, 'i')
+const HUES = 'slate|gray|zinc|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose'
+const PALETTE_CLASS_RE = new RegExp(`(?<![\\w-])(?:[\\w-]+:)*!?(?:bg|text|border|ring|fill|stroke|from|via|to|outline|shadow|divide|decoration|accent|caret)-(?:(?:${HUES})(?:-\\d{2,3})?|white|black|custom-[a-z]+(?:-\\d{2,3})?)(?:/\\d+)?(?![\\w-])`, 'g')
+const RADIUS_VALUE_OK = /^(?:0|0px|50%|9999px|inherit|initial|unset|VAR|CALCVAR)$/
+
+/** Blank a span out with its newlines kept, so offsets still map to the right line. */
+const blank = (/** @type {string} */ m) => m.replace(/[^\n]/g, ' ')
+
+/**
+ * @param {string} root checkout root
+ * @param {string[]} [files] files to check (default: every styling source)
+ * @returns {{ file: string, line: number, message: string }[]}
+ */
+export function checkTokenLiterals(root, files = styleSources(root)) {
+  /** @type {{ file: string, line: number, message: string }[]} */
+  const findings = []
+  for (const file of files) {
+    if (!/\.(css|vue|ts)$/.test(file) || !existsSync(file)) continue
+    if (Object.keys(LITERAL_ALLOWLIST).includes(relative(root, file))) continue
+    const css = cssOf(file)
+    const lineIn = (/** @type {string} */ text, /** @type {number} */ index) => text.slice(0, index).split('\n').length
+    const add = (/** @type {string} */ text, /** @type {number} */ index, /** @type {string} */ message) => findings.push({ file, line: lineIn(text, index), message })
+
+    // Declarations (CSS files and <style> blocks): property + value
+    // Only real declarations: the property starts after `{`, `;`, `}` or the start of the text (not a `.a:not(.red)` in a
+    // selector) and the value ends at `;` or `}` (not at the `{` of a selector such as `a:hover {`).
+    for (const decl of css.matchAll(/(?:^|[;{}])\s*([\w-]+)\s*:\s*([^;{}]+)(?=[;}]|\s*$)/g)) {
+      const prop = decl[1] ?? ''
+      const value = (decl[2] ?? '').replace(/!important/g, '').trim()
+      const at = (decl.index ?? 0) + decl[0].indexOf(prop)
+      // custom-property names inside var() are tokens, `url(#fragment)` and quoted strings are not colours
+      const bare = value.replace(/--[\w-]+/g, 'VARNAME').replace(/url\([^)]*\)/g, 'URL').replace(/(["'])(?:(?!\1).)*\1/g, 'STR')
+      if (HEX_RE.test(bare) || COLOR_FN_RE.test(bare)) add(css, at, `${prop}: ${value} holds a colour literal; use a token (semantic role, --ui-* or a composition of tokens)`)
+      else if (!NON_COLOR_PROP_RE.test(prop) && NAMED_COLOR_RE.test(bare)) add(css, at, `${prop}: ${value} holds a named colour; use a token`)
+      if (/radius$/.test(prop)) {
+        // var(--x) -> VAR; a calc() that holds a token -> CALCVAR (innermost first, until nothing changes)
+        let v = value
+        let prev
+        do {
+          prev = v
+          v = v.replace(/var\([^()]*\)/g, 'VAR').replace(/calc\(([^()]*)\)/g, (m, inner) => (/VAR/.test(inner) ? 'CALCVAR' : m))
+        } while (v !== prev)
+        const bad = v.split(/[\s/]+/).filter(Boolean).filter(t => !RADIUS_VALUE_OK.test(t))
+        if (bad.length > 0) add(css, at, `${prop}: ${value} is off the radius scale; use var(--radius-*) (xs, sm, md, lg …), 0, 50% or 9999px`)
+      }
+    }
+
+    // Class strings, bindings and script text of .vue and app.config.ts
+    if (file.endsWith('.vue') || file.endsWith('.ts')) {
+      const text = readFileSync(file, 'utf8')
+        .replace(/<!--[\s\S]*?-->/g, blank)
+        .replace(/\/\*[\s\S]*?\*\//g, blank)
+        .replace(/(^|[;,{(])\/\/.*$|(\s)\/\/(?:\s.*)?$/gm, (m, a, b) => (a ?? b ?? '') + blank(m.slice((a ?? b ?? '').length))) // a `//` after `;`, `,`, `{`, `(` or the line start, or `// note` after a space: not a `//cdn` in a string
+      const body = file.endsWith('.vue') ? text.replace(/<style[^>]*>[\s\S]*?<\/style>/g, blank) : text
+      for (const m of body.matchAll(PALETTE_CLASS_RE)) add(body, m.index ?? 0, `${m[0]} is a raw palette class; use a semantic token (text-default, text-muted, bg-elevated …) or a role step (text-error-700)`)
+      for (const m of body.matchAll(/(?<!href=|to=|id=|querySelector\(|querySelectorAll\(|closest\(|matches\(|getElementById\(|hash\s*===?\s*)(['"`])#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\1/g)) add(body, m.index ?? 0, `${m[0]} is a hex colour literal; use a token`)
+      for (const m of body.matchAll(new RegExp(`(?<![\\w-])(?:${COLOR_FNS})\\([^)]*\\)`, 'g'))) add(body, m.index ?? 0, `${m[0]} is a colour literal; use a token`)
+      for (const m of body.matchAll(/\b(?:shadow|rounded(?:-[a-z]{1,2})?)-\[([^\]]*)\]/g)) {
+        if (!/^(?:var\(--[\w-]+\)|calc\(.*var\(--.*\))$/.test(m[1] ?? '')) add(body, m.index ?? 0, `${m[0]} is an arbitrary shadow or radius value; use a token`)
+      }
+    }
+  }
+  return findings
+}
+
 // CLI: `node scripts/lint/design-tokens.mjs [files...]` (default: every styling source); exit 1 on findings.
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const root = resolve(fileURLToPath(import.meta.url), '../../..')
   const files = process.argv.slice(2).map(f => resolve(f))
-  const findings = checkCssVars(root, files.length > 0 ? files : undefined)
+  const findings = [...checkCssVars(root, files.length > 0 ? files : undefined), ...checkTokenLiterals(root, files.length > 0 ? files : undefined)]
   for (const f of findings) console.log(`${relative(root, f.file)}:${f.line} ${f.message}`)
   process.exit(findings.length > 0 ? 1 : 0)
 }

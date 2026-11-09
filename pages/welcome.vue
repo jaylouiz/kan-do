@@ -75,7 +75,7 @@
           >
             <UIcon :name="choice.icon" class="size-6 shrink-0 text-toned" aria-hidden="true" />
             <span class="min-w-0 flex-1 text-lg font-medium text-highlighted">{{ choice.label }}</span>
-            <UIcon name="i-ph-arrow-right" class="size-5 shrink-0 text-muted" aria-hidden="true" />
+            <UIcon :name="ICONS.goOn" class="size-5 shrink-0 text-muted" aria-hidden="true" />
           </button>
         </div>
         <p class="mt-6 text-sm text-muted">{{ t('onboarding.page.later') }}</p>
@@ -93,6 +93,7 @@
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '~/lib/icons'
 import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import LocalSetupFlow from '~/components/setup/LocalSetupFlow.vue';

@@ -66,7 +66,7 @@ changes size, so nothing on the page moves while it is looked at.
         color="neutral"
         variant="ghost"
         size="sm"
-        icon="i-ph-caret-left"
+        :icon="ICONS.back"
         :aria-label="t('recap.deck.previous')"
         :disabled="!deck.canMove.value"
         :data-testid="`recap-prev-${kind}`"
@@ -80,7 +80,7 @@ changes size, so nothing on the page moves while it is looked at.
         color="neutral"
         variant="ghost"
         size="sm"
-        icon="i-ph-caret-right"
+        :icon="ICONS.forward"
         :aria-label="t('recap.deck.next')"
         :disabled="!deck.canMove.value"
         :data-testid="`recap-next-${kind}`"
@@ -91,6 +91,7 @@ changes size, so nothing on the page moves while it is looked at.
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '~/lib/icons'
 import { computed, ref, useId } from 'vue'
 import { useI18n } from 'vue-i18n'
 import TaskCard from '~/components/task/TaskCard.vue'
@@ -182,7 +183,7 @@ function onPointerDown(event: PointerEvent) {
   text-align: left;
   user-select: none;
   -webkit-user-select: none;
-  border-radius: 1rem;
+  border-radius: var(--radius-lg);
 }
 .recap-deck:focus-visible {
   outline: 2px solid var(--ui-primary);

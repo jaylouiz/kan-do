@@ -127,7 +127,7 @@
 .task-notes-markdown a:focus-visible {
   outline: 2px solid var(--ui-primary);
   outline-offset: 2px;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
 }
 
 .task-notes-markdown blockquote {

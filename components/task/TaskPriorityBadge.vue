@@ -66,11 +66,11 @@ const priorityLabel = computed(() => {
 const priorityIcon = computed(() => {
   switch (priorityValue.value) {
     case 2:
-      return "ph:number-circle-two";
+      return "i-ph-number-circle-two";
     case HIGH:
-      return "ph:exclamation-mark";
+      return "i-ph-exclamation-mark";
     default:
-      return "ph:number-circle-one";
+      return "i-ph-number-circle-one";
   }
 });
 

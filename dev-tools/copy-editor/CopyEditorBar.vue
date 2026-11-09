@@ -21,7 +21,7 @@ number of collected edits, and Leave (Esc). Bottom centre on desktop; wraps at 3
       <UButton size="sm" color="neutral" variant="outline" icon="i-ph-git-pull-request" data-testid="copy-editor-publish" @click="emit('publish')">
         Publish as PR<span v-if="count > 0"> · {{ count }}</span>
       </UButton>
-      <UButton size="sm" color="neutral" variant="ghost" icon="i-ph-x" aria-keyshortcuts="Escape" data-testid="copy-editor-leave" @click="emit('leave')">
+      <UButton size="sm" color="neutral" variant="ghost" :icon="ICONS.close" aria-keyshortcuts="Escape" data-testid="copy-editor-leave" @click="emit('leave')">
         Leave <UKbd value="escape" size="md" />
       </UButton>
     </div>
@@ -29,6 +29,7 @@ number of collected edits, and Leave (Esc). Bottom centre on desktop; wraps at 3
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '~/lib/icons'
 defineOptions({ name: 'CopyEditorBar' })
 
 defineProps<{

@@ -292,6 +292,18 @@ Counted in `components/`, `pages/` (without the styleguide), `layouts/`, `app.vu
 
 Reading it: motion and z-index are the largest groups and the least tokenised (no motion or z-index token exists in `main.css`; the checks of `tests/config/design-tokens.test.ts` cover `var()` references, not literals). Colour is nearly clean outside the Todoist map. Three files carry most of the rest: `NewCardFlow.vue` (1132 lines), `TaskCard.vue` and `TaskTimeboxNudge.vue`; they are drag-and-drop or visual-regression risk areas, so #69 and #70 must start after the baselines (#63). The icon-size group overlaps the notation decision (#67).
 
+### Status after #69 (colour, shadow, radius)
+
+Re-measured on `main` before the change; the guard is `checkTokenLiterals` in `scripts/lint/design-tokens.mjs` (per edit, `npm run verify` through `tests/config/design-tokens.test.ts`). No token was added or renamed.
+
+| Row | Outcome |
+|---|---|
+| Colour (20) | Stays: `assets/css/integrations.css:8-27` is Todoist's brand map, third-party data keyed by colour name at runtime (like `lib/topicStyles.ts`); allowlisted. `TaskProgressBar.vue:217-218` is dead (#86 deletes it); allowlisted until then. One named colour was a `var()` fallback (`mobile-nav.css:40`, never used): removed. |
+| Colour (derived, 45) | Stays: `color-mix()` and `/NN` opacity compose existing tokens, they hold no value of their own. The guard passes them. |
+| Colour (palette step, 39) | Stays: a semantic role plus a contrast step (`text-error-700`, `var(--ui-color-success-700)`) is the status-text rule in DESIGN.md ("Inline notice and warning text", "Status text sits on its own wash in the deep step"), guarded for contrast by `warning-notices.test.ts` and `error-soft-contrast.test.ts`. A raw hue or `custom-*` class, `white` or `black` fails the guard (none exist). Role tokens for these steps would be a DESIGN.md decision, not part of #69. |
+| Radius (20) | Moved onto the scale: `0.25rem` ×6 to `var(--radius-xs)` (same 4px), `1rem` (`RecapDeck.vue`) to `var(--radius-lg)` (same 16px), `999px` to `9999px` (`BoardPageDots.vue`), and `2px` (`task-detail.css`, the detector's advisory) to `var(--radius-xs)`: the one intentional change, on the focus outline of a link in task notes. Stays: `9999px` (the pill, `rounded.pill` in DESIGN.md), `50%` (circle), `0`, and `calc()` over `--ui-radius` (`TaskCompletionBurst.vue`, `TopicEditor.vue`). |
+| Shadow (6) | Stays: rings built from tokens (`inset 0 0 0 1px var(--ui-border-accented)` ×3, the focus pulse in `dnd.css`, the nav hairline in `app-nav.css`) carry no colour literal; the `--shadow-*` definitions in `main.css` are the token source (allowlisted). |
+
 ## Dead code
 
 Run on 2026-11-09 at `2a511228`. `knip@6.4.2` (the version the issue pins) was attempted with `npx --yes knip@6.4.2` and refused by the audit sandbox, so no knip result is claimed. The import-graph scan the issue allows replaced it; the commands below reproduce each finding. Nuxt auto-imports components by tag, so a component counts as used when its tag or an import path appears in a non-test file.
@@ -390,7 +402,7 @@ What it does **not** show: 91 of the 105 components, every settings, statistics 
 | `tests/config/button-ladder.test.ts` | `UButton` size and variant ladder, 44 px floor | does not see raw `<button>` (32), nor `UButton` in the 4 styleguide-only files |
 | `tests/config/design-patterns.test.ts` | no `role="tab"` in pages, no uppercase class | components are not checked for hand-rolled tabs (`NewDayRecap`) |
 | `tests/config/component-conventions.test.ts` | `defineOptions` and `@component` on every component | no `@kind` or `@category` yet (#64) |
-| `tests/config/design-tokens.test.ts` | every `var(--x)` resolves | no check on literals (colour 20, motion 133, z-index 54, spacing 73) |
+| `tests/config/design-tokens.test.ts` | every `var(--x)` resolves; no colour, shadow-colour or off-scale radius literal (#69) | no check on motion 133, z-index 54, spacing 73 (#70, #78) |
 | `tests/config/icons-bundled.test.ts`, `nuxt-ui-icons.test.ts` | icons come from an installed collection | does not pin one notation (`i-ph-*` vs `ph:*`) |
 | `tests/config/warning-notices.test.ts`, `error-soft-contrast.test.ts` | warning and error colours meet contrast | boxes are banned and the text step is fixed, but a plain coloured line is allowed |
 | ESLint `better-tailwindcss` | no arbitrary values, unknown classes | arbitrary values inside `:ui` strings and CSS are not seen |

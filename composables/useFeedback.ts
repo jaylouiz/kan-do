@@ -25,6 +25,7 @@
  * The token state is read on `open()` so the form can say that sending needs a GitHub account; after the link
  * opens a toast says what to do on GitHub (paste the screenshot, send the issue).
  */
+import { ICONS } from '~/lib/icons'
 import { computed, hasInjectionContext, reactive, readonly, ref, shallowRef } from 'vue'
 import { useNuxtApp, useToast } from '#imports'
 import { translate, getActiveLocale } from '~/lib/i18n'
@@ -524,7 +525,7 @@ export function useFeedback() {
     const toast = hasInjectionContext() ? useToast() : useNuxtApp().vueApp.runWithContext(() => useToast())
     toast.add({
       title: translate(withImage ? 'feedback.openedToastImage' : 'feedback.openedToast'),
-      icon: 'i-ph-arrow-square-out',
+      icon: ICONS.external,
       color: 'neutral',
     })
   }

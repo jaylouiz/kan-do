@@ -6,6 +6,7 @@
  * `useTaskOperations.moveTaskToStatus` (shared WIP guard and completion undo toast).
  * @responsibility Open/close state, focus capture + restore, command groups. No UI.
  */
+import { ICONS } from '~/lib/icons'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { deleteLabelKey } from '~/lib/taskSources'
@@ -99,7 +100,7 @@ export function buildCommandGroups({ t, task, canMove, moveTargets = [], actions
       .sort((a, b) => Number(a.disabled ?? false) - Number(b.disabled ?? false))
 
     const taskItems: CommandPaletteItem[] = [
-      { id: 'details', label: t('task.contextMenu.openDetails'), icon: 'i-ph-arrow-square-out', onSelect: () => actions.openDetails(id) },
+      { id: 'details', label: t('task.contextMenu.openDetails'), icon: ICONS.openDetail, onSelect: () => actions.openDetails(id) },
       ...PRIORITY_OPTIONS.map((opt): CommandPaletteItem => ({
         id: `priority-${opt.priority}`,
         label: t('commandPalette.setPriority', { priority: getPriorityLabel(opt.priority) }),
@@ -114,9 +115,9 @@ export function buildCommandGroups({ t, task, canMove, moveTargets = [], actions
       })),
     ]
     if (task.timeBoxSeconds) {
-      taskItems.push({ id: 'timebox-remove', label: t('task.contextMenu.removeTimebox'), icon: 'i-ph-x', onSelect: () => actions.setTimebox(id, null) })
+      taskItems.push({ id: 'timebox-remove', label: t('task.contextMenu.removeTimebox'), icon: ICONS.close, onSelect: () => actions.setTimebox(id, null) })
     }
-    taskItems.push({ id: 'delete', label: t(deleteLabelKey(task.source)), icon: 'i-ph-trash', onSelect: () => actions.deleteTask(id) })
+    taskItems.push({ id: 'delete', label: t(deleteLabelKey(task.source)), icon: ICONS.delete, onSelect: () => actions.deleteTask(id) })
 
     groups.push({ id: 'card-move', label: t('commandPalette.groupMove', { title: task.title }), items: moveItems })
     // Source moves sit right under the column moves (#322); the palette has no submenus, so one flat row per source

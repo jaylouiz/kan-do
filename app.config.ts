@@ -1,3 +1,5 @@
+import { ICONS } from './lib/icons'
+
 export default defineAppConfig({
   ui: {
     fonts: {
@@ -37,14 +39,14 @@ export default defineAppConfig({
       chevronLeft: 'i-ph-caret-left',
       chevronRight: 'i-ph-caret-right',
       chevronUp: 'i-ph-caret-up',
-      close: 'i-ph-x',
+      close: ICONS.close,
       copy: 'i-ph-copy',
       copyCheck: 'i-ph-check-square',
       dark: 'i-ph-moon',
       drag: 'i-ph-dots-six-vertical',
       ellipsis: 'i-ph-dots-three',
       error: 'i-ph-x-circle',
-      external: 'i-ph-arrow-up-right',
+      external: ICONS.external,
       eye: 'i-ph-eye',
       eyeOff: 'i-ph-eye-slash',
       file: 'i-ph-file',
