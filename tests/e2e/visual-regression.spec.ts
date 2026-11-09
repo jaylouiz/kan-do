@@ -26,7 +26,7 @@
 import { test, expect, type BrowserContext, type Locator, type Page, type Route } from '@playwright/test'
 import { showColumnPage } from './helpers/dnd'
 import { moreButton, openDayClose, openMore } from './helpers/appNav'
-import { settleAnimations } from './helpers/settle'
+import { installClock, pinnedNow } from './helpers/clock'
 import { emitDataStatus, installTauriStub } from './helpers/tauriStub'
 import {
   seedDayRecapStore,
@@ -719,7 +719,7 @@ test.describe('focus overlay on (#394)', () => {
 
 // ---------------------------------------------------------------------------
 // Core flows before the UI kit refactor (#63). Each shot: 1280 and 390, light, deterministic.
-// Day-sensitive flows run on the page clock pinned to FIXED_NOW (it keeps ticking, timers fire) and are seeded
+// Day-sensitive flows run on the page clock pinned to PINNED (it keeps ticking, timers fire) and are seeded
 // relative to it, never to the Node clock, so the pixels do not depend on the day the suite runs.
 // ---------------------------------------------------------------------------
 
@@ -728,16 +728,18 @@ const CORE_VIEWPORTS = [
   { size: '390', viewport: { width: 390, height: 844 } },
 ] as const
 
-const PINNED = new Date(FIXED_NOW)
+/** The pinned instant: local noon of the shared test day (`helpers/clock.ts`, #449), so day buckets hold in every time zone. */
+const PINNED = pinnedNow()
+const PINNED_ISO = PINNED.toISOString()
 
-/** Starts the page clock at FIXED_NOW; call before the seed and before `goto`. */
-const pinClockToFixedNow = (context: BrowserContext) => context.clock.install({ time: PINNED })
+/** Starts the page clock at `PINNED` and keeps it ticking; call before the seed and before `goto`. */
+const pinClockToFixedNow = (context: BrowserContext) => installClock(context, { pinned: true })
 
-/** Local time on the calendar day `daysAgo` before FIXED_NOW. */
+/** Local time on the calendar day `daysAgo` before PINNED. */
 const localAt = (daysAgo: number, hour: number, minute = 0) =>
   new Date(PINNED.getFullYear(), PINNED.getMonth(), PINNED.getDate() - daysAgo, hour, minute).toISOString()
 
-/** `YYYY-MM-DD` (local) of the day `daysAgo` before FIXED_NOW, the format of the stores' day keys. */
+/** `YYYY-MM-DD` (local) of the day `daysAgo` before PINNED_ISO, the format of the stores' day keys. */
 const dayKeyAgo = (daysAgo: number) => {
   const d = new Date(PINNED.getFullYear(), PINNED.getMonth(), PINNED.getDate() - daysAgo)
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -753,8 +755,8 @@ const coreTask = (task: Pick<SeedTask, 'id' | 'title' | 'status'> & Partial<Seed
   timeSpentSeconds: 0,
   timeBoxSeconds: null,
   custom: {},
-  createdAt: FIXED_YESTERDAY,
-  updatedAt: FIXED_NOW,
+  createdAt: localAt(1, 10),
+  updatedAt: PINNED_ISO,
   ...task,
 })
 
@@ -819,6 +821,8 @@ for (const { size, viewport } of CORE_VIEWPORTS) {
       // A Notion default source: the card rests in `is-saving` while the create call is held
       await seedMixedBoard(context, MIXED_VR_TASKS)
       const held: Route[] = []
+      // Only create-task is held; every other Notion call is refused so the stub never swaps the seeded rows (#364)
+      await page.route('**/api/notion/**', (route) => route.abort('connectionrefused'))
       await page.route('**/api/notion/create-task', (route) => { held.push(route) })
       await openCard(page)
       await toQuestion(page)
@@ -828,13 +832,14 @@ for (const { size, viewport } of CORE_VIEWPORTS) {
       await expect.poll(() => held.length).toBe(1)
       await shot(page, `new-card-saving-${size}.png`)
       await page.unroute('**/api/notion/create-task', { behavior: 'ignoreErrors' })
+      await page.unroute('**/api/notion/**', { behavior: 'ignoreErrors' })
     })
   })
 }
 
 // --- Day close (#98): dialog at 1280, drawer at 390 -------------------------
 
-/** Done today at `h` hours before FIXED_NOW, so the day-close summary has a stable order and times. */
+/** Done today at `h` hours before PINNED_ISO, so the day-close summary has a stable order and times. */
 const doneHoursAgo = (h: number) => new Date(PINNED.getTime() - h * 3_600_000).toISOString()
 
 const DAY_CLOSE_SEED: SeedTask[] = [
@@ -846,7 +851,7 @@ const DAY_CLOSE_SEED: SeedTask[] = [
   coreTask({ id: 'dc-progress-1', title: 'Präsentation vorbereiten', status: 1, priority: 1, activity: 'Entwicklung', topic: 'Backend', topicColorCode: '#10b981', timeSpentSeconds: 1800, timeBoxSeconds: 3600 }),
   coreTask({ id: 'dc-open-stale', title: 'Steuerberater anrufen', status: 0, priority: 2 }),
   coreTask({ id: 'dc-open-oldest', title: 'Altes Thema endlich klären', status: 0 }),
-  coreTask({ id: 'dc-open-fresh', title: 'Neue Idee notieren', status: 0, createdAt: FIXED_NOW }),
+  coreTask({ id: 'dc-open-fresh', title: 'Neue Idee notieren', status: 0, createdAt: PINNED_ISO }),
   coreTask({ id: 'dc-waiting-stale', title: 'Rückmeldung vom Vermieter', status: 2, priority: 2 }),
 ]
 
@@ -938,7 +943,12 @@ for (const { size, viewport } of CORE_VIEWPORTS) {
     await expect(page.getByTestId('stats-tile-2-toggle')).toHaveAttribute('aria-expanded', 'true')
     await page.mouse.move(0, 0)
     await settle(page)
-    await expect(page).toHaveScreenshot(`statistics-${size}.png`, { animations: 'disabled', fullPage: true })
+    await expect(page).toHaveScreenshot(`statistics-${size}.png`, {
+      animations: 'disabled',
+      fullPage: true,
+      // The floating app bar lands at a different height in a full-page capture from run to run (301 px at 390)
+      mask: [page.getByTestId('app-nav')],
+    })
   })
 }
 
@@ -1079,6 +1089,9 @@ for (const { size, viewport } of CORE_VIEWPORTS) {
     await seedLocalBoard(context, SEED)
     await page.goto('/tasks')
     if (size === '390') await showColumnPage(page, 0)
+    // Settle before the action: once the toast shows, the five second window runs and the clock must be paused at once
+    await settle(page)
+    await page.mouse.move(0, 0)
     await page.locator('.task-wrapper', { hasText: 'Dokumentation lesen' }).first().click({ button: 'right' })
     await page.getByRole('menuitem', { name: 'Status ändern' }).click()
     await page.getByRole('menuitem', { name: 'Erledigt', exact: true }).click()
@@ -1086,13 +1099,10 @@ for (const { size, viewport } of CORE_VIEWPORTS) {
     const toast = page.locator('[data-slot="wrapper"]').filter({ hasText: 'Rückgängig' }).last().locator('xpath=..')
     await expect(toast).toBeVisible()
     await expect(page.getByTestId('completion-burst')).toHaveCount(0)
-    await settle(page)
-    await settleAnimations(page)
-    await page.mouse.move(0, 0)
-    // The undo window is five seconds: freeze the page's timers so the toast stays for the comparison. A paused
-    // clock stalls the page's rAF, which the element screenshot's stability check waits on, so shoot the page.
-    // The countdown bar at the bottom edge depends on the elapsed time: masked
-    await page.clock.pauseAt(new Date((await page.evaluate(() => Date.now())) + 50))
+    // The undo window is five seconds: freeze the page's timers right away so the toast stays for the comparison, with
+    // a margin far above one round trip. A paused clock stalls the page's rAF, which the element screenshot's
+    // stability check waits on, so shoot the page. The countdown bar at the bottom edge depends on the elapsed time: masked
+    await page.clock.pauseAt(new Date((await page.evaluate(() => Date.now())) + 1000))
     await expect(page).toHaveScreenshot(`toast-undo-${size}.png`, {
       animations: 'disabled',
       mask: [toast.locator('[data-slot="progress"]')],
