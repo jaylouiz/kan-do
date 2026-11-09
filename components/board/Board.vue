@@ -167,6 +167,7 @@ import TaskStack from "~/components/task/TaskStack.vue";
 import BoardPageDots from "~/components/board/BoardPageDots.vue";
 import FocusOverlay from "~/components/board/FocusOverlay.vue";
 import { FOCUS_LEAVE_MS, useFocusOverlay } from "~/composables/useFocusOverlay";
+import { inCardAdding } from "~/composables/useInCardAdding";
 import { useOpenLayer } from "~/composables/useOpenLayer";
 import { useNewDayRecap } from "~/composables/useNewDayRecap";
 import { useSettingsStore } from "~/store/settings";
@@ -274,7 +275,7 @@ const settingsStore = useSettingsStore();
 const { layerOpen } = useOpenLayer();
 /** The new-day recap (#385) is a Teleport overlay without Reka's body lock, so `layerOpen` does not see it */
 const { isOpen: recapOpen } = useNewDayRecap();
-/** Setting on, a card in Jetzt, nothing dragged, no sheet, layer or new-day recap open, and (phone) the Jetzt page is the visible one */
+/** Setting on, a card in Jetzt, nothing dragged, no sheet, layer, new-day recap or in-card new-task form open, and (phone) the Jetzt page is the visible one */
 const focusEnabledNow = computed(
   () =>
     settingsStore.focusEnabled &&
@@ -283,6 +284,7 @@ const focusEnabledNow = computed(
     !spotlightTaskId.value &&
     !layerOpen.value &&
     !recapOpen.value &&
+    !inCardAdding.value &&
     (!isMobile.value || activeMobileTab.value === 1),
 );
 const { shown: focusShown, pointerKind: focusPointerKind, swallowTap: focusSwallowTap } = useFocusOverlay(focusEnabledNow);

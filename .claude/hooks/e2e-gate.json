@@ -357,6 +357,7 @@
       "area": "focus overlay: dimmed board while a Jetzt task is focused, open layers",
       "paths": [
         "composables/useFocusOverlay.ts",
+        "composables/useInCardAdding.ts",
         "composables/useOpenLayer.ts"
       ],
       "specs": [
