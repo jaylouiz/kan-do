@@ -7,6 +7,7 @@
 - Inside the button, `.add-task-button-surface` (centred icon + label on --ui-bg-muted, button radius) is the visible shape. Offen: label-wide at rest (2.25rem = 36px on desktop, the height of the day-close `lg` button beside it, #582; 3rem on mobile, where `lg` is 48px), grows to the card box over --add-slot-grow-duration on hover (pointer devices only, so a tap never sticks), focus-visible and while drafting (held grown, so it does not jump back under the fading label); the label stays centred throughout. Growth animates min-width/min-height inside the fixed box (an accepted trade-off: a transform would distort radius and label)
 - Offen on mobile: a sticky 48px bar (#33) that swaps for the draft at the end of the list (#110); the surface never grows there
 - Jetzt: the `icon` prop (lightning) and the label say it starts a task now; the surface is always the full card shape; on pointer devices surface and label appear only while the Jetzt section is hovered or the slot has focus; touch shows the label at rest
+- While the in-card form is open the Jetzt focus overlay steps aside (useInCardAdding, kd#56)
 - Drafting (useTaskDraft holds a draft for this column): the draft card fades in over the button, the label fades out; the button stays mounted but inert, so focus can return to it
 - In-card adding (#649, `inCard`, Offen): the button opens NewCardFlow in the same box instead of the sheet and the slot is held grown like for a draft. Esc on a typed title also shows a "Rückgängig" toast that reopens the card with it (#665). Esc, a press outside a blank card, the sheet opening or a drag cancel it and send focus back to the button; a save swaps it for the saved card (no fade) and focuses that card. Jetzt and every other entry (palette, nav, menu) keep the sheet
 - During a drag (`hidden`) the slot keeps its geometry but is invisible and not interactive
@@ -53,6 +54,7 @@ import { useToast } from '#imports';
 import NewCardFlow from '~/components/board/NewCardFlow.vue';
 import TaskDraftCard from '~/components/board/TaskDraftCard.vue';
 import { useTaskDraft } from '~/composables/useTaskDraft';
+import { trackInCardAdding } from '~/composables/useInCardAdding';
 import { TaskStatus } from '~/types/taskStatus';
 import { focusWhenReady, findSavedCardElement } from '~/utils/focusRecovery';
 
@@ -85,6 +87,7 @@ const variant = computed(() => (props.status === TaskStatus.Progress ? 'progress
 const route = useRoute();
 const buttonEl = ref<HTMLButtonElement | null>(null);
 const flowOpen = ref(false);
+trackInCardAdding(flowOpen); // the focus overlay steps aside while the form is up (kd#56)
 /** The title the card opens with: only after "Rückgängig" on a dropped title (#665) */
 const flowTitle = ref<string | undefined>(undefined);
 const { t } = useI18n();

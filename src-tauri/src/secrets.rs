@@ -1,6 +1,6 @@
 //! Keychain-backed secret store (#223, ADR 007).
 //!
-//! Four fixed entries live under the service `io.github.jaylouiz.kan-do`. The Notion and Todoist tokens
+//! Four fixed entries live under one Keychain service, `io.github.jaylouiz.kan-do` in a release build ([`service_for`] derives it from the running identifier). The Notion and Todoist tokens
 //! can be read back by the webview (their client code needs the string). The two GitHub tokens
 //! are write-only for JS: it can set, delete and ask for status, and `github::github_request`
 //! performs the calls. Rust code in this process reads them through [`get`].
@@ -19,15 +19,17 @@ use tauri::{AppHandle, Manager, State};
 /// identifier moves the app's data and tokens: see `identifier_migration` and ADR 019 (which amends ADR 007).
 pub const SERVICE: &str = "io.github.jaylouiz.kan-do";
 
-/// The Keychain service the running build uses. A debug build (`tauri dev`) carries the production identifier but keeps
-/// the legacy service of the installed 0.11.0, exactly as before the rename, so a dev run neither creates entries under
-/// the new service (which would make the release's Keychain step keep them as "new wins") nor strands the real tokens;
-/// only a release build migrates and then uses [`SERVICE`] (#42, ADR 019).
-pub fn service_for(debug_build: bool) -> &'static str {
-    if debug_build {
-        crate::identifier_migration::LEGACY_IDENTIFIER
+/// The Keychain service the running build uses, from the identifier it runs under. A debug build with the production
+/// identifier (`tauri dev`) keeps the legacy service of the installed 0.11.0, exactly as before the rename, so a dev run
+/// neither creates entries under the new service (which would make the release's Keychain step keep them as "new wins")
+/// nor strands the real tokens; only a release build migrates and then uses [`SERVICE`] (#42, ADR 019). Any other
+/// identifier is its own service: a sandboxed run (`…sandbox-<port>`, `docs/testing/tauri-dev-sandbox.md`) gets an empty
+/// service and never reads, writes or deletes a real entry (kd#54).
+pub fn service_for(debug_build: bool, identifier: &str) -> String {
+    if debug_build && identifier == crate::identifier_migration::PRODUCTION_IDENTIFIER {
+        crate::identifier_migration::LEGACY_IDENTIFIER.to_owned()
     } else {
-        SERVICE
+        identifier.to_owned()
     }
 }
 
@@ -160,7 +162,7 @@ pub struct KeyringBackend {
 
 #[cfg(target_os = "macos")]
 impl KeyringBackend {
-    /// Under the app's own service; the app itself goes through `native`, the unit tests through this.
+    /// Under the app's own service; the app itself goes through `Secrets::native` with the service from `service_for`, the unit tests through this.
     #[cfg_attr(not(test), allow(dead_code))]
     pub fn new(store: std::sync::Arc<keyring_core::api::CredentialStore>) -> Self {
         Self::with_service(store, SERVICE)
@@ -169,11 +171,6 @@ impl KeyringBackend {
     /// Entries under another service: the identifier migration reads the legacy one (#42).
     pub fn with_service(store: std::sync::Arc<keyring_core::api::CredentialStore>, service: &str) -> Self {
         Self { store, service: service.to_owned() }
-    }
-
-    /// The login Keychain via the native macOS store, under the service of this build ([`service_for`]).
-    pub fn native() -> Result<Self, SecretError> {
-        Self::native_for(service_for(cfg!(debug_assertions)))
     }
 
     /// The login Keychain via the native macOS store, entries under `service`.
@@ -261,10 +258,12 @@ impl Secrets {
         }
     }
 
-    /// The native store on macOS, the unsupported stub elsewhere.
-    pub fn native() -> Self {
+    /// The native store on macOS under `service` ([`service_for`]), the unsupported stub elsewhere.
+    pub fn native(service: &str) -> Self {
+        #[cfg(not(target_os = "macos"))]
+        let _ = service;
         #[cfg(target_os = "macos")]
-        let backend: Box<dyn Backend> = match KeyringBackend::native() {
+        let backend: Box<dyn Backend> = match KeyringBackend::native_for(service) {
             Ok(backend) => Box::new(backend),
             Err(_) => Box::new(FailingBackend),
         };
@@ -514,11 +513,18 @@ mod tests {
     }
 
     #[test]
-    fn a_debug_build_keeps_the_legacy_keychain_service_and_a_release_build_uses_the_new_one() {
+    fn the_keychain_service_follows_the_identifier_except_a_debug_build_with_the_production_one() {
+        use crate::identifier_migration::{LEGACY_IDENTIFIER, PRODUCTION_IDENTIFIER};
         // `tauri dev` carries the production identifier; its tokens stay where the installed 0.11.0 keeps them, so the
         // release's Keychain step (never run in a debug build) is the only thing that moves them (#42).
-        assert_eq!(service_for(true), crate::identifier_migration::LEGACY_IDENTIFIER);
-        assert_eq!(service_for(false), SERVICE);
+        assert_eq!(service_for(true, PRODUCTION_IDENTIFIER), LEGACY_IDENTIFIER);
+        assert_eq!(service_for(false, PRODUCTION_IDENTIFIER), SERVICE);
+        // A sandboxed run never touches a real service, neither the legacy nor the new one (kd#54).
+        let sandbox = "io.github.jaylouiz.kan-do.sandbox-3105";
+        assert_eq!(service_for(true, sandbox), sandbox);
+        assert_ne!(service_for(true, sandbox), LEGACY_IDENTIFIER);
+        assert_ne!(service_for(true, sandbox), SERVICE);
+        assert_eq!(service_for(false, "io.github.jaylouiz.kan-do.other"), "io.github.jaylouiz.kan-do.other");
     }
 
     #[test]
@@ -737,7 +743,7 @@ mod tests {
         #[test]
         #[ignore = "touches the real macOS login Keychain"]
         fn native_keychain_round_trip() {
-            let store = KeyringBackend::native().expect("native store").store;
+            let store = KeyringBackend::native_for(SERVICE).expect("native store").store;
             let entry = store.build("io.github.jaylouiz.kan-do.test", "round-trip", None).unwrap();
             entry.set_password("ntn_round_trip_1234").unwrap();
             assert_eq!(entry.get_password().unwrap(), "ntn_round_trip_1234");
