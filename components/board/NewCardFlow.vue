@@ -149,19 +149,19 @@
           </form>
 
           <div v-else class="ncf__row ncf__row--grid" data-testid="new-card-options">
-            <button
+            <ChoiceChip
               v-for="(value, index) in current.suggestions"
               :key="value"
-              type="button"
-              class="ncf__pill ncf__control"
-              :class="{ 'is-current': value === currentValue, 'is-picked': picked === value }"
+              class="ncf__pill"
+              :current="value === currentValue"
+              :picked="picked === value"
               :aria-keyshortcuts="String(index + 1)"
               :disabled="saving"
               @click="pick(value)"
             >
               <span class="truncate" :title="optionLabel(value)" :data-private="step !== 'timebox' ? '' : undefined">{{ optionLabel(value) }}</span>
               <kbd class="ncf__key" :data-key="index + 1" aria-hidden="true" />
-            </button>
+            </ChoiceChip>
 
             <template v-if="hasList">
               <UPopover
@@ -170,10 +170,9 @@
                 :content="{ side: 'bottom', align: 'center', sideOffset: 6, onCloseAutoFocus: onMoreCloseAutoFocus }"
                 :ui="{ content: 'max-h-64 min-w-56 overflow-auto p-1' }"
               >
-                <button
-                  type="button"
-                  class="ncf__pill ncf__pill--more ncf__control"
-                  :class="{ 'ncf__pill--mehr': isEntryStep }"
+                <ChoiceChip
+                  class="ncf__pill ncf__pill--more"
+                  :field="isEntryStep"
                   :aria-keyshortcuts="String(listKey)"
                   :disabled="saving"
                   :aria-label="isEntryStep ? undefined : t('board.quickAdd.allOptions')"
@@ -185,16 +184,15 @@
                   </template>
                   <UIcon v-else name="i-ph-dots-three-bold" class="size-4" aria-hidden="true" />
                   <kbd class="ncf__key" :data-key="listKey" aria-hidden="true" />
-                </button>
+                </ChoiceChip>
                 <template #content>
                   <NewCardOptionList v-bind="listProps" @pick="pick" @create="create" />
                 </template>
               </UPopover>
               <template v-else>
-                <button
-                  type="button"
-                  class="ncf__pill ncf__pill--more ncf__control"
-                  :class="{ 'ncf__pill--mehr': isEntryStep }"
+                <ChoiceChip
+                  class="ncf__pill ncf__pill--more"
+                  :field="isEntryStep"
                   :disabled="saving"
                   :aria-label="isEntryStep ? undefined : t('board.quickAdd.allOptions')"
                   data-testid="new-card-more"
@@ -205,7 +203,7 @@
                     <span class="truncate">{{ t('board.quickAdd.more') }}</span>
                   </template>
                   <UIcon v-else name="i-ph-dots-three-bold" class="size-4" aria-hidden="true" />
-                </button>
+                </ChoiceChip>
                 <UDrawer
                   v-model:open="moreOpen"
                   :content="{ onOpenAutoFocus: onDrawerOpenAutoFocus }"
@@ -233,6 +231,7 @@ import { useToast } from '#imports';
 import { navigateTo } from 'nuxt/app';
 import TaskCard from '~/components/task/TaskCard.vue';
 import NewCardOptionList from '~/components/board/NewCardOptionList.vue';
+import ChoiceChip from '~/components/ui/ChoiceChip.vue';
 import { useAddTarget } from '~/composables/useAddTarget';
 import { useErrorHandler } from '~/composables/useErrorHandler';
 import { isPhoneNow, useIsDesktop } from '~/composables/useIsDesktop';
@@ -686,6 +685,7 @@ onBeforeUnmount(() => {
   --ncf-check-clear: 2.75rem;
   /* The answer grid (kd#16): control height, where the grid starts below the head, and the room under it; the steps' card height is derived from them */
   --ncf-control-h: 2rem;
+  --choice-chip-h: var(--ncf-control-h);
   --ncf-grid-top: 3.25rem;
   --ncf-grid-bottom: 0.75rem;
   position: relative;
@@ -926,7 +926,7 @@ onBeforeUnmount(() => {
   min-height: calc(var(--ncf-pad-top) + var(--ncf-grid-top) + 2 * var(--ncf-control-h) + 0.375rem + var(--ncf-grid-bottom));
 }
 
-.ncf__row--grid .ncf__pill {
+.ncf__row--grid .ncf__pill:not(.ncf__pill--more) {
   justify-content: space-between;
 }
 
@@ -936,27 +936,9 @@ onBeforeUnmount(() => {
   text-align: left;
 }
 
-.ncf__row--grid .ncf__pill--more {
-  justify-content: center;
-}
-
-/* Mehr: looks like the input it opens (dashed outline, search icon, muted text), so it reads as a field and not as a value (kd#16) */
-.ncf__row--grid .ncf__pill--mehr {
-  justify-content: flex-start;
-  border: 1px dashed var(--ui-border-accented);
-  background: transparent;
-  color: var(--ui-text-muted);
-  cursor: text;
-}
-
-.ncf__pill--mehr > .ncf__key {
+/* Mehr reads as a field (ChoiceChip `field`): its key cue sits at the far end */
+.ncf__row--grid .choice-chip--field > .ncf__key {
   margin-left: auto;
-}
-
-.ncf__control.ncf__pill--mehr:hover:not(:disabled),
-.ncf__control.ncf__pill--mehr:active:not(:disabled) {
-  background: var(--ui-bg-muted);
-  color: var(--ui-text-highlighted);
 }
 
 /* The two save controls (the title's check, the Notiz row's save) are UButton soft primary (#71): the theme brings the
@@ -967,69 +949,16 @@ onBeforeUnmount(() => {
   gap: 0.375rem;
   height: var(--ncf-control-h);
   min-width: var(--ncf-control-h);
-  /* the flow's 40 px phone control (the pills stay 40 too; #72 owns the choice pills and the floor they share) */
+  /* the flow's phone control: 44 px, the floor the answers share (#72) */
   min-height: var(--ncf-control-h);
   padding: 0 0.75rem;
   border-radius: 9999px;
-}
-
-.ncf__control {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.375rem;
-  height: var(--ncf-control-h);
-  min-width: var(--ncf-control-h);
-  padding: 0 0.75rem;
-  border-radius: 9999px;
-  background: var(--ui-bg-muted);
-  color: var(--ui-text);
-  font-size: var(--text-sm);
-  font-weight: 500;
-  line-height: 1rem;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: background-color var(--duration-fast) var(--ncf-ease), color var(--duration-fast) var(--ncf-ease), transform var(--duration-fast) var(--ncf-ease);
-}
-
-.ncf__pill {
-  /* Names of different length share the row by their own width; a long one is cut with an ellipsis (title attribute), a short one stays whole (the text keeps 7 characters) */
-  flex: 0 1 auto;
-  min-width: 0;
-  padding: 0 0.625rem;
-  gap: 0.25rem;
 }
 
 .ncf__pill > .truncate {
   min-width: 7ch;
 }
 
-.ncf__pill--more {
-  flex: 0 0 auto;
-}
-
-/* Hover/press and the picked value fill with ink, like the nudge's answers; the two save controls are UButton soft primary (#71) */
-.ncf__control:hover:not(:disabled),
-.ncf__control:active:not(:disabled),
-.ncf__control.is-picked {
-  background: var(--ui-primary);
-  color: var(--ui-bg);
-}
-
-.ncf__pill.is-current:not(.is-picked) {
-  box-shadow: inset 0 0 0 1px var(--ui-border-accented);
-}
-
-.ncf__control:active:not(:disabled),
-.ncf__control.is-picked {
-  transform: scale(0.97);
-}
-
-.ncf__control:disabled {
-  cursor: default;
-}
-
-.ncf__control:focus-visible,
 .ncf__nav:focus-visible,
 .ncf__note:focus-visible {
   outline: 2px solid var(--ui-primary);
@@ -1104,15 +1033,15 @@ onBeforeUnmount(() => {
   transform: translateY(-50%);
 }
 
-/* Phone: touch targets 40 px, no key cues */
+/* Phone: touch targets 44 px (the answers, the save control and the note), no key cues */
 @media (--phone) {
   .ncf {
-    --ncf-control-h: 2.5rem;
+    --ncf-control-h: 2.75rem;
+    --ncf-check-clear: 3.25rem;
     --ncf-grid-top: 3rem;
     --ncf-grid-bottom: 1.25rem;
   }
 
-  .ncf__control,
   .ncf__action,
   .ncf__note {
     height: var(--ncf-control-h);
@@ -1134,7 +1063,6 @@ onBeforeUnmount(() => {
 @media (prefers-reduced-motion: reduce) {
   .ncf,
   .ncf__veil,
-  .ncf__control,
   .ncf__nav,
   .ncf__face :deep(.task-topic),
   .ncf__face :deep(.task-title-text),

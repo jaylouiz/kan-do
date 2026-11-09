@@ -123,29 +123,28 @@
 
           <!-- Presets and the suggestion are plain text actions (One Lamp: no second filled control) -->
           <div class="-ms-2 flex flex-wrap items-center">
-            <button
+            <PropertyValueTrigger
               v-for="mins in [15, 30, 60]"
               :key="mins"
-              type="button"
-              class="task-property-value flex min-h-8 cursor-pointer items-center rounded-sm px-2 text-sm max-md:min-h-11"
-              :class="timeboxInMinutes === mins ? 'font-semibold text-highlighted underline underline-offset-4' : 'text-muted hover:text-default'"
+              inset
+              :tone="timeboxInMinutes === mins ? 'picked' : 'action'"
               :aria-pressed="timeboxInMinutes === mins"
               :aria-label="`${mins} ${t('duration.unitMinute')}`"
               :data-testid="`timebox-preset-${mins}`"
               @click.prevent="() => { timeboxInMinutes = mins; }"
             >
               {{ mins }}
-            </button>
-            <button
+            </PropertyValueTrigger>
+            <PropertyValueTrigger
               v-if="showSuggestion && timeboxSuggestion"
-              type="button"
-              class="task-property-value flex min-h-8 cursor-pointer items-center rounded-sm px-2 text-sm text-muted hover:text-default max-md:min-h-11"
+              inset
+              tone="action"
               :aria-describedby="suggestionHintId"
               data-testid="timebox-suggestion"
               @click.prevent="applySuggestion"
             >
               {{ t('task.property.suggest', { n: timeboxSuggestion.suggestedMinutes }) }}
-            </button>
+            </PropertyValueTrigger>
             <span v-if="timeboxSuggestion" :id="suggestionHintId" class="sr-only">{{ timeboxSuggestion.matchDescription }}</span>
           </div>
         </div>
@@ -301,6 +300,7 @@ import { ref, computed, watch, onMounted, nextTick, useId } from "vue";
 import { useI18n } from "vue-i18n";
 import { getPriorityLabel } from "~/utils/taskStatusMappings";
 import { DEFAULT_PRIORITY, normalizePriority } from "~/lib/priority";
+import PropertyValueTrigger from "~/components/ui/PropertyValueTrigger.vue";
 import { type Task, TaskStatus, type TaskCustomValue, type TaskCustomEntry } from "~/types/task";
 import { useNotionConfigStore } from "~/store/notionConfig";
 import { useBoardStore } from "~/store/board";

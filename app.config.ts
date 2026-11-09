@@ -167,6 +167,12 @@ export default defineAppConfig({
         ]
       }
     },
+    formField: {
+      slots: {
+        // Field error text: error-500 on the page ground is below AA (#353); error-700 meets it. The one error colour of a field (#72)
+        error: 'text-error-700'
+      }
+    },
     select: {
       slots: {
         base: [

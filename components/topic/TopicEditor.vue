@@ -14,7 +14,7 @@ immediate: no loading or error state.
 - Name is trimmed; an empty name or nothing changed cannot be saved; the editor closes after saving
 - The key of the editor is the *name*: the host re-keys after a rename instead of editing the old name
 - Focus starts in the Name (the first colour when the name is gated); Escape closes the editor only (the task sheet vetoes its own dismissal, `data-topic-editor`)
-- Hue and symbol groups are `role="radiogroup"` with arrow keys; the symbol popover closes on pick or Escape and keeps the editor open
+- Hue and symbol groups are `SwatchRadioGroup` (`role="radiogroup"`, arrow keys); the symbol popover closes on pick or Escape and keeps the editor open
 @accessibility The gate hint is `aria-describedby` of the disabled Name, the merge note is `role="status"`
 -->
 <template>
@@ -45,25 +45,22 @@ immediate: no loading or error state.
     <template v-if="kind === 'topic'">
       <fieldset class="space-y-1.5">
         <legend class="mb-1.5 text-xs font-medium text-muted">{{ t('topic.editor.color') }}</legend>
-        <div role="radiogroup" :aria-label="t('topic.editor.color')" class="flex flex-wrap gap-1.5" data-testid="topic-hue-group">
-          <button
-            v-for="(option, index) in hueOptions"
-            :key="option.key ?? 'none'"
-            :ref="(el) => setHueRef(el, index)"
-            type="button"
-            role="radio"
-            class="topic-swatch"
-            :aria-checked="hue === option.key"
-            :aria-label="option.label"
-            :tabindex="hueTabbable === index ? 0 : -1"
-            :data-testid="`topic-hue-${option.key ?? 'none'}`"
-            @click="hue = option.key"
-            @keydown="(event) => onHueKey(event)"
-          >
+        <SwatchRadioGroup
+          ref="hueGroup"
+          :model-value="hue"
+          :options="hueOptions"
+          :label="t('topic.editor.color')"
+          variant="swatch"
+          item-testid="topic-hue"
+          class="flex flex-wrap gap-1.5"
+          data-testid="topic-hue-group"
+          @update:model-value="(key) => (hue = key as TopicHue | null)"
+        >
+          <template #option="{ option }">
             <span v-if="option.key" class="topic-swatch__dot" :style="{ backgroundColor: `var(--topic-${option.key})` }" />
             <span v-else class="topic-swatch__dot topic-swatch__dot--none"><UIcon name="i-ph-prohibit" class="size-3" /></span>
-          </button>
-        </div>
+          </template>
+        </SwatchRadioGroup>
         <p v-if="notionHue && hue === null" class="text-sm text-muted" data-testid="topic-color-hint">
           {{ t('topic.editor.colorInherited', { hue: hueLabel(notionHue) }) }}
         </p>
@@ -75,40 +72,40 @@ immediate: no loading or error state.
       <div class="space-y-1.5">
         <span class="block text-xs font-medium text-muted">{{ t('topic.editor.symbol') }}</span>
         <UPopover v-model:open="pickerOpen" :content="{ side: 'bottom', align: 'start', sideOffset: 6 }" :ui="{ content: 'w-64 p-2' }">
-          <button
-            type="button"
-            class="topic-symbol-trigger"
+          <UButton
+            color="neutral"
+            variant="subtle"
+            :label="symbolLabel"
+            trailing-icon="i-ph-caret-down"
             :aria-label="t('topic.editor.symbolButton', { value: symbolLabel })"
             aria-haspopup="dialog"
             data-testid="topic-symbol-trigger"
           >
-            <span class="topic-symbol-well">
-              <TopicMark v-if="effectiveHue || symbol" :hue="effectiveHue" :symbol="symbol" />
-              <span v-else class="topic-symbol-empty" aria-hidden="true" />
-            </span>
-            <span class="text-sm" aria-hidden="true">{{ symbolLabel }}</span>
-            <UIcon name="i-ph-caret-down" class="size-4 text-muted" aria-hidden="true" />
-          </button>
+            <template #leading>
+              <span class="topic-symbol-well">
+                <TopicMark v-if="effectiveHue || symbol" :hue="effectiveHue" :symbol="symbol" />
+                <span v-else class="topic-symbol-empty" aria-hidden="true" />
+              </span>
+            </template>
+          </UButton>
           <template #content>
-            <div role="radiogroup" :aria-label="t('topic.editor.symbol')" class="topic-symbol-grid" data-testid="topic-symbol-group">
-              <button
-                v-for="(option, index) in symbolOptions"
-                :key="option.key ?? 'none'"
-                :ref="(el) => setSymbolRef(el, index)"
-                type="button"
-                role="radio"
-                class="topic-symbol-option"
-                :aria-checked="symbol === option.key"
-                :aria-label="option.label"
-                :tabindex="symbolTabbable === index ? 0 : -1"
-                :data-testid="`topic-symbol-${option.key ?? 'none'}`"
-                @click="pickSymbol(option.key)"
-                @keydown="(event) => onSymbolKey(event)"
-              >
+            <SwatchRadioGroup
+              ref="symbolGroup"
+              v-model="symbol"
+              :options="symbolOptions"
+              :label="t('topic.editor.symbol')"
+              variant="glyph"
+              :columns="5"
+              item-testid="topic-symbol"
+              class="topic-symbol-grid"
+              data-testid="topic-symbol-group"
+              @pick="pickerOpen = false"
+            >
+              <template #option="{ option }">
                 <TopicMark v-if="option.key" :hue="effectiveHue" :symbol="option.key" />
                 <span v-else class="topic-symbol-empty" aria-hidden="true" />
-              </button>
-            </div>
+              </template>
+            </SwatchRadioGroup>
           </template>
         </UPopover>
       </div>
@@ -139,7 +136,7 @@ import { useTopicManagement } from '~/composables/useTopicManagement'
 import { useTopicStylesStore } from '~/store/topicStyles'
 import { HUES, TOPIC_SYMBOLS, symbolOf, type TopicHue } from '~/lib/topicStyles'
 import { renameVerdict, trimName, type NameKind } from '~/lib/topicNames'
-import { onRadioKeydown } from '~/utils/radioArrowKeys'
+import SwatchRadioGroup from '~/components/ui/SwatchRadioGroup.vue'
 
 defineOptions({ name: 'TopicEditor' })
 
@@ -194,41 +191,21 @@ const symbolLabel = computed(() => {
   return current ? t(current.labelKey) : t('topic.editor.symbolNone')
 })
 
-// Roving tabindex: the selected radio (else the first) is the one Tab stops on; arrows move and select.
-const hueTabbable = computed(() => Math.max(0, hueOptions.value.findIndex(option => option.key === hue.value)))
-const symbolTabbable = computed(() => Math.max(0, symbolOptions.value.findIndex(option => option.key === symbol.value)))
-const hueRefs: HTMLElement[] = []
-const symbolRefs: HTMLElement[] = []
-const setHueRef = (el: unknown, index: number) => { if (el instanceof HTMLElement) hueRefs[index] = el }
-const setSymbolRef = (el: unknown, index: number) => { if (el instanceof HTMLElement) symbolRefs[index] = el }
-
-function onHueKey(event: KeyboardEvent) {
-  const next = onRadioKeydown(event, hueRefs)
-  if (next !== null) hue.value = hueOptions.value[next]?.key ?? null
-}
-
-function onSymbolKey(event: KeyboardEvent) {
-  const next = onRadioKeydown(event, symbolRefs, 5)
-  if (next !== null) symbol.value = symbolOptions.value[next]?.key ?? null
-}
-
-function pickSymbol(key: string | null) {
-  symbol.value = key
-  pickerOpen.value = false
-}
+const hueGroup = ref<InstanceType<typeof SwatchRadioGroup> | null>(null)
+const symbolGroup = ref<InstanceType<typeof SwatchRadioGroup> | null>(null)
 
 // Focus the selected glyph when the popover opens, so the arrow keys work at once
 watch(pickerOpen, async (open) => {
   if (!open) return
   await nextTick()
-  symbolRefs[symbolTabbable.value]?.focus()
+  symbolGroup.value?.focusSelected()
 })
 
 // The editor takes focus where the edit starts: the Name, or the first colour when Notion owns the name
 onMounted(() => {
   void nextTick(() => requestAnimationFrame(() => {
     if (!nameLocked.value) nameInput.value?.inputRef?.focus({ preventScroll: true })
-    else hueRefs[hueTabbable.value]?.focus({ preventScroll: true })
+    else hueGroup.value?.focusSelected({ preventScroll: true })
   }))
 })
 
@@ -250,29 +227,6 @@ function onSave() {
 </script>
 
 <style scoped>
-/* Swatches: 28px, 40px on touch widths (#431). The ring marks the selection; focus is the project's solid ink ring. */
-.topic-swatch {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  border: 2px solid transparent;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-.topic-swatch[aria-checked='true'] {
-  border-color: var(--ui-text-highlighted);
-}
-
-.topic-swatch:focus-visible,
-.topic-symbol-trigger:focus-visible,
-.topic-symbol-option:focus-visible {
-  outline: 2px solid var(--ui-primary);
-  outline-offset: 2px;
-}
-
 .topic-swatch__dot {
   display: grid;
   place-items: center;
@@ -284,23 +238,6 @@ function onSave() {
 .topic-swatch__dot--none {
   border: 1px dashed var(--ui-border-accented);
   color: var(--ui-text-muted);
-}
-
-.topic-symbol-trigger {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.625rem;
-  min-height: 2.5rem;
-  padding: 0.25rem 0.75rem 0.25rem 0.5rem;
-  border: 1px solid var(--ui-border-accented);
-  border-radius: var(--ui-radius);
-  background: var(--ui-bg);
-  color: var(--ui-text);
-  cursor: pointer;
-}
-
-.topic-symbol-trigger:hover {
-  background: var(--ui-bg-muted);
 }
 
 .topic-symbol-well {
@@ -325,30 +262,7 @@ function onSave() {
   gap: 0.125rem;
 }
 
-.topic-symbol-option {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 2.5rem;
-  border-radius: var(--ui-radius);
-  color: var(--ui-text-muted);
-  cursor: pointer;
-}
-
-.topic-symbol-option:hover {
-  background: var(--ui-bg-muted);
-}
-
-.topic-symbol-option[aria-checked='true'] {
-  background: var(--ui-bg-accented);
-}
-
 @media (--phone) {
-  .topic-swatch {
-    width: 2.5rem;
-    height: 2.5rem;
-  }
-
   .topic-swatch__dot {
     width: 1.5rem;
     height: 1.5rem;

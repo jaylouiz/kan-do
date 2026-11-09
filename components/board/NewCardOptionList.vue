@@ -9,7 +9,7 @@
 - Search (Thema, Aktivität): the text filters every value of the step, pills included; a "Neu" row shows when no value has that name (any case) and the source allows free values (`newValues`, the source's rules clean the text: Notion turns commas into spaces and cuts at 100 characters, so the row shows what would be created); without free values the field only searches
 - Enter in the field: a value named exactly as typed (any case) is picked, else the first match, else the text is created (a partial match never creates by accident: the "Neu" row is the first stop of ArrowDown, or a tap); no match shows "Keine Treffer gefunden." (a status line)
 - Keys: ↑/↓ (wrapping) walk field, "Neu" row and options; Home/End jump between options only while focus is not in the field (there they move the caret); handled keys stop here so no surrounding handler sees them (kd#15). Digits typed in the field never reach the step's 1-4 keys (the parent ignores keys while the list is open)
-- Options are plain buttons with one shared handler (not UDropdownMenu: the drawer has no menu primitive, kd#15)
+- Options are `ChoiceChip` rows (native buttons) with one shared handler (not UDropdownMenu: the drawer has no menu primitive, kd#15)
 -->
 <template>
   <div
@@ -35,27 +35,28 @@
       :aria-label="newValues ? t('board.quickAdd.searchOrNew') : t('board.quickAdd.search')"
       @keydown.enter.prevent.stop="onEnter"
     />
-    <button
+    <ChoiceChip
       v-if="creatable"
-      type="button"
+      shape="row"
+      :large="large"
+      class="font-medium"
       data-testid="new-card-new"
-      :class="[optionClass, 'font-medium']"
       @click="emit('create', creatable)"
     >
       <UIcon name="i-ph-plus-bold" class="size-4 shrink-0" aria-hidden="true" />
       <span class="truncate" data-private>{{ t('board.quickAdd.newValue', { value: creatable }) }}</span>
-    </button>
-    <button
+    </ChoiceChip>
+    <ChoiceChip
       v-for="value in shown"
       :key="value"
-      type="button"
+      shape="row"
+      :large="large"
       :aria-current="value === current ? 'true' : undefined"
-      :class="[optionClass, 'aria-current:font-semibold aria-current:text-highlighted']"
       @click="emit('pick', value)"
     >
       <TopicMark v-if="showMark" :topic="value" />
       <span class="truncate" :data-private="searchable ? '' : undefined">{{ optionLabel(value) }}</span>
-    </button>
+    </ChoiceChip>
     <p v-if="searchable && query.trim() && !creatable && !shown.length && !existing" class="px-3 py-2 text-sm text-muted" role="status" data-testid="new-card-no-match">
       {{ t('board.quickAdd.noMatch') }}
     </p>
@@ -66,6 +67,7 @@
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TopicMark from '~/components/topic/TopicMark.vue';
+import ChoiceChip from '~/components/ui/ChoiceChip.vue';
 import { existingValueFor, filterRest, newValueFor, type NewValueRules } from '~/lib/quickAddSuggestions';
 
 defineOptions({ name: 'NewCardOptionList' });
@@ -104,10 +106,6 @@ const searchEl = ref<{ inputRef: HTMLInputElement | null } | null>(null);
 const shown = computed(() => (props.searchable && query.value.trim() ? filterRest(props.all, query.value) : [...props.values]));
 const creatable = computed(() => (props.searchable ? newValueFor(query.value, props.all, props.newValues) : null));
 const existing = computed(() => (props.searchable ? existingValueFor(query.value, props.all, props.newValues) : null));
-
-const optionClass = computed(() =>
-  `flex w-full cursor-pointer items-center gap-2 rounded-md px-3 text-left text-default hover:bg-elevated focus-visible:bg-elevated ${props.large ? 'min-h-11 text-base' : 'min-h-8 text-sm'}`,
-);
 
 function onEnter() {
   // A value that exists wins over a new one: "kun" with "Kunde A" in the list must not make a topic "kun" by accident; the "Neu" row is one arrow key away (or a tap)

@@ -137,9 +137,9 @@ Audit of what the UI kit consists of: every component, variant and state, librar
 |---|---|---|---|---|---|---|---|---|
 | `UButton` | primitive | Aktion | variant: soft ×43, ghost ×43, link ×8, dynamic ×6; color: neutral ×88, primary ×22, error ×5, warning ×2, success ×1, dynamic ×6; size: sm ×34, lg ×23, xs ×1, dynamic ×1; loading ×28; block ×11 | `components/board/Board.vue`, `components/board/ColumnSortingControl.vue`, `components/board/DayCloseBody.vue` (+42) | library; theme override: yes; `:ui` on 2 tags | 146 tags in 45 files | keep: the one button; ladder guarded by `button-ladder.test.ts`; raw `<button>` sites listed below move onto it | #71 |
 | `UIcon` | primitive | Darstellung | no variant props set | `components/board/AddTaskSlot.vue`, `components/board/Board.vue`, `components/board/BoardColumnYesterdayNote.vue` (+33) | library; theme override: no; `:ui` on 0 tags | 61 tags in 36 files | keep: notation (`i-ph-*` vs `ph:*`) and size classes decided in #67 | #67 |
-| `UFormField` | compound | Eingabe | no variant props set | `components/feedback/FeedbackDialog.vue`, `components/nav/MorePanel.vue`, `components/notion/setup/mapping/PropertyMapper.vue` (+6) | library; theme override: no; `:ui` on 1 tags | 32 tags in 9 files | keep: the one field wrapper (label, hint, error) | #72 |
-| `USelect` | primitive | Eingabe | size: lg ×22 | `components/notion/setup/mapping/PropertyMapper.vue`, `components/notion/setup/wizard/steps/DatabaseSelectionStep.vue`, `components/notion/setup/wizard/steps/StatusMappingStep.vue` (+1) | library; theme override: yes; `:ui` on 0 tags | 24 tags in 4 files | keep: native-style select, always `size="lg"`; justify against `USelectMenu` or merge | #72 |
-| `UInput` | primitive | Eingabe | variant: ghost ×1, dynamic ×1; color: dynamic ×1; size: sm ×8, md ×1, lg ×1, xl ×1, dynamic ×2; loading ×1 | `components/board/NewCardOptionList.vue`, `components/feedback/FeedbackDialog.vue`, `components/notion/setup/mapping/PropertyMapper.vue` (+9) | library; theme override: yes; `:ui` on 7 tags | 21 tags in 12 files | keep: sizes `sm`…`xl` in use; align on the ladder | #72 |
+| `UFormField` | compound | Eingabe | no variant props set | `components/feedback/FeedbackDialog.vue`, `components/nav/MorePanel.vue`, `components/notion/setup/mapping/PropertyMapper.vue` (+6) | library; theme override: no; `:ui` on 1 tags | 32 tags in 9 files | keep: the one field wrapper (label, hint, error); theme sets the one error colour (#72) | #72 |
+| `USelect` | primitive | Eingabe | size: lg ×22 | `components/notion/setup/mapping/PropertyMapper.vue`, `components/notion/setup/wizard/steps/DatabaseSelectionStep.vue`, `components/notion/setup/wizard/steps/StatusMappingStep.vue` (+1) | library; theme override: yes; `:ui` on 0 tags | 24 tags in 4 files | keep (decided in #72): native-style select, always `size="lg"`, a short fixed list in a form row; `USelectMenu` is the searchable menu and the `property` trigger: different jobs, the entries name each other as alternatives | #72 |
+| `UInput` | primitive | Eingabe | variant: ghost ×1, dynamic ×1; color: dynamic ×1; size: sm ×8, md ×1, lg ×1, xl ×1, dynamic ×2; loading ×1 | `components/board/NewCardOptionList.vue`, `components/feedback/FeedbackDialog.vue`, `components/notion/setup/mapping/PropertyMapper.vue` (+9) | library; theme override: yes; `:ui` on 7 tags | 21 tags in 12 files | keep (decided in #72): the sizes in use (`sm` rows, `md` editors, `lg`/`xl` title field) are listed in the `/ui` entry; aligning them would move field heights, so no change (D6) | #72 |
 | `UModal` | compound | Overlay | no variant props set | `components/CommandPalette.vue`, `components/feedback/FeedbackDialog.vue`, `components/notion/setup/NotionSetupModal.vue` (+10) | library; theme override: yes; `:ui` on 13 tags | 13 tags in 13 files | keep: width through `MODAL_WIDTH`; identity strings in `:ui` move to `app.config.ts` (D1). Done (#75): the only identity duplicate (the drawer title class in `TopicEditorHost`) is gone; `sr-only` descriptions (3 sites) are a per-site choice (the theme default is visible), `topic-editor-drawer`/`bg-inverted/40`/`p-0` bodies are one-offs: they stay | #75 |
 | `UCheckbox` | primitive | Eingabe | color: neutral ×7, primary ×1 | `components/feedback/FeedbackAnnotator.vue`, `components/feedback/FeedbackDialog.vue`, `components/settings/DataRestoreModal.vue` (+2) | library; theme override: no; `:ui` on 0 tags | 10 tags in 5 files | keep | #72 |
 | `UAlert` | compound | Feedback | variant: subtle ×8, soft ×1; color: warning ×6, error ×1, info ×1, dynamic ×1; orientation: horizontal ×1 | `components/notion/setup/wizard/steps/PriorityMappingStep.vue`, `components/notion/setup/wizard/steps/StatusMappingStep.vue`, `components/notion/setup/wizard/steps/TokenStep.vue` (+3) | library; theme override: yes; `:ui` on 2 tags | 9 tags in 6 files | keep: the system notice; plain coloured text lines merge into it (see Duplicates: notices) | #74 |
@@ -181,17 +181,17 @@ Audit of what the UI kit consists of: every component, variant and state, librar
 | `components/setup/LocalSetupFlow.vue:14` | text back link (`arrow-left`) | replace: same as above, one back control for both flows (done, #73) | #73 |
 | `pages/settings/topics.vue:30` | topic row button | merged: `ListRow` action (done, #76) | #76 |
 | `components/recap/NewDayRecap.vue:37` | two-way kind switch with hand-written focus outline | replace: `UTabs` `pill` variant (already in `app.config.ts`) (done, #73) | #73 |
-| `components/task/TaskTimeboxNudge.vue:44` | minute chip | merge: the choice-chip primitive | #72 |
-| `components/task/TaskTimeboxNudge.vue:54` | "custom" icon chip | replace: `UButton` icon, ghost | #72 |
-| `components/task/TaskTimeboxNudge.vue:80` | apply (check) icon | replace: `UButton` icon, soft primary | #72 |
-| `components/task/DatePickerField.vue:15` | property value trigger (`task-property-value`) | keep: the sheet's text-style trigger; one documented primitive with the three below | #72 |
-| `components/task/TaskDetailContent.vue:195` | timebox suggestion (`task-property-value`) | keep: same primitive | #72 |
-| `components/task/TaskForm.vue:123` | timebox minute option (`task-property-value`) | keep: same primitive | #72 |
-| `components/task/TaskForm.vue:136` | timebox suggestion (`task-property-value`) | keep: same primitive | #72 |
+| `components/task/TaskTimeboxNudge.vue:44` | minute chip | merged: `ChoiceChip` `chip` (done, #72) | #72 |
+| `components/task/TaskTimeboxNudge.vue:54` | "custom" icon chip | merged: `ChoiceChip` `icon`, not `UButton` (done, #72; one hover language in the row) | #72 |
+| `components/task/TaskTimeboxNudge.vue:80` | apply (check) icon | merged: `ChoiceChip` `icon` (done, #72) | #72 |
+| `components/task/DatePickerField.vue:15` | property value trigger (`task-property-value`) | merged: `PropertyValueTrigger` (done, #72) | #72 |
+| `components/task/TaskDetailContent.vue:195` | timebox suggestion (`task-property-value`) | merged: `PropertyValueTrigger` (done, #72) | #72 |
+| `components/task/TaskForm.vue:123` | timebox minute option (`task-property-value`) | merged: `PropertyValueTrigger` (done, #72) | #72 |
+| `components/task/TaskForm.vue:136` | timebox suggestion (`task-property-value`) | merged: `PropertyValueTrigger` (done, #72) | #72 |
 | `components/statistics/StatsTile.vue:20` | disclosure toggle inside an `<h2>` (`aria-expanded`) | keep: the heading wraps the toggle; check whether `UCollapsible` can carry it | #76 |
-| `components/task/TopicPropertyPicker.vue:46` | picker row (`picker-edit-row`) | merge: list-row primitive | #76 |
-| `components/board/NewCardOptionList.vue:35` | "create new" option row | keep: option row of a searchable list; same look as the next row | #72 |
-| `components/board/NewCardOptionList.vue:45` | option row with `aria-current` | keep: see above; one option-row primitive with `NewCardFlow` pills | #72 |
+| `components/task/TopicPropertyPicker.vue:46` | picker row (`picker-edit-row`) | keep (decided in #72): raw button on purpose, the host reads its click event and stops Enter/Space for the select menu; `ListRow` `action` emits no event (reason in a template comment) | #72 |
+| `components/board/NewCardOptionList.vue:35` | "create new" option row | merged: `ChoiceChip` `row` (done, #72) | #72 |
+| `components/board/NewCardOptionList.vue:45` | option row with `aria-current` | merged: `ChoiceChip` `row` (done, #72) | #72 |
 | `components/board/BoardColumnYesterdayNote.vue:25` | disclosure toggle | replace: `UButton` ghost | #71 |
 | `components/board/BoardColumnYesterdayNote.vue:48` | "Gesehen" acknowledge | replace: `UButton` ghost | #71 |
 | `components/board/BoardColumnYesterdayNote.vue:67` | task title as link | replace: `UButton` `link` variant | #71 |
@@ -199,12 +199,12 @@ Audit of what the UI kit consists of: every component, variant and state, librar
 | `components/board/NewCardFlow.vue:85` | step back (`caret-left`) | replace: back control of the semantic map (done, #73: `UButton` ghost neutral, `kbd` hint kept) | #73 |
 | `components/board/NewCardFlow.vue:97` | skip (`arrow-right`) | replace: forward control of the semantic map (done, #73) | #73 |
 | `components/board/NewCardFlow.vue:124` | save pill | replace: `UButton` primary | #71 |
-| `components/board/NewCardFlow.vue:139` | option pill | merge: choice-chip primitive | #72 |
-| `components/board/NewCardFlow.vue:160` | "more options" pill | merge: choice-chip primitive | #72 |
-| `components/board/NewCardFlow.vue:181` | "more options" pill (second branch) | merge: same | #72 |
-| `components/topic/TopicEditor.vue:46` | colour swatch (`role="radio"`) | keep: swatches are not buttons; a documented swatch radio primitive | #72 |
-| `components/topic/TopicEditor.vue:75` | symbol picker trigger | replace: `UButton` soft | #72 |
-| `components/topic/TopicEditor.vue:91` | symbol option (`role="radio"`) | keep: with the swatch primitive | #72 |
+| `components/board/NewCardFlow.vue:139` | option pill | merged: `ChoiceChip` `pill` (done, #72) | #72 |
+| `components/board/NewCardFlow.vue:160` | "more options" pill | merged: `ChoiceChip` `pill` / `field` (done, #72) | #72 |
+| `components/board/NewCardFlow.vue:181` | "more options" pill (second branch) | merged: same (done, #72) | #72 |
+| `components/topic/TopicEditor.vue:46` | colour swatch (`role="radio"`) | merged: `SwatchRadioGroup` `swatch` (done, #72) | #72 |
+| `components/topic/TopicEditor.vue:75` | symbol picker trigger | replaced: `UButton` subtle neutral, default size (done, #72; soft has no edge on the sheet's white) | #72 |
+| `components/topic/TopicEditor.vue:91` | symbol option (`role="radio"`) | merged: `SwatchRadioGroup` `glyph` (done, #72) | #72 |
 | `components/statistics/StatsOutliers.vue:15` | outlier row button | merged: `ListRow` action (done, #76) | #76 |
 | `components/board/AddTaskSlot.vue:21` | the column's add-task slot (`add-task-button`) | keep until baselines (#63) exist; then decide whether `UButton ghost block` reproduces it | #71 |
 
@@ -281,6 +281,16 @@ Hand-built, none through a shared component: `SourceRow` (canonical per audit-20
 ### Choice chips (pick one of a few)
 
 Four hand-built looks: `ncf__pill` (`NewCardFlow`), `nudge__button` (`TaskTimeboxNudge`), the option rows of `NewCardOptionList`, the group-by chips of `MorePanel`; the sheet's `task-property-value` triggers (`DatePickerField`, `TaskDetailContent`, `TaskForm` ×2) are a fifth. **Decision: merge** the first four into one choice-chip primitive and document the property-value trigger as its own primitive. Owner #72.
+
+**Outcome (#72):** three primitives replace the hand-built looks, all registered in `/ui` (`catalog/input/`):
+
+| Primitive | Replaces | Notes |
+|---|---|---|
+| `ChoiceChip` (`components/ui/`, kind primitive, input) | `ncf__pill` ×3 (`NewCardFlow`), `nudge__button` ×3 (`TaskTimeboxNudge`), the option rows of `NewCardOptionList` ×2 | shapes `pill`, `chip`, `icon`, `row`; `field` for the dashed "Mehr" pill. The `MorePanel` group-by chips stay `UButton` soft (`aria-pressed`): no raw button, the theme already carries them; owner #73 |
+| `PropertyValueTrigger` (`components/ui/`) | the four `task-property-value` buttons (`DatePickerField`, `TaskDetailContent`, `TaskForm` ×2) | tones `value`, `empty`, `action`, `picked`; `InlineEditable`'s rule affordance keeps the CSS class |
+| `SwatchRadioGroup` (`components/ui/`) | the hand-rolled colour swatch and symbol radios of `TopicEditor` | keeps the roving tabindex and `utils/radioArrowKeys` (the symbol grid moves by rows, which no library radio group does); the one place a hand-built `role="radio"` lives |
+
+Kept with a reason: `InlineEditable` (a hand-built `role="button"`: block and multi-line display content, links beside the trigger); the `TopicPropertyPicker` edit row (raw button, see the table); `LocalSetupFlow` (`RadioGroupRoot` from `reka-ui` directly: icon cards that `URadioGroup`'s card variant cannot carry, the file is #73's and #77's); `USelect` next to `USelectMenu` (native-style fixed `lg` select versus the searchable menu and the `property` text trigger). `UFormField` carries error and help (theme: the one error colour, `error-700`); the 12 px labels of `TopicEditor` and the labelless title field of `TaskForm` keep their own lines (`UFormField`'s label is 14 px). The new-card pills reach the 44 px phone floor (control height 40 to 44 px at 390, an intentional change); the nudge chips already did.
 
 ### Buttons, overlays, overrides
 

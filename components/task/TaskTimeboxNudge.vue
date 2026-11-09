@@ -44,26 +44,24 @@ In-card question pattern (DESIGN.md "Ask in place"; this is its first user, extr
         <p :id="questionId" class="nudge__question">{{ t('task.timeboxNudge.question') }}</p>
 
         <div v-if="!editing" class="nudge__row">
-          <button
+          <ChoiceChip
             v-for="minutes in NUDGE_PRESETS"
             :key="minutes"
-            type="button"
-            class="nudge__button"
-            :class="{ 'is-picked': picked === minutes }"
+            shape="chip"
+            :picked="picked === minutes"
             @click="pick(minutes)"
           >
             {{ t('task.timeboxNudge.preset', { minutes }) }}
-          </button>
-          <button
+          </ChoiceChip>
+          <ChoiceChip
             ref="customButtonEl"
-            type="button"
-            class="nudge__button nudge__button--icon"
+            shape="icon"
             :aria-label="t('task.timeboxNudge.custom')"
             :title="t('task.timeboxNudge.custom')"
             @click="startEdit"
           >
             <UIcon name="i-ph-dots-three" class="size-4" />
-          </button>
+          </ChoiceChip>
         </div>
 
         <form v-else class="nudge__row nudge__row--edit" novalidate @submit.prevent="applyCustom">
@@ -80,14 +78,9 @@ In-card question pattern (DESIGN.md "Ask in place"; this is its first user, extr
             >
             <span class="nudge__unit" aria-hidden="true">{{ t('task.timeboxNudge.unit') }}</span>
           </label>
-          <button
-            type="submit"
-            class="nudge__button nudge__button--icon"
-            :disabled="!validCustom"
-            :aria-label="t('task.timeboxNudge.apply')"
-          >
+          <ChoiceChip type="submit" shape="icon" :disabled="!validCustom" :aria-label="t('task.timeboxNudge.apply')">
             <UIcon name="i-ph-check" class="size-4" />
-          </button>
+          </ChoiceChip>
         </form>
 
         <span
@@ -110,6 +103,7 @@ import type { Task } from "~/types/task";
 import { useBoardStore, TIMEBOX_NUDGE_MS } from "~/store/board";
 import { useTasksStore } from "~/store/tasks";
 import { useSheetSpotlight } from "~/composables/useSheetSpotlight";
+import ChoiceChip from "~/components/ui/ChoiceChip.vue";
 
 defineOptions({ name: "TaskTimeboxNudge" });
 
@@ -140,7 +134,7 @@ const picked = ref<number | null>(null);
 const customMinutes = ref<number | undefined>(DEFAULT_CUSTOM_MINUTES);
 const rootEl = ref<HTMLElement | null>(null);
 const inputEl = ref<HTMLInputElement | null>(null);
-const customButtonEl = ref<HTMLButtonElement | null>(null);
+const customButtonEl = ref<InstanceType<typeof ChoiceChip> | null>(null);
 let pickTimer: number | undefined;
 
 /** Paused, not reset: the animation keeps its progress while the play state is paused */
@@ -218,7 +212,7 @@ const onEscape = async () => {
   if (editing.value) {
     editing.value = false;
     await nextTick();
-    customButtonEl.value?.focus();
+    customButtonEl.value?.$el.focus();
   } else {
     end();
   }
@@ -292,58 +286,6 @@ const onBarEnd = (event: AnimationEvent) => {
   justify-content: center;
 }
 
-.nudge__button {
-  display: inline-flex;
-  flex: 1 1 0;
-  align-items: center;
-  justify-content: center;
-  height: 2.25rem;
-  min-width: 0;
-  padding: 0 0.75rem;
-  border-radius: 9999px; /* the stack pill's radius (TaskStackPill) */
-  background-color: var(--ui-bg-muted);
-  color: var(--ui-text);
-  font-size: var(--text-xs);
-  font-weight: 500;
-  line-height: 1rem;
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    background-color var(--duration-fast) var(--nudge-ease),
-    color var(--duration-fast) var(--nudge-ease),
-    transform var(--duration-fast) var(--nudge-ease);
-}
-
-.nudge__button--icon {
-  flex: 0 0 2.25rem;
-  width: 2.25rem;
-  padding: 0;
-}
-
-/* Ink hover; the picked button keeps it and presses in (one lamp: only the answered control is dark) */
-.nudge__button:hover:not(:disabled),
-.nudge__button:active:not(:disabled),
-.nudge__button.is-picked {
-  background-color: var(--ui-primary);
-  color: var(--ui-bg);
-}
-
-.nudge__button:active:not(:disabled),
-.nudge__button.is-picked {
-  transform: scale(0.97);
-}
-
-.nudge__button:focus-visible,
-.nudge__field:focus-within {
-  outline: 2px solid var(--ui-primary);
-  outline-offset: 2px;
-}
-
-.nudge__button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .nudge__field {
   display: inline-flex;
   flex: 1 1 0;
@@ -374,6 +316,12 @@ const onBarEnd = (event: AnimationEvent) => {
 
 .nudge__input:focus-visible {
   outline: none; /* the pill around it carries the focus ring */
+}
+
+/* DESIGN.md "Buttons > Focus": the solid 2px ink ring, on the pill when its input has keyboard focus */
+.nudge__field:focus-within {
+  outline: 2px solid var(--ui-primary);
+  outline-offset: 2px;
 }
 
 .nudge__input::-webkit-outer-spin-button,
@@ -471,14 +419,8 @@ const onBarEnd = (event: AnimationEvent) => {
 
 /* 44px targets on a phone and on any touch screen, a tablet at desktop width included */
 @media (--phone), (hover: none) and (pointer: coarse) {
-  .nudge__button,
   .nudge__field {
     height: 2.75rem;
-  }
-
-  .nudge__button--icon {
-    flex-basis: 2.75rem;
-    width: 2.75rem;
   }
 
   .nudge__panel {
@@ -506,13 +448,5 @@ const onBarEnd = (event: AnimationEvent) => {
     animation: none;
   }
 
-  .nudge__button {
-    transition-duration: 0ms;
-  }
-
-  .nudge__button:active:not(:disabled),
-  .nudge__button.is-picked {
-    transform: none;
-  }
 }
 </style>

@@ -92,9 +92,11 @@ for (const { name, viewport, touch } of [
       // ... and the steps hold the 2x2 answer grid: the card grows by about 20 px (kd#16) and the grid stands inside it
       await confirmTitle(page, 'Angebot schreiben')
       await expect(page.getByTestId('new-card-options')).toBeVisible()
+      await settleAnimations(page) // the step slides in over 140 ms: read the boxes at rest (#105)
       const next = await offsets()
       expect(next.height! - title1.height!).toBeGreaterThanOrEqual(10)
-      expect(next.height! - title1.height!).toBeLessThanOrEqual(40)
+      // up to 48: the phone's 44 px answers (#72) make the two rows 8 px taller than the old 40 px ones
+      expect(next.height! - title1.height!).toBeLessThanOrEqual(48)
       const grid = await box(page.getByTestId('new-card-options'))
       const flow = await box(card(page))
       expect(grid.y).toBeGreaterThan(flow.y)

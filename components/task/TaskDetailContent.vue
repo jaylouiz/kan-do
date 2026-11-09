@@ -195,16 +195,15 @@
           </InlineEditable>
           <span :id="timeboxHintId" class="sr-only">{{ t('task.form.durationHint') }}</span>
 
-          <button
+          <PropertyValueTrigger
             v-if="showSuggestion && timeboxSuggestion"
-            type="button"
-            class="task-property-value flex min-h-8 cursor-pointer items-center rounded-sm text-sm text-muted hover:text-default max-md:min-h-11"
+            tone="action"
             :aria-describedby="suggestionHintId"
             data-testid="timebox-suggestion"
             @click="applySuggestion"
           >
             {{ t('task.property.suggest', { n: timeboxSuggestion.suggestedMinutes }) }}
-          </button>
+          </PropertyValueTrigger>
           <span v-if="timeboxSuggestion" :id="suggestionHintId" class="sr-only">{{ timeboxSuggestion.matchDescription }}</span>
         </TaskPropertyRow>
 
@@ -304,6 +303,7 @@ import { useTaskStatusActions } from '~/composables/useTaskStatusActions';
 import { TaskStatus } from '~/types/taskStatus';
 import SectionHeader from '~/components/ui/SectionHeader.vue';
 import InlineEditable from '~/components/ui/inline/InlineEditable.vue';
+import PropertyValueTrigger from '~/components/ui/PropertyValueTrigger.vue';
 import { useTasksStore } from '~/store/tasks';
 import { usePropertyOptionsStore } from '~/store/propertyOptions';
 import { useTimeboxSuggestion } from '~/composables/useTimeboxSuggestion';
