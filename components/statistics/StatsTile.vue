@@ -1,7 +1,10 @@
 <!--
 @component StatsTile
+@kind compound
+@category display
 @description Disclosure tile of the Statistik page (DESIGN.md "Disclosure tile"): a question as heading, one line and a mini chart; it expands in place to its full panel
 @usage Q2 to Q4 and the work-rhythm tile (5) in StatsTiles
+@avoid Only the disclosure tiles of the Statistik page; a one-question verdict that stays open is StatsVerdict.
 @responsibility
 - Heading `<h2>` holding one toggle `<button aria-expanded aria-controls>`; Enter / Space toggles, Esc closes an open tile
 - Grouped surface by `tone` (semantic tokens only), full width of the grid when open; a `wide` tile is always full width and, closed at `md+`, puts its line left and its chart right (about 20rem, #600)

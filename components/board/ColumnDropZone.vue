@@ -1,5 +1,7 @@
 <!--
 @component ColumnDropZone
+@kind primitive
+@category layout
 @description Invisible droppable sentinel for each board column.
 Ensures @dnd-kit/vue can accept drops even when a column has no sortable items.
 Uses useDroppable with data.taskStatus so useBoardDndKit.onDragEnd can identify
@@ -17,6 +19,8 @@ Ghost placeholder visibility:
   cards remain there, so they leave no gap, #393). The DOM answer is re-read whenever
   the list's children change during a drag (dnd-kit moves the node after the zone became the target)
 - A refused drop (the WIP limit, or any stack into Jetzt, #150) shows no ghost: the slot would promise a landing
+@usage Rendered once per BoardColumn so an empty column still accepts a drop
+@avoid Invisible; never a visible drop target and never outside a board column (the sortable cards are the visible targets).
 -->
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'

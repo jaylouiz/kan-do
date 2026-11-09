@@ -32,6 +32,7 @@
     "test": "vitest run",
     "i18n:check": "vitest run tests/i18n",
     "terms:approve": "node scripts/copy-terms.mjs approve",
+    "ui:manifest": "node scripts/ui-manifest.mjs",
     "copy:concepts": "node scripts/copy-concepts.mjs",
     "tauri": "~/.cargo/bin/cargo tauri",
     "tauri:dev": "~/.cargo/bin/cargo tauri dev",

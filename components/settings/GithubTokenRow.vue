@@ -1,8 +1,11 @@
 <!--
 @component GithubTokenRow
+@kind component
+@category form-structure
 @description One GitHub token entry on /settings/github: purpose, required access and the state area
 (empty, checking, saved, rejected, error). Flat section, no card (DESIGN.md sub-page pattern).
 @usage <GithubTokenRow entry="github-updates" />
+@avoid Only the GitHub token entries on /settings/github; the Notion token is TokenStep.
 @responsibility
 - Show the state of one Keychain entry: only the last four characters are ever visible
 - Paste, check and store a token ("Speichern"), re-check it ("Testen"), remove it with undo ("Entfernen")

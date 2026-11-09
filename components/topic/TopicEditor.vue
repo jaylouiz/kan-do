@@ -1,11 +1,14 @@
 <!--
 @component TopicEditor
+@kind component
+@category form-structure
 @description The one editor every entry point opens (#430, #431): Name, Farbe (nine hues plus none, radio swatches) and
 Symbol (a button showing the current mark; a popover with 24 glyphs plus none). An activity has the Name only. A name a
 source owns (Notion schema or any non-Local task) is disabled with the reason; Farbe and Symbol stay editable and say they
 apply only in kan-do. A new name that already exists merges into it and the target's style stays. Saving is local and
 immediate: no loading or error state.
 @usage Hosted by TopicEditorHost (settings list row, task-sheet picker edit mode)
+@avoid The one topic editor, hosted by TopicEditorHost; never a second editor for the same job.
 @responsibility
 - Save through `useTopicManagement().rename` (every store, one pass) and `useTopicStylesStore().setStyle`
 - Name is trimmed; an empty name or nothing changed cannot be saved; the editor closes after saving

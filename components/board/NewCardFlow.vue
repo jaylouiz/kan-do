@@ -1,7 +1,10 @@
 <!--
 @component NewCardFlow
+@kind block
+@category form-structure
 @description Guided in-card adding of a task in Offen (#649): the add slot's box becomes a card that takes the title, then asks Thema, Aktivität, Timebox and Notiz one after another and saves at the end. No sheet, no route change.
 @usage Mounted by AddTaskSlot (Offen) in place of the sheet; emits `saved` with the new task's id, or `cancel`
+@avoid Only in-card adding to Offen; add-and-start in Jetzt, editing and source fields use the sheet's TaskForm.
 @responsibility
 - Local state only (title, topic, activity, timebox, notes, step): it does not use `useTaskDraft`, which belongs to the sheet (draft card, spotlight, /tasks/add); saves through `useTaskSync().createTask` in the default source (`useAddTarget`), steps follow that source's fields (`fieldsForSource`); a step with nothing to offer is skipped
 - The face is the real TaskCard (`draft`), so the saved card and the cue behind the wash match by construction; the topic row exists only once a topic is picked (the title steps down then, as on a card)

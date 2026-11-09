@@ -1,7 +1,10 @@
 <!--
 @component MappingStep
+@kind component
+@category form-structure
 @description Setup wizard step for mapping Notion database properties to kan-do task fields
 @usage Used in the Notion setup wizard flow as a dedicated step for property mapping configuration
+@avoid Only a step of the Notion setup wizard.
 @responsibility
 - Wraps the PropertyMapper component
 - Handles saving and emitting mapping configuration

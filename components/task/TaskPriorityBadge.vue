@@ -1,7 +1,10 @@
 <!--
 @component TaskPriorityBadge
+@kind primitive
+@category display
 @description Visual indicator for task priority level (low, regular, high; #617)
 @usage Used within task cards to display priority status
+@avoid Only the three priority levels on a card; statuses are columns, not badges.
 @responsibility
 - Displays appropriate priority indicator based on task priority level
 - Done cards show no priority badge (#124, TaskCard)

@@ -1,7 +1,10 @@
 <!--
 @component TaskProgressBar
+@kind primitive
+@category display
 @description Visual progress indicator for task timebox completion with remaining time display
-@usage Used within task cards to show progress and remaining time when task is in progress
+@usage Styleguide entry only: the cards show the timebox as TaskProgressChip (#388)
+@avoid Rendered nowhere in the app today (only the styleguide); cards show the timebox as TaskProgressChip.
 @responsibility
 - Displays visual progress of time spent vs. time allocated
 - Provides smooth animation for time updates

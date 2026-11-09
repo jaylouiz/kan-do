@@ -1,10 +1,13 @@
 <!--
 @component DataConflictModal
+@kind block
+@category overlay
 @description The whole-file choice when the data file was changed elsewhere (another device, a hand edit,
 a sync client) (#224, ADR 011). It shows exactly two versions with time, device and task count and lets the
 user keep mine or load theirs; both versions end up in `<folder>/backups/`. With no unsaved changes of mine
 it collapses to one action, "Neu laden".
 @usage <DataConflictModal v-model:open="conflictOpen" /> inside DataStorageNotice (once per page)
+@avoid Only for a data file changed elsewhere; other confirmations use DataRestoreModal or a plain UModal.
 @responsibility
 - "Später" / Escape keeps the conflict: status and notice stay, writes stay blocked, the app keeps working
 - "Diese Version behalten": their file goes to backups as `conflict`, then mine is written

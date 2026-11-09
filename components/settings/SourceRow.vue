@@ -1,8 +1,11 @@
 <!--
 @component SourceRow
+@kind component
+@category display
 @description One connected task source on the "Verbindungen" page (#324): icon, name with the quiet
 "Standard" badge, a status line and the actions that source offers. A hairline-divided list item, no card.
 @usage <SourceRow v-for="row in connected" :key="row.id" :row="row" @set-default="..." @repair="..." @open-settings="..." @disconnect="..." />
+@avoid Only a connected source on the Verbindungen page.
 @responsibility
 - Show the badge as text on the default row, "Als Standard festlegen" on every other row
 - Status line: muted, warning tone for "Verbindung prüfen" (never an error colour, never a toast); the time

@@ -1,10 +1,13 @@
 <!--
 @component TopicMark
+@kind primitive
+@category display
 @description The mark before a topic's name (#431): a 12px hue dot, or the Phosphor fill glyph (16px) in the hue when a
 symbol is set (muted gray when it has no hue). A topic with neither hue nor symbol renders nothing, so no gap appears and
 the card looks as it did. Decorative: `aria-hidden`, the name carries the meaning; never a pointer target (the card is a
 drag item, #430 known issue 4).
 @usage Card topic line, the sheet's Thema row, picker options, the settings list, the editor preview, the statistics dialog
+@avoid The only place a topic hue appears; never a coloured chip, label or surface, and not in charts.
 @responsibility
 - Resolve the mark from the topic name (and the task, for the source colour) through `useTopicColor().markOf`
 - Or show an explicit `hue` / `symbol` (the editor previews an unsaved choice)

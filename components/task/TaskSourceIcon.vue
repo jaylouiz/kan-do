@@ -1,7 +1,10 @@
 <!--
 @component TaskSourceIcon
+@kind primitive
+@category display
 @description The source a task belongs to, as a 16px muted icon (#323)
 @usage <TaskSourceIcon :source="task.source" /> at the start of the TaskCard footer, only on a board that holds tasks from 2+ sources
+@avoid Only on a board with tasks from 2+ sources.
 @responsibility
 - Maps a source to its bundled icon (Local `ph`, Notion and Todoist `simple-icons`: no remote fetch, ADR 012)
 - Names the source for assistive tech ("Lokal", "Notion") and for hover; shows no visible text

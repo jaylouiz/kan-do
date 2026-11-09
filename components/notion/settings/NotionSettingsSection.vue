@@ -1,7 +1,10 @@
 <!--
 @component NotionSettingsSection
+@kind compound
+@category form-structure
 @description Wrapper component for settings sections with save/cancel actions
 @usage Used in the Notion settings page to wrap each configuration section
+@avoid Only for the Notion settings sections; other settings pages use PageHeader, SectionHeader and plain rows.
 @responsibility
 - Provides consistent layout for settings sections
 - Manages save/cancel button states

@@ -1,9 +1,12 @@
 <!--
 @component FeedbackDialog
+@kind block
+@category overlay
 @description In-app feedback (#227, Direction A; screenshot #247): one UModal, three steps. Form (title, description,
 optional element, optional screenshot, automatic context line), the annotate step (only after a capture), then
 "Prüfen und senden", which shows exactly what is sent.
 @usage Mounted once in pages/tasks.vue; opened from the command palette through useFeedback().open() (desktop only).
+@avoid Desktop feedback flow only; other dialogs use ResponsiveOverlay or UModal.
 @responsibility
 - Form: title (required, ≤ 120), description (≤ 4000), "Element auswählen" (hides the dialog while picking), draft discard
 - Screenshot: "Screenshot hinzufügen" hides the dialog while the window is captured, then opens the annotate step

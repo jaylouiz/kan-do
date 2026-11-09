@@ -1,11 +1,14 @@
 <!--
 @component DataStorageNotice
+@kind component
+@category feedback
 @description Persistent single-line notice for the desktop data file (#222, ADR 008; #224, ADR 011). Shown
 for every state other than `ok`, for cloud-sync conflict copies and, last, for a data file iCloud has not
 uploaded (#271); it disappears on its own when the state is healthy again. Not a toast: it stays until the problem is gone,
 except the cloud notice, which "Ausblenden" hides for the rest of the app session (#289, memory only). Also hosts the conflict modal and opens it
 once when a conflict appears.
 @usage <DataStorageNotice /> above the board in pages/tasks.vue, <DataStorageNotice :show-details="false" /> on /settings/data
+@avoid A persistent notice for the data file; transient results use a toast, a source's sync problem uses the sync popover.
 @responsibility
 - Warning colour for read-only, missing-file, conflict and conflict copies (needs attention); neutral colour
   for a late iCloud upload in any state (uploading, pending, error: one copy, the data is safe locally); error colour for write-failed and an unavailable folder

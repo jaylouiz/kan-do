@@ -1,8 +1,11 @@
 <!--
 @component NewDayRecap
+@kind block
+@category overlay
 @description "Kurzer Rückblick" (#385, #451, #44): the recap on the first start of a new day, shown over the dimmed board. A still-open deck and a done deck like the board's Offen → Erledigt, and one submit panel with the switch "Erledigte archivieren" and the button "Weiter zum Board".
 @usage Mounted once in pages/tasks.vue next to DayCloseDialog; opened by useNewDayRecap().check() on mount.
 Hosted by ResponsiveOverlay (modal at >=768px with both decks side by side, bottom drawer below with a switcher that shows one deck at a time), the same shell as DayCloseDialog. The page itself never scrolls; only the body may, on very short windows.
+@avoid Only the first start of a new day; closing the day is DayCloseDialog.
 @responsibility
 - Shell only: headline (title slot), summary (description slot), decks (body), submit panel (footer, pinned)
 - Escape, scrim click, swipe down and the button all call `leave()`, which follows the switch (#44); the desktop close button is off

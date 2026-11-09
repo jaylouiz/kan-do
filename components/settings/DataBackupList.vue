@@ -1,10 +1,13 @@
 <!--
 @component DataBackupList
+@kind block
+@category display
 @description The "Sicherungen" section of /settings/data (#224, ADR 011): when the last backup was taken,
 "Jetzt sichern", and the backups newest first with their kind, origin and task count. Mostly text; the
 only colour is the orange line when a daily or manual backup failed. Restoring is requested through an
 event, the page owns the single confirmation modal.
 @usage <DataBackupList @restore="onRestore" />
+@avoid Only the Sicherungen section of /settings/data.
 @responsibility
 - Loads the list on mount and after every backup; empty, loading and error states
 - Newest 8 visible, "Alle n anzeigen" for the rest

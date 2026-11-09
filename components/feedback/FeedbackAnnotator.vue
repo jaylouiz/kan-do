@@ -1,8 +1,11 @@
 <!--
 @component FeedbackAnnotator
+@kind block
+@category input
 @description The annotate step of the feedback dialog (#247, ADR 014): the native snapshot on a canvas with
 three tools (Rechteck, Pfeil, Schwärzen), undo last, clear all, and the toggle "Aufgabentexte schwärzen".
 @usage Rendered by FeedbackDialog for `step === 'annotate'`; the strokes live in `useFeedback` (module memory).
+@avoid Only the annotate step of FeedbackDialog; not a general drawing surface.
 @responsibility
 - Pointer drawing: client coordinates are mapped to bitmap pixels through `getBoundingClientRect` because the
   canvas is CSS-scaled to the modal; a redaction is an opaque fill, no blur

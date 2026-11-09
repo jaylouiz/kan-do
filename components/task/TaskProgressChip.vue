@@ -1,7 +1,10 @@
 <!--
 @component TaskProgressChip
+@kind primitive
+@category display
 @description The timebox label of a task card as its progress item (#388)
 @usage First item of the TaskCard footer (#584; not on the add sheet's Jetzt draft)
+@avoid Only the timebox label of a task card; not for the add sheet's Jetzt draft.
 @responsibility
 - Outside Jetzt: a light grey chip "45 min" (track and fill half a step lighter since #584) whose grey fill shows the spent share of the timebox (no colour, also not on overrun or done cards)
 - In Jetzt: once the card has settled it springs wider (x axis only) into a bar across the whole footer, anchored at its own

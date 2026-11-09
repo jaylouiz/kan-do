@@ -1,10 +1,13 @@
 <!--
 @component DataFolderChangeModal
+@kind block
+@category overlay
 @description Modal for switching the desktop data folder after the native picker returned a folder
 (#222, ADR 008). The target decides the choices: an empty folder gets "copy my data here" (the old file
 stays), a folder that already holds data offers "use the data already there" (the app reloads) or
 "replace it with my data" (explicit confirm step). Unwritable and unreadable targets are refused inline.
 @usage <DataFolderChangeModal v-model:open="open" :choice="choice" />
+@avoid Only for switching the desktop data folder.
 @responsibility
 - Shows the target path and what is in it; Cancel or Escape changes nothing
 - Calls `useDataFolder().applyFolder`; Rust flushes pending writes before the switch

@@ -1,7 +1,10 @@
 <!--
 @component TaskDetailContent
+@kind compound
+@category form-structure
 @description Shared presentational component for task detail views with inline editing
 @usage Used by both TaskDetailModal and pages/tasks/[id].vue
+@avoid Shared body of the task detail (modal and page); not for the add form, which is TaskForm.
 @responsibility
 - Display task properties as labelled rows (shared with the add form, #161), notes, and custom fields
 - Every property is a row in a stable position; unset Thema/Aktivität show the empty "Auswählen" state (#161)

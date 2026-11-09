@@ -1,7 +1,10 @@
 <!--
 @component TaskStackHeader
+@kind component
+@category display
 @description Header row of an expanded stack: the stack's pill as its title and a round close button (#578)
 @usage Rendered by BoardColumnItem in front of the members of an expanded group (#148)
+@avoid Only the header row of an expanded stack; a column's header is BoardColumnHeader.
 @responsibility
 - The pill is the same TaskStackPill the collapsed face shows, centred over the card column: on expand it
   rises from the face to this row, on collapse it sinks back (useStackMotion), so it is one object that

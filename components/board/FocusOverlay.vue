@@ -1,8 +1,11 @@
 <!--
 @component FocusOverlay
+@kind primitive
+@category display
 @description The layer that calms the board while a task sits in Jetzt (#394): a soft radial pool of warm dusk
 centred on the Jetzt card (a desk lamp), with a flat defocus under the whole layer.
 @usage First child of `.board` in Board.vue, rendered only while the focus is possible (`focusEnabledNow`)
+@avoid A calming layer, not a modal backdrop (ResponsiveOverlay) and never interactive; only while a task sits in Jetzt.
 @responsibility
 - Two sibling layers, tint and blur, each fading on its own: an ancestor with opacity is the backdrop root and would
   stop `backdrop-filter` from seeing the board

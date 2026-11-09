@@ -1,7 +1,10 @@
 <!--
 @component AddTargetSwitch
+@kind component
+@category input
 @description The quiet "Speichern in" line in the add sheet's footer: picks the source a new task is saved to (#321)
 @usage Registered as the footer `lead` by pages/tasks/add.vue; only shown with 2+ available sources
+@avoid Only the add sheet's footer, and only with 2+ available sources.
 @responsibility
 - Muted label + value-as-text picker (property-select grammar, no box or fill); the label is aria-hidden, the trigger is announced once as "Speichern in: Notion"
 - Lists Lokal and every connected source; the default carries "Standard", a source needing attention stays selectable with a heads-up (not an error)

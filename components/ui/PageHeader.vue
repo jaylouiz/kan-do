@@ -1,7 +1,10 @@
 <!--
 @component PageHeader
+@kind primitive
+@category layout
 @description Reusable header for settings-style pages with title, description and optional actions; scrolls away with the page (#615)
 @usage Used in the sub-page layout for the settings sub-pages (/settings/*); not on /settings, /trash and /statistics (`pageHeader: false`, #670, #686): the app bar names those, the layout renders the title as a screen-reader-only h1
+@avoid Only the settings sub-pages; /settings, /trash and /statistics are named by the app bar.
 @responsibility
 - Provide consistent header styling across settings/detail pages
 - No back arrow (#470): a page is left through the app bar (Heute, Statistik) or ⋯ -> Einstellungen

@@ -1,7 +1,10 @@
 <!--
 @component TaskStackPill
+@kind primitive
+@category display
 @description The face of a collapsed stack's pill (#504): one split capsule, "<property> | <stack icon> <n>"
 @usage Inside the aria-hidden pill layer of a collapsed TaskStack, centred on the front card
+@avoid Only the face of a collapsed stack's pill inside TaskStack.
 @responsibility
 - Left segment names the grouping property the way a card shows it: topic = TopicMark + neutral name (hue only on
   the mark); priority 1-3 = the real TaskPriorityBadge as the segment itself (no hairline after it); activity,
