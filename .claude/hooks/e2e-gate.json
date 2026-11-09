@@ -153,7 +153,7 @@
       "area": "live copy editor (#59): dev-only tool, command palette entry, i18n live edits, dev routes (mocked in E2E)",
       "risk": true,
       "paths": [
-        "dev-tools/**",
+        "dev-tools/copy-editor/**",
         "lib/copy-editor/**",
         "lib/paletteExtensions.ts",
         "server/copy-editor/**",
@@ -162,6 +162,19 @@
       "specs": [
         "copy-editor",
         "command-palette"
+      ]
+    },
+    {
+      "area": "dev-only pages (#65): /ui catalog (Tokens part, scanner) and the build-time route removal; the E2E build carries them (KANDO_UI_CATALOG)",
+      "risk": true,
+      "paths": [
+        "pages/ui.vue",
+        "dev-tools/ui-catalog/**",
+        "lib/devPages.ts"
+      ],
+      "specs": [
+        "ui-shell",
+        "a11y"
       ]
     },
     {
@@ -744,7 +757,8 @@
       "specs": [
         "welcome-setup",
         "sources-settings",
-        "tasks-settings"
+        "tasks-settings",
+        "a11y"
       ]
     },
     {
@@ -780,7 +794,6 @@
         "utils/localeResolution.ts",
         "lib/i18n.ts",
         "utils/modalSizes.ts",
-        "pages/styleguide.vue",
         "pages/error-test.vue"
       ],
       "specs": [

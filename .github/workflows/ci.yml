@@ -37,6 +37,10 @@ jobs:
       - run: npx vitest run tests/config/copy-editor-build-output.test.ts
         env:
           COPY_EDITOR_REQUIRE_BUILD: '1'
+      # `/ui` and `/error-test` (#65) are dev-only too: the generated build must have neither route nor catalog string.
+      - run: npx vitest run tests/config/ui-catalog-build-output.test.ts
+        env:
+          UI_CATALOG_REQUIRE_BUILD: '1'
       # Advisory design anti-pattern scan (regex mode on .vue); findings never fail the job.
       - name: Impeccable detector (advisory)
         run: |
