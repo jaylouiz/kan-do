@@ -30,7 +30,7 @@ export default defineNuxtConfig({
     },
     // `@media (--phone)` (lib/breakpoints.ts): main.css needs the definitions before Tailwind compiles it (#70)
     'vite:extendConfig'(config) {
-      (config.plugins ||= []).unshift(viteBreakpointDefinitions())
+      config.plugins?.unshift(viteBreakpointDefinitions())
     },
   },
 
