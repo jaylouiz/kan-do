@@ -217,6 +217,6 @@
   .kando-long-press-active .task {
     animation: kando-long-press-pulse 750ms ease-out forwards;
     transform: scale(0.98);
-    transition: transform 0.15s ease;
+    transition: transform var(--duration-fast) ease;
   }
 }

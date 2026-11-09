@@ -116,7 +116,7 @@ const caption = useStackCaption(() => props.label, () => props.count);
   background-color: var(--ui-color-neutral-300);
 }
 
-@media (max-width: 767px) {
+@media (--phone) {
   .task-stack-header {
     min-height: 2.75rem;
   }

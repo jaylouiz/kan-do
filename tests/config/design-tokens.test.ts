@@ -1,8 +1,8 @@
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { checkCssVars, checkTokenLiterals, NON_UTILITY_CLASS, projectCssClasses } from '../../scripts/lint/design-tokens.mjs'
+import { checkBaselineSlack, checkCssVars, checkScaleLiterals, checkTokenLiterals, NON_UTILITY_CLASS, projectCssClasses } from '../../scripts/lint/design-tokens.mjs'
 
 // Token use (scripts/lint/design-tokens.mjs): a `var(--x)` the project, Tailwind and Nuxt UI do not define renders
 // nothing (or only its fallback), and no other check notices. The per-edit hook checks the edited file; this test
@@ -19,6 +19,18 @@ describe('design tokens', () => {
   it('has no colour, shadow-colour or radius literal outside the allowlist (#69)', () => {
     const findings = checkTokenLiterals(root) as { file: string, line: number, message: string }[]
     expect(findings.map(f => `${f.file.replace(`${root}/`, '')}:${f.line} ${f.message}`)).toEqual([])
+  })
+
+  it('has no new z-index, breakpoint, type, spacing or motion literal beyond the baseline (#70)', () => {
+    const findings = [...checkScaleLiterals(root), ...checkBaselineSlack(root)] as { file: string, line: number, message: string }[]
+    expect(findings.map(f => `${f.file.replace(`${root}/`, '')}:${f.line} ${f.message}`)).toEqual([])
+  })
+
+  it('tells tailwind-merge every type role of main.css, so a text-<role> class replaces Nuxt UI\'s own size (#70)', async () => {
+    const roles = [...readFileSync(resolve(root, 'assets/css/main.css'), 'utf8').matchAll(/^\s*--text-([a-z]+):/gm)].map(m => m[1]).sort()
+    const config = readFileSync(resolve(root, 'app.config.ts'), 'utf8')
+    const listed = /text: \[([^\]]*)\]/.exec(config)?.[1]?.match(/[a-z]+/g)?.sort()
+    expect(listed).toEqual(roles)
   })
 
   it('reports a misspelt token with its line, and accepts real, runtime and dynamic ones', () => {

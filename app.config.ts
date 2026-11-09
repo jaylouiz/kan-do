@@ -2,6 +2,11 @@ import { ICONS } from './lib/icons'
 
 export default defineAppConfig({
   ui: {
+    // tailwind-merge does not know our `--text-*` type roles (main.css `@theme`, #70): without this `text-label/3` reads as
+    // a colour and Nuxt UI's own `text-[10px]/3` stays next to it. Keep in step with the roles; design-tokens.test.ts checks.
+    tv: {
+      twMergeConfig: { extend: { theme: { text: ['display', 'headline', 'title', 'label', 'brand'] } } },
+    },
     fonts: {
       sans: "var(--font-sans)",
       mono: "var(--font-mono)",
@@ -103,33 +108,33 @@ export default defineAppConfig({
     // Task sheet sits above the app bar (z-40); popovers and tooltips opened inside it go above the sheet, toasts above both.
     slideover: {
       slots: {
-        overlay: 'z-2100',
-        content: 'z-2100 bg-elevated md:shadow-(--shadow-sheet)',
+        overlay: 'z-(--z-overlay)',
+        content: 'z-(--z-overlay) bg-elevated md:shadow-(--shadow-sheet)',
         title: 'font-display text-lg font-semibold tracking-tight',
       }
     },
     drawer: {
       slots: {
-        overlay: 'z-2100 bg-(--overlay-scrim)',
-        content: 'z-2100 bg-elevated',
+        overlay: 'z-(--z-overlay) bg-(--overlay-scrim)',
+        content: 'z-(--z-overlay) bg-elevated',
         title: 'font-display text-lg font-semibold tracking-tight',
       }
     },
     popover: {
       slots: {
-        content: 'z-2200'
+        content: 'z-(--z-popover)'
       }
     },
     tooltip: {
       slots: {
-        content: 'z-2200'
+        content: 'z-(--z-popover)'
       }
     },
     // Toasts (e.g. a failed save) must stay visible above the open task sheet.
     // `kando-toaster` lifts them above the phone app bar (assets/css/mobile-nav.css).
     toaster: {
       slots: {
-        viewport: 'z-2300 kando-toaster'
+        viewport: 'z-(--z-toast) kando-toaster'
       }
     },
     // Action buttons (undo for delete, archive, completion) get a 44px target on touch (mobile-nav.css).
@@ -140,7 +145,7 @@ export default defineAppConfig({
     },
     dropdownMenu: {
       slots: {
-        content: 'z-2200 min-w-40',
+        content: 'z-(--z-popover) min-w-40',
         item: 'text-sm cursor-pointer'
       }
     },
@@ -171,7 +176,7 @@ export default defineAppConfig({
     },
     selectMenu: {
       slots: {
-        content: 'z-2200 min-w-40'
+        content: 'z-(--z-popover) min-w-40'
       },
       variants: {
         // Value-as-text trigger of the task sheet's property rows (#161): body text with the dotted
@@ -301,7 +306,7 @@ export default defineAppConfig({
         size: {
           // rem instead of Nuxt UI's px chip sizes so chips follow text zoom (WCAG 1.4.4, #66); sm is the DESIGN.md label step (11px, above the detector's floor)
           xs: { base: 'text-[0.5rem]/3' },
-          sm: { base: 'text-[0.6875rem]/3' }
+          sm: { base: 'text-label/3' }
         }
       },
       compoundVariants: [

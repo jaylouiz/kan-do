@@ -28,7 +28,7 @@
         :aria-valuenow="current + 1"
       >
         <div
-          class="h-full rounded-full bg-inverted transition-[width] duration-300 ease-out motion-reduce:transition-none"
+          class="h-full rounded-full bg-inverted transition-[width] duration-(--duration-slow) ease-out motion-reduce:transition-none"
           :style="{ width: `${((current + 1) / steps.length) * 100}%` }"
         />
       </div>
@@ -45,7 +45,7 @@
           :data-state="index < current ? 'done' : index === current ? 'active' : 'todo'"
         >
           <span
-            class="flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-colors duration-200 motion-reduce:transition-none"
+            class="flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-colors duration-(--duration-base) motion-reduce:transition-none"
             :class="index <= current ? 'bg-inverted text-inverted' : 'bg-accented text-muted'"
             aria-hidden="true"
           >
@@ -86,7 +86,7 @@ defineProps<{
   width: 2px;
   height: 1.25rem;
   background: var(--ui-bg-accented);
-  transition: background-color 0.3s;
+  transition: background-color var(--duration-slow);
 }
 .setup-rail-item[data-state='done']:not(:last-child)::after {
   background: var(--ui-bg-inverted);

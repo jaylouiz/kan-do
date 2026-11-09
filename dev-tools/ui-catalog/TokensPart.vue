@@ -139,7 +139,7 @@ const GROUPS: { id: TokenGroupId, title: string, hint: string }[] = [
   { id: 'spacing', title: 'Spacing and sizes', hint: 'The spacing unit and the dimension tokens of cards, columns, stacks and the app bar. Values under a media query are listed beneath their token.' },
   { id: 'zIndex', title: 'Z-index', hint: 'Stacking tokens.' },
   { id: 'motion', title: 'Motion', hint: 'Durations and easings.' },
-  { id: 'breakpoints', title: 'Breakpoints', hint: 'Tailwind\'s responsive steps. The app switches layout at 768 px (`md`).' },
+  { id: 'breakpoints', title: 'Breakpoints', hint: 'Tailwind\'s responsive steps. The app switches layout at 768 px (`md`); that step is written once for CSS and JS in `lib/breakpoints.ts`.' },
   { id: 'iconSizes', title: 'Icon sizes', hint: 'Icon size tokens.' },
   { id: 'other', title: 'Other custom properties', hint: 'Root-level custom properties that fit none of the groups above.' },
 ]

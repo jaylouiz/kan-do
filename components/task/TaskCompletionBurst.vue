@@ -104,7 +104,7 @@ onBeforeUnmount(() => clearTimeout(timer))
 .completion-burst {
   position: absolute;
   inset: 0;
-  z-index: 30;
+  z-index: var(--z-card-layer);
   pointer-events: none;
 }
 

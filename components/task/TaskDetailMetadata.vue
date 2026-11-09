@@ -22,7 +22,7 @@
         <template #trailing>
           <UIcon
             name="i-ph-caret-down"
-            class="size-4  text-muted transition-transform duration-200"
+            class="size-4  text-muted transition-transform duration-(--duration-base)"
             :class="{ 'rotate-180': open }"
           />
         </template>

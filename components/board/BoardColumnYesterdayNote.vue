@@ -161,7 +161,7 @@ function openTask(taskId: string) {
   max-width: var(--task-card-max-width, 20rem);
 }
 
-@media (min-width: 768px) {
+@media (--desktop) {
   .yesterday-note {
     width: min(var(--task-card-width, 100%), calc(100% - 5rem));
   }
@@ -209,7 +209,7 @@ function openTask(taskId: string) {
   min-height: 2rem;
   padding: 0;
   border-radius: var(--radius-xs);
-  font-size: var(--text-sm, 0.875rem);
+  font-size: var(--text-sm);
   line-height: 1.25rem;
   color: var(--ui-text-highlighted);
   cursor: pointer;
@@ -226,7 +226,7 @@ function openTask(taskId: string) {
   flex-shrink: 0;
   width: 0.75rem;
   height: 0.75rem;
-  transition: transform 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 180ms var(--ease-standard);
 }
 
 .yesterday-note__caret--open {
@@ -240,7 +240,7 @@ function openTask(taskId: string) {
   min-height: 2rem;
   padding: 0 0.25rem;
   border-radius: var(--radius-xs);
-  font-size: var(--text-sm, 0.875rem);
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--ui-color-success-800);
   text-underline-offset: 0.2em;
@@ -252,7 +252,7 @@ function openTask(taskId: string) {
 }
 
 /* 44px hit areas on the phone (D4): the line grows to 44px, the surface drops its vertical padding (46px) */
-@media (max-width: 767px) {
+@media (--phone) {
   .yesterday-note__surface {
     padding-block: 0;
   }
@@ -282,7 +282,7 @@ function openTask(taskId: string) {
   min-height: 1.75rem;
   padding: 0.125rem 0;
   text-align: left;
-  font-size: var(--text-sm, 0.875rem);
+  font-size: var(--text-sm);
   line-height: 1.5rem;
   cursor: pointer;
   border-radius: var(--radius-xs);
@@ -298,13 +298,13 @@ function openTask(taskId: string) {
 }
 
 .yesterday-note__more {
-  font-size: var(--text-sm, 0.875rem);
+  font-size: var(--text-sm);
   line-height: 1.75rem;
 }
 
 .yesterday-note-leave-active,
 .yesterday-note-enter-active {
-  transition: grid-template-rows 180ms cubic-bezier(0.4, 0, 0.2, 1), opacity 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: grid-template-rows 180ms var(--ease-standard), opacity 180ms var(--ease-standard);
 }
 
 .yesterday-note-leave-active .yesterday-note__inner,
