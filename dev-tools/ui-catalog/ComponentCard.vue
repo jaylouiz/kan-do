@@ -15,7 +15,7 @@
       <h4 :id="`component-${row.name}-title`" tabindex="-1" class="font-display text-lg text-highlighted outline-none">
         <code class="font-mono">{{ row.name }}</code>
       </h4>
-      <p class="text-xs text-muted">
+      <p class="text-xs wrap-break-word text-muted">
         {{ row.kind }} · {{ row.source === 'nuxt-ui' ? 'Nuxt UI' : row.path }}
       </p>
     </header>

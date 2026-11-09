@@ -355,9 +355,12 @@ test.describe('Accessibility (axe)', () => {
     test('board with dots (desktop and 390px)', async ({ page }) => {
       await gotoBoard(page)
       await expect(page.getByTestId('carry-over-dots').first()).toBeVisible()
+      // a sort label ("Manuell") still fades its colour on load/resize: axe would read a mid-transition shade (#100)
+      await settleAnimations(page)
       await expectNoSeriousA11yViolations(page)
       await page.setViewportSize(MOBILE_VIEWPORT)
       await expect(page.getByTestId('carry-over-dots').first()).toBeVisible()
+      await settleAnimations(page)
       await expectNoSeriousA11yViolations(page)
     })
 

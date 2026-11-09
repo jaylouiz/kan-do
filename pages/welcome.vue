@@ -143,8 +143,14 @@ function onEnter(el: Element, done: () => void) {
   const anim = container.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration: 300, easing: 'cubic-bezier(.3,.8,.3,1)' });
   anim.finished.then(done, done);
 }
-/** Focus follows the swap: into the setup's heading, or back onto the row the user came from */
+/**
+ * Focus follows the swap: into the setup's heading, or back onto the row the user came from. It runs when the height
+ * animation ends (300 ms, later on a slow machine), so only while focus is still lost (the removed block's button left
+ * it on the body): a user who already tabbed or clicked into the new block keeps their place (#100).
+ */
 function onAfterEnter(el: Element) {
+  const active = document.activeElement;
+  if (active && active !== document.body) return;
   if (flow.value) el.querySelector<HTMLElement>('h2')?.focus({ preventScroll: true });
   else el.querySelector<HTMLElement>(`[data-testid="welcome-choice-${lastFlow.value}"]`)?.focus({ preventScroll: true });
 }
