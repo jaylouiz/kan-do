@@ -203,6 +203,20 @@ describe('motion (#70)', () => {
 
 describe('scale allowlist (#70)', () => {
   it('names a reason for every entry', () => {
-    for (const reason of Object.values(SCALE_ALLOWLIST)) expect(reason.length).toBeGreaterThan(10)
+    for (const { reason, literals } of Object.values(SCALE_ALLOWLIST)) {
+      expect(reason.length).toBeGreaterThan(10)
+      expect(literals.length).toBeGreaterThan(0)
+    }
+  })
+
+  it('allows the named literal in an allowlisted file, not another one', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'scale-'))
+    const file = join(dir, 'app.config.ts')
+    writeFileSync(file, "export default { a: 'text-[0.5rem]/3', b: 'text-[13px]', c: 'p-[7px]' }\n")
+    const messages = (checkScaleLiterals(dir, [file]) as Finding[]).map(f => f.message)
+    expect(messages).toHaveLength(2)
+    expect(messages.join('\n')).toContain('text-[13px]')
+    expect(messages.join('\n')).toContain('p-[7px]')
+    rmSync(dir, { recursive: true, force: true })
   })
 })

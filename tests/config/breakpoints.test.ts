@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { BREAKPOINT_QUERIES } from '../../lib/breakpoints'
 import { DESKTOP_QUERY } from '../../composables/useIsDesktop'
-import postcssBreakpoints, { expandBreakpoints } from '../../scripts/postcss-breakpoints.mjs'
+import postcssBreakpoints, { expandBreakpoints, transformBreakpoints } from '../../scripts/postcss-breakpoints.mjs'
 import postcss from 'postcss'
 
 // One definition of the viewport breakpoints (#70): lib/breakpoints.ts. CSS writes `@media (--phone)`, the PostCSS
@@ -23,6 +23,20 @@ describe('breakpoints', () => {
     expect(theme).toMatch(/--breakpoint-md:\s*48rem/)
     expect(theme).toMatch(/--breakpoint-sm:\s*40rem/)
     expect(BREAKPOINT_QUERIES.sm).toBe('(min-width: 40rem)')
+  })
+
+  it('expands media queries in an SFC style block, appends the definitions to main.css, skips ?raw and non-CSS ids', () => {
+    const sfc = '@reference "../assets/css/main.css";\n.a { @apply p-2; }\n@media (--phone) { .a { color: red; } }\n@media (pointer: coarse), (--desktop) { .b { color: blue; } }'
+    const out = transformBreakpoints(sfc, '/app/components/X.vue?vue&type=style&index=0&lang.css')
+    expect(out).toContain('@media (max-width: 767px) {')
+    expect(out).toContain('@media (pointer: coarse), (min-width: 768px) {')
+    expect(out).not.toContain('(--')
+    expect(transformBreakpoints('.a{}', '/app/components/Y.css')).toBeNull()
+    const main = transformBreakpoints('@import "./board.css";', '/app/assets/css/main.css')
+    expect(main).toContain('@custom-media --phone (max-width: 767px);')
+    expect(transformBreakpoints(sfc, '/app/assets/css/main.css?raw')).toBeNull()
+    expect(transformBreakpoints(sfc, '/app/components/X.vue')).toBeNull()
+    expect(() => transformBreakpoints('@media (--nope) { .a{} }', '/x/Z.css')).toThrow(/Unknown breakpoint/)
   })
 
   it('expands a named breakpoint inside a media query list and leaves other features alone', () => {

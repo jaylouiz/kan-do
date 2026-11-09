@@ -18,23 +18,33 @@ export function expandBreakpoints(params) {
 }
 
 /**
- * Vite plugin for the one stylesheet Tailwind compiles before PostCSS sees it: `main.css` imports `board.css`,
- * `app-nav.css` and the others, Tailwind's Lightning CSS pass inlines them and resolves `@media (--phone)` itself, so it
- * needs the definitions. Appended after the @imports (a rule before them would void them in a browser, where an
- * unknown at-rule is ignored). Registered first (`nuxt.config.ts`), because Tailwind's plugin transforms `main.css` too.
- * @returns {import('vite').Plugin}
+ * Vite plugin for the Tailwind-compiled CSS, which resolves `@media (--phone)` itself (Lightning CSS) and needs the
+ * definitions: `main.css` gets `@custom-media` rules appended (it imports `board.css`, `app-nav.css` and the others,
+ * which Tailwind inlines without Vite seeing them; appended after the @imports, because a rule before them would void
+ * them in a browser). Every other CSS module, an SFC `<style>` block included (`@reference` + `@apply` makes Tailwind
+ * compile it too, and the build then fails with "Custom media query --phone is not defined"), has its media queries
+ * expanded in place. Registered first (`nuxt.config.ts`), because Tailwind's plugin transforms these ids too.
+ * @param {string} code
+ * @param {string} id
+ * @returns {string | null} the new code, or null when the id is not CSS or nothing changes
  */
-export function viteBreakpointDefinitions() {
-  const definitions = Object.entries(BREAKPOINT_QUERIES).map(([name, query]) => `@custom-media --${name} ${query};`).join('\n')
-  return {
-    name: 'kan-do-breakpoint-definitions',
-    enforce: 'pre',
-    transform(code, id) {
-      const [path = '', query = ''] = id.split('?')
-      // not the `?raw` import of the `/ui` Tokens part, which reads the file as text
-      return path.endsWith('assets/css/main.css') && !/(^|&)raw\b/.test(query) ? `${code}\n${definitions}\n` : null
-    },
+export function transformBreakpoints(code, id) {
+  const [path = '', query = ''] = id.split('?')
+  // not the `?raw` import of the `/ui` Tokens part, which reads the file as text
+  if (/(^|&)raw\b/.test(query)) return null
+  if (path.endsWith('assets/css/main.css')) {
+    const definitions = Object.entries(BREAKPOINT_QUERIES).map(([name, query]) => `@custom-media --${name} ${query};`).join('\n')
+    return `${code}\n${definitions}\n`
   }
+  const isCss = /\.css$/.test(path) || /(^|&)lang\.css\b/.test(query)
+  if (!isCss || !code.includes('(--')) return null
+  const expanded = code.replace(/@media([^{;]*)/g, (all, params) => (params.includes('(--') ? `@media${expandBreakpoints(params)}` : all))
+  return expanded === code ? null : expanded
+}
+
+/** @returns {import('vite').Plugin} */
+export function viteBreakpointDefinitions() {
+  return { name: 'kan-do-breakpoint-definitions', enforce: 'pre', transform: transformBreakpoints }
 }
 
 /** @returns {import('postcss').Plugin} */

@@ -267,9 +267,9 @@ export function checkTokenLiterals(root, files = styleSources(root)) {
  * - a media or container width, `matchMedia('(…width…)')` or `useMediaQuery('(…width…)')` written as a number: the
  *   one definition is `lib/breakpoints.ts` (`@media (--phone)` in CSS, `BREAKPOINT_QUERIES.phone` in JS);
  * - a `font-size` that equals a type role (`--text-title` …) or a Tailwind step (`--text-sm` …), and any `text-[…]`
- *   size, unless the file is on `SCALE_ALLOWLIST`;
+ *   size, unless that exact literal is on `SCALE_ALLOWLIST` for the file;
  * - an arbitrary spacing or size class (`p-[…]`, `gap-[…]`, `w-[…]`, `max-h-[…]`) unless its value is a `calc()` or a
- *   viewport unit, or the file is on `SCALE_ALLOWLIST`;
+ *   viewport unit, or that exact class is on `SCALE_ALLOWLIST` for the file;
  * - motion: the literal durations (`150ms`, `0.2s`, not `0`) and `cubic-bezier()` curves in `transition`,
  *   `animation` and their longhands, and Tailwind `duration-N` / `ease-[…]` classes, are counted per file and may not
  *   exceed `scripts/lint/literal-baseline.json`. A value named once in a custom property (`--ncf-ease: …`) or read
@@ -277,9 +277,9 @@ export function checkTokenLiterals(root, files = styleSources(root)) {
  *   so the ratchet only tightens (`node scripts/lint/design-tokens.mjs --update-baseline`).
  */
 export const SCALE_ALLOWLIST = {
-  'components/board/BoardColumn.vue': 'min-h-[150px]: the empty drop target of a column is px on purpose (drag-and-drop hit area, not text)',
-  'components/task/DatePickerField.vue': 'min-w-[260px]: the calendar popover is px wide so the month grid never reflows with the text size',
-  'app.config.ts': 'text-[0.5rem]/3: the xs badge, rem so it follows text zoom (#66); no role is that small',
+  'components/board/BoardColumn.vue': { literals: ['min-h-[150px]'], reason: 'min-h-[150px]: the empty drop target of a column is px on purpose (drag-and-drop hit area, not text)' },
+  'components/task/DatePickerField.vue': { literals: ['min-w-[260px]'], reason: 'min-w-[260px]: the calendar popover is px wide so the month grid never reflows with the text size' },
+  'app.config.ts': { literals: ['text-[0.5rem]/3'], reason: 'text-[0.5rem]/3: the xs badge, rem so it follows text zoom (#66); no role is that small' },
 }
 
 const BASELINE_FILE = 'scripts/lint/literal-baseline.json'
@@ -382,7 +382,7 @@ export function checkScaleLiterals(root, files = scaleSources(root)) {
     if (!/\.(css|vue|ts)$/.test(file) || !existsSync(file)) continue
     const rel = relative(root, file)
     if (rel === 'lib/breakpoints.ts' || rel === 'assets/css/main.css') continue // the breakpoint definition; the token source
-    const allowed = Object.keys(SCALE_ALLOWLIST).includes(rel)
+    const allowedLiterals = /** @type {Record<string, { literals: string[] }>} */ (SCALE_ALLOWLIST)[rel]?.literals ?? []
     const lineIn = (/** @type {string} */ text, /** @type {number} */ index) => text.slice(0, index).split('\n').length
     const add = (/** @type {string} */ text, /** @type {number} */ index, /** @type {string} */ message) => findings.push({ file, line: lineIn(text, index), message })
 
@@ -392,7 +392,7 @@ export function checkScaleLiterals(root, files = scaleSources(root)) {
       const value = (decl[2] ?? '').replace(/!important/g, '').trim()
       const at = (decl.index ?? 0) + decl[0].indexOf(prop)
       if (prop === 'z-index' && /^-?\d+$/.test(value) && Math.abs(Number(value)) > Z_LIMIT) add(css, at, `z-index: ${value} is a layer; use a --z-* token (assets/css/main.css)`)
-      if (prop === 'font-size' && !allowed) {
+      if (prop === 'font-size') {
         const step = /** @type {Record<string, string>} */ (TEXT_STEPS)[value]
         if (step) add(css, at, `font-size: ${value} equals ${step}; use var(${step})`)
       }
@@ -409,10 +409,10 @@ export function checkScaleLiterals(root, files = scaleSources(root)) {
         if (Math.abs(Number(m[1] ?? m[2])) > Z_LIMIT) add(body, m.index ?? 0, `${m[0]} is a layer; use z-(--z-<layer>) (assets/css/main.css)`)
       }
       for (const m of body.matchAll(/(?:matchMedia|useMediaQuery)\(\s*(['"`])[^'"`]*(?:min|max)-width[^'"`]*\1/g)) add(body, m.index ?? 0, `${m[0]} writes a breakpoint as a number; use BREAKPOINT_QUERIES (lib/breakpoints.ts)`)
-      if (!allowed) {
-        for (const m of body.matchAll(/(?<![\w-])(?:[\w-]+:)*text-\[[^\]]+\](?:\/[\w.]+)?/g)) add(body, m.index ?? 0, `${m[0]} is an arbitrary type size; use a role (text-label, text-sm …) or a --text-* token`)
+      {
+        for (const m of body.matchAll(/(?<![\w-])(?:[\w-]+:)*text-\[[^\]]+\](?:\/[\w.]+)?/g)) if (!allowedLiterals.includes(m[0])) add(body, m.index ?? 0, `${m[0]} is an arbitrary type size; use a role (text-label, text-sm …) or a --text-* token`)
         for (const m of body.matchAll(/(?<![\w-])(?:[\w-]+:)*-?(?:p[xytrblse]?|m[xytrblse]?|gap(?:-[xy])?|space-[xy]|size|w|h|min-[wh]|max-[wh]|inset(?:-[xy])?|top|left|right|bottom)-\[([^\]]+)\]/g)) {
-          if (!/calc\(|\d(?:vh|dvh|svh|lvh|vw|dvw)\b/.test(m[1] ?? '')) add(body, m.index ?? 0, `${m[0]} is an arbitrary spacing or size; use the Tailwind scale (p-3, w-65 …)`)
+          if (!allowedLiterals.includes(m[0]) && !/calc\(|\d(?:vh|dvh|svh|lvh|vw|dvw)\b/.test(m[1] ?? '')) add(body, m.index ?? 0, `${m[0]} is an arbitrary spacing or size; use the Tailwind scale (p-3, w-65 …)`)
         }
       }
     }

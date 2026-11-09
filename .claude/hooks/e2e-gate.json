@@ -338,6 +338,7 @@
         "package.json",
         "package-lock.json",
         "nuxt.config.ts",
+        "scripts/postcss-breakpoints.mjs",
         "app.config.ts",
         "lib/icons.ts",
         "vercel.json"
