@@ -140,7 +140,7 @@ Audit of what the UI kit consists of: every component, variant and state, librar
 | `UFormField` | compound | Eingabe | no variant props set | `components/feedback/FeedbackDialog.vue`, `components/nav/MorePanel.vue`, `components/notion/setup/mapping/PropertyMapper.vue` (+6) | library; theme override: no; `:ui` on 1 tags | 32 tags in 9 files | keep: the one field wrapper (label, hint, error) | #72 |
 | `USelect` | primitive | Eingabe | size: lg ×22 | `components/notion/setup/mapping/PropertyMapper.vue`, `components/notion/setup/wizard/steps/DatabaseSelectionStep.vue`, `components/notion/setup/wizard/steps/StatusMappingStep.vue` (+1) | library; theme override: yes; `:ui` on 0 tags | 24 tags in 4 files | keep: native-style select, always `size="lg"`; justify against `USelectMenu` or merge | #72 |
 | `UInput` | primitive | Eingabe | variant: ghost ×1, dynamic ×1; color: dynamic ×1; size: sm ×8, md ×1, lg ×1, xl ×1, dynamic ×2; loading ×1 | `components/board/NewCardOptionList.vue`, `components/feedback/FeedbackDialog.vue`, `components/notion/setup/mapping/PropertyMapper.vue` (+9) | library; theme override: yes; `:ui` on 7 tags | 21 tags in 12 files | keep: sizes `sm`…`xl` in use; align on the ladder | #72 |
-| `UModal` | compound | Overlay | no variant props set | `components/CommandPalette.vue`, `components/feedback/FeedbackDialog.vue`, `components/notion/setup/NotionSetupModal.vue` (+10) | library; theme override: yes; `:ui` on 13 tags | 13 tags in 13 files | keep: width through `MODAL_WIDTH`; identity strings in `:ui` move to `app.config.ts` (D1) | #75 |
+| `UModal` | compound | Overlay | no variant props set | `components/CommandPalette.vue`, `components/feedback/FeedbackDialog.vue`, `components/notion/setup/NotionSetupModal.vue` (+10) | library; theme override: yes; `:ui` on 13 tags | 13 tags in 13 files | keep: width through `MODAL_WIDTH`; identity strings in `:ui` move to `app.config.ts` (D1). Done (#75): the only identity duplicate (the drawer title class in `TopicEditorHost`) is gone; `sr-only` descriptions (3 sites) are a per-site choice (the theme default is visible), `topic-editor-drawer`/`bg-inverted/40`/`p-0` bodies are one-offs: they stay | #75 |
 | `UCheckbox` | primitive | Eingabe | color: neutral ×7, primary ×1 | `components/feedback/FeedbackAnnotator.vue`, `components/feedback/FeedbackDialog.vue`, `components/settings/DataRestoreModal.vue` (+2) | library; theme override: no; `:ui` on 0 tags | 10 tags in 5 files | keep | #72 |
 | `UAlert` | compound | Feedback | variant: subtle ×8, soft ×1; color: warning ×6, error ×1, info ×1, dynamic ×1; orientation: horizontal ×1 | `components/notion/setup/wizard/steps/PriorityMappingStep.vue`, `components/notion/setup/wizard/steps/StatusMappingStep.vue`, `components/notion/setup/wizard/steps/TokenStep.vue` (+3) | library; theme override: yes; `:ui` on 2 tags | 9 tags in 6 files | keep: the system notice; plain coloured text lines merge into it (see Duplicates: notices) | #74 |
 | `UBadge` | primitive | Darstellung | variant: subtle ×2, soft ×2; color: neutral ×4; size: sm ×2, xs ×1, dynamic ×1 | `components/notion/setup/wizard/steps/CustomPropertiesStep.vue`, `components/settings/SourceRow.vue`, `components/task/TaskPriorityBadge.vue` (+1) | library; theme override: yes; `:ui` on 0 tags | 9 tags in 4 files | keep: `neutral` `soft`/`subtle`; domain chips stay custom | #76 |
@@ -179,7 +179,7 @@ Audit of what the UI kit consists of: every component, variant and state, librar
 | `components/nav/AppNav.vue:81` | the app bar "more" pill with a status dot | keep: part of the app bar pill (`app-nav-more`, `is-open` state), not a button | #73 |
 | `components/setup/NotionSetupFlow.vue:31` | text back link (`arrow-left`) | replace: `UButton` ghost neutral, back icon of the semantic map | #73 |
 | `components/setup/LocalSetupFlow.vue:14` | text back link (`arrow-left`) | replace: same as above, one back control for both flows | #73 |
-| `pages/settings/topics.vue:30` | topic row button | merge: the one list-row primitive (see Duplicates: list rows) | #76 |
+| `pages/settings/topics.vue:30` | topic row button | merged: `ListRow` action (done, #76) | #76 |
 | `components/recap/NewDayRecap.vue:37` | two-way kind switch with hand-written focus outline | replace: `UTabs` `pill` variant (already in `app.config.ts`) | #73 |
 | `components/task/TaskTimeboxNudge.vue:44` | minute chip | merge: the choice-chip primitive | #72 |
 | `components/task/TaskTimeboxNudge.vue:54` | "custom" icon chip | replace: `UButton` icon, ghost | #72 |
@@ -205,7 +205,7 @@ Audit of what the UI kit consists of: every component, variant and state, librar
 | `components/topic/TopicEditor.vue:46` | colour swatch (`role="radio"`) | keep: swatches are not buttons; a documented swatch radio primitive | #72 |
 | `components/topic/TopicEditor.vue:75` | symbol picker trigger | replace: `UButton` soft | #72 |
 | `components/topic/TopicEditor.vue:91` | symbol option (`role="radio"`) | keep: with the swatch primitive | #72 |
-| `components/statistics/StatsOutliers.vue:15` | outlier row button | merge: list-row primitive | #76 |
+| `components/statistics/StatsOutliers.vue:15` | outlier row button | merged: `ListRow` action (done, #76) | #76 |
 | `components/board/AddTaskSlot.vue:21` | the column's add-task slot (`add-task-button`) | keep until baselines (#63) exist; then decide whether `UButton ghost block` reproduces it | #71 |
 
 Result: 13 replace (onto `UButton` or `UTabs`), 7 merge (into the list-row and choice-chip primitives), 12 keep with a reason. The two guards today: `tests/config/button-ladder.test.ts` covers `UButton` only; nothing stops a new raw `<button>` (ratchet for #78).
@@ -254,13 +254,29 @@ Each family lists the implementations found (counts from `rg` on 2026-11-09), th
 
 **Decision: merge** the plain lines that explain a failure or a state into `UAlert` subtle; keep an inline field error as the `UFormField` error. Which of toast, alert and inline line is right is the #68 rule. Owner #74.
 
+**Done in #74:** the plain failure and state lines of the `Data*` modals and cards, `FeedbackDialog`, `FeedbackAnnotator`, `UpdateDialog`, `DataBackupList` and `GithubTokenRow` are `UAlert` subtle (`error`, `warning`, `neutral`), with the `error` subtle contrast step in the `alert` theme of `app.config.ts`. Kept on purpose: field errors (`TaskForm`, `InlineEditable`), `sr-only` live regions, search "no result" hints, the trash confirm sentences (a question asked in place), the `TopicEditor` merge note, `pages/settings/data.vue:43` and `MorePanel` tone (status text inside a row). Toasts: no call site moved (the choice is #68).
+
 ### Empty states
 
-One muted sentence: `pages/trash.vue:37`, `WhatsNewDialog.vue:32`, `DataBackupList.vue:50`, `StatsOutliers.vue:12`, `TasksTable.vue:15`, `CommandPalette.vue:32`, `CustomPropertiesStep.vue:53`. Two lines (sentence plus hint): `DatabaseSelectionStep.vue:41`. Empty board columns stay blank (P5, open in `docs/design/backlog.md`, not re-filed). The orange icon empty state is gone (U11 done). **Decision: keep** the muted sentence as the one empty state; the two-line step becomes sentence plus `UAlert` hint only if the #68 rule asks for it. Owner #74.
+One muted sentence: `pages/trash.vue:37`, `WhatsNewDialog.vue:32`, `DataBackupList.vue:50`, `StatsOutliers.vue:12`, `TasksTable.vue:15`, `CommandPalette.vue:32`, `CustomPropertiesStep.vue:53`. Two lines (sentence plus hint): `DatabaseSelectionStep.vue:41`. Empty board columns stay blank (P5, open in `docs/design/backlog.md`, not re-filed). The orange icon empty state is gone (U11 done). **Done in #74:** the seven one-sentence sites render `EmptyNote` (`components/ui/EmptyNote.vue`, text-sm muted; `trash` and `TasksTable` moved from 16 px to 14 px, an intentional change). **Decision: keep** the muted sentence as the one empty state; the two-line step becomes sentence plus `UAlert` hint only if the #68 rule asks for it. Owner #74.
 
 ### List rows
 
 Hand-built, none through a shared component: `SourceRow` (canonical per audit-2026-11), `TrashEntryRow`, `DataBackupList`, `DataConflictCopies`, `DayCloseTaskRow`, `MorePanel` rows, `SettingsSubpageLink`, the topic rows in `pages/settings/topics.vue:30`, `StatsOutliers`, `StatsWeekTable`, `CustomPropertiesStep`; `divide-y divide-default` in 12 files. **Decision: merge** into one list-row primitive built from the `SourceRow` / `TrashEntryRow` look; raw-button rows (`topics.vue`, `TopicPropertyPicker`, `StatsOutliers`) become its action variant. Owner #76.
+
+**Outcome (#76):** `ListRow` (`components/ui/ListRow.vue`, kind compound, display) is the primitive: a static row with `density` roomy / cozy / compact (the padding each site already had) and an `action` row (one `<button>` with `focus-ring`, 44 px, `aria-expanded`, an `#after` slot for what unfolds). Adopted by `SourceRow` (roomy), `DataBackupList` (compact), `DataConflictCopies` (compact), `StatsOutliers` (action, raw button gone) and the topic rows of `pages/settings/topics.vue` (action, raw button gone). Kept with a reason:
+
+| Site | Outcome |
+|---|---|
+| `TrashEntryRow` | keep: a read-only `TaskCard` with a side column, not a hairline row |
+| `DayCloseTaskRow` | keep: two stacked lines in a dialog list without hairlines (title row plus triage block) |
+| `MorePanel` rows, `SettingsSubpageLink` | keep for #73: navigation rows of a popover and a link row (category Navigation) |
+| `CustomPropertiesStep` | keep for #72: a wizard form row with inputs |
+| `StatsWeekTable` | keep: a 7-row tile grid with a fixed column layout; `UTable` adds sorting and an empty state nothing here needs (`TasksTable` is the one `UTable`) |
+| `StatsTile` toggle | keep: the heading-wrapped disclosure button is the documented tile pattern; `UCollapsible` animates a block, the tile's toggle changes the tile's grid span |
+| `UBadge` | keep: `neutral` `soft`/`subtle`; the stack pill and priority badge are domain chips with their own look (DESIGN.md Chips / Badges) |
+| `UCard` | keep: only `variant="task"` is used (`TaskCard`) |
+| `UCollapsible` | keep: one use (`TaskDetailMetadata`) |
 
 ### Choice chips (pick one of a few)
 
@@ -269,7 +285,7 @@ Four hand-built looks: `ncf__pill` (`NewCardFlow`), `nudge__button` (`TaskTimebo
 ### Buttons, overlays, overrides
 
 - **Button size:** `size="lg"` 50, `sm` 53, `xs` 6, `md` 4, `xl` 3 call sites; the ladder of #552 is in force and guarded by `button-ladder.test.ts`. `variant="outline"` appears only in the styleguide. **Keep.**
-- **Overlay shells:** one `ResponsiveOverlay` (U12 done) for the day-close dialog and the sheet; `TopicEditorHost` is a drawer on every width. `useMediaQuery`/`matchMedia` remain in 8 component and page files (`AppNav`, `MorePanel`, `Board`, `NewCardFlow`, `TaskDraftCard`, `TaskCard`, `welcome`, `NotionSetupFlow`) and two composables, for layout and motion switches. **Decision:** keep the hook (`useIsDesktop`), move the remaining direct `matchMedia` calls onto it. Owner #75.
+- **Overlay shells:** one `ResponsiveOverlay` (U12 done) for the day-close dialog and the sheet; `TopicEditorHost` is a drawer on every width. `useMediaQuery`/`matchMedia` remain in 8 component and page files (`AppNav`, `MorePanel`, `Board`, `NewCardFlow`, `TaskDraftCard`, `TaskCard`, `welcome`, `NotionSetupFlow`) and two composables, for layout and motion switches. **Decision:** keep the hook (`useIsDesktop`), move the remaining direct `matchMedia` calls onto it. Owner #75. **Done (#75):** the four phone-breakpoint reads (`Board`, `NewCardFlow`, `TaskDraftCard`) use `useIsPhone` / `isPhoneNow` in `composables/useIsDesktop.ts`; the `prefers-reduced-motion` and `(pointer: coarse)` reads stay (motion and input switches, not a breakpoint).
 - **`:ui` overrides:** 29 files pass a `ui` prop. Placement (`MODAL_WIDTH`, imported in 13 files, `touch-target`, `max-h`) is what D1 allows; identity strings are not (`text-error`, `text-error-800`, `font-display text-lg font-semibold` in `TopicEditorHost`, `DataStorageNotice`, `DisconnectSourceDialog`, `GithubTokenRow`, `DataFolderChangeModal`). **Decision:** move identity strings into the `app.config.ts` theme or a named utility; the owner is the category of the component. Owners #72, #74, #75.
 
 ## Hard-coded values per token group

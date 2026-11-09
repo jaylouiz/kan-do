@@ -52,9 +52,9 @@
         </div>
       </div>
 
-      <div v-if="eligibleCustomProps.length === 0" class="p-6 text-center text-sm text-muted">
+      <EmptyNote v-if="eligibleCustomProps.length === 0" class="p-6 text-center">
         {{ t('notion.customProps.empty') }}
-      </div>
+      </EmptyNote>
     </div>
   </div>
 </template>
@@ -62,6 +62,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import EmptyNote from '~/components/ui/EmptyNote.vue'
 import { useLocaleFormat } from '~/composables/useLocaleFormat'
 import type { NotionCustomPropertyConfig, NotionDatabaseSchema, NotionPropertyMapping, CustomPropertyType } from '~/types/notion'
 

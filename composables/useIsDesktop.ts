@@ -22,6 +22,12 @@ export const OVERLAY_DESKTOP_KEY: InjectionKey<Readonly<Ref<boolean>>> = Symbol(
 /** Live: follows the viewport. Call in setup. */
 export const useIsDesktop = (): Readonly<Ref<boolean>> => useMediaQuery(DESKTOP_QUERY);
 
+/** Live phone query (`< 768px`), for board code that reacts to the phone layout (swipe pages, edge-scroll). Call in setup. */
+export const useIsPhone = (): Readonly<Ref<boolean>> => useMediaQuery(BREAKPOINT_QUERIES.phone);
+
+/** One-off read of the phone query for an imperative handler (a scroll on mount); client only. Never a reactive source. */
+export const isPhoneNow = (): boolean => window.matchMedia(BREAKPOINT_QUERIES.phone).matches;
+
 /**
  * For content hosted by a `ResponsiveOverlay`: the overlay's frozen variant, or the live query when the content
  * is rendered outside one (a preview, a settings page). Call in setup.

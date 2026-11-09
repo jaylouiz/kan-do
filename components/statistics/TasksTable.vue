@@ -14,9 +14,9 @@
 
 <template>
   <div>
-    <p v-if="tasks.length === 0" class="py-6 text-muted">
+    <EmptyNote v-if="tasks.length === 0" class="py-6">
       {{ emptyStateText ?? t('statistics.table.empty') }}
-    </p>
+    </EmptyNote>
 
     <UTable
       v-else
@@ -33,6 +33,7 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
+import EmptyNote from '~/components/ui/EmptyNote.vue';
 import { useLocaleFormat } from "~/composables/useLocaleFormat";
 import { getAccuracyTier, getAccuracyVerdict, getVerdictColor } from "~/utils/statisticsAccuracy";
 import { computed, h } from 'vue';

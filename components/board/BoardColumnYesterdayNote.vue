@@ -11,6 +11,7 @@
 - Offer exactly one action ("Gesehen") on the line; the parent archives all tasks of the note
 - Keep today's wins on top: `--task-note-height` collapsed, 42px on desktop (46px at 390px so both controls reach 44px), card width, centred
 - Surface (#605, D2; outline dropped #57): no border, `--done-note-wash` (70 % `success-100` over `success-50`: darker than the in-card confirmation wash so it separates without a frame, short of the `success-100` Erledigt drop wash so it never reads as a drop target), card radius. Tick and "Gesehen" in `success-800`; title row neutral, rows `toned`
+- Its three controls (label toggle, "Gesehen", title rows) are `UButton` ghost neutral (#71): the theme brings focus ring, hover wash and the 44 px phone floor; the note's scoped CSS keeps only its geometry, type and colours. The toggle stays a button inside the `<h3>` (`aria-expanded`)
 - Collapse over 180ms when it leaves (instant under prefers-reduced-motion); the caret rotates 180ms
 -->
 <template>
@@ -25,9 +26,10 @@
             :id="headingId"
             class="yesterday-note__heading"
           >
-            <button
-              type="button"
-              class="yesterday-note__toggle focus-ring"
+            <UButton
+              color="neutral"
+              variant="ghost"
+              class="yesterday-note__toggle"
               data-testid="yesterday-toggle"
               :aria-expanded="open"
               @click="open = !open"
@@ -46,17 +48,18 @@
                 :class="{ 'yesterday-note__caret--open': open }"
                 aria-hidden="true"
               />
-            </button>
+            </UButton>
           </h3>
-          <button
-            type="button"
-            class="yesterday-note__ack focus-ring"
+          <UButton
+            color="neutral"
+            variant="ghost"
+            class="yesterday-note__ack"
             data-testid="yesterday-ack"
             :aria-label="t('board.yesterday.ackLabel', { n: tasks.length }, tasks.length)"
             @click="emit('acknowledge')"
           >
             {{ t('board.yesterday.ack') }}
-          </button>
+          </UButton>
         </div>
 
         <ul
@@ -67,9 +70,10 @@
             v-for="task in visibleTasks"
             :key="task.id"
           >
-            <button
-              type="button"
-              class="yesterday-note__title focus-ring text-toned"
+            <UButton
+              color="neutral"
+              variant="ghost"
+              class="yesterday-note__title text-toned"
               @click="openTask(task.id)"
             >
               <span class="yesterday-note__name min-w-0 flex-1 truncate" data-private>{{ task.title }}</span>
@@ -77,7 +81,7 @@
                 v-if="timeSpent(task)"
                 class="yesterday-note__time text-xs text-muted tabular-nums"
               >{{ timeSpent(task) }}</span>
-            </button>
+            </UButton>
           </li>
           <li
             v-if="hiddenCount > 0"
@@ -201,18 +205,20 @@ function openTask(taskId: string) {
   font-weight: inherit;
 }
 
+/* The three controls are UButton ghost neutral (#71): the theme brings the focus ring, hover wash, disabled look and the
+   44 px phone floor. What stays here is the note's own geometry and type, set so the collapsed note keeps its 42 px. */
 .yesterday-note__toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  max-width: 100%;
+  /* the heading's width plus the 0.25rem its negative margin starts outside it */
+  max-width: calc(100% + 0.25rem);
   min-height: 2rem;
-  padding: 0;
-  border-radius: var(--radius-xs);
+  /* the hover wash reaches 0.25rem past the text; the negative margin keeps the text on the note's left edge */
+  margin-inline-start: -0.25rem;
+  padding: 0 0.25rem;
+  gap: 0.375rem;
   font-size: var(--text-sm);
+  font-weight: 400;
   line-height: 1.25rem;
   color: var(--ui-text-highlighted);
-  cursor: pointer;
 }
 
 .yesterday-note__tick {
@@ -234,24 +240,16 @@ function openTask(taskId: string) {
 }
 
 .yesterday-note__ack {
-  display: inline-flex;
   flex-shrink: 0;
-  align-items: center;
   min-height: 2rem;
   padding: 0 0.25rem;
-  border-radius: var(--radius-xs);
   font-size: var(--text-sm);
   font-weight: 500;
+  line-height: inherit;
   color: var(--ui-color-success-800);
-  text-underline-offset: 0.2em;
-  cursor: pointer;
 }
 
-.yesterday-note__ack:hover {
-  text-decoration: underline;
-}
-
-/* 44px hit areas on the phone (D4): the line grows to 44px, the surface drops its vertical padding (46px) */
+/* 44px hit areas on the phone (D4): the line grows to 44px, the surface drops its vertical padding (46px); the 44 px floor is restated for the controls because their own min-height (2rem) outranks the theme's */
 @media (--phone) {
   .yesterday-note__surface {
     padding-block: 0;
@@ -277,20 +275,25 @@ function openTask(taskId: string) {
 .yesterday-note__title {
   display: flex;
   align-items: baseline;
+  justify-content: flex-start;
   gap: 0.75rem;
-  width: 100%;
+  /* full row plus the 0.25rem the hover wash reaches past the text on each side */
+  width: calc(100% + 0.5rem);
   min-height: 1.75rem;
-  padding: 0.125rem 0;
+  margin-inline: -0.25rem;
+  padding: 0.125rem 0.25rem;
   text-align: left;
   font-size: var(--text-sm);
+  font-weight: 400;
   line-height: 1.5rem;
-  cursor: pointer;
-  border-radius: var(--radius-xs);
 }
 
-.yesterday-note__title:hover .yesterday-note__name {
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
+/* after the base rule on purpose: same specificity, the later one wins; the open title rows are touch targets too */
+@media (--phone) {
+  .yesterday-note__title {
+    min-height: 2.75rem;
+    align-items: center;
+  }
 }
 
 .yesterday-note__time {

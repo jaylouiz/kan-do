@@ -20,7 +20,7 @@ showing it.
     </h2>
     <p class="text-sm text-muted">{{ t('settings.data.copies.body') }}</p>
     <ul class="divide-y divide-default">
-      <li v-for="copy in conflictCopies" :key="copy.name" class="space-y-2 py-2" data-testid="data-copy-row">
+      <ListRow v-for="copy in conflictCopies" :key="copy.name" density="compact" class="flex-col items-stretch gap-y-2" data-testid="data-copy-row">
         <p class="min-w-0 text-sm break-all text-highlighted">{{ copy.name }}</p>
         <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <p class="text-sm text-muted">
@@ -53,14 +53,23 @@ showing it.
             </UButton>
           </div>
         </div>
-      </li>
+      </ListRow>
     </ul>
-    <p v-if="errorText" class="text-sm text-error-700" role="alert" data-testid="data-copies-error">{{ errorText }}</p>
+    <UAlert
+      v-if="errorText"
+      color="error"
+      variant="subtle"
+      icon="i-ph-x-circle"
+      role="alert"
+      :description="errorText"
+      data-testid="data-copies-error"
+    />
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import ListRow from '~/components/ui/ListRow.vue';
 import { useI18n } from 'vue-i18n';
 import { useDataFolder } from '~/composables/useDataFolder';
 import { useLocaleFormat } from '~/composables/useLocaleFormat';

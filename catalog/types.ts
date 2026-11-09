@@ -42,6 +42,8 @@ export interface CatalogExample {
   slot?: string | I18nRef
   /** Overlays: the sample renders open (`open: true` is passed as a prop); they need a trigger or `open` to show at all. */
   open?: boolean
+  /** Overlays: the default slot text is the trigger of the overlay, shown as a button (a bare text node renders nothing as a trigger). */
+  trigger?: boolean
 }
 
 export interface CatalogStateExample extends CatalogExample {
@@ -75,4 +77,6 @@ export interface CatalogEntry {
   /** Named variants of an app component (the variants of a Nuxt UI component come from `matrix`). */
   variants?: CatalogExample[]
   states: CatalogStateExample[]
+  /** Why the entry has no live sample (a block that reads a store, a composable or a page's data): shown instead of the samples; variants and states then stay empty. */
+  sampleNote?: string
 }

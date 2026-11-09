@@ -13,6 +13,7 @@
 - While the in-card form is open the Jetzt focus overlay steps aside (useInCardAdding, kd#56)
 - Drafting (useTaskDraft holds a draft for this column): the draft card fades in over the button, the label fades out; the button stays mounted but inert, so focus can return to it
 - In-card adding (#649, `inCard`, Offen): the button opens NewCardFlow in the same box instead of the sheet and the slot is held grown like for a draft. Esc on a typed title also shows a "Rückgängig" toast that reopens the card with it (#665). Esc, a press outside a blank card, the sheet opening or a drag cancel it and send focus back to the button; a save swaps it for the saved card (no fade) and focuses that card. Jetzt and every other entry (palette, nav, menu) keep the sheet
+- The slot is a raw `<button>` on purpose (#71, audit): a card-shaped target whose box is reserved and held while a draft or a drag runs (`add-task-button`, `data-add-slot`, `inert`), which `UButton ghost block` cannot reproduce; revisit with the redesign (#1)
 - During a drag (`hidden`) the slot keeps its geometry but is invisible and not interactive
 - Reserves the card box only for the button or the draft: with neither (`showButton` off, no draft) it takes no space
 -->

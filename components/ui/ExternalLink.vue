@@ -1,7 +1,7 @@
 <!--
 @component ExternalLink
 @kind primitive
-@category navigation
+@category action
 @description Link to an external page. In the desktop app it opens in the system browser through
 tauri-plugin-opener (narrow URL permission in src-tauri/capabilities); on web it is a plain
 `<a target="_blank">`.
@@ -24,12 +24,10 @@ tauri-plugin-opener (narrow URL permission in src-tauri/capabilities); on web it
 </template>
 
 <script setup lang="ts">
-import { useErrorHandler } from '~/composables/useErrorHandler';
 import { isTauri } from '~/utils/isTauri';
+import { openExternal } from '~/utils/openExternal';
 
 defineOptions({ name: 'ExternalLink' });
-
-const { handleError } = useErrorHandler();
 
 interface Props {
   href: string;
@@ -37,15 +35,10 @@ interface Props {
 
 const props = defineProps<Props>();
 
-async function open(event: MouseEvent) {
+function open(event: MouseEvent) {
+  // On web the anchor's own navigation (new tab, middle-click, copy-link) stays; only the desktop webview is redirected.
   if (!isTauri()) return;
   event.preventDefault();
-  try {
-    const { openUrl } = await import('@tauri-apps/plugin-opener');
-    await openUrl(props.href);
-  } catch (error) {
-    // The click is already default-prevented, so a rejection would otherwise be silent.
-    handleError(error instanceof Error ? error : String(error), 'external_link');
-  }
+  void openExternal(props.href);
 }
 </script>

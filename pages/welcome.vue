@@ -65,6 +65,7 @@
           {{ t('onboarding.page.title') }}
         </h1>
         <div class="mt-8 flex flex-col gap-3">
+          <!-- Raw button on purpose (#71, ui-kit audit): a two-line choice card with a go-on arrow is not a button look; #72/#76 decide whether it joins a choice or list-row primitive. -->
           <button
             v-for="choice in choices"
             :key="choice.key"

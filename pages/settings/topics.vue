@@ -26,27 +26,32 @@ shared TopicEditor: an inline panel under the row at >=768px, a bottom drawer at
               <p class="text-sm text-muted">{{ t(kind === 'topic' ? 'settings.topics.introTopics' : 'settings.topics.introActivities') }}</p>
 
               <ul v-if="list.length" class="divide-y divide-default" data-testid="topics-list">
-                <li v-for="name in list" :key="name" data-testid="topics-row">
-                  <button
-                    :ref="(el) => setRowRef(name, el)"
-                    type="button"
-                    class="flex min-h-14 w-full items-center gap-3 rounded-md px-1 py-2 text-left hover:bg-elevated focus-ring"
-                    :aria-expanded="open === name"
-                    :aria-label="t('settings.topics.editRow', { name })"
-                    data-testid="topics-row-button"
-                    @click="toggle(name)"
-                  >
+                <ListRow
+                  v-for="name in list"
+                  :key="name"
+                  :ref="(el) => setRowRef(name, el)"
+                  action
+                  hover="surface"
+                  :expanded="open === name"
+                  :label="t('settings.topics.editRow', { name })"
+                  button-testid="topics-row-button"
+                  data-testid="topics-row"
+                  @click="toggle(name)"
+                >
+                  <span class="flex items-center gap-3">
                     <span class="grid size-6 shrink-0 place-items-center"><TopicMark v-if="kind === 'topic'" :topic="name" /></span>
                     <span class="min-w-0 flex-1">
                       <span class="block truncate text-default" data-private>{{ name }}</span>
                       <span class="block text-sm text-muted" data-testid="topics-row-meta">{{ metaOf(name) }}</span>
                     </span>
                     <UIcon :name="open === name ? 'i-ph-caret-up' : 'i-ph-pencil-simple'" class="size-4 shrink-0 text-muted" aria-hidden="true" />
-                  </button>
-                  <div v-if="open === name" class="mb-3 ml-9 max-md:ml-0">
-                    <TopicEditorHost :key="`${kind}:${name}`" :topic="name" :kind="kind" @close="close" @saved="onSaved" />
-                  </div>
-                </li>
+                  </span>
+                  <template #after>
+                    <div v-if="open === name" class="mb-3 ml-9 w-full max-md:ml-0">
+                      <TopicEditorHost :key="`${kind}:${name}`" :topic="name" :kind="kind" @close="close" @saved="onSaved" />
+                    </div>
+                  </template>
+                </ListRow>
               </ul>
               <p v-else class="text-sm text-muted" data-testid="topics-empty">
                 {{ t(kind === 'topic' ? 'settings.topics.emptyTopics' : 'settings.topics.emptyActivities') }}
@@ -63,6 +68,7 @@ shared TopicEditor: an inline panel under the row at >=768px, a bottom drawer at
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import TopicMark from '~/components/topic/TopicMark.vue'
+import ListRow from '~/components/ui/ListRow.vue'
 import TopicEditorHost from '~/components/topic/TopicEditorHost.vue'
 import { useTopicManagement } from '~/composables/useTopicManagement'
 import type { NameKind } from '~/lib/topicNames'
@@ -81,7 +87,7 @@ const { topics, activities, countOf, isSourceOwned } = useTopicManagement()
 const root = ref<HTMLElement | null>(null)
 const kind = ref<NameKind>('topic')
 const open = ref<string | null>(null)
-const rowRefs = new Map<string, HTMLElement>()
+const rowRefs = new Map<string, { focus: () => void }>()
 let focusAfter: string | null = null
 
 // UTabs has no label prop for its list: name the tablist here so a screen reader announces "Art" with the tabs
@@ -94,7 +100,7 @@ const tabs = computed(() => [
 ])
 
 const setRowRef = (name: string, el: unknown) => {
-  if (el instanceof HTMLElement) rowRefs.set(name, el)
+  if (el && typeof (el as { focus?: unknown }).focus === 'function') rowRefs.set(name, el as { focus: () => void })
   else rowRefs.delete(name)
 }
 

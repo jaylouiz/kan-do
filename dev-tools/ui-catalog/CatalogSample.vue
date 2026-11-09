@@ -9,9 +9,10 @@
 - Resolve `{ $t: key }` copy with the active app locale, so the language toggle switches the sample copy and nothing else
 -->
 <template>
-  <div class="inline-flex max-w-full min-w-0 items-center" :data-kd-sample="sampleKey" :data-kd-state="state || undefined">
+  <div class="inline-flex max-w-full min-w-0 items-center [&>*]:max-w-full" :data-kd-sample="sampleKey" :data-kd-state="state || undefined">
     <component :is="component" v-bind="resolvedProps">
-      <template v-if="resolvedSlot !== undefined">{{ resolvedSlot }}</template>
+      <UButton v-if="trigger && resolvedSlot !== undefined" color="neutral" variant="outline">{{ resolvedSlot }}</UButton>
+      <template v-else-if="resolvedSlot !== undefined">{{ resolvedSlot }}</template>
     </component>
   </div>
 </template>
@@ -31,6 +32,7 @@ const props = defineProps<{
   slotText?: string | I18nRef
   state?: string
   open?: boolean
+  trigger?: boolean
 }>()
 
 const { t } = useI18n()
