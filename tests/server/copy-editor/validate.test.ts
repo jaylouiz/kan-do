@@ -14,6 +14,25 @@ const terms: TermEntry[] = [
 const run = (edits: unknown) => validateEdits({ edits }, base, terms)
 
 describe('copy editor edit validation', () => {
+  it('accepts every key of the real locale files, hyphenated ones included, and rejects others by name', async () => {
+    const { readLocaleTrees } = await import('~/server/copy-editor/locales')
+    const { flattenMessages } = await import('~/lib/copy-editor/messages')
+    const real = readLocaleTrees(process.cwd())
+    const keys = Object.keys(flattenMessages(real.de)).filter(key => key in flattenMessages(real.en))
+    expect(keys.filter(key => key.includes('-')).length).toBeGreaterThan(0)
+    const { checkKey } = await import('~/server/copy-editor/validate')
+    expect(keys.filter(key => checkKey(key, real) !== null)).toEqual([])
+    expect(checkKey('no.such-key', real)).toBe('unknown key "no.such-key"')
+    expect(checkKey('__proto__', real)).not.toBeNull()
+  })
+
+  it('takes a language the client did not change from the base, whatever the client sent', () => {
+    const result = run([{ key: 'b', de: 'Zurück zur Liste', en: 'STALE LOCAL', changed: ['de'] }])
+    expect(result).toMatchObject({ ok: true, value: [{ key: 'b', de: 'Zurück zur Liste', en: 'Back' }] })
+    expect(run([{ key: 'b', de: 'Zurück', en: 'Back', changed: ['de'] }])).toMatchObject({ ok: false, errors: ['b: unchanged'] })
+    expect(run([{ key: 'b', de: 'x', en: 'y', changed: ['fr'] }])).toMatchObject({ ok: false })
+  })
+
   it('accepts a changed pair and returns proposed-term warnings', () => {
     const result = run([{ key: 'a.title', de: 'Ticket {name}', en: 'Task {name}' }])
     expect(result).toEqual({ ok: true, value: [{ key: 'a.title', de: 'Ticket {name}', en: 'Task {name}' }], warnings: ['a.title de: "Ticket" is an avoid form of the proposed term "Aufgabe"'] })
@@ -24,7 +43,7 @@ describe('copy editor edit validation', () => {
     ['no edits', [], 'no edits'],
     ['an unknown key', [{ key: 'a.nope', de: 'x', en: 'y' }], 'unknown key'],
     ['a branch key', [{ key: 'a', de: 'x', en: 'y' }], 'unknown key'],
-    ['path tricks', [{ key: '../a', de: 'x', en: 'y' }], 'invalid key'],
+    ['path tricks', [{ key: '../a', de: 'x', en: 'y' }], 'unknown key'],
     ['a prototype key', [{ key: '__proto__.x', de: 'x', en: 'y' }], 'unknown key'],
     ['a duplicate key', [{ key: 'b', de: 'x', en: 'y' }, { key: 'b', de: 'x', en: 'y' }], 'duplicate'],
     ['a non-string value', [{ key: 'b', de: 5, en: 'y' }], 'not a string'],

@@ -69,6 +69,21 @@ describe('copy editor publish', () => {
     expect(git(clone, 'worktree', 'list').trim().split('\n')).toHaveLength(1)
   })
 
+  it('changes only the edited language on origin/main when the local checkout is behind it', async () => {
+    // main moves on (newer English copy for key b) after the designer's clone last fetched
+    const other = tmp('copy-other-')
+    git(other, 'clone', '-q', remote, '.')
+    writeFileSync(join(other, 'i18n/locales/en.json'), json({ ...en, b: 'Go back' }))
+    git(other, 'commit', '-qam', 'newer en copy')
+    git(other, 'push', '-q', 'origin', 'main')
+    const stale = [{ key: 'b', de: 'Zurück zur Liste', en: 'Back', changed: ['de'] }]
+    const result = await publish({ edits: stale }, { root: clone, run: withGh(null), terms, check: passingCheck, now: () => new Date(2026, 10, 9, 12, 30, 6) })
+    expect(result).toMatchObject({ ok: true })
+    const branch = (result as { branch: string }).branch
+    expect(JSON.parse(git(remote, 'show', `${branch}:i18n/locales/de.json`)).b).toBe('Zurück zur Liste')
+    expect(JSON.parse(git(remote, 'show', `${branch}:i18n/locales/en.json`)).b).toBe('Go back')
+  })
+
   it('keeps the pushed branch and reports a note when the pull request cannot be created', async () => {
     const result = await publish({ edits }, { root: clone, run: withGh(null), terms, check: passingCheck })
     expect(result).toMatchObject({ ok: true, prUrl: null })

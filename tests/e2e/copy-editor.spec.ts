@@ -150,7 +150,7 @@ test.describe('Live copy editor', () => {
 
     await page.getByTestId('copy-editor-push').click()
     await expect(page.getByTestId('copy-editor-done')).toContainText('https://github.com/o/r/pull/9')
-    expect(sent.publish).toEqual({ edits: [{ key: 'board.columns.open', de: 'Noch offen', en: 'Still open' }] })
+    expect(sent.publish).toEqual({ edits: [{ key: 'board.columns.open', de: 'Noch offen', en: 'Still open', changed: ['de', 'en'] }] })
     await expect(view.getByTestId('copy-editor-clear-published')).toBeVisible()
   })
 

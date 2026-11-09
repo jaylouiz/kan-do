@@ -25,19 +25,23 @@ export const run: Runner = (cmd, args, { cwd, input, timeoutMs, env }) => new Pr
   ) as Record<string, string | undefined>
   merged.GIT_TERMINAL_PROMPT = '0'
   const child = spawn(cmd, [...args], { cwd, env: merged as NodeJS.ProcessEnv, stdio: ['pipe', 'pipe', 'pipe'] })
-  let stdout = ''
-  let stderr = ''
+  // Chunks are collected as Buffers and decoded once: a chunk boundary can fall inside a multibyte character.
+  const out: Buffer[] = []
+  const err: Buffer[] = []
+  let outSize = 0
+  let errSize = 0
   let timedOut = false
   let settled = false
   const finish = (code: number | null, extra = '') => {
     if (settled) return
     settled = true
     clearTimeout(timer)
-    resolve({ code, stdout, stderr: stderr + extra, timedOut })
+    resolve({ code, stdout: Buffer.concat(out).toString('utf8'), stderr: Buffer.concat(err).toString('utf8') + extra, timedOut })
   }
-  const timer = setTimeout(() => { timedOut = true; child.kill('SIGKILL') }, timeoutMs)
-  child.stdout.on('data', (chunk: Buffer) => { if (stdout.length < MAX_OUTPUT) stdout += chunk.toString() })
-  child.stderr.on('data', (chunk: Buffer) => { if (stderr.length < MAX_OUTPUT) stderr += chunk.toString() })
+  // Settle right away: an orphaned grandchild that keeps the pipes open would otherwise hold `close` (and the caller's lock).
+  const timer = setTimeout(() => { timedOut = true; child.kill('SIGKILL'); finish(null) }, timeoutMs)
+  child.stdout.on('data', (chunk: Buffer) => { if (outSize < MAX_OUTPUT) { out.push(chunk); outSize += chunk.length } })
+  child.stderr.on('data', (chunk: Buffer) => { if (errSize < MAX_OUTPUT) { err.push(chunk); errSize += chunk.length } })
   child.on('error', error => finish(null, String(error.message)))
   child.on('close', code => finish(code))
   child.stdin.on('error', () => { /* the child exited before reading its input */ })

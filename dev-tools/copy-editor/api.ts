@@ -29,4 +29,4 @@ async function post<T extends { ok: boolean }>(route: string, body: unknown): Pr
 }
 
 export const requestTranslation = (items: { key: string, from: 'de' | 'en', value: string }[]) => post<TranslateResponse>('translate', { items })
-export const requestPublish = (edits: { key: string, de: string, en: string }[]) => post<PublishResponse>('publish', { edits })
+export const requestPublish = (edits: { key: string, de: string, en: string, changed: ('de' | 'en')[] }[]) => post<PublishResponse>('publish', { edits })

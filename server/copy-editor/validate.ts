@@ -9,7 +9,6 @@ import { blockingIssues, termIssues, type TermEntry } from '../../lib/copy-edito
 
 export const MAX_EDITS = 200
 export const MAX_VALUE_LENGTH = 2000
-const KEY_PATTERN = /^[A-Za-z0-9_]+(\.[A-Za-z0-9_]+)*$/
 
 export type Lang = 'de' | 'en'
 export interface Edit { key: string, de: string, en: string }
@@ -30,9 +29,16 @@ export function checkValue(label: string, value: unknown): string | null {
 }
 
 export function checkKey(key: unknown, base: BaseTrees): string | null {
-  if (typeof key !== 'string' || key.length > 200 || !KEY_PATTERN.test(key)) return 'invalid key'
-  if (getLeaf(base.de, key) === undefined || getLeaf(base.en, key) === undefined) return `unknown key ${key}`
+  // The real key set is the whitelist (keys may hold hyphens, e.g. `topic.symbol.graduation-cap`); no pattern guesses.
+  if (typeof key !== 'string' || key.length > 200) return 'invalid key'
+  if (getLeaf(base.de, key) === undefined || getLeaf(base.en, key) === undefined) return `unknown key ${JSON.stringify(key)}`
   return null
+}
+
+function parseChanged(value: unknown): Lang[] | null {
+  if (value === undefined) return ['de', 'en']
+  if (!Array.isArray(value) || value.length === 0 || !value.every(lang => lang === 'de' || lang === 'en')) return null
+  return [...new Set(value as Lang[])]
 }
 
 /** Edits for Publish: both languages present, at least one changed, parity and term rules hold. */
@@ -51,9 +57,16 @@ export function validateEdits(input: unknown, base: BaseTrees, terms: readonly T
     const key = raw.key as string
     if (seen.has(key)) { errors.push(`${key}: duplicate`); continue }
     seen.add(key)
-    const valueErrors = [checkValue(`${key} de`, raw.de), checkValue(`${key} en`, raw.en)].filter((e): e is string => e !== null)
+    const changed = parseChanged(raw.changed)
+    if (!changed) { errors.push(`${key}: changed must list de and/or en`); continue }
+    const valueErrors = changed.map(lang => checkValue(`${key} ${lang}`, raw[lang])).filter((e): e is string => e !== null)
     if (valueErrors.length) { errors.push(...valueErrors); continue }
-    const edit: Edit = { key, de: raw.de as string, en: raw.en as string }
+    // A language the designer did not change keeps the base text: a stale local checkout must not revert newer copy.
+    const edit: Edit = {
+      key,
+      de: changed.includes('de') ? raw.de as string : getLeaf(base.de, key)!,
+      en: changed.includes('en') ? raw.en as string : getLeaf(base.en, key)!,
+    }
     if (edit.de === getLeaf(base.de, key) && edit.en === getLeaf(base.en, key)) { errors.push(`${key}: unchanged`); continue }
     for (const problem of parityProblems(edit.de, edit.en)) errors.push(`${key}: ${problem}`)
     for (const lang of ['de', 'en'] as const) {

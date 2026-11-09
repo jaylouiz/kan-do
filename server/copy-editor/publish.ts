@@ -20,7 +20,7 @@ export const BRANCH_PREFIX = 'copy/'
 const GIT_TIMEOUT_MS = 120_000
 const CHECK_TIMEOUT_MS = 240_000
 
-export type PublishStep = 'busy' | 'validate' | 'fetch' | 'worktree' | 'check' | 'commit' | 'push'
+export type PublishStep = 'busy' | 'validate' | 'fetch' | 'worktree' | 'check' | 'commit' | 'push' | 'internal'
 export type PublishResult =
   | { ok: true, branch: string, prUrl: string | null, note: string | null, edits: number, files: number, warnings: string[] }
   | { ok: false, step: PublishStep, errors: string[] }
@@ -139,7 +139,7 @@ export async function publish(input: unknown, deps: PublishDeps): Promise<Publis
     const note = pr.code === 0 && url ? null : `Branch ${branch} is pushed, but the pull request was not created (${tail(pr.stderr || pr.stdout, 3) || 'gh unavailable'}). Open it from GitHub.`
     return { ok: true, branch, prUrl: url, note, edits: edits.length, files: 2, warnings: validated.warnings }
   } catch (error) {
-    return { ok: false, step: 'worktree', errors: [error instanceof Error ? error.message : String(error)] }
+    return { ok: false, step: 'internal', errors: [error instanceof Error ? error.message : String(error)] }
   } finally {
     if (worktree) await git(['worktree', 'remove', '--force', worktree])
     if (branch) await git(['branch', '-D', branch])

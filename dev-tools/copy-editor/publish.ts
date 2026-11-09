@@ -7,7 +7,7 @@
  */
 import { ref } from 'vue'
 import { requestPublish, requestTranslation, type PublishResponse } from './api'
-import { edits, markPublished, needsTranslation, pendingEdits, setDraft } from './edits'
+import { baseValue, edits, markPublished, needsTranslation, pendingEdits, setDraft, type Lang } from './edits'
 
 export type Phase = 'idle' | 'translating' | 'publishing'
 
@@ -38,7 +38,12 @@ export async function pushPullRequest(): Promise<void> {
   phase.value = 'publishing'
   errors.value = []
   const keys = pendingEdits.value.map(entry => entry.key)
-  const response = await requestPublish(keys.map(key => ({ key, de: edits.value[key]!.de, en: edits.value[key]!.en })))
+  const response = await requestPublish(keys.map((key) => {
+    const entry = edits.value[key]!
+    // Only languages that differ from the bundled text are changes; the server keeps origin/main's text for the rest.
+    const changed = (['de', 'en'] as Lang[]).filter(lang => entry[lang] !== baseValue(key, lang))
+    return { key, de: entry.de, en: entry.en, changed }
+  }))
   if (response.ok) {
     result.value = response
     markPublished(keys, response.prUrl ?? response.branch)

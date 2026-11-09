@@ -55,7 +55,7 @@ export function nestedMessage(key: string, value: string): MessageTree {
 export function placeholdersOf(text: string): string[] {
   const found = new Set<string>()
   for (const match of text.matchAll(/\{\s*([^{}'"\s]+)\s*\}/g)) found.add(`{${match[1]}}`)
-  for (const match of text.matchAll(/@(?:\.[a-z]+)?:([\w.]+)/g)) found.add(`@:${match[1]}`)
+  for (const match of text.matchAll(/@(?:\.[a-z]+)?:(\w+(?:\.\w+)*)/g)) found.add(`@:${match[1]}`)
   return [...found].sort()
 }
 

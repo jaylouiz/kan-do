@@ -28,7 +28,8 @@ function files(dir: string): string[] {
   })
 }
 
-describe.skipIf(!existsSync(outputDir))('a build without KANDO_COPY_EDITOR has no live copy editor (#59)', () => {
+// In CI a missing build is a failure, not a skip: the proof must not pass by checking nothing.
+describe.skipIf(!existsSync(outputDir) && !process.env.CI)('a build without KANDO_COPY_EDITOR has no live copy editor (#59)', () => {
   const textFiles = existsSync(outputDir) ? files(outputDir).filter(path => /\.(m?js|css|html|json|mjs)$/.test(path)) : []
 
   it('has a build to look at', () => {

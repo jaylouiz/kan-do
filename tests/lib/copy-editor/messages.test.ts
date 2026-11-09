@@ -31,3 +31,11 @@ describe('copy editor messages', () => {
     expect(parityProblems('eins | zwei', 'one')).toEqual(['plural branches differ: 2 vs 1'])
   })
 })
+
+describe('placeholdersOf linked messages', () => {
+  it('does not take a sentence-final period into the linked key', async () => {
+    const { placeholdersOf } = await import('~/lib/copy-editor/messages')
+    expect(placeholdersOf('Siehe @:a.b.')).toEqual(['@:a.b'])
+    expect(placeholdersOf('Siehe @:a.b und @:c')).toEqual(['@:a.b', '@:c'])
+  })
+})
