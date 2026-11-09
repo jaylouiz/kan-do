@@ -48,6 +48,13 @@ describe('buildTokenCatalog (#65)', () => {
     expect(scopedCount).toBe(1)
   })
 
+  it('shows a named breakpoint (@media (--phone), #70) as the query it stands for', () => {
+    const { tokens } = buildTokenCatalog([
+      { file: 'a.css', css: ':root { --gap: 1rem } @media (--phone) { :root { --gap: 2rem } } @media (pointer: coarse), (--phone) { :root { --gap: 3rem } }' },
+    ])
+    expect(tokens[0]!.responsive.map(r => r.when)).toEqual(['@media (max-width: 767px)', '@media (pointer: coarse), (max-width: 767px)'])
+  })
+
   it('takes only the listed families from a vendor theme and none of its colours', () => {
     const { tokens } = buildTokenCatalog([{ file: 'tw.css', vendor: 'tailwind', css: '@theme default { --color-red-50: #fff; --breakpoint-md: 48rem; --blur-sm: 8px; --text-xs: 0.75rem; --text-xs--line-height: 1.3 }' }])
     expect(tokens.map(t => t.name)).toEqual(['--breakpoint-md', '--text-xs', '--text-xs--line-height'])
