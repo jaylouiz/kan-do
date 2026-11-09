@@ -15,7 +15,7 @@
       <h4 :id="`component-${row.name}-title`" tabindex="-1" class="font-display text-lg text-highlighted outline-none">
         <code class="font-mono">{{ row.name }}</code>
       </h4>
-      <p class="text-xs text-muted">
+      <p class="text-xs wrap-break-word text-muted">
         {{ row.kind }} · {{ row.source === 'nuxt-ui' ? 'Nuxt UI' : row.path }}
       </p>
     </header>
@@ -105,7 +105,7 @@
           <ul class="flex flex-wrap items-end gap-x-6 gap-y-3">
             <li v-for="example in shownVariants" :key="example.id" class="max-w-full min-w-0 space-y-1">
               <p class="text-xs text-muted">{{ example.label ?? example.id }}</p>
-              <UiCatalogSample :component="component" :sample-key="`${row.name}:variant:${example.id}`" :props="example.props" :slot-text="example.slot" :open="example.open" />
+              <UiCatalogSample :component="component" :sample-key="`${row.name}:variant:${example.id}`" :props="example.props" :slot-text="example.slot" :open="example.open" :trigger="example.trigger" />
             </li>
           </ul>
         </section>
@@ -115,7 +115,7 @@
           <ul class="flex flex-wrap items-end gap-x-6 gap-y-3">
             <li v-for="example in shownStates" :key="example.id" class="max-w-full min-w-0 space-y-1">
               <p class="text-xs text-muted">{{ example.label ?? example.state }}</p>
-              <UiCatalogSample :component="component" :sample-key="`${row.name}:state:${example.id}`" :state="example.state" :props="example.props" :slot-text="example.slot" :open="example.open" />
+              <UiCatalogSample :component="component" :sample-key="`${row.name}:state:${example.id}`" :state="example.state" :props="example.props" :slot-text="example.slot" :open="example.open" :trigger="example.trigger" />
             </li>
           </ul>
         </section>
