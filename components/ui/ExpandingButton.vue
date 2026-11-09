@@ -1,7 +1,10 @@
 <!--
 @component ExpandingButton
+@kind primitive
+@category action
 @description Button that expands to show text on hover
 @usage Used for compact UI elements that reveal more information on interaction
+@avoid Rendered nowhere in the app today (only the styleguide); a UButton with a label is the default.
 @responsibility
 - Provides compact button that expands on hover
 - Manages transition animations and timing

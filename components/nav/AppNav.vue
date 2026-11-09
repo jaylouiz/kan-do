@@ -1,7 +1,10 @@
 <!--
 @component AppNav
+@kind block
+@category navigation
 @description The global app bar (#470, ADR 017): the `kan-do` wordmark (outside any pill, #642), one pill with the two places (Heute, Statistik) plus, on a page behind ⋯, that page as a third segment (#583), then a separate round ⋯ pill that opens the Mehr panel
 @usage Mounted once in app.vue before <NuxtLayout>, so it survives page transitions; hidden on routes with `appNav: false`
+@avoid Mounted once in app.vue; secondary pages go behind MorePanel, in-page switching is not a job for the app bar.
 @responsibility
 - Brand (#642): the wordmark link sits first in the group, left of the pill and outside it, on the paper veil; DOM and tab order unchanged (brand, Heute, Statistik, third, ⋯). Not shown on a phone (kd#24: it has no backing and printed over the cards scrolling under the bar; Heute links to /tasks)
 - Desktop (≥768px): sticky bar at the top, the group centred. Phone: the same pills float at the bottom (assets/css/app-nav.css)

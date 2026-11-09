@@ -1,7 +1,10 @@
 <!--
 @component BoardColumnItem
+@kind compound
+@category layout
 @description One element of a standard column's task list: a collapsed stack, the header row of an expanded one, or a sortable card
 @usage Rendered by BoardColumn, one per list item
+@avoid Not for the Jetzt column (BoardColumnProgressContent) and not for a card outside a column list; use TaskCard directly for a static card.
 @responsibility
 - Renders the slot of a card deleted inside its undo window as TaskDeletedGap (#422): not a sortable, no drag, no drop
 - Renders a collapsed group as TaskStack (one sortable by its front task, #150), the header row of an expanded one as TaskStackHeader (not a

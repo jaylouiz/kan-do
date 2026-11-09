@@ -1,7 +1,10 @@
 <!--
 @component TrashEntryRow
+@kind component
+@category display
 @description One deleted task in the trash (#422): the board's own card, read-only, with when it was deleted, where it was and the actions.
 @usage Rendered by pages/trash.vue (every entry, restore and remove-forever)
+@avoid Only a deleted task on the trash page; live tasks are TaskCard.
 @responsibility
 - Shows the standard TaskCard (`readonly`, `preview`: no sheet, no drag, no swipe, no task id on the DOM); a Wartet card is muted as on the board
 - "Gelöscht vor …", "War in <Spalte>" ("War in Jetzt, kommt zurück nach Offen" for a task from Jetzt) beside the card on desktop, below it at 390px

@@ -1,10 +1,13 @@
 <!--
 @component DataExportImport
+@kind block
+@category action
 @description The "Daten exportieren / importieren" section of /settings/data (#224, ADR 011): a plain JSON file,
 independent of the data folder and without any credentials. Export writes through the native save dialog
 (web, #238: a browser download); import validates the picked file first and then asks the page to confirm
 (same modal as a restore; web: file chooser).
 @usage <DataExportImport @import="onImport" />
+@avoid Only the export/import section of /settings/data.
 @responsibility
 - "Exportieren…": save dialog, then the current state; cancel changes nothing
 - "Importieren…": open dialog, validation errors inline (invalid, not a kan-do file, newer schema),

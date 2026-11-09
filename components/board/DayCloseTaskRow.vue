@@ -1,7 +1,10 @@
 <!--
 @component DayCloseTaskRow
+@kind component
+@category display
 @description One "not done yet" row in the closing step (#98): title, column label, carry-over dots, and the optional triage actions.
 @usage <DayCloseTaskRow :task="task" @smaller="..." /> inside a <ul> (renders an <li>). Not draggable, not a link.
+@avoid Not a board card (TaskCard) and not draggable or a link; only the "not done yet" rows of the closing step.
 @responsibility
 - Show the column label (Offen, Jetzt, Wartet) and the #99 dots when the card has been carried over
 - Offen/Jetzt past the #99 threshold: TaskCarryOverTriage in `compact` mode; Wartet never (the block renders nothing there)

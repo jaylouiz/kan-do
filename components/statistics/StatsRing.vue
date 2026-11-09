@@ -1,7 +1,10 @@
 <!--
 @component StatsRing
+@kind primitive
+@category display
 @description Hand-built SVG ring (DESIGN.md "Ink ring"): segments share one circle in the ink ramp, a neutral track, an optional tick for the user's usual value. No chart library.
 @usage Verdict (in-timebox share), the Q3 estimate ring and the Q4 time donut on the Statistik page
+@avoid A ring in the ink ramp only; not a chart library, and topic hues never go into charts.
 @responsibility
 - Draw up to six segments (percent of the circle, ramp step) separated by a small gap
 - Carry the numbers as a text alternative (`role="img"` + `aria-label`); the centre slot is decoration and hidden from assistive tech

@@ -1,7 +1,10 @@
 <!--
 @component Board
+@kind block
+@category layout
 @description Main kanban board component that organizes and displays tasks by status
 @usage Used on the main page to provide the core task management interface
+@avoid Not for one column or one card (BoardColumn, TaskCard); mounted once per page, never nested.
 @responsibility
 - Renders the complete kanban board with all columns
 - Manages drag-and-drop functionality between columns

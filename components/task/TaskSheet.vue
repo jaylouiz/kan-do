@@ -1,7 +1,10 @@
 <!--
 @component TaskSheet
+@kind block
+@category overlay
 @description Responsive sheet that hosts the nested task routes (/tasks/:id, /tasks/add)
 @usage Mounted once in pages/tasks.vue. `open` is driven by the route; closing animates first, then `after-leave` fires so the host can navigate to /tasks.
+@avoid Only hosts the nested task routes; other overlays use ResponsiveOverlay directly.
 @responsibility
 - Hosted by ResponsiveOverlay: a slideover (side right) at >=768px and a bottom drawer below; the shell owns the breakpoint, the frozen variant and the open/close echo guard
 - Focus on open (the drawer: ResponsiveOverlay moves it in, #566), focus trap and focus return come from reka's FocusScope

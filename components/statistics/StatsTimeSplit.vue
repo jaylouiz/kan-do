@@ -1,7 +1,10 @@
 <!--
 @component StatsTimeSplit
+@kind component
+@category display
 @description Q4 chart: donut of where the time of the last 4 weeks went (completed tasks only), by topic or activity, in the ink ramp, with a legend
 @usage Summary of the Q4 tile (top 3 legend rows while closed) and the rows of its open panel
+@avoid Only the Q4 time donut; a generic ring is StatsRing.
 @responsibility
 - Fold slices beyond four into "Sonstiges" (the lightest step); topic hues stay on the TopicMark before a topic name, never on the chart
 - Name the numbers in the aria-label of the ring

@@ -1,8 +1,11 @@
 <!--
 @component TaskCompletionBurst
+@kind primitive
+@category feedback
 @description The earned celebration of a completion (#692, DESIGN.md "Earned celebration"): a short burst of small
 teal pieces that flies out of the card's check, around and over the card, and fades.
 @usage Rendered by TaskCard while a completion plays (the card decides when); it tells the card when it is over.
+@avoid Only the completion celebration, driven by TaskCard; no other success feedback uses it.
 @responsibility
 - Draws 24 fixed pieces (6 x 12 px rectangles and 10 px dots, deterministic so screenshots are stable) in the done-teal tints
   `success-200..500` plus `neutral-400`, flying out along an ellipse of ~175-230 x 88-133 px around the card centre,

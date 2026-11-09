@@ -1,9 +1,12 @@
 <!--
 @component ExternalLink
+@kind primitive
+@category navigation
 @description Link to an external page. In the desktop app it opens in the system browser through
 tauri-plugin-opener (narrow URL permission in src-tauri/capabilities); on web it is a plain
 `<a target="_blank">`.
 @usage <ExternalLink href="https://www.notion.so/my-integrations">Manage token</ExternalLink>
+@avoid Only for pages outside the app (opens the system browser on desktop); in-app links use NuxtLink.
 @responsibility
 - Keep the href real so middle-click, copy-link and screen readers behave on web
 - Hand the URL to the opener plugin on desktop instead of navigating the webview

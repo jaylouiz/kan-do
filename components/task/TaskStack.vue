@@ -1,9 +1,12 @@
 <!--
 @component TaskStack
+@kind compound
+@category display
 @description A collapsed stack of task cards in a grouped column: front card, peek layers, pill
 @usage Used by BoardColumn for a group of 2+ tasks while it is collapsed. Expanding is declarative
   (#147): BoardColumn stops rendering the stack and renders the group's members as ordinary cards,
   behind a TaskStackHeader (#148).
+@avoid Only a collapsed stack of 2+ tasks; an expanded group renders its members through BoardColumnItem.
 @responsibility
 - Shows the group as a front card (the first task) with `min(count - 1, 2)` peek layers behind it
   (`--stack-layers`, step `--stack-collapsed-offset`), and the details as a split capsule (TaskStackPill, #504:

@@ -1,11 +1,14 @@
 <!--
 @component DataConflictCopies
+@kind block
+@category display
 @description The "Konflikt-Kopien" section of /settings/data (#224, ADR 011): files a sync client left next
 to the data file (Dropbox "conflicted copy", iCloud `kan-do-data 2.json`, Syncthing `.sync-conflict-`) that
 parse as a data file. Only rendered when there are any. Nothing is ever deleted: "Wiederherstellen" runs the
 restore flow with that file as the source, "Ablegen" moves it into `backups/` so the sync client stops
 showing it.
 @usage <DataConflictCopies @restore="onRestoreCopy" />
+@avoid Only the Konflikt-Kopien section of /settings/data.
 @responsibility
 - Lists each copy with its time and task count
 - "Ablegen" files it away and reports a failure inline

@@ -1,7 +1,10 @@
 <!--
 @component StatsTrendBars
+@kind component
+@category display
 @description Q2 chart: eight bars of the in-timebox share per 7-day window, the last window in the strong ink, the others quiet; a window without a value has no bar
 @usage Summary of the Q2 tile (small) and its open panel (larger, with value labels)
+@avoid Only the Q2 trend chart; its numbers are StatsWeekTable.
 @responsibility
 - Draw the bars from `weeks` (oldest first); heights are the share itself (0-100 %) of a track the value label does not eat into
 - Carry the values as text alternative; the bars are decoration for assistive tech

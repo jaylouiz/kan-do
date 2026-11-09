@@ -1,8 +1,11 @@
 <!--
 @component DayCloseDialog
+@kind block
+@category overlay
 @description Optional, quiet closing step for the day (#98): what got done, what is not done yet, a closing line and a copyable summary.
 @usage Mounted once in pages/tasks.vue; opened through useDayClose().open() (Mehr panel row, the Erledigt CTA, command palette).
 Hosted by ResponsiveOverlay (modal at >=768px, drawer below; the same shell as TaskSheet, but not route-bound). The footer markup exists once and has no per-variant look: the theme floor makes both buttons 44px on a phone (Fertig, the one primary, `lg`: 48px) and desktop keeps `md` / `lg` (#551, #552).
+@avoid Not for a plain confirmation (UModal, ResponsiveOverlay) and not the first-start-of-day recap (NewDayRecap).
 @responsibility
 - Shell only: title, scrolling body (DayCloseBody), footer "Zusammenfassung kopieren" (neutral, first) and "Fertig" (primary, last)
 - Escape, overlay click and swipe down only close the dialog: nothing is archived, moved, deleted or stored

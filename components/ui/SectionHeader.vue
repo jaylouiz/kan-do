@@ -1,7 +1,10 @@
 <!--
 @component SectionHeader
+@kind primitive
+@category layout
 @description Reusable section header with optional icon and configurable HTML tag
 @usage Used for section titles throughout the application
+@avoid Only a section title; a page title is PageHeader.
 @responsibility
 - Display section titles with consistent styling
 - Support optional icons

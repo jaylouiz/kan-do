@@ -1,7 +1,10 @@
 <!--
 @component TaskDetailCustomFields
+@kind component
+@category form-structure
 @description Custom (Notion) properties of a task as flat label/value rows with inline editing
 @usage Used in TaskDetailContent under the "Eigenschaften" heading
+@avoid Only the Notion custom properties in the task detail; core properties use TaskPropertyRow.
 @responsibility
 - Renders every custom property type (text, number, url, email, phone, checkbox, select, multi-select, date)
 - Every configured property is a row in a stable position; an empty one shows its empty state ("Auswählen…", "+ hinzufügen") instead of hiding behind a "+ n weitere" action (#161)

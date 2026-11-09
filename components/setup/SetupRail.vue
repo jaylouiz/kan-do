@@ -1,8 +1,11 @@
 <!--
 @component SetupRail
+@kind component
+@category navigation
 @description Guide rail of a multi-step setup on a page (#43): a vertical rail with one-line help at md and up, a label
   plus "n / m" and a progress bar below md. Non-interactive: the steps validate in order.
 @usage <SetupRail :steps="[{ key, label }]" :current="2" :help="text" :label="t('notion.modal.stepsLabel')" />
+@avoid Progress of a multi-step setup page; not a tab bar and not interactive.
 @responsibility
 - Shows done, current and todo steps (state in data-state, aria-current on the current one, a screen-reader "done" on finished ones)
 - Pattern: step progress, new (guide rail). Replaces the dialog stepper of the Notion modal for the welcome page only

@@ -1,7 +1,10 @@
 <!--
 @component BoardColumnHeader
+@kind component
+@category display
 @description Header component for kanban board columns
 @usage Used at the top of each BoardColumn to display status title and visual indicators
+@avoid Not a page header (PageHeader) and not the header of an expanded stack (TaskStackHeader).
 @responsibility
 - Displays column title with appropriate styling
 - Shows status-specific icons (checkmark for Done column)

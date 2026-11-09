@@ -1,11 +1,14 @@
 <!--
 @component TaskDeletedGap
+@kind component
+@category feedback
 @description The slot of a card that was just deleted (#422, UX decision D "Im Papierkorb"): the card's own box, with
 a trash icon, "Im Papierkorb" and a "Rückgängig" pill centred in it, all in raspberry on a muted raspberry fill without an
 outline (#581, #57; destructive state, The Status Is Not Decoration Rule), and a draining line along its bottom edge. From #57 the
 gap is compact (`--task-note-height`, the collapsed Yesterday note's height): the cards below glide up by the difference and back on undo.
 @usage Rendered by BoardColumn / BoardColumnProgressContent at the card's slot, from `useTaskDeletion().gaps`; never inside
 SortableTaskWrapper (a gap is no dnd-kit sortable: not draggable, not droppable, no sheet).
+@avoid Only the slot of a just-deleted card with undo; never inside a drag list.
 @responsibility
 - Holds a compact slot (`--task-note-height`: 42px, 46px at 390px) for the undo window, for a card and a stack alike; the box glides from the card's measured height (`--gap-from`) to it in 220 ms; the card itself is already out of `tasks`
 - D6 transition: a non-interactive picture of the card (TaskCard `readonly`, `inert`) shrinks to 0.92 and fades out towards its

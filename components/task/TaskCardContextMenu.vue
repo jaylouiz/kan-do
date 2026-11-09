@@ -1,5 +1,7 @@
 <!--
 @component TaskCardContextMenu
+@kind component
+@category action
 @description Wraps TaskCard with a context menu for quick task actions.
   On desktop: right-click opens the menu via the native contextmenu event.
   On mobile/touch: a 750ms long press opens the menu; moving more than 14px
@@ -8,6 +10,7 @@
   component) opens the menu at the card; on close focus returns to the card (kd#23).
   If a drag starts while the menu is open it is closed immediately.
 @usage Used in BoardColumn to provide right-click / long-press menu on task cards
+@avoid Only wraps TaskCard for the right-click / long-press menu; not for stack headers or other rows.
 @responsibility
 - Provides context menu with task actions (status, timebox, delete, etc.)
 - Handles custom timebox modal
