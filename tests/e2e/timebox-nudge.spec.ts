@@ -115,6 +115,10 @@ test.describe('timebox nudge on a card that lands in Jetzt (desktop)', () => {
     const field = nudge(page).getByRole('spinbutton', { name: 'Minuten' })
     await expect(field).toBeFocused()
     await expect(field).toHaveValue('45')
+    // the field keeps a visible focus ring (DESIGN.md "Buttons > Focus"): the pill around the input carries it
+    const pill = nudge(page).locator('.nudge__field')
+    await expect(pill).toHaveCSS('outline-style', 'solid')
+    await expect(pill).toHaveCSS('outline-width', '2px')
     const apply = nudgeBtn(page, 'Übernehmen')
     await field.fill('500')
     await expect(apply).toBeDisabled()

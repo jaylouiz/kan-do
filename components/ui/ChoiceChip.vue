@@ -164,9 +164,8 @@ const rowClass = computed(
     transition-duration: 0ms;
   }
 
-  .choice-chip--chip:active:not(:disabled),
-  .choice-chip--chip.is-picked,
-  .choice-chip--icon:active:not(:disabled) {
+  .choice-chip:not(.choice-chip--row):active:not(:disabled),
+  .choice-chip.is-picked {
     transform: none;
   }
 }
