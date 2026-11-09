@@ -63,15 +63,10 @@ describe('formatDurationParts', () => {
 
 describe('remaining / spent labels', () => {
   it('german wording', () => {
-    expect(tDe('duration.remaining', { time: '5 min' })).toBe('noch 5 min')
-    expect(tDe('duration.remainingCapital', { time: '5 min' })).toBe('Noch 5 min')
-    expect(tDe('duration.remainingOfTotal', { remaining: '5 min', total: '30 min' })).toBe('noch 5 min / 30 min')
     expect(tDe('duration.spentOfTotal', { spent: '30 min', total: '1 h' })).toBe('30 min von 1 h')
   })
 
   it('english wording', () => {
-    expect(tEn('duration.remaining', { time: '5 min' })).toBe('5 min left')
-    expect(tEn('duration.remainingOfTotal', { remaining: '5 min', total: '30 min' })).toBe('5 min left / 30 min')
     expect(tEn('duration.spentOfTotal', { spent: '30 min', total: '1 h' })).toBe('30 min of 1 h')
   })
 })

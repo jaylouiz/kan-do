@@ -468,9 +468,6 @@
     "unitHour": "h",
     "unitMinute": "min",
     "unitSecond": "s",
-    "remaining": "noch {time}",
-    "remainingCapital": "Noch {time}",
-    "remainingOfTotal": "noch {remaining} / {total}",
     "spentOfTotal": "{spent} von {total}"
   },
   "relative": {
