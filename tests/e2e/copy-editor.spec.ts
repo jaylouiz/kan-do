@@ -83,6 +83,19 @@ test.describe('Live copy editor', () => {
     await expect(heading(page, 'Offen')).toBeVisible()
   })
 
+  test('switching the language you write keeps what was typed in each', async ({ page }) => {
+    await enterMode(page)
+    await pickOffen(page)
+    await page.getByTestId('copy-editor-text').fill('Noch offen')
+    await page.getByTestId('copy-editor-write-en').click()
+    await expect(page.getByTestId('copy-editor-text')).toHaveValue('Open')
+    await page.getByTestId('copy-editor-text').fill('Still open')
+    await page.getByTestId('copy-editor-write-de').click()
+    await expect(page.getByTestId('copy-editor-text')).toHaveValue('Noch offen')
+    await page.getByTestId('copy-editor-write-other').click()
+    await expect(page.getByTestId('copy-editor-other-text')).toHaveValue('Still open')
+  })
+
   test('a decided term cannot be saved, a placeholder mismatch neither', async ({ page }) => {
     await enterMode(page)
     await pickOffen(page)
@@ -176,6 +189,11 @@ test.describe('Live copy editor', () => {
     await expect(dialog(page)).toBeVisible()
     await dialog(page).getByRole('option', { name: /common\.clickToEdit/ }).click()
     await expect(page.getByTestId('copy-editor-text')).toBeVisible()
+    // the list gives way to the editor; "All keys" brings it back
+    await expect(dialog(page).getByRole('option', { name: /common\.clickToEdit/ })).toBeHidden()
+    await page.getByTestId('copy-editor-all-keys').click()
+    await expect(dialog(page).getByRole('option', { name: /common\.clickToEdit/ })).toBeVisible()
+    await dialog(page).getByRole('option', { name: /common\.clickToEdit/ }).click()
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
     expect(overflow).toBe(0)
     const dialogBox = await dialog(page).boundingBox()

@@ -26,18 +26,18 @@ Loading (translation or push running), error (kept edits, step named) and done (
             <UBadge v-if="entry.written !== lang && entry.other === 'draft'" color="warning" variant="subtle" size="sm" class="ml-1">agent draft</UBadge>
           </template>
         </p>
-        <p v-if="entry.draftProblems?.length" class="mt-1 text-error">Draft rejected: {{ entry.draftProblems.join('; ') }}. Write it yourself in the editor or retry.</p>
+        <p v-if="entry.draftProblems?.length" class="mt-1 text-error-700">Draft rejected: {{ entry.draftProblems.join('; ') }}. Write it yourself in the editor or retry.</p>
         <UButton type="button" size="xs" color="neutral" variant="link" class="mt-1 -ml-1" @click="openEditor(entry.key)">Edit</UButton>
       </li>
     </ul>
 
-    <UAlert v-if="errors.length" color="error" variant="subtle" icon="i-ph-warning-circle" title="Not published, your edits are kept" data-testid="copy-editor-error">
+    <UAlert v-if="errors.length" color="error" variant="subtle" :ui="{ root: 'text-error-800', description: 'opacity-100' }" icon="i-ph-warning-circle" title="Not published, your edits are kept" data-testid="copy-editor-error">
       <template #description>
         <p v-for="line in errors" :key="line" class="whitespace-pre-wrap">{{ line }}</p>
       </template>
     </UAlert>
 
-    <UAlert v-if="result" color="success" variant="subtle" icon="i-ph-check-circle" :title="`Published ${result.edits} ${result.edits === 1 ? 'edit' : 'edits'} on ${result.branch}`" data-testid="copy-editor-done">
+    <UAlert v-if="result" color="success" variant="subtle" :ui="{ root: 'text-success-800', description: 'opacity-100' }" icon="i-ph-check-circle" :title="`Published ${result.edits} ${result.edits === 1 ? 'edit' : 'edits'} on ${result.branch}`" data-testid="copy-editor-done">
       <template #description>
         <a v-if="result.prUrl" :href="result.prUrl" target="_blank" rel="noopener" class="underline">{{ result.prUrl }}</a>
         <p v-if="result.note">{{ result.note }}</p>

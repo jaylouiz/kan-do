@@ -44,14 +44,14 @@ placeholder mismatch) and what only warns (proposed terms).
         </p>
         <p v-if="entry?.other === 'draft'" class="text-sm text-default" data-private>{{ currentValue(keyName, second) }}</p>
         <p v-else class="text-sm text-muted">Now: {{ baseValue(keyName, second) }}</p>
-        <ul v-if="entry?.draftProblems?.length" class="list-disc pl-5 text-sm text-error">
+        <ul v-if="entry?.draftProblems?.length" class="list-disc pl-5 text-sm text-error-700">
           <li v-for="problem in entry.draftProblems" :key="problem">Draft rejected: {{ problem }}</li>
         </ul>
         <UButton type="button" size="xs" color="neutral" variant="link" class="self-start" :data-testid="`copy-editor-write-other`" @click="writeOtherMyself">Write {{ second.toUpperCase() }} myself</UButton>
       </template>
     </div>
 
-    <UAlert v-if="check.blocking.length" color="error" variant="subtle" icon="i-ph-warning-circle" title="Cannot save" data-testid="copy-editor-blocking">
+    <UAlert v-if="check.blocking.length" color="error" variant="subtle" :ui="{ root: 'text-error-800', description: 'opacity-100' }" icon="i-ph-warning-circle" title="Cannot save" data-testid="copy-editor-blocking">
       <template #description>
         <ul class="list-disc pl-4"><li v-for="message in check.blocking" :key="message">{{ message }}</li></ul>
       </template>
@@ -86,6 +86,8 @@ const text = ref('')
 const otherKind = ref<'agent' | 'self'>('agent')
 const otherText = ref('')
 const savedNote = ref('')
+/** What was typed per language, so switching the written language and back does not lose it. */
+const typed = ref<Partial<Record<Lang, string>>>({})
 const second = computed(() => otherLang(written.value))
 
 /** A fresh form for the key: the saved edit when there is one, else the German text with the agent on English. */
@@ -95,20 +97,23 @@ function reset() {
   text.value = currentValue(props.keyName, written.value)
   otherKind.value = saved?.other === 'self' ? 'self' : 'agent'
   otherText.value = currentValue(props.keyName, otherLang(written.value))
+  typed.value = {}
   savedNote.value = ''
 }
 watch(() => props.keyName, reset, { immediate: true })
 
 function switchWritten(lang: Lang) {
+  if (lang === written.value) return
+  typed.value = { ...typed.value, [written.value]: text.value }
   written.value = lang
-  text.value = currentValue(props.keyName, lang)
+  text.value = typed.value[lang] ?? currentValue(props.keyName, lang)
   otherKind.value = 'agent'
-  otherText.value = currentValue(props.keyName, otherLang(lang))
+  otherText.value = typed.value[otherLang(lang)] ?? currentValue(props.keyName, otherLang(lang))
   savedNote.value = ''
 }
 
 function writeOtherMyself() {
-  otherText.value = currentValue(props.keyName, second.value)
+  otherText.value = typed.value[second.value] ?? currentValue(props.keyName, second.value)
   otherKind.value = 'self'
 }
 

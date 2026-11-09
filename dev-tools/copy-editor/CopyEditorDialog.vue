@@ -26,7 +26,7 @@ the chosen key or the Publish review. At 390px the panes stack, the editor below
           </div>
         </div>
         <div class="flex min-h-0 flex-1 flex-col md:flex-row">
-          <div v-show="view === 'edit'" class="flex max-h-72 min-h-0 flex-col border-default md:max-h-none md:w-1/2 md:border-r">
+          <div v-show="view === 'edit'" class="flex max-h-72 min-h-0 flex-col border-default md:max-h-none md:w-1/2 md:border-r" :class="{ 'max-md:hidden': selectedKey }">
             <p v-if="choices.length" class="px-4 pt-3 text-sm text-muted" data-testid="copy-editor-choices-hint">This text comes from {{ choices.length }} keys. Choose one:</p>
             <UCommandPalette
               :groups="groups"
@@ -34,7 +34,7 @@ the chosen key or the Publish review. At 390px the panes stack, the editor below
               :back="false"
               :fuse="fuseOptions"
               class="min-h-0 flex-1"
-              :ui="{ root: 'divide-default/40', viewport: 'p-2' }"
+              :ui="{ root: 'divide-default/40', viewport: 'p-2', itemLabelSuffix: 'text-muted' }"
               data-testid="copy-editor-search-list"
             >
               <template #empty="{ searchTerm }">
@@ -42,7 +42,9 @@ the chosen key or the Publish review. At 390px the panes stack, the editor below
               </template>
             </UCommandPalette>
           </div>
-          <div class="min-h-0 flex-1 overflow-y-auto">
+          <div class="min-h-0 flex-1 overflow-y-auto md:min-h-96">
+            <!-- 390px: once a key is chosen the list gives way to the editor; this brings it back -->
+            <UButton v-if="view === 'edit' && selectedKey" type="button" size="xs" color="neutral" variant="link" icon="i-ph-arrow-left" class="mx-4 mt-3 md:hidden" data-testid="copy-editor-all-keys" @click="showList">All keys</UButton>
             <CopyEditorPublish v-if="view === 'publish'" />
             <CopyEditorEditor v-else-if="selectedKey" :key-name="selectedKey" />
             <p v-else class="p-4 text-sm text-muted" data-testid="copy-editor-empty">Choose a key on the left, or click outlined text on the page.</p>
@@ -58,9 +60,11 @@ import { computed } from 'vue'
 import type { CommandPaletteGroup, CommandPaletteItem } from '@nuxt/ui'
 import CopyEditorEditor from './CopyEditorEditor.vue'
 import CopyEditorPublish from './CopyEditorPublish.vue'
-import { ALL_KEYS, baseValue, choices, currentValue, dialogOpen, edits, pendingEdits, selectedKey, view } from './edits'
+import { ALL_KEYS, choices, currentValue, dialogOpen, edits, pendingEdits, selectedKey, view } from './edits'
 
 defineOptions({ name: 'CopyEditorDialog' })
+
+const showList = () => { selectedKey.value = null }
 
 const fuseOptions = {
   fuseOptions: { ignoreLocation: true, threshold: 0.2, keys: ['label', 'description', 'suffix'] },
@@ -73,14 +77,16 @@ const item = (key: string): CommandPaletteItem => ({
   label: currentValue(key, 'de'),
   suffix: currentValue(key, 'en'),
   description: key,
-  icon: edits.value[key] ? 'i-ph-pencil-simple' : undefined,
+  // The key being edited carries a check, an already edited one a pencil.
+  icon: key === selectedKey.value ? 'i-ph-check' : edits.value[key] ? 'i-ph-pencil-simple' : undefined,
   onSelect: () => { selectedKey.value = key; view.value = 'edit' },
 })
 
 const groups = computed<CommandPaletteGroup<CommandPaletteItem>[]>(() => {
   // After a pick that matched several keys the list shows only those; the search field still reaches all keys.
-  const keys = choices.value.length ? choices.value : ALL_KEYS
-  void baseValue
+  const all = choices.value.length ? choices.value : ALL_KEYS
+  // The chosen key leads the list, so a pick from the page and the list read as one thing.
+  const keys = selectedKey.value && all.includes(selectedKey.value) ? [selectedKey.value, ...all.filter(key => key !== selectedKey.value)] : all
   return [{ id: 'keys', label: choices.value.length ? 'Keys of this text' : `${ALL_KEYS.length} keys`, items: keys.map(item) }]
 })
 </script>

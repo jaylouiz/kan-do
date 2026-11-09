@@ -16,13 +16,13 @@ number of collected edits, and Leave (Esc). Bottom centre on desktop; wraps at 3
     </p>
     <div class="flex flex-wrap items-center justify-center gap-2">
       <UButton size="sm" color="neutral" variant="outline" icon="i-ph-magnifying-glass" aria-keyshortcuts="Alt+K" data-testid="copy-editor-search" @click="emit('search')">
-        Copy <UKbd value="alt" /><UKbd value="K" />
+        Copy <UKbd value="alt" size="md" /><UKbd value="K" size="md" />
       </UButton>
       <UButton size="sm" color="neutral" variant="outline" icon="i-ph-git-pull-request" data-testid="copy-editor-publish" @click="emit('publish')">
         Publish as PR<span v-if="count > 0"> · {{ count }}</span>
       </UButton>
       <UButton size="sm" color="neutral" variant="ghost" icon="i-ph-x" aria-keyshortcuts="Escape" data-testid="copy-editor-leave" @click="emit('leave')">
-        Leave <UKbd value="escape" />
+        Leave <UKbd value="escape" size="md" />
       </UButton>
     </div>
   </section>
