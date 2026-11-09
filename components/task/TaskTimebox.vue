@@ -3,7 +3,7 @@
 @kind primitive
 @category display
 @description Static timebox display component showing total allocated time
-@usage Styleguide entry only: the cards show the timebox as TaskProgressChip (#388)
+@usage Unused since `/styleguide` went (#65): the cards show the timebox as TaskProgressChip (#388)
 @avoid Not on cards: they show the timebox as TaskProgressChip.
 @responsibility
 - Format timebox duration from seconds

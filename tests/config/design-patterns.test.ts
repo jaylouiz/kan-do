@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
 
-// #557 (audit U9, U13): one tab implementation and no ALL CAPS eyebrows outside the styleguide.
+// #557 (audit U9, U13): one tab implementation and no ALL CAPS eyebrows (the former styleguide's exception is gone with it, #65).
 const root = resolve(__dirname, '../..')
 
 function vueFiles(dir: string): string[] {
@@ -21,9 +21,8 @@ describe('design patterns (#557)', () => {
     expect(offenders.map((f) => relative(root, f))).toEqual([])
   })
 
-  it('uses no uppercase class in components or pages outside the styleguide', () => {
+  it('uses no uppercase class in components or pages', () => {
     const files = [...vueFiles(join(root, 'components')), ...vueFiles(join(root, 'pages')), ...vueFiles(join(root, 'layouts'))]
-      .filter((f) => !f.endsWith('pages/styleguide.vue'))
     expect(files.length).toBeGreaterThan(50)
     // also variant-prefixed (`md:uppercase`) and `@apply uppercase`
     const offenders = files.filter((f) => /(^|[\s"'`:])uppercase([\s"'`;]|$)/.test(readFileSync(f, 'utf8')))

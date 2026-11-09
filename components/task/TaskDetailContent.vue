@@ -344,7 +344,7 @@ const props = withDefaults(defineProps<{
   taskId: string | null;
   /**
    * If true, disables synchronization with external integrations.
-   * Useful for styleguides and previews.
+   * Useful for previews.
    */
   isPreview?: boolean;
   /**
@@ -718,7 +718,7 @@ const utilityMenuItems = computed(() => {
   if (sourceUrl.value && taskSource.value) {
     items.push({
       label: t('task.detail.openIn', { source: taskSource.value }),
-      icon: ICONS.openDetail,
+      icon: ICONS.external,
       onSelect: () => window.open(sourceUrl.value!, '_blank')
     });
   }

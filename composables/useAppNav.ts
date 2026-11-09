@@ -7,7 +7,7 @@
  *   segment of the pill, #583: ⋯ itself is never selected), else none
  * - `thirdItemOfPath` / `thirdItem`: the page behind ⋯ the route is on (Papierkorb on `/trash*`, Einstellungen on
  *   `/settings*`, linking `/settings`), shown as a third segment in the pill and left out of the Mehr panel meanwhile
- * - `showsBar`: false for routes that opt out with `definePageMeta({ appNav: false })` (welcome, styleguide, error-test, index)
+ * - `showsBar`: false for routes that opt out with `definePageMeta({ appNav: false })` (welcome, ui, error-test, index)
  * - Reads the live router route (`useLiveRoute`), so the selection follows the URL in the same tick
  * - `currentPlace`: the place to mark with `aria-current="page"`; `null` on a route without bar or place. `'more'`
  *   marks the third segment, never the ⋯ button
