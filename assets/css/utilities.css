@@ -78,7 +78,7 @@ html.kando-capture-mask [data-private] ::placeholder {
 }
 html.kando-capture-mask [data-private] {
   background-color: var(--color-custom-ink-900) !important;
-  border-radius: 0.25rem;
+  border-radius: var(--radius-xs);
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 }

@@ -208,7 +208,7 @@ function openTask(taskId: string) {
   max-width: 100%;
   min-height: 2rem;
   padding: 0;
-  border-radius: 0.25rem;
+  border-radius: var(--radius-xs);
   font-size: var(--text-sm, 0.875rem);
   line-height: 1.25rem;
   color: var(--ui-text-highlighted);
@@ -239,7 +239,7 @@ function openTask(taskId: string) {
   align-items: center;
   min-height: 2rem;
   padding: 0 0.25rem;
-  border-radius: 0.25rem;
+  border-radius: var(--radius-xs);
   font-size: var(--text-sm, 0.875rem);
   font-weight: 500;
   color: var(--ui-color-success-800);
@@ -285,7 +285,7 @@ function openTask(taskId: string) {
   font-size: var(--text-sm, 0.875rem);
   line-height: 1.5rem;
   cursor: pointer;
-  border-radius: 0.25rem;
+  border-radius: var(--radius-xs);
 }
 
 .yesterday-note__title:hover .yesterday-note__name {
