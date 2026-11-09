@@ -7,7 +7,7 @@ import { join, resolve } from 'node:path'
 // build first and skips without one (like csp-build-output.test.ts):
 //   npm run generate && npx vitest run tests/config/copy-editor-build-output.test.ts
 //   COPY_EDITOR_BUILD_DIR=<dir> picks another output directory (a node-server build).
-// CI runs exactly this after `npm run generate`. The E2E build carries the tool on purpose (scripts/e2e-server.mjs).
+// CI runs exactly this after `npm run generate`, with COPY_EDITOR_REQUIRE_BUILD=1. The E2E build carries the tool on purpose (scripts/e2e-server.mjs).
 
 const outputDir = resolve(process.env.COPY_EDITOR_BUILD_DIR ?? resolve(__dirname, '../../.output'))
 
@@ -28,8 +28,9 @@ function files(dir: string): string[] {
   })
 }
 
-// In CI a missing build is a failure, not a skip: the proof must not pass by checking nothing.
-describe.skipIf(!existsSync(outputDir) && !process.env.CI)('a build without KANDO_COPY_EDITOR has no live copy editor (#59)', () => {
+// Where the build is required (the dedicated CI step) a missing build fails: the proof must not pass by checking nothing.
+// The plain `vitest run` of CI has no build and skips it.
+describe.skipIf(!existsSync(outputDir) && !process.env.COPY_EDITOR_REQUIRE_BUILD)('a build without KANDO_COPY_EDITOR has no live copy editor (#59)', () => {
   const textFiles = existsSync(outputDir) ? files(outputDir).filter(path => /\.(m?js|css|html|json|mjs)$/.test(path)) : []
 
   it('has a build to look at', () => {
