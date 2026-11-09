@@ -6,8 +6,8 @@
 - Show an honest day label (yesterday / weekday / recently) and the count on one line; the label button opens the titles in place (aria-expanded, local view state, never persisted)
 - Opened: at most five titles as quiet rows (time spent on the right, hidden at zero) that open the task sheet, then "+ n weitere"
 - Offer exactly one action ("Gesehen") on the line; the parent archives all tasks of the note
-- Keep today's wins on top: 42px collapsed on desktop (46px at 390px so both controls reach 44px), card width, centred
-- Surface (#605, D2): `success-50` fill (`--done-confirm-wash`, the in-card confirmation wash; deliberately not the `success-100` Erledigt drop wash, so it never reads as a drop target), 1px `success-200` hairline, card radius. Tick and "Gesehen" in `success-800`; title row neutral, rows `toned`
+- Keep today's wins on top: `--task-note-height` collapsed, 42px on desktop (46px at 390px so both controls reach 44px), card width, centred
+- Surface (#605, D2; outline dropped #57): no border, `--done-note-wash` (70 % `success-100` over `success-50`: darker than the in-card confirmation wash so it separates without a frame, short of the `success-100` Erledigt drop wash so it never reads as a drop target), card radius. Tick and "Gesehen" in `success-800`; title row neutral, rows `toned`
 - Collapse over 180ms when it leaves (instant under prefers-reduced-motion); the caret rotates 180ms
 -->
 <template>
@@ -174,8 +174,12 @@ function openTask(taskId: string) {
 
 .yesterday-note__surface {
   padding: 0.25rem 0.5rem 0.25rem 0.75rem;
-  background-color: var(--done-confirm-wash);
-  border: 1px solid var(--ui-color-success-200);
+  background-color: var(--done-note-wash);
+  /* the height the 1px border used to complete: collapsed = --task-note-height, the gap's height too */
+  min-height: var(--task-note-height);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   border-radius: var(--task-card-radius);
 }
 
@@ -244,7 +248,7 @@ function openTask(taskId: string) {
   text-decoration: underline;
 }
 
-/* 44px hit areas on the phone (D4): the line grows to 44px, the surface drops its vertical padding (46px with the border) */
+/* 44px hit areas on the phone (D4): the line grows to 44px, the surface drops its vertical padding (46px) */
 @media (max-width: 767px) {
   .yesterday-note__surface {
     padding-block: 0;

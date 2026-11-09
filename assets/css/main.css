@@ -168,6 +168,7 @@
     --task-card-width: 18rem; /* Absolute width ensures consistency across flex, grid, and overlay contexts */
     --task-stack-max-width: var(--task-card-max-width);
     --task-stack-width: var(--task-card-width);
+    --task-note-height: 2.625rem; /* collapsed Yesterday note and the deleted-card gap (#57): 42px; 46px under 768px (both controls reach 44px) */
     --task-list-gap: 0.75rem; /* Space between cards and stacks in a column (#584, was 0.5rem); the delete gap's closing margin and the expanded-stack margins read it */
     --stack-collapsed-offset: 4px; /* Step between a stack's front card and each peek layer (#148); layers inset by the same step per side */
     --stack-wash-opaque: 55%; /* Radial wash behind a collapsed stack's pill (#270, widened #371): fully card-coloured up to here ... */
@@ -184,6 +185,7 @@
 
     /* --- Done (#124): cards keep the regular sheet; teal is the drop wash and the confirmation --- */
     --done-wash: var(--ui-color-success-100); /* Erledigt drop zone */
+    --done-note-wash: color-mix(in oklab, var(--ui-color-success-100) 70%, var(--ui-color-success-50)); /* Yesterday note (#57): no outline, so darker than the confirmation wash, still short of the drop wash */
     --done-confirm-wash: var(--ui-color-success-50); /* in-card confirmation layer: the calmer of the compared washes */
     --done-wash-duration: 200ms; /* drop wash fade in/out */
     /* in-card confirmation length: --done-confirm-duration, set on the layer from DONE_CONFIRMATION_MS (store/board.ts) */
@@ -258,3 +260,8 @@
   }
 }
 
+@media (max-width: 767px) {
+  :root {
+    --task-note-height: 2.875rem;
+  }
+}
