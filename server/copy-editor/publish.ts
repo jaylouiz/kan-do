@@ -97,7 +97,11 @@ export async function publish(input: unknown, deps: PublishDeps): Promise<Publis
     worktree = join(scratch, 'wt')
     const added = await git(['worktree', 'add', '--detach', worktree, `origin/${BASE_BRANCH}`])
     if (added.code !== 0) return { ok: false, step: 'worktree', errors: [`git worktree add failed: ${tail(added.stderr, 5)}`] }
-    if (existsSync(join(root, 'node_modules'))) symlinkSync(join(root, 'node_modules'), join(worktree, 'node_modules'))
+    // The check needs the installed packages and Nuxt's generated tsconfig (`.nuxt`, which the repo tsconfig extends);
+    // a dev server always has both, so the throwaway tree links them instead of installing or preparing again.
+    for (const shared of ['node_modules', '.nuxt']) {
+      if (existsSync(join(root, shared))) symlinkSync(join(root, shared), join(worktree, shared))
+    }
 
     const files = applyEdits(base, edits)
     mkdirSync(join(worktree, 'i18n/locales'), { recursive: true })
