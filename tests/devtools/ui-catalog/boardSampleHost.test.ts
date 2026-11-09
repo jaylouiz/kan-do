@@ -4,6 +4,8 @@ import { createPinia, getActivePinia, setActivePinia } from 'pinia'
 import { defineComponent, h } from 'vue'
 import UiCatalogBoardHost from '~/dev-tools/ui-catalog/BoardSampleHost.vue'
 import { useTasksStore } from '~/store/tasks'
+import { useStackExpansion } from '~/composables/useStackExpansion'
+import { TaskStatus } from '~/types/taskStatus'
 
 // The drag-and-drop provider is not under test: a plain box keeps jsdom out of dnd-kit's DOM measuring.
 vi.mock('@dnd-kit/vue', () => ({ DragDropProvider: { name: 'DragDropProvider', template: '<div><slot /></div>' } }))
@@ -51,5 +53,38 @@ describe('the board sample host of /ui (#77, D2)', () => {
     // unmounting hands the app's Pinia back as the active one
     wrapper.unmount()
     expect(getActivePinia()).toBe(appPinia)
+  })
+
+  it('leaves the real board\'s expanded stacks intact: a column pruning or clearing inside a sample touches the sample\'s own state', () => {
+    const shared = useStackExpansion()
+    shared.reset()
+    shared.expand(TaskStatus.Open, 'Garden', 'keyboard')
+    shared.expand(TaskStatus.Waiting, 'Office', 'keyboard')
+
+    // What BoardColumn does on mount (prune to the stacks it has) and on a grouping change (collapse all)
+    const sample: { expanded: string[] } = { expanded: [] }
+    const Column = defineComponent({
+      setup() {
+        const stacks = useStackExpansion()
+        stacks.expand(TaskStatus.Open, 'Sample', 'keyboard')
+        stacks.prune(TaskStatus.Open, [])
+        stacks.prune(TaskStatus.Waiting, [])
+        stacks.collapseAll(TaskStatus.Open)
+        stacks.expand(TaskStatus.Open, 'Sample', 'keyboard')
+        sample.expanded = [...stacks.expandedKeys(TaskStatus.Open)]
+        return () => h('i')
+      },
+    })
+    const wrapper = mount(UiCatalogBoardHost, {
+      slots: { default: () => h(Column) },
+      global: { plugins: [createPinia()] },
+    })
+
+    expect(sample.expanded).toEqual(['Sample'])
+    expect(shared.expandedKeys(TaskStatus.Open)).toEqual(['Garden'])
+    expect(shared.expandedKeys(TaskStatus.Waiting)).toEqual(['Office'])
+    wrapper.unmount()
+    expect(shared.expandedKeys(TaskStatus.Open)).toEqual(['Garden'])
+    shared.reset()
   })
 })
