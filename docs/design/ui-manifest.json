@@ -1689,7 +1689,7 @@
     "category": "feedback",
     "description": "Carried-over marker (#99): one small dot per board day, shown from day 2 (#121).",
     "usage": "<TaskCarryOverDots :day=\"displayDay\" /> in the TaskCard footer; renders nothing on day 1 (and below). `decorative` next to text that already names the count (task sheet).",
-    "avoid": "Only the carried-over marker (day 2 and later); not a progress indicator (TaskProgressBar).",
+    "avoid": "Only the carried-over marker (day 2 and later); not a progress indicator.",
     "responsibility": [
       "Shows up to CARRY_OVER_DOT_CAP dots; only past the cap a \"+\" and the muted numeral follow (#584; never in decorative mode)",
       "Names the meaning for hover and screen readers; not a tab stop (kd#27: 8+ extra stops on a board of carried-over cards) (\"Tag 3 auf dem Board\")",
@@ -1954,30 +1954,6 @@
     }
   },
   {
-    "name": "TaskProgressBar",
-    "path": "components/task/TaskProgressBar.vue",
-    "source": "app",
-    "kind": "primitive",
-    "category": "display",
-    "description": "Visual progress indicator for task timebox completion with remaining time display",
-    "usage": "Styleguide entry only: the cards show the timebox as TaskProgressChip (#388)",
-    "avoid": "Rendered nowhere in the app today (only the styleguide); cards show the timebox as TaskProgressChip.",
-    "responsibility": [
-      "Displays visual progress of time spent vs. time allocated",
-      "Provides smooth animation for time updates",
-      "Calculates percentage of time remaining",
-      "Shows remaining time overlaid on the bar with smart color transitions"
-    ],
-    "variants": [],
-    "states": [],
-    "usedBy": {
-      "components": 0,
-      "pages": 0,
-      "layouts": 0,
-      "app": 0
-    }
-  },
-  {
     "name": "TaskProgressChip",
     "path": "components/task/TaskProgressChip.vue",
     "source": "app",
@@ -2186,29 +2162,6 @@
     }
   },
   {
-    "name": "TaskTimebox",
-    "path": "components/task/TaskTimebox.vue",
-    "source": "app",
-    "kind": "primitive",
-    "category": "display",
-    "description": "Static timebox display component showing total allocated time",
-    "usage": "Unused since `/styleguide` went (#65): the cards show the timebox as TaskProgressChip (#388)",
-    "avoid": "Not on cards: they show the timebox as TaskProgressChip.",
-    "responsibility": [
-      "Format timebox duration from seconds",
-      "Display with clock icon",
-      "Static display (no dynamic countdown)"
-    ],
-    "variants": [],
-    "states": [],
-    "usedBy": {
-      "components": 0,
-      "pages": 0,
-      "layouts": 0,
-      "app": 0
-    }
-  },
-  {
     "name": "TaskTimeboxNudge",
     "path": "components/task/TaskTimeboxNudge.vue",
     "source": "app",
@@ -2233,28 +2186,6 @@
     "states": [],
     "usedBy": {
       "components": 1,
-      "pages": 0,
-      "layouts": 0,
-      "app": 0
-    }
-  },
-  {
-    "name": "TaskTimer",
-    "path": "components/task/TaskTimer.vue",
-    "source": "app",
-    "kind": "primitive",
-    "category": "display",
-    "description": "Time display component for task timeboxes",
-    "usage": "Styleguide entry only: the cards show the timebox as TaskProgressChip (#388); German UI text",
-    "avoid": "Rendered nowhere in the app today (only the styleguide); cards show the timebox as TaskProgressChip.",
-    "responsibility": [
-      "Format total/remaining time from seconds",
-      "Decide compact vs. full string depending on progress"
-    ],
-    "variants": [],
-    "states": [],
-    "usedBy": {
-      "components": 0,
       "pages": 0,
       "layouts": 0,
       "app": 0
@@ -2379,29 +2310,6 @@
     "usedBy": {
       "components": 0,
       "pages": 1,
-      "layouts": 0,
-      "app": 0
-    }
-  },
-  {
-    "name": "ExpandingButton",
-    "path": "components/ui/ExpandingButton.vue",
-    "source": "app",
-    "kind": "primitive",
-    "category": "action",
-    "description": "Button that expands to show text on hover",
-    "usage": "Used for compact UI elements that reveal more information on interaction",
-    "avoid": "Rendered nowhere in the app today (only the styleguide); a UButton with a label is the default.",
-    "responsibility": [
-      "Provides compact button that expands on hover",
-      "Manages transition animations and timing",
-      "Calculates appropriate width for expanded state"
-    ],
-    "variants": [],
-    "states": [],
-    "usedBy": {
-      "components": 0,
-      "pages": 0,
       "layouts": 0,
       "app": 0
     }
@@ -2605,7 +2513,7 @@
       "long-text"
     ],
     "usedBy": {
-      "components": 38,
+      "components": 37,
       "pages": 7,
       "layouts": 0,
       "app": 0
