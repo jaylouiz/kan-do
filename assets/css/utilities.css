@@ -6,7 +6,7 @@
 
 @layer utilities {
   /* === Typography === */
-  :where(.text-2xs) { font-size: 0.6875rem; line-height: 1rem; }
+  :where(.text-2xs) { font-size: var(--text-label); line-height: 1rem; }
 
   :where(.font-display) { font-family: var(--font-display); font-weight: 600; }
 

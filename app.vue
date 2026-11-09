@@ -140,6 +140,6 @@ html[data-shell="desktop"] .titlebar {
   top: 0;
   left: 0;
   height: var(--app-bar-offset-top);
-  z-index: 30;
+  z-index: var(--z-titlebar);
 }
 </style>

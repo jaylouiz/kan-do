@@ -355,7 +355,7 @@ const openDetails = (event: MouseEvent) => {
 /* Completion burst (#692): every card is its own stacking context (z-index 50), so a later card would paint over the
    pieces that fly into it. While the burst plays this card sits one step above its neighbours. */
 .task.task--celebrating {
-  z-index: 51;
+  z-index: var(--z-card-celebrating);
 }
 
 /* ========================================
@@ -373,13 +373,13 @@ const openDetails = (event: MouseEvent) => {
   text-align: left;
   line-height: var(--lh-snug);
   overflow: visible;
-  z-index: 50;
+  z-index: var(--z-card);
   --task-transform-delay: 0ms;
   transition:
-    background-color 160ms cubic-bezier(0.2, 0, 0, 1),
-    color 160ms cubic-bezier(0.2, 0, 0, 1),
-    box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1),
-    filter 200ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 160ms var(--ease-emphasized),
+    color 160ms var(--ease-emphasized),
+    box-shadow var(--duration-fast) var(--ease-standard),
+    filter var(--duration-base) var(--ease-emphasized),
     opacity var(--sheet-fade-duration) var(--sheet-fade-easing);
   min-height: var(--task-card-height);
 }
@@ -405,7 +405,7 @@ const openDetails = (event: MouseEvent) => {
 /* Undo (#422, D6): the card grows back and fades in; transform and opacity only. The gap that held its slot
    disappears at once, so the card lands on the same box. */
 .task--returning {
-  animation: task-returning 180ms cubic-bezier(0.2, 0, 0, 1);
+  animation: task-returning 180ms var(--ease-emphasized);
 }
 @keyframes task-returning {
   from { opacity: 0; transform: scale(0.92); }
@@ -485,14 +485,14 @@ const openDetails = (event: MouseEvent) => {
 @keyframes task-confirm {
   0% {
     opacity: 0;
-    animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+    animation-timing-function: var(--ease-emphasized);
   }
   22.5% { /* 180ms */
     opacity: 1;
   }
   72.5% { /* hold ~400ms */
     opacity: 1;
-    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    animation-timing-function: var(--ease-standard);
   }
   100% { /* 220ms out */
     opacity: 0;
@@ -557,13 +557,13 @@ const openDetails = (event: MouseEvent) => {
 .task.stacked-task--overflow {
   transition:
     transform var(--stack-transition-duration, 220ms)
-      var(--stack-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),
+      var(--stack-transition-easing, var(--ease-standard)),
     box-shadow var(--stack-transition-duration, 220ms)
-      var(--stack-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),
+      var(--stack-transition-easing, var(--ease-standard)),
     opacity var(--stack-transition-duration, 220ms)
-      var(--stack-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),
-    background-color 160ms cubic-bezier(0.2, 0, 0, 1),
-    color 160ms cubic-bezier(0.2, 0, 0, 1);
+      var(--stack-transition-easing, var(--ease-standard)),
+    background-color 160ms var(--ease-emphasized),
+    color 160ms var(--ease-emphasized);
 }
 
 /* ========================================
@@ -614,27 +614,27 @@ const openDetails = (event: MouseEvent) => {
    * RESPONSIVE TYPOGRAPHY & MOBILE SIZING
    * ======================================== */
 
-@media (max-width: 767px) {
+@media (--phone) {
   /* Mobile type step (#220, A1): card text 1rem, topic and footer labels 0.9375rem / 0.75rem.
      Explicit sizes only; the root font-size stays untouched. */
   .task {
-    font-size: 1rem;
+    font-size: var(--text-base);
     min-height: 8rem;
     max-height: none;
   }
 
   .task-topic {
-    font-size: 0.9375rem;
+    font-size: var(--text-title);
   }
 
   .task-draft-elapsed {
-    font-size: 0.9375rem;
+    font-size: var(--text-title);
   }
 
   /* Footer chips (timebox, priority): Nuxt UI sets their size per utility class, so the
      scoped rule reaches the child root through :deep */
   .task-footer :deep([data-slot="base"]) {
-    font-size: 0.75rem;
+    font-size: var(--text-xs);
     line-height: 1rem;
   }
 
@@ -652,9 +652,9 @@ const openDetails = (event: MouseEvent) => {
   }
 }
 
-@media (min-width: 768px) {
+@media (--desktop) {
   .task {
-    font-size: 0.9375rem;
+    font-size: var(--text-title);
   }
 }
 

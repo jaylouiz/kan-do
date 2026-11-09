@@ -12,7 +12,7 @@
 <template>
   <div
     data-testid="column-sorting-control"
-    class="transition-opacity duration-200"
+    class="transition-opacity duration-(--duration-base)"
     :class="visible ? 'opacity-100' : 'pointer-events-none opacity-0 focus-within:pointer-events-auto focus-within:opacity-100'"
   >
     <UDropdownMenu

@@ -6,6 +6,7 @@
  * Sources, in override order: Tailwind's theme (breakpoints, type, radius, shadow, easing; its colour palette is
  * deliberately skipped, the app uses the role ramps below), Nuxt UI's runtime CSS, then `assets/css/*`.
  */
+import { BREAKPOINT_QUERIES } from '../../lib/breakpoints'
 import { scanDeclarations, type CssDeclaration } from './cssScan'
 
 export type TokenGroupId = 'colors' | 'typography' | 'radius' | 'shadows' | 'spacing' | 'zIndex' | 'motion' | 'breakpoints' | 'iconSizes' | 'other'
@@ -40,7 +41,7 @@ export interface Token {
 
 export interface TokenCatalog {
   tokens: Token[]
-  /** `z-index` declarations with a literal value: there are no z-index tokens, this is where they would come from. */
+  /** `z-index` declarations with a literal value: the local stacking (20 and below) that stays a number; layers are `--z-*` tokens (#70). */
   zIndexLiterals: CssDeclaration[]
   /** Custom properties set on a component selector (not on `:root`): local, not listed as tokens. */
   scopedCount: number
@@ -65,6 +66,9 @@ export function groupOf(name: string, value: string): TokenGroupId {
   return 'other'
 }
 
+/** The media preludes as a reader wants them: `@media (--phone)` as the query it stands for (lib/breakpoints.ts, #70). */
+const whenOf = (media: string[]) => media.join(' and ').replace(/\(--(\w+)\)/g, (match, name: string) => (BREAKPOINT_QUERIES as Record<string, string>)[name] ?? match)
+
 type Placement = { kind: 'root' } | { kind: 'media', when: string } | { kind: 'scoped' } | { kind: 'skip' }
 
 /** Where a declaration applies: on the root (a token), under a media query on the root (a responsive value), on a component selector, or in a dark/other scope that does not count. */
@@ -74,12 +78,12 @@ function placement(decl: CssDeclaration): Placement {
   const own = selectors.at(-1)
   if (own === undefined) {
     // `@theme` and bare `@layer` blocks put their declarations on the root
-    return media.length ? { kind: 'media', when: media.join(' and ') } : { kind: 'root' }
+    return media.length ? { kind: 'media', when: whenOf(media) } : { kind: 'root' }
   }
   if (own.split(',').some(s => s.trim() === '.dark')) return { kind: 'skip' }
   const onRoot = own.split(',').every(s => ROOT_SELECTORS.has(s.trim()))
   if (!onRoot) return { kind: 'scoped' }
-  return media.length ? { kind: 'media', when: media.join(' and ') } : { kind: 'root' }
+  return media.length ? { kind: 'media', when: whenOf(media) } : { kind: 'root' }
 }
 
 /** Reads every source and returns the catalog. */

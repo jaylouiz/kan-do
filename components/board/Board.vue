@@ -177,6 +177,7 @@ import { useNewDayRecap } from "~/composables/useNewDayRecap";
 import { useSettingsStore } from "~/store/settings";
 import { useArchiveDoneTasks } from "~/composables/useArchiveDoneTasks";
 import { useDayClose } from "~/composables/useDayClose";
+import { BREAKPOINT_QUERIES } from '~/lib/breakpoints';
 
 /**
  * Script-API: orchestrates kanban data via stores/composables, wires DnD
@@ -383,7 +384,7 @@ const fireEdgeScroll = (direction: 'left' | 'right') => {
  */
 const handleDragPointerMove = (event: PointerEvent) => {
   if (!isDragging.value || !import.meta.client) return;
-  if (!window.matchMedia('(max-width: 767px)').matches) {
+  if (!window.matchMedia(BREAKPOINT_QUERIES.phone).matches) {
     clearEdgeTimer();
     return;
   }
@@ -436,7 +437,7 @@ const dragDiagnosticCleanups: Array<() => void> = [];
 
 onMounted(() => {
   if (import.meta.client) {
-    _mobileMediaQuery = window.matchMedia('(max-width: 767px)');
+    _mobileMediaQuery = window.matchMedia(BREAKPOINT_QUERIES.phone);
     isMobile.value = _mobileMediaQuery.matches;
     _mobileMediaQuery.addEventListener('change', (e) => { isMobile.value = e.matches; });
   }

@@ -34,7 +34,13 @@ test.describe('/ui catalog shell', () => {
 
     // A token nothing defines does not appear
     await expect(page.locator('code', { hasText: /^--z-modal$/ })).toHaveCount(0)
-    await expect(page.getByText('No z-index tokens are defined')).toBeVisible()
+
+    // The layer, motion and type tokens of #70 appear with today's value and the file that defines them
+    for (const [token, value] of [['--z-overlay', '2100'], ['--duration-fast', '150ms'], ['--text-title', '0.9375rem']] as const) {
+      const row = page.getByRole('listitem').filter({ has: page.locator('code', { hasText: new RegExp(`^${token}$`) }) })
+      await expect(row, token).toContainText(value)
+      await expect(row, token).toContainText(/assets\/css\/main\.css:\d+/)
+    }
   })
 
   test('the Components part lists the manifest components by category (the engine, #66)', async ({ page }) => {

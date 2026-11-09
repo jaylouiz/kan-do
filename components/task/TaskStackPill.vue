@@ -75,16 +75,16 @@ const kind = computed<"topic" | "priority" | "plain">(() => {
   min-width: 0;
   overflow: hidden;
   border-radius: 9999px;
-  font-size: 0.6875rem;
+  font-size: var(--text-label);
   font-weight: 500;
   line-height: 1rem;
   color: var(--ui-text);
 }
 
 /* Mobile label step (#220): 0.6875rem -> 0.75rem, matching the card footer chips */
-@media (max-width: 767px) {
+@media (--phone) {
   .task-stack-pill {
-    font-size: 0.75rem;
+    font-size: var(--text-xs);
   }
 }
 

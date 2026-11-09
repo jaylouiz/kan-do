@@ -71,12 +71,12 @@ const progress = computed(() =>
   width: calc(0.375rem + var(--w) * 0.875rem);
   border-radius: 9999px;
   background: color-mix(in oklab, var(--ui-text-muted) calc(var(--w) * 100%), var(--ui-border-accented));
-  transition: width 320ms cubic-bezier(0.4, 0, 0.2, 1), background-color 320ms;
+  transition: width 320ms var(--ease-standard), background-color 320ms;
 }
 .page-dots--live .page-dot {
   transition: none;
 }
-@media (min-width: 768px) {
+@media (--desktop) {
   .page-dots {
     display: none;
   }
