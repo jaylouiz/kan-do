@@ -74,7 +74,7 @@ describe('catalog entries (#66)', () => {
   })
 
   it('a landed category needs an entry for each of its manifest components; a category that has not landed does not', () => {
-    expect(LANDED_CATEGORIES).toEqual(['action', 'display', 'feedback']) // the category slices (#71, #76, #74 landed; #72, #73, #75, #77 add theirs here)
+    expect(LANDED_CATEGORIES).toEqual(['action', 'display', 'feedback', 'input', 'form-structure']) // the category slices (#71, #76, #74, #72 landed; #73, #75, #77 add theirs here)
     expect(missingEntries(manifest, loaded.map(l => l.entry))).toEqual([])
     const missing = missingEntries(manifest, loaded.map(l => l.entry), ['navigation'])
     expect(missing).toContain('AppNav')

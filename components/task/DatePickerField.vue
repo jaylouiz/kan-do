@@ -15,17 +15,17 @@
 <template>
   <UPopover v-model:open="isOpen" :disabled="disabled">
     <template #default>
-      <button
-        type="button"
-        class="task-property-value -ms-2 flex min-h-8 cursor-pointer items-center rounded-sm px-2 text-sm max-md:min-h-11"
-        :class="modelValue ? 'text-default' : 'text-muted'"
+      <PropertyValueTrigger
+        class="-ms-2"
+        inset
+        :tone="modelValue ? 'value' : 'empty'"
         :disabled="disabled"
         :aria-label="label ? `${label}: ${triggerText}` : undefined"
         data-testid="date-picker-trigger"
         @click="isOpen = true"
       >
         {{ triggerText }}
-      </button>
+      </PropertyValueTrigger>
     </template>
 
     <template #content>
@@ -64,6 +64,7 @@ import { useI18n } from 'vue-i18n';
 import { type CalendarDate, type DateValue, parseDate, today, getLocalTimeZone } from '@internationalized/date';
 import type { DateRange } from 'reka-ui';
 import { formatDateRange } from '~/composables/useTaskDetail';
+import PropertyValueTrigger from '~/components/ui/PropertyValueTrigger.vue';
 
 defineOptions({ name: 'DatePickerField' });
 

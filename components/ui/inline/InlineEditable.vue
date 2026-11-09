@@ -12,6 +12,7 @@
 - Provide slots for custom display and input components
 - Keyboard-reachable edit: the read-mode trigger is `role="button"` `tabindex="0"` named "<field>: <value>";
   Enter or Space edits, Enter saves, Escape cancels (and never closes the surrounding dialog), focus returns to the trigger
+- Hand-built `role="button"` on purpose (#72): the trigger holds block and multi-line display content (a `<button>` takes phrasing content only) and, with `interactiveDisplay`, sits beside links that must not be its descendants; a `UButton` would add a button look the row does not have
 -->
 <template>
   <div

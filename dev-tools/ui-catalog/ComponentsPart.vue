@@ -115,7 +115,9 @@ async function resolveEntry(entry: CatalogEntry): Promise<Resolved> {
     if (entry.matrix) {
       const loadTheme = findGlob(themeModules, `/ui/${entry.theme}.ts`)
       if (!loadTheme) throw new Error(`no theme "${entry.theme}"`)
-      const config = (useAppConfig().ui as Record<string, ThemeLike> | undefined)?.[entry.theme ?? '']
+      const appUi = useAppConfig().ui as Record<string, ThemeLike> | undefined
+      // `app.config.ts` keys are camelCase (`selectMenu`), the theme files kebab-case (`select-menu`)
+      const config = appUi?.[entry.theme ?? ''] ?? appUi?.[(entry.theme ?? '').replace(/-(\w)/g, (_, c: string) => c.toUpperCase())]
       axes = themeAxes(await loadTheme(), config, entry.matrix.axes)
     }
     return { entry, component, axes }

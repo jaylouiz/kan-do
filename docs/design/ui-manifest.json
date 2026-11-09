@@ -436,7 +436,7 @@
       "Search (Thema, Aktivität): the text filters every value of the step, pills included; a \"Neu\" row shows when no value has that name (any case) and the source allows free values (`newValues`, the source's rules clean the text: Notion turns commas into spaces and cuts at 100 characters, so the row shows what would be created); without free values the field only searches",
       "Enter in the field: a value named exactly as typed (any case) is picked, else the first match, else the text is created (a partial match never creates by accident: the \"Neu\" row is the first stop of ArrowDown, or a tap); no match shows \"Keine Treffer gefunden.\" (a status line)",
       "Keys: ↑/↓ (wrapping) walk field, \"Neu\" row and options; Home/End jump between options only while focus is not in the field (there they move the caret); handled keys stop here so no surrounding handler sees them (kd#15). Digits typed in the field never reach the step's 1-4 keys (the parent ignores keys while the list is open)",
-      "Options are plain buttons with one shared handler (not UDropdownMenu: the drawer has no menu primitive, kd#15)"
+      "Options are `ChoiceChip` rows (native buttons) with one shared handler (not UDropdownMenu: the drawer has no menu primitive, kd#15)"
     ],
     "variants": [],
     "states": [],
@@ -1693,8 +1693,15 @@
       "Emit update:modelValue with { start: string } on date select",
       "Provide Löschen and Heute shortcuts in the popover footer"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "set",
+      "range"
+    ],
+    "states": [
+      "empty",
+      "disabled",
+      "focus"
+    ],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -2117,8 +2124,13 @@
       "44px hit area at <=767px; no icon, divider or box (space separates groups)",
       "`private` marks the value (not the label) `data-private`: hidden during a feedback screenshot (#247)"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "default",
+      "private"
+    ],
+    "states": [
+      "long-text"
+    ],
     "usedBy": {
       "components": 3,
       "pages": 0,
@@ -2142,8 +2154,16 @@
       "Menu items use Nuxt UI size `md`, the same text size as the task card context menu (text-sm)",
       "Optional `item-leading` slot per option (the topic mark), a `content-top` slot above the search (after the hint; the edit rows of TopicPropertyPicker, #443) and a `content-extra` slot above the clear action (\"Bearbeiten\", \"Themen verwalten\")"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "value",
+      "multiple"
+    ],
+    "states": [
+      "empty",
+      "disabled",
+      "focus",
+      "long-text"
+    ],
     "usedBy": {
       "components": 5,
       "pages": 0,
@@ -2339,8 +2359,14 @@
       "Enter and Space on the rows and the toggle stop at the button: the combobox would otherwise swallow them",
       "Edit list scrolls at about 8 rows; rows are 32px, 44px at max-md (touch target)"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "topic",
+      "activity"
+    ],
+    "states": [
+      "empty",
+      "focus"
+    ],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -2362,7 +2388,7 @@
       "Name is trimmed; an empty name or nothing changed cannot be saved; the editor closes after saving",
       "The key of the editor is the *name*: the host re-keys after a rename instead of editing the old name",
       "Focus starts in the Name (the first colour when the name is gated); Escape closes the editor only (the task sheet vetoes its own dismissal, `data-topic-editor`)",
-      "Hue and symbol groups are `role=\"radiogroup\"` with arrow keys; the symbol popover closes on pick or Escape and keeps the editor open"
+      "Hue and symbol groups are `SwatchRadioGroup` (`role=\"radiogroup\"`, arrow keys); the symbol popover closes on pick or Escape and keeps the editor open"
     ],
     "variants": [],
     "states": [],
@@ -2448,6 +2474,43 @@
     "usedBy": {
       "components": 0,
       "pages": 1,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "ChoiceChip",
+    "path": "components/ui/ChoiceChip.vue",
+    "source": "app",
+    "kind": "primitive",
+    "category": "input",
+    "description": "The one control for \"pick one of a few\" (#72): a round answer chip that fills with ink on hover and when picked, or a list row of a searchable option list. The new-card flow's answer pills, the timebox nudge's presets and icon controls and the new-card option rows are this one look.",
+    "usage": "<ChoiceChip shape=\"pill\" :picked=\"picked === value\" :current=\"value === current\" @click=\"pick(value)\">{{ label }}</ChoiceChip>; `chip` (equal-width preset in a row), `icon` (square-round control, give it an `aria-label`), `row` (full-width option inside a list, `aria-current` marks the current one); `field` makes a pill read as the search field it opens. Native attributes (`disabled`, `aria-*`, `data-testid`) land on the button.",
+    "avoid": "Not for an action (UButton), not for a toggle that stays on beside others (UButton soft/primary with `aria-pressed`, as the board menu's group-by chips) and not for a property value of the task sheet (PropertyValueTrigger).",
+    "responsibility": [
+      "Render one native `<button type=\"button\">`; the host decides what a click means and sets `picked` (the answer just given: ink fill, pressed in) and `current` (the value already set: a hairline ring)",
+      "Shapes carry the geometry each site had: `pill` takes its height from `--choice-chip-h` (the new-card flow sets it to its control height), `chip` and `icon` are 36 px (44 px on a phone and on touch screens), `row` is a 32 px list row (44 px and larger text when `large`, the drawer's)",
+      "Ink hover and the picked state (\"one lamp\": only the answered control is dark); visible focus ring; disabled `chip` and `icon` dim, a disabled `pill` keeps its look and loses the pointer",
+      "Key cues (`<kbd>`) and truncation spans are slot content; the host lays them out"
+    ],
+    "variants": [
+      "pill",
+      "pill-field",
+      "chip",
+      "icon",
+      "row",
+      "row-large"
+    ],
+    "states": [
+      "selected",
+      "disabled",
+      "focus",
+      "icon-only",
+      "long-text"
+    ],
+    "usedBy": {
+      "components": 3,
+      "pages": 0,
       "layouts": 0,
       "app": 0
     }
@@ -2567,6 +2630,38 @@
     }
   },
   {
+    "name": "PropertyValueTrigger",
+    "path": "components/ui/PropertyValueTrigger.vue",
+    "source": "app",
+    "kind": "primitive",
+    "category": "input",
+    "description": "The text-style trigger of a value in the task sheet's label/value rows (#72): body text whose dotted rule appears on hover and focus, the same grammar as InlineEditable. It opens a picker (the date popover) or applies a value (a timebox preset or suggestion).",
+    "usage": "<PropertyValueTrigger tone=\"value\" class=\"-ms-2\" inset @click=\"open\">{{ text }}</PropertyValueTrigger>; `tone` `value` (a set value), `empty` (nothing set yet), `action` (a quiet text action such as a suggestion), `picked` (the preset that is set; pass `aria-pressed`). `inset` adds the horizontal padding the sheet's rows use.",
+    "avoid": "Not a button look for actions (UButton), not for the choice of one answer of a question (ChoiceChip) and not for editing text in place (InlineEditable). The trigger carries a label/value pair only inside TaskPropertyRow.",
+    "responsibility": [
+      "Render one native `<button type=\"button\">` with the `task-property-value` rule (global CSS `assets/css/task-detail.css`: dotted rule on hover and focus, faint at rest on touch screens, focus ring)",
+      "32 px tall, 44 px on a phone (`max-md:min-h-11`); text-sm; the tone sets the colour, `picked` also the weight and underline",
+      "Attributes (`aria-label`, `aria-pressed`, `data-testid`, `disabled`, handlers) land on the button"
+    ],
+    "variants": [
+      "value",
+      "empty",
+      "action",
+      "picked"
+    ],
+    "states": [
+      "disabled",
+      "focus",
+      "long-text"
+    ],
+    "usedBy": {
+      "components": 3,
+      "pages": 0,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
     "name": "ResponsiveOverlay",
     "path": "components/ui/ResponsiveOverlay.vue",
     "source": "app",
@@ -2616,6 +2711,37 @@
     }
   },
   {
+    "name": "SwatchRadioGroup",
+    "path": "components/ui/SwatchRadioGroup.vue",
+    "source": "app",
+    "kind": "primitive",
+    "category": "input",
+    "description": "One choice from a small set of swatches or glyphs, shown as round colour swatches or a grid of glyph cells (#72; the topic editor's Farbe and Symbol, #431). A radio group whose options are pictures, not labelled rows.",
+    "usage": "<SwatchRadioGroup v-model=\"hue\" variant=\"swatch\" :options=\"[{ key: null, label: 'keine' }, { key: 'red', label: 'Rot' }]\" :label=\"t('topic.editor.color')\" item-testid=\"topic-hue\"><template #option=\"{ option }\">…the swatch…</template></SwatchRadioGroup>; `variant=\"glyph\"` with `:columns=\"5\"` for a grid (ArrowUp/Down move by a row); `@pick` fires on a click, not on arrow keys.",
+    "avoid": "Not for options that carry a text label (URadioGroup), not for a card choice with an icon and a description (reka-ui RadioGroup as in LocalSetupFlow) and not for a toggle of one setting (USwitch, UCheckbox).",
+    "responsibility": [
+      "Render `role=\"radiogroup\"` with one native `<button role=\"radio\">` per option (`aria-checked`, `aria-label` from the option); roving tabindex: the selected option (else the first) is the one Tab stop",
+      "Arrow keys move the focus and the selection to the neighbour (wrapping), Home/End to the ends, with `columns` Up/Down by a row (`utils/radioArrowKeys`); no library radio group does a grid, which is why this stays a hand-built role (decision D3 of #72)",
+      "`swatch` 28 px round (40 px on a phone, the ring marks the selection), `glyph` 40 px cells; the solid ink focus ring",
+      "Option content (the dot, the glyph) is the `option` slot; `focusSelected()` is exposed for hosts that move focus in on open",
+      "`item-testid` names the options `<prefix>-<key|none>`; attributes of the host (the group's `data-testid`) land on the group"
+    ],
+    "variants": [
+      "swatch",
+      "glyph"
+    ],
+    "states": [
+      "selected",
+      "focus"
+    ],
+    "usedBy": {
+      "components": 1,
+      "pages": 0,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
     "name": "InlineEditable",
     "path": "components/ui/inline/InlineEditable.vue",
     "source": "app",
@@ -2629,10 +2755,19 @@
       "`required`: an empty value is never saved; Enter shows `requiredMessage` and stays in the editor, Esc and blur restore (kd#27)",
       "Emit update events on save",
       "Provide slots for custom display and input components",
-      "Keyboard-reachable edit: the read-mode trigger is `role=\"button\"` `tabindex=\"0\"` named \"<field>: <value>\"; Enter or Space edits, Enter saves, Escape cancels (and never closes the surrounding dialog), focus returns to the trigger"
+      "Keyboard-reachable edit: the read-mode trigger is `role=\"button\"` `tabindex=\"0\"` named \"<field>: <value>\"; Enter or Space edits, Enter saves, Escape cancels (and never closes the surrounding dialog), focus returns to the trigger",
+      "Hand-built `role=\"button\"` on purpose (#72): the trigger holds block and multi-line display content (a `<button>` takes phrasing content only) and, with `interactiveDisplay`, sits beside links that must not be its descendants; a `UButton` would add a button look the row does not have"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "fill",
+      "rule",
+      "multiline"
+    ],
+    "states": [
+      "empty",
+      "focus",
+      "long-text"
+    ],
     "usedBy": {
       "components": 3,
       "pages": 0,
@@ -2877,6 +3012,256 @@
     "usedBy": {
       "components": 16,
       "pages": 1,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "UForm",
+    "path": "catalog/form-structure/UForm.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "compound",
+    "category": "form-structure",
+    "description": "A form element that validates its fields (schema or `validate`) and focuses the first error on submit.",
+    "usage": "Around a form whose fields validate together (TaskForm). Fields inside are UFormFields with a `name`; submit goes through `@submit`.",
+    "avoid": "Not for one control that saves on change (InlineEditable, USwitch) and not as layout: a plain `<form>` is enough when nothing validates.",
+    "responsibility": [],
+    "variants": [],
+    "states": [],
+    "usedBy": {
+      "components": 1,
+      "pages": 0,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "UFormField",
+    "path": "catalog/form-structure/UFormField.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "compound",
+    "category": "form-structure",
+    "description": "The one field wrapper: a label, an optional description and hint, help text below the control and an error that replaces it.",
+    "usage": "Around every labelled control (UInput, USelect, UTextarea, UCheckbox, USwitch): `label` names it, `help` explains it, `error` shows the failure below the control at one placement (the control gets `color=\"error\"` and `highlight`). A visually hidden label is `:ui=\"{ label: 'sr-only' }\"`, never a missing one.",
+    "avoid": "Not around a control that has no label of its own (a title field in a card keeps its own error line), not around a button and not as a layout grid: spacing between fields belongs to the parent.",
+    "responsibility": [],
+    "variants": [
+      "size"
+    ],
+    "states": [
+      "error",
+      "focus",
+      "long-text"
+    ],
+    "usedBy": {
+      "components": 8,
+      "pages": 1,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "UCalendar",
+    "path": "catalog/input/UCalendar.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "compound",
+    "category": "input",
+    "description": "A month calendar to pick a date or a range, in the semantic colours and sizes.",
+    "usage": "Only inside DatePickerField's popover (a single date or a range, `md`). Dates are `@internationalized/date` values, never strings.",
+    "avoid": "Not a standalone page element and not for a date typed as text (UInput); a new date field is a DatePickerField.",
+    "responsibility": [],
+    "variants": [],
+    "states": [],
+    "usedBy": {
+      "components": 1,
+      "pages": 0,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "UCheckbox",
+    "path": "catalog/input/UCheckbox.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "primitive",
+    "category": "input",
+    "description": "A checkbox with an optional label and description, in the semantic colours, with a list and a card variant.",
+    "usage": "An independent yes/no among several, or a consent: `color=\"neutral\"` in settings and dialogs. Always give it a `label` (or an `aria-label`).",
+    "avoid": "Not for a setting that applies at once (USwitch), not for one of several exclusive options (URadioGroup) and not for a toggle button (UButton with `aria-pressed`).",
+    "responsibility": [],
+    "variants": [
+      "color",
+      "size"
+    ],
+    "states": [
+      "selected",
+      "disabled",
+      "focus",
+      "long-text"
+    ],
+    "usedBy": {
+      "components": 5,
+      "pages": 0,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "UInput",
+    "path": "catalog/input/UInput.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "primitive",
+    "category": "input",
+    "description": "The one single-line text field: outline, soft, subtle, ghost and none variants in five sizes, with leading and trailing slots, a loading state and a highlight for an error.",
+    "usage": "Every typed single-line value. A labelled field sits in a UFormField (label, help, error); a field in a row of the task sheet or a card uses the `ghost` variant and its own label. Sizes in use: `sm` in rows, `md` in editors, `lg`/`xl` for a title field; keep the theme heights. An error sets `color=\"error\"` and `highlight` and shows its text through the UFormField `error`.",
+    "avoid": "Not for several lines (UTextarea), not for a choice from a list (USelect, USelectMenu) and not for editing a displayed value in place (InlineEditable).",
+    "responsibility": [],
+    "variants": [
+      "variant",
+      "size"
+    ],
+    "states": [
+      "disabled",
+      "loading",
+      "error",
+      "focus",
+      "long-text"
+    ],
+    "usedBy": {
+      "components": 11,
+      "pages": 1,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "URadioGroup",
+    "path": "catalog/input/URadioGroup.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "primitive",
+    "category": "input",
+    "description": "A group of exclusive options with labels and descriptions, as a list, a card or a table, vertical or horizontal.",
+    "usage": "Two to five exclusive, labelled options that are all worth seeing at once: `color=\"neutral\"`, the `list` variant. Give the group a `legend` or `aria-label`.",
+    "avoid": "Not for options that are pictures (SwatchRadioGroup), not for a long list (USelect, USelectMenu) and not for independent yes/no choices (UCheckbox, USwitch).",
+    "responsibility": [],
+    "variants": [
+      "variant",
+      "orientation"
+    ],
+    "states": [
+      "disabled",
+      "long-text"
+    ],
+    "usedBy": {
+      "components": 1,
+      "pages": 0,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "USelect",
+    "path": "catalog/input/USelect.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "primitive",
+    "category": "input",
+    "description": "A native-style select: pick one value from a short fixed list, shown as a field with a caret.",
+    "usage": "A short, fixed list without search where a field reads better than a menu: the Notion mapping steps (always `size=\"lg\"` inside a UFormField). Set `items` as `{ label, value }`, a `placeholder` and `aria-label` when it has no UFormField label.",
+    "avoid": "Not for a list that needs search or free values (USelectMenu), not for a property value in the task sheet (TaskPropertySelect) and not for two or three options that fit as a radio group (URadioGroup).",
+    "responsibility": [],
+    "variants": [
+      "size"
+    ],
+    "states": [
+      "disabled",
+      "loading",
+      "error",
+      "focus",
+      "long-text"
+    ],
+    "usedBy": {
+      "components": 3,
+      "pages": 1,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "USelectMenu",
+    "path": "catalog/input/USelectMenu.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "compound",
+    "category": "input",
+    "description": "A select with a popover list, search and optional multiple values; the app theme adds the `property` variant, a plain-text trigger with a dotted rule on hover.",
+    "usage": "A value from a list that needs search or free entry: the Notion priority mapping, and (as the `property` variant, wrapped by TaskPropertySelect) the property rows of the task sheet. Never set the `property` look through `:ui`.",
+    "avoid": "Not for a short fixed list without search (USelect) and not for choosing one of two or three (URadioGroup); in the task sheet use TaskPropertySelect, not a bare USelectMenu.",
+    "responsibility": [],
+    "variants": [
+      "variant",
+      "size"
+    ],
+    "states": [
+      "disabled",
+      "loading",
+      "focus"
+    ],
+    "usedBy": {
+      "components": 2,
+      "pages": 0,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "USwitch",
+    "path": "catalog/input/USwitch.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "primitive",
+    "category": "input",
+    "description": "An on/off switch with an optional label and description; the app theme gives the off state a border and a muted thumb so it reads as off.",
+    "usage": "A setting that takes effect at once (stack cards, a recap preference). `color=\"neutral\"`, the default size; label it with `label` or `aria-label`.",
+    "avoid": "Not for a choice confirmed by a save button (UCheckbox) and not for exclusive options (URadioGroup).",
+    "responsibility": [],
+    "variants": [
+      "color",
+      "size"
+    ],
+    "states": [
+      "selected",
+      "disabled",
+      "loading",
+      "focus",
+      "long-text"
+    ],
+    "usedBy": {
+      "components": 3,
+      "pages": 1,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "UTextarea",
+    "path": "catalog/input/UTextarea.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "primitive",
+    "category": "input",
+    "description": "The multi-line text field: the same variants, colours and sizes as UInput, with an optional auto-resize.",
+    "usage": "Several lines of free text: notes, feedback. Inside a UFormField when it has a label; `rows` sets the start height, `autoresize` grows it. Keep the default `md` size.",
+    "avoid": "Not for a single line (UInput) and not for read-or-edit in place (InlineEditable with `multiline`).",
+    "responsibility": [],
+    "variants": [
+      "size"
+    ],
+    "states": [
+      "disabled",
+      "error",
+      "focus",
+      "long-text"
+    ],
+    "usedBy": {
+      "components": 3,
+      "pages": 0,
       "layouts": 0,
       "app": 0
     }

@@ -112,7 +112,7 @@
           :label="t('settings.github.fieldLabel', { name: title })"
           :error="isOfflineProblem ? false : (problemText ?? false)"
           :help="isOfflineProblem ? (problemText ?? undefined) : undefined"
-          :ui="{ label: 'sr-only', root: 'min-w-0 flex-1', error: 'text-error-700' }"
+          :ui="{ label: 'sr-only', root: 'min-w-0 flex-1' }"
         >
           <UInput
             ref="tokenInput"
@@ -120,7 +120,6 @@
             type="password"
             :placeholder="t('settings.github.placeholder')"
             :disabled="row.checking"
-            :ui="{ base: 'placeholder:text-muted' }"
             class="w-full"
             autocomplete="off"
             data-1p-ignore

@@ -368,7 +368,7 @@ describe('NewCardFlow (#649)', () => {
     expect(pills().map((pill) => pill.text())).toEqual(['Design', 'Backend', 'Büro'].map((v) => expect.stringContaining(v)))
     expect(pills().map((pill) => pill.attributes('aria-keyshortcuts'))).toEqual(['1', '2', '3'])
     const more = w.get('[data-testid="new-card-more"]')
-    expect(more.classes()).toContain('ncf__pill--mehr')
+    expect(more.classes()).toContain('choice-chip--field')
     expect(more.text()).toBe('Mehr')
     expect(more.attributes('aria-keyshortcuts')).toBe('4')
     await pressOnPanel('Enter')
@@ -377,7 +377,7 @@ describe('NewCardFlow (#649)', () => {
     expect(stepKey()).toBe('timebox')
     expect(pills()).toHaveLength(2)
     expect(w.get('[data-testid="new-card-more"]').attributes('aria-keyshortcuts')).toBe('3')
-    expect(w.get('[data-testid="new-card-more"]').classes()).not.toContain('ncf__pill--mehr')
+    expect(w.get('[data-testid="new-card-more"]').classes()).not.toContain('choice-chip--field')
   })
 
   it('kd#16: key 3 picks the third value; with one value Mehr stays for the new one, a step without values is still skipped', async () => {

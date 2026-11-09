@@ -46,6 +46,7 @@
         <p :id="headingId" class="px-2 pt-1 pb-1 text-xs font-medium text-muted">{{ heading }}</p>
         <ul class="max-h-60 overflow-y-auto" :aria-labelledby="headingId">
           <li v-for="{ name, count } in editRows" :key="name">
+            <!-- Raw button on purpose (#72): the row sits in the select menu's content slot, the host reads its click event (a pencil click edits, the row never selects) and stops Enter and Space before the menu sees them; ListRow `action` emits no event and puts attributes on the <li> -->
             <button
               type="button"
               class="picker-edit-row"
