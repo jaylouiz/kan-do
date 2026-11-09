@@ -84,6 +84,16 @@ for (const vp of VIEWPORTS) {
       await seedStatistics(page)
     })
 
+    test('a topics row shows hover feedback (surface wash)', async ({ page }) => {
+      test.skip(vp.touch, 'hover needs a pointer')
+      await page.goto('/settings/topics')
+      const button = row(page, 'Wrk').getByTestId('topics-row-button')
+      await expect(button).toBeVisible()
+      await expect(button).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
+      await button.hover()
+      await expect(button).not.toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
+    })
+
     test('rename from the settings page reaches every status, the trash, the statistics and survives a reload; A -> B -> A restores', async ({ page }) => {
       await page.goto('/settings/topics')
       await expect(page.getByTestId('topics-list')).toBeVisible()

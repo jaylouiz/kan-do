@@ -85,7 +85,7 @@ const label = computed(() => t('task.carryOver.label', { n: props.day }))
 .carry-over-count {
   flex-shrink: 0;
   margin-left: 0.125rem;
-  font-size: 0.6875rem; /* label step */
+  font-size: var(--text-label); /* label step */
   font-weight: 500;
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -93,16 +93,16 @@ const label = computed(() => t('task.carryOver.label', { n: props.day }))
 
 .carry-over-more {
   flex-shrink: 0;
-  font-size: 0.6875rem; /* label step */
+  font-size: var(--text-label); /* label step */
   font-weight: 500;
   line-height: 1;
 }
 
 /* Mobile label step (#220): 0.6875rem -> 0.75rem with the card's footer chips */
-@media (max-width: 767px) {
+@media (--phone) {
   .carry-over-count,
   .carry-over-more {
-    font-size: 0.75rem;
+    font-size: var(--text-xs);
   }
 }
 </style>

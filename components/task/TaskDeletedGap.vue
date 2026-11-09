@@ -116,8 +116,8 @@ watch(() => props.gap.state, (state) => {
   max-width: var(--task-card-max-width);
   --gap-h: var(--gap-from, var(--task-card-height));
   transition:
-    grid-template-rows 280ms cubic-bezier(0.4, 0, 0.2, 1),
-    margin-bottom 280ms cubic-bezier(0.4, 0, 0.2, 1);
+    grid-template-rows 280ms var(--ease-standard),
+    margin-bottom 280ms var(--ease-standard);
 }
 
 /* Closing: the box glides to zero height and takes the list's gap (--task-list-gap) with it (nothing jumps afterwards). */

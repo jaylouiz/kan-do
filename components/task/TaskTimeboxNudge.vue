@@ -238,10 +238,10 @@ const onBarEnd = (event: AnimationEvent) => {
 .nudge {
   position: absolute;
   inset: 0;
-  z-index: 30; /* above the corner glyph (10) and the done layer (20), inside the card's own stacking context */
+  z-index: var(--z-card-layer); /* above the corner glyph (10) and the done layer (20), inside the card's own stacking context */
   border-radius: var(--task-card-radius);
   pointer-events: none; /* only the controls take pointer events: the card stays draggable and its face still clicks open */
-  --nudge-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --nudge-ease: var(--ease-standard);
 }
 
 .nudge__wash {
@@ -272,7 +272,7 @@ const onBarEnd = (event: AnimationEvent) => {
 
 .nudge__question {
   margin: 0;
-  font-size: 0.9375rem;
+  font-size: var(--text-title);
   line-height: 1.25rem;
   font-weight: 500;
   color: var(--ui-text-highlighted);
@@ -303,15 +303,15 @@ const onBarEnd = (event: AnimationEvent) => {
   border-radius: 9999px; /* the stack pill's radius (TaskStackPill) */
   background-color: var(--ui-bg-muted);
   color: var(--ui-text);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   font-weight: 500;
   line-height: 1rem;
   white-space: nowrap;
   cursor: pointer;
   transition:
-    background-color 150ms var(--nudge-ease),
-    color 150ms var(--nudge-ease),
-    transform 150ms var(--nudge-ease);
+    background-color var(--duration-fast) var(--nudge-ease),
+    color var(--duration-fast) var(--nudge-ease),
+    transform var(--duration-fast) var(--nudge-ease);
 }
 
 .nudge__button--icon {
@@ -364,7 +364,7 @@ const onBarEnd = (event: AnimationEvent) => {
   border: 0;
   background: transparent;
   text-align: right;
-  font-size: 0.9375rem;
+  font-size: var(--text-title);
   font-weight: 500;
   color: var(--ui-text-highlighted);
   font-variant-numeric: tabular-nums;
@@ -383,7 +383,7 @@ const onBarEnd = (event: AnimationEvent) => {
 }
 
 .nudge__unit {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   font-weight: 500;
   color: var(--ui-text-toned);
 }
@@ -470,7 +470,7 @@ const onBarEnd = (event: AnimationEvent) => {
 }
 
 /* 44px targets on a phone and on any touch screen, a tablet at desktop width included */
-@media (max-width: 767px), (hover: none) and (pointer: coarse) {
+@media (--phone), (hover: none) and (pointer: coarse) {
   .nudge__button,
   .nudge__field {
     height: 2.75rem;

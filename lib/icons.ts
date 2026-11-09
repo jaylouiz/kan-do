@@ -8,6 +8,10 @@
  * Keep full string literals: the `clientBundle` scan reads this file to bundle each icon (ADR 012).
  * `tests/config/icon-map.test.ts` fails on a literal of a mapped glyph outside this file and the theme.
  *
+ * Icon size is Tailwind's spacing scale, four steps: `size-3` (12px, inline status), `size-4` (16px, the default beside
+ * text), `size-5` (20px, a control's own icon), `size-6` (24px, a prominent action); a redesign retunes `--spacing`
+ * once (#70, `docs/design/ui-kit-audit.md` "Status after #70"). An icon at any other size is a hero or an illustration.
+ *
  * Not mapped on purpose: `check` (done, apply and copied are different meanings) and the status icons
  * (already one table, `utils/taskStatusMappings.ts`); source icons live in `utils/sourceMeta.ts`.
  */

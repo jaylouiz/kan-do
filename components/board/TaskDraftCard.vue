@@ -28,6 +28,7 @@ import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TaskCard from '~/components/task/TaskCard.vue';
 import { useTaskDraft } from '~/composables/useTaskDraft';
+import { BREAKPOINT_QUERIES } from '~/lib/breakpoints';
 
 defineOptions({ name: 'TaskDraftCard' });
 
@@ -38,7 +39,7 @@ const rootEl = ref<HTMLElement | null>(null);
 // On mobile the sheet covers the lower half of the board: bring the draft into the visible part.
 onMounted(() => {
   if (!import.meta.client) return;
-  const mobile = window.matchMedia('(max-width: 767px)').matches;
+  const mobile = window.matchMedia(BREAKPOINT_QUERIES.phone).matches;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   rootEl.value?.scrollIntoView?.({
     block: mobile ? 'start' : 'nearest',
@@ -56,7 +57,7 @@ onMounted(() => {
   /* The card is a visual stand-in: no hover, click or double-click behaviour */
   pointer-events: none;
   /* Morph (#125): the card sheet fades in over the add slot in the same box; nothing scales or moves */
-  animation: task-draft-in var(--task-transform-duration) cubic-bezier(0.4, 0, 0.2, 1);
+  animation: task-draft-in var(--task-transform-duration) var(--ease-standard);
 }
 
 @keyframes task-draft-in {

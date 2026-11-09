@@ -16,7 +16,7 @@
     position: fixed;
     /* Header-row centre (h2: 1.75rem margin + a 2.59rem line box at the 2.25rem display size, centre ~3.05rem) minus half the 2.75rem arrow */
     top: max(var(--edge-indicator-top, calc(env(safe-area-inset-top, 0px) + 1.6875rem)), calc(env(safe-area-inset-top, 0px) + 0.5rem));
-    z-index: 2100;          /* above the app bar (40) and modal backdrop (50) */
+    z-index: var(--z-overlay); /* above the app bar (40) and modal backdrop (50) */
     width: 2.75rem;
     height: 2.75rem;
     border-radius: 50%;
@@ -27,7 +27,7 @@
     color: var(--ui-text);
     opacity: 0.5;
     pointer-events: none;
-    transition: opacity 150ms ease, background 150ms ease, transform 150ms ease;
+    transition: opacity var(--duration-fast) ease, background var(--duration-fast) ease, transform var(--duration-fast) ease;
   }
 
   .edge-indicator--left  { left: max(0.5rem, env(safe-area-inset-left, 0px)); }
@@ -51,7 +51,7 @@
 /* Toasts (undo for delete, archive, completion) sit above the floating app bar on
    mobile instead of covering it. Unlayered on purpose: it must win over the `bottom-4`
    utility from Nuxt UI's toaster theme. --phone-bar-offset (app-nav.css, includes the safe-area inset) + 0.75rem gap. */
-@media (max-width: 767px) {
+@media (--phone) {
   .kando-toaster {
     bottom: calc(var(--phone-bar-offset) + 0.75rem);
   }
@@ -59,7 +59,7 @@
 
 /* Toast actions: at least 44px tall on touch and phone widths (WCAG 2.5.8 target, 2.5.5 comfort).
    Unlayered to win over the button size classes. */
-@media (pointer: coarse), (max-width: 767px) {
+@media (pointer: coarse), (--phone) {
   .kando-toast-actions :where(button, a) {
     min-height: 2.75rem;
     min-width: 2.75rem;
@@ -71,7 +71,7 @@
    at tablet width. Phones get it from the button theme in app.config.ts (the CTA is `lg`, 48px: a 44px rule here
    would cap it, #552). One hook for both sheet variants. Unlayered to win over the button size classes. Mouse desktop
    stays compact. */
-@media (pointer: coarse) and (min-width: 768px) {
+@media (pointer: coarse) and (--desktop) {
   .sheet-footer :where(button, a) {
     min-height: 2.75rem;
     min-width: 2.75rem;
@@ -79,7 +79,7 @@
 }
 
 /* System notice actions ("Details", "Ausblenden", ...): 44px hit areas on touch and phone widths (#284). Unlayered to win over the button size classes. */
-@media (pointer: coarse), (max-width: 767px) {
+@media (pointer: coarse), (--phone) {
   .kando-notice-actions :where(button, a) {
     min-height: 2.75rem;
     min-width: 2.75rem;

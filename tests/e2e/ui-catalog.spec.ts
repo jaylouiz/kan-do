@@ -78,7 +78,8 @@ test.describe('/ui Components part: sections and texts', () => {
       await expect(part.getByRole('heading', { level: 3, name: title, exact: true }), title).toBeVisible()
     }
     // Aktion lists the components before its blocks; the sections arrive in the order of the issue
-    const titles = await part.getByRole('heading', { level: 3 }).allTextContents()
+    // section titles only: a live sample may carry its own h3 (StatsOutliers, TaskDetailMetadata)
+    const titles = await part.locator('h3').evaluateAll(els => els.filter(el => !el.closest('[data-kd-sample]')).map(el => el.textContent?.trim()))
     expect(titles).toEqual(['Eingabe', 'Aktion', 'Navigation', 'Feedback', 'Overlay', 'Darstellung', 'Layout', 'Formularstruktur', 'Tastatur'])
 
     const link = page.locator('#component-ExternalLink')
@@ -87,8 +88,8 @@ test.describe('/ui Components part: sections and texts', () => {
     await expect(link.getByText('Alternatives')).toHaveCount(0) // ExternalLink names none
     await expect(button(page).getByText('Alternatives')).toBeVisible()
     await expect(button(page).getByRole('link', { name: 'ExternalLink' })).toBeVisible()
-    // A component without an entry still shows its doc block and says its samples are pending
-    const entryless = page.locator('#component-TaskCard')
+    // A component of a category that has not landed has no entry yet: it still shows its doc block and says its samples are pending
+    const entryless = page.locator('#component-Board')
     await expect(entryless).toContainText('No catalog entry yet')
     await expect(entryless.locator('[data-kd-sample]')).toHaveCount(0)
   })

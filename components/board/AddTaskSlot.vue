@@ -197,11 +197,11 @@ const isEmpty = computed(() => !props.showButton && !isDrafting.value);
   background-color: transparent;
   color: var(--ui-text-muted);
   font: inherit;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   line-height: var(--lh-snug);
   text-align: center;
   cursor: pointer;
-  transition: opacity var(--add-slot-reveal-duration) cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity var(--add-slot-reveal-duration) var(--ease-standard);
 }
 
 /* The visible shape. Compact at rest; min-width/min-height interpolate to the exact card box (the button's own box never moves) */
@@ -220,8 +220,8 @@ const isEmpty = computed(() => !props.showButton && !isDrafting.value);
   border-radius: inherit;
   background-color: var(--ui-bg-muted);
   transition:
-    min-width var(--add-slot-grow-duration) cubic-bezier(0.4, 0, 0.2, 1),
-    min-height var(--add-slot-grow-duration) cubic-bezier(0.4, 0, 0.2, 1);
+    min-width var(--add-slot-grow-duration) var(--ease-standard),
+    min-height var(--add-slot-grow-duration) var(--ease-standard);
 }
 
 .add-task-button-icon {
@@ -232,7 +232,7 @@ const isEmpty = computed(() => !props.showButton && !isDrafting.value);
 
 .add-task-button-icon,
 .add-task-button-label {
-  transition: opacity var(--task-transform-duration) cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity var(--task-transform-duration) var(--ease-standard);
 }
 
 /* Grown: the card box. Hover only on pointer devices, so a tap never leaves a sticky grown state;
@@ -262,7 +262,7 @@ const isEmpty = computed(() => !props.showButton && !isDrafting.value);
 }
 
 .add-task-slot-draft-leave-active {
-  transition: opacity var(--task-transform-duration) cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity var(--task-transform-duration) var(--ease-standard);
 }
 
 .add-task-slot-draft-leave-to {
@@ -302,7 +302,7 @@ const isEmpty = computed(() => !props.showButton && !isDrafting.value);
  * Solid fill so cards scrolling underneath never show through; no brand fill (One Lamp).
  * While drafting the bar hides and the draft card takes its place at the end of the list (#110).
  * ======================================== */
-@media (max-width: 767px) {
+@media (--phone) {
   /* Mobile cards are 8rem tall (TaskCard): the slot keeps a card's box there too */
   .add-task-slot,
   .add-task-button {
@@ -313,7 +313,7 @@ const isEmpty = computed(() => !props.showButton && !isDrafting.value);
     position: sticky;
     /* 0: the column's own padding-bottom (--phone-bar-offset + 0.75rem, board.css) already shrinks the sticky view; adding the bar offset again pins the bar too high and over the last card */
     bottom: 0;
-    z-index: 1500;
+    z-index: var(--z-add-slot-open);
     /* Label-wide and centred (#244): the button fills the slot, so the slot's fit-content sets the width */
     width: fit-content;
     max-width: min(var(--task-card-max-width), 100%);

@@ -37,7 +37,7 @@
       <DataStorageNotice />
     </div>
     <div
-      class="welcome-sheet relative mt-40 w-full rounded-t-2xl bg-default px-6 pt-6 shadow-lg transition-[max-width] duration-300 ease-out motion-reduce:transition-none sm:mt-0 sm:rounded-2xl sm:px-10 sm:pt-10"
+      class="welcome-sheet relative mt-40 w-full rounded-t-2xl bg-default px-6 pt-6 shadow-lg transition-[max-width] duration-(--duration-slow) ease-out motion-reduce:transition-none sm:mt-0 sm:rounded-2xl sm:px-10 sm:pt-10"
       :class="flow === 'notion' ? 'sm:max-w-3xl' : 'sm:max-w-lg'"
     >
       <header class="mb-8">

@@ -119,7 +119,7 @@ const showGhost = computed(() =>
   border-radius: var(--task-card-radius);
 }
 
-@media (max-width: 767px) {
+@media (--phone) {
   .column-drop-zone__ghost {
     height: 8rem;
   }

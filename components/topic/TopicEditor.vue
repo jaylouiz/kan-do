@@ -343,7 +343,7 @@ function onSave() {
   background: var(--ui-bg-accented);
 }
 
-@media (max-width: 767px) {
+@media (--phone) {
   .topic-swatch {
     width: 2.5rem;
     height: 2.5rem;
