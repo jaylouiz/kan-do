@@ -1,7 +1,7 @@
 <!--
 @component TaskCardContextMenu
 @kind component
-@category action
+@category overlay
 @description Wraps TaskCard with a context menu for quick task actions.
   On desktop: right-click opens the menu via the native contextmenu event.
   On mobile/touch: a 750ms long press opens the menu; moving more than 14px
