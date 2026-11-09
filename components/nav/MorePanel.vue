@@ -178,6 +178,7 @@ import { useIntegrationHealthStore } from '~/store/integrationHealth'
 import { integrationLabel, repairRouteOf } from '~/lib/taskSources'
 import type { SourceProblem } from '~/lib/integrationHealth'
 import { isTauri } from '~/utils/isTauri'
+import { BREAKPOINT_QUERIES } from '~/lib/breakpoints';
 
 defineOptions({ name: 'MorePanel' })
 
@@ -203,7 +204,7 @@ const { count: trashCount } = useTrash()
 const isDesktopApp = isTauri()
 
 /** Phone layout has no keyboard: the palette row is desktop only (same query as AppNav) */
-const isPhone = useMediaQuery('(max-width: 767px)')
+const isPhone = useMediaQuery(BREAKPOINT_QUERIES.phone)
 
 const panelEl = ref<HTMLElement | null>(null)
 const CONTROLS = 'button:not([disabled]), a[href]'

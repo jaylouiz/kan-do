@@ -118,6 +118,7 @@ import { useBoardDragState } from '~/composables/useBoardDragState'
 import { useDayClose } from '~/composables/useDayClose'
 import { useBoardStore } from '~/store/board'
 import { useIntegrationHealthStore } from '~/store/integrationHealth'
+import { BREAKPOINT_QUERIES } from '~/lib/breakpoints';
 
 defineOptions({ name: 'AppNav' })
 
@@ -144,7 +145,7 @@ watch(open, (isOpen) => {
   if (isOpen) { tipOpen.value = false } else { tipHeldBack.value = true; tipOpen.value = false }
 })
 /** Phone layout: no hover (no tooltip) and the panel opens upward from the bottom bar */
-const isPhone = useMediaQuery('(max-width: 767px)')
+const isPhone = useMediaQuery(BREAKPOINT_QUERIES.phone)
 
 // The ⋯ tooltip teaches the palette on the board, where CommandPalette is mounted (pages/tasks.vue)
 const tooltipKbds = computed(() => (onBoard.value ? ['meta', 'k'] : undefined))

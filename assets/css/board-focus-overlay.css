@@ -27,7 +27,7 @@
   z-index: auto;
 }
 .board[data-focus] #column-progress {
-  z-index: 1100;
+  z-index: var(--z-focus-column);
 }
 .board[data-focus] #column-waiting {
   z-index: 1;
@@ -42,10 +42,10 @@
   --focus-ellipse: ellipse calc(var(--fw) * 1.9 + 12rem) calc(var(--fh) * 3.2 + 11rem) at var(--fx) var(--fy);
   position: absolute;
   inset: 0;
-  z-index: 1000;
+  z-index: var(--z-focus-overlay);
   pointer-events: none;
 }
-@media (min-width: 768px) {
+@media (--desktop) {
   .focus-overlay {
     position: fixed; /* after the base rule: same specificity, source order decides */
     inset: 0; /* the app bar (z 40) sits above it */

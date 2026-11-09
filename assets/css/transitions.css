@@ -6,7 +6,7 @@
 @layer components {
 .page-enter-active,
 .page-leave-active {
-  transition: opacity 200ms ease, transform 200ms ease;
+  transition: opacity var(--duration-base) ease, transform var(--duration-base) ease;
 }
 
 .page-enter-from {

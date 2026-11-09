@@ -17,7 +17,7 @@
   <div
     ref="rootRef"
     data-inline-editable
-    class="group relative rounded-md transition-colors duration-200"
+    class="group relative rounded-md transition-colors duration-(--duration-base)"
     :class="[
       isEditing ? 'bg-transparent' : isRule ? 'cursor-pointer' : 'cursor-pointer focus-within:bg-accented/50 hover:bg-accented/50',
       containerClass

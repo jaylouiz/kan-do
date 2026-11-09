@@ -17,7 +17,7 @@
  * Runs per edit (`.claude/hooks/eslint-file.sh` calls `node scripts/lint/design-tokens.mjs <file>`), in `npm run lint`
  * (the ESLint rule) and in `npm run verify` (`tests/config/design-tokens.test.ts` over every source file).
  */
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -259,11 +259,185 @@ export function checkTokenLiterals(root, files = styleSources(root)) {
   return findings
 }
 
+/**
+ * Literal ratchet for z-index, motion, type, breakpoint and arbitrary spacing (#70), next to `checkTokenLiterals`.
+ * What it flags, per declaration, class string or script text:
+ * - `z-index` / Tailwind `z-N`, `z-[N]` above 20: a layer is a `--z-*` token (assets/css/main.css); 20 and below is
+ *   stacking inside one component and stays a number;
+ * - a media or container width, `matchMedia('(…width…)')` or `useMediaQuery('(…width…)')` written as a number: the
+ *   one definition is `lib/breakpoints.ts` (`@media (--phone)` in CSS, `BREAKPOINT_QUERIES.phone` in JS);
+ * - a `font-size` that equals a type role (`--text-title` …) or a Tailwind step (`--text-sm` …), and any `text-[…]`
+ *   size, unless that exact literal is on `SCALE_ALLOWLIST` for the file;
+ * - an arbitrary spacing or size class (`p-[…]`, `gap-[…]`, `w-[…]`, `max-h-[…]`) unless its value is a `calc()` or a
+ *   viewport unit, or that exact class is on `SCALE_ALLOWLIST` for the file;
+ * - motion: the literal durations (`150ms`, `0.2s`, not `0`) and `cubic-bezier()` curves in `transition`,
+ *   `animation` and their longhands, and Tailwind `duration-N` / `ease-[…]` classes, are counted per file and may not
+ *   exceed `scripts/lint/literal-baseline.json`. A value named once in a custom property (`--ncf-ease: …`) or read
+ *   from a token (`var(--duration-fast)`) is not a literal. `checkBaselineSlack` reports a baseline above the count,
+ *   so the ratchet only tightens (`node scripts/lint/design-tokens.mjs --update-baseline`).
+ */
+export const SCALE_ALLOWLIST = {
+  'components/board/BoardColumn.vue': { literals: ['min-h-[150px]'], reason: 'min-h-[150px]: the empty drop target of a column is px on purpose (drag-and-drop hit area, not text)' },
+  'components/task/DatePickerField.vue': { literals: ['min-w-[260px]'], reason: 'min-w-[260px]: the calendar popover is px wide so the month grid never reflows with the text size' },
+  'app.config.ts': { literals: ['text-[0.5rem]/3'], reason: 'text-[0.5rem]/3: the xs badge, rem so it follows text zoom (#66); no role is that small' },
+}
+
+const BASELINE_FILE = 'scripts/lint/literal-baseline.json'
+const TEXT_STEPS = {
+  '0.6875rem': '--text-label', '11px': '--text-label', '0.75rem': '--text-xs', '12px': '--text-xs', '0.875rem': '--text-sm', '14px': '--text-sm',
+  '0.9375rem': '--text-title', '15px': '--text-title', '1rem': '--text-base', '16px': '--text-base', '1.125rem': '--text-brand', '18px': '--text-brand',
+  '1.25rem': '--text-xl', '20px': '--text-xl', '1.375rem': '--text-headline', '22px': '--text-headline', '1.5rem': '--text-2xl', '24px': '--text-2xl',
+  '1.875rem': '--text-3xl', '30px': '--text-3xl', '2.25rem': '--text-display', '36px': '--text-display',
+}
+const MOTION_PROP_RE = /^(?:transition|animation)(?:-(?:duration|timing-function))?$/
+const DURATION_RE = /(?<![\w.-])(?!0m?s\b)\d*\.?\d+m?s(?![\w-])/g
+const CURVE_RE = /cubic-bezier\(/g
+const Z_LIMIT = 20
+
+/**
+ * Files the #70 ratchet reads: the styling sources plus the script folders that may name a media query.
+ * @param {string} root
+ */
+export function scaleSources(root) {
+  const files = styleSources(root)
+  /** @param {string} dir */
+  const walk = (dir) => {
+    if (!existsSync(dir)) return
+    for (const name of readdirSync(dir)) {
+      const path = join(dir, name)
+      if (statSync(path).isDirectory()) { if (!SKIP_DIRS.has(name)) walk(path) }
+      else if (/\.ts$/.test(name) && !name.endsWith('.d.ts')) files.push(path)
+    }
+  }
+  for (const dir of ['composables', 'lib', 'utils', 'plugins']) walk(join(root, dir))
+  return files.sort()
+}
+
+/**
+ * Motion literals per file (see `SCALE_ALLOWLIST`'s doc): declarations in CSS and `<style>`, Tailwind classes in templates.
+ * @param {string} file
+ */
+function motionLiteralCount(file) {
+  let count = 0
+  const css = cssOf(file)
+  for (const decl of css.matchAll(/(?:^|[;{}])\s*([\w-]+)\s*:\s*([^;{}]+)(?=[;}]|\s*$)/g)) {
+    if (!MOTION_PROP_RE.test(decl[1] ?? '')) continue
+    const value = (decl[2] ?? '').replace(/var\([^()]*(?:\([^()]*\)[^()]*)*\)/g, 'VAR')
+    count += (value.match(DURATION_RE) ?? []).length + (value.match(CURVE_RE) ?? []).length
+  }
+  if (file.endsWith('.vue') || file.endsWith('app.config.ts')) {
+    const body = readFileSync(file, 'utf8').replace(/<style[^>]*>[\s\S]*?<\/style>/g, '')
+    count += (body.match(/(?<![\w-])(?:[\w-]+:)*duration-(?:\d+|\[[^\]]+\])(?![\w-])/g) ?? []).length
+    count += (body.match(/(?<![\w-])(?:[\w-]+:)*ease-\[[^\]]+\]/g) ?? []).length
+  }
+  return count
+}
+
+/**
+ * Motion literal counts per file below `root`, only files with at least one.
+ * @param {string} root
+ * @returns {Record<string, number>}
+ */
+export function motionLiteralCounts(root) {
+  /** @type {Record<string, number>} */
+  const counts = {}
+  for (const file of styleSources(root)) {
+    const n = motionLiteralCount(file)
+    if (n > 0) counts[relative(root, file)] = n
+  }
+  return counts
+}
+
+/**
+ * @param {string} root
+ * @returns {{ motion: Record<string, number> }}
+ */
+function readBaseline(root) {
+  const path = join(root, BASELINE_FILE)
+  return existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : { motion: {} }
+}
+
+/**
+ * Baseline entries that are higher than the real count (a literal was removed): the baseline must be lowered.
+ * @param {string} root
+ * @returns {{ file: string, line: number, message: string }[]}
+ */
+export function checkBaselineSlack(root) {
+  const real = motionLiteralCounts(root)
+  return Object.entries(readBaseline(root).motion)
+    .filter(([file, n]) => n > (real[file] ?? 0))
+    .map(([file, n]) => ({ file: join(root, BASELINE_FILE), line: 1, message: `${file} has ${real[file] ?? 0} motion literals, the baseline says ${n}; lower it (node scripts/lint/design-tokens.mjs --update-baseline)` }))
+}
+
+/**
+ * @param {string} root checkout root
+ * @param {string[]} [files] files to check (default: `scaleSources`)
+ * @returns {{ file: string, line: number, message: string }[]}
+ */
+export function checkScaleLiterals(root, files = scaleSources(root)) {
+  /** @type {{ file: string, line: number, message: string }[]} */
+  const findings = []
+  const baseline = readBaseline(root).motion
+  for (const file of files) {
+    if (!/\.(css|vue|ts)$/.test(file) || !existsSync(file)) continue
+    const rel = relative(root, file)
+    if (rel === 'lib/breakpoints.ts' || rel === 'assets/css/main.css') continue // the breakpoint definition; the token source
+    const allowedLiterals = /** @type {Record<string, { literals: string[] }>} */ (SCALE_ALLOWLIST)[rel]?.literals ?? []
+    const lineIn = (/** @type {string} */ text, /** @type {number} */ index) => text.slice(0, index).split('\n').length
+    const add = (/** @type {string} */ text, /** @type {number} */ index, /** @type {string} */ message) => findings.push({ file, line: lineIn(text, index), message })
+
+    const css = cssOf(file)
+    for (const decl of css.matchAll(/(?:^|[;{}])\s*([\w-]+)\s*:\s*([^;{}]+)(?=[;}]|\s*$)/g)) {
+      const prop = decl[1] ?? ''
+      const value = (decl[2] ?? '').replace(/!important/g, '').trim()
+      const at = (decl.index ?? 0) + decl[0].indexOf(prop)
+      if (prop === 'z-index' && /^-?\d+$/.test(value) && Math.abs(Number(value)) > Z_LIMIT) add(css, at, `z-index: ${value} is a layer; use a --z-* token (assets/css/main.css)`)
+      if (prop === 'font-size') {
+        const step = /** @type {Record<string, string>} */ (TEXT_STEPS)[value]
+        if (step) add(css, at, `font-size: ${value} equals ${step}; use var(${step})`)
+      }
+    }
+    for (const media of css.matchAll(/@(?:media|container)[^{]*\(\s*(?:min|max)-width\s*:\s*[\d.]+(?:px|rem|em)/g)) add(css, media.index ?? 0, `${media[0].trim()} writes a breakpoint as a number; use @media (--phone), (--desktop) or (--sm) (lib/breakpoints.ts)`)
+
+    if (file.endsWith('.vue') || file.endsWith('.ts')) {
+      const text = readFileSync(file, 'utf8')
+        .replace(/<!--[\s\S]*?-->/g, blank)
+        .replace(/\/\*[\s\S]*?\*\//g, blank)
+        .replace(/(^|[;,{(])\/\/.*$|(\s)\/\/(?:\s.*)?$/gm, (m, a, b) => (a ?? b ?? '') + blank(m.slice((a ?? b ?? '').length)))
+      const body = file.endsWith('.vue') ? text.replace(/<style[^>]*>[\s\S]*?<\/style>/g, blank) : text
+      for (const m of body.matchAll(/(?<![\w-])(?:[\w-]+:)*z-(?:\[(-?\d+)\]|(\d+))(?![\w-])/g)) {
+        if (Math.abs(Number(m[1] ?? m[2])) > Z_LIMIT) add(body, m.index ?? 0, `${m[0]} is a layer; use z-(--z-<layer>) (assets/css/main.css)`)
+      }
+      for (const m of body.matchAll(/(?:matchMedia|useMediaQuery)\(\s*(['"`])[^'"`]*(?:min|max)-width[^'"`]*\1/g)) add(body, m.index ?? 0, `${m[0]} writes a breakpoint as a number; use BREAKPOINT_QUERIES (lib/breakpoints.ts)`)
+      {
+        for (const m of body.matchAll(/(?<![\w-])(?:[\w-]+:)*text-\[[^\]]+\](?:\/[\w.]+)?/g)) if (!allowedLiterals.includes(m[0])) add(body, m.index ?? 0, `${m[0]} is an arbitrary type size; use a role (text-label, text-sm …) or a --text-* token`)
+        for (const m of body.matchAll(/(?<![\w-])(?:[\w-]+:)*-?(?:p[xytrblse]?|m[xytrblse]?|gap(?:-[xy])?|space-[xy]|size|w|h|min-[wh]|max-[wh]|inset(?:-[xy])?|top|left|right|bottom)-\[([^\]]+)\]/g)) {
+          if (!allowedLiterals.includes(m[0]) && !/calc\(|\d(?:vh|dvh|svh|lvh|vw|dvw)\b/.test(m[1] ?? '')) add(body, m.index ?? 0, `${m[0]} is an arbitrary spacing or size; use the Tailwind scale (p-3, w-65 …)`)
+        }
+      }
+    }
+
+    if (file.endsWith('.vue') || file.endsWith('.css') || rel === 'app.config.ts') {
+      const n = motionLiteralCount(file)
+      const limit = baseline[rel] ?? 0
+      if (n > limit) findings.push({ file, line: 1, message: `${n} motion literals (durations, cubic-bezier, duration-N), the baseline allows ${limit}; use var(--duration-*) / var(--ease-*) or name the value once in a custom property` })
+    }
+  }
+  return findings
+}
+
 // CLI: `node scripts/lint/design-tokens.mjs [files...]` (default: every styling source); exit 1 on findings.
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const root = resolve(fileURLToPath(import.meta.url), '../../..')
-  const files = process.argv.slice(2).map(f => resolve(f))
-  const findings = [...checkCssVars(root, files.length > 0 ? files : undefined), ...checkTokenLiterals(root, files.length > 0 ? files : undefined)]
+  const args = process.argv.slice(2)
+  if (args.includes('--update-baseline')) {
+    writeFileSync(join(root, BASELINE_FILE), `${JSON.stringify({ motion: motionLiteralCounts(root) }, null, 2)}\n`)
+    console.log(`wrote ${BASELINE_FILE}`)
+    process.exit(0)
+  }
+  const files = args.map(f => resolve(f))
+  const some = files.length > 0 ? files : undefined
+  const findings = [...checkCssVars(root, some), ...checkTokenLiterals(root, some), ...checkScaleLiterals(root, some), ...(some ? [] : checkBaselineSlack(root))]
   for (const f of findings) console.log(`${relative(root, f.file)}:${f.line} ${f.message}`)
   process.exit(findings.length > 0 ? 1 : 0)
 }

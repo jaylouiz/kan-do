@@ -191,7 +191,7 @@ if (import.meta.dev) {
 .add-task-slot-overlay {
   position: absolute;
   inset: 0;
-  z-index: 50;
+  z-index: var(--z-card);
   pointer-events: none;
   display: flex;
   align-items: flex-start;

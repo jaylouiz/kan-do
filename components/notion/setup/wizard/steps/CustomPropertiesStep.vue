@@ -32,10 +32,10 @@
         
         <div class="flex shrink-0 items-center gap-3">
           <transition 
-            enter-active-class="transition duration-200 ease-out"
+            enter-active-class="transition duration-(--duration-base) ease-out"
             enter-from-class="opacity-0 translate-x-2"
             enter-to-class="opacity-100 translate-x-0"
-            leave-active-class="transition duration-150 ease-in"
+            leave-active-class="transition duration-(--duration-fast) ease-in"
             leave-from-class="opacity-100 translate-x-0"
             leave-to-class="opacity-0 translate-x-2"
           >
