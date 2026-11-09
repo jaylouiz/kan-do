@@ -1,7 +1,7 @@
 <!--
 @component TopicEditorHost
 @kind compound
-@category layout
+@category overlay
 @description Where the shared TopicEditor appears (#430). At >=768px a muted inline panel under the row it belongs to
 (settings list row, task-sheet property row); below, a bottom drawer. Opened from inside the task sheet's drawer
 (`nested`) it is a second, nested drawer: vaul scales the sheet back and its top edge stays visible above the editor
@@ -25,7 +25,7 @@ name and closes the host on `close` (the editor emits `saved` before `close`)
     :nested="nested"
     :title="t(kind === 'topic' ? 'topic.editor.titleTopic' : 'topic.editor.titleActivity')"
     :description="topic"
-    :ui="{ overlay: 'bg-inverted/40', content: 'topic-editor-drawer', header: 'px-4 pb-1', title: 'font-display text-lg font-semibold tracking-tight text-highlighted', description: 'sr-only' }"
+    :ui="{ overlay: 'bg-inverted/40', content: 'topic-editor-drawer', header: 'px-4 pb-1', description: 'sr-only' }"
     @update:open="(open: boolean) => !open && emit('close')"
   >
     <template #body>

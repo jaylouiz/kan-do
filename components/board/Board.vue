@@ -177,7 +177,7 @@ import { useNewDayRecap } from "~/composables/useNewDayRecap";
 import { useSettingsStore } from "~/store/settings";
 import { useArchiveDoneTasks } from "~/composables/useArchiveDoneTasks";
 import { useDayClose } from "~/composables/useDayClose";
-import { BREAKPOINT_QUERIES } from '~/lib/breakpoints';
+import { useIsPhone } from '~/composables/useIsDesktop';
 
 /**
  * Script-API: orchestrates kanban data via stores/composables, wires DnD
@@ -246,8 +246,7 @@ const tasksDone = computed(() => tasksStore.tasksDoneToday);
 const activeMobileTab = ref(0);
 
 /** True when the viewport is ≤767 px (updated reactively via MediaQueryList) */
-const isMobile = ref(false);
-let _mobileMediaQuery: MediaQueryList | null = null;
+const isMobile = useIsPhone();
 
 /** Highest column-page index (0=Open, 1=Mid, 2=Done). */
 const LAST_MOBILE_TAB = 2;
@@ -384,7 +383,7 @@ const fireEdgeScroll = (direction: 'left' | 'right') => {
  */
 const handleDragPointerMove = (event: PointerEvent) => {
   if (!isDragging.value || !import.meta.client) return;
-  if (!window.matchMedia(BREAKPOINT_QUERIES.phone).matches) {
+  if (!isMobile.value) {
     clearEdgeTimer();
     return;
   }
@@ -436,12 +435,6 @@ watch(isDragging, (dragging) => {
 const dragDiagnosticCleanups: Array<() => void> = [];
 
 onMounted(() => {
-  if (import.meta.client) {
-    _mobileMediaQuery = window.matchMedia(BREAKPOINT_QUERIES.phone);
-    isMobile.value = _mobileMediaQuery.matches;
-    _mobileMediaQuery.addEventListener('change', (e) => { isMobile.value = e.matches; });
-  }
-
   if (!import.meta.dev || !import.meta.client) {
     return;
   }
@@ -500,7 +493,6 @@ onBeforeUnmount(() => {
   if (import.meta.client) {
     document.removeEventListener('pointermove', handleDragPointerMove);
     clearEdgeTimer();
-    _mobileMediaQuery = null; // listener auto-removed when GC'd; GC is fine here
   }
   while (dragDiagnosticCleanups.length > 0) {
     const cleanup = dragDiagnosticCleanups.pop();
