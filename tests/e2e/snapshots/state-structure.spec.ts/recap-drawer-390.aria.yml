@@ -1,7 +1,7 @@
 - dialog "Kurzer Rückblick":
   - heading "Kurzer Rückblick" [level=2]
   - paragraph: Du hast gestern 4 von 6 Aufgaben erledigt.
-  - tablist:
+  - tablist "Anzeige wählen":
     - tab "2 noch offen" [selected]
     - tab "4 erledigt"
   - region "2 noch offen":

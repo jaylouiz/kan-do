@@ -35,14 +35,12 @@ Hosted by ResponsiveOverlay (modal at >=768px with both decks side by side, bott
     <template #body="{ isDesktop }">
       <div v-if="snapshot">
         <!-- Phones: one deck at a time. Nothing open: only the done deck, no switcher -->
-        <div v-if="!isDesktop && snapshot.undone.length > 0" class="mb-4 flex justify-center">
+        <div v-if="!isDesktop && snapshot.undone.length > 0" ref="switcherWrap" class="mb-4 flex justify-center">
           <UTabs
             :model-value="shownKind"
             :items="switcherOptions"
             :content="false"
             variant="pill"
-            :ui="{ trigger: 'touch-target px-4' }"
-            :aria-label="t('recap.switcher.label')"
             data-testid="recap-switcher"
             @update:model-value="pickedKind = $event === 'done' ? 'done' : 'undone'"
           />
@@ -95,7 +93,7 @@ Hosted by ResponsiveOverlay (modal at >=768px with both decks side by side, bott
 
 <script setup lang="ts">
 import { ICONS } from '~/lib/icons'
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch, watchEffect } from 'vue'
 import { useI18n } from 'vue-i18n'
 import RecapDeck from '~/components/recap/RecapDeck.vue'
 import ResponsiveOverlay from '~/components/ui/ResponsiveOverlay.vue'
@@ -133,10 +131,19 @@ const archiveDone = computed({
 
 /** Phone switcher: the user's pick; with nothing open the done deck is the only one. Reset on every open. */
 const pickedKind = ref<'undone' | 'done'>('undone')
+// UTabs puts attrs on its root div, not on the role="tablist" element, so the name is set on the list itself.
+const switcherWrap = ref<HTMLElement | null>(null)
+watchEffect(() => {
+  const label = t('recap.switcher.label')
+  switcherWrap.value?.querySelector('[role="tablist"]')?.setAttribute('aria-label', label)
+}, { flush: 'post' })
+
 const shownKind = computed(() => (snapshot.value && snapshot.value.undone.length === 0 ? 'done' : pickedKind.value))
+// The 44 px phone hit area rides on each item's own `ui` (a part placement, not a call-site :ui override).
+const switcherTrigger = { trigger: 'touch-target px-4' }
 const switcherOptions = computed(() => [
-  { value: 'undone' as const, label: t('recap.deck.undone', { n: snapshot.value?.undone.length ?? 0 }) },
-  { value: 'done' as const, label: t('recap.deck.done', { n: snapshot.value?.done.length ?? 0 }) },
+  { value: 'undone' as const, label: t('recap.deck.undone', { n: snapshot.value?.undone.length ?? 0 }), ui: switcherTrigger },
+  { value: 'done' as const, label: t('recap.deck.done', { n: snapshot.value?.done.length ?? 0 }), ui: switcherTrigger },
 ])
 
 const summary = computed(() => {

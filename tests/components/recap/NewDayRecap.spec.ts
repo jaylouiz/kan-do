@@ -387,6 +387,11 @@ describe('NewDayRecap', () => {
       expect(decks()).toEqual(['recap-deck-undone'])
     })
 
+    it('names the tablist itself (UTabs puts attrs on its root, not on the tablist)', async () => {
+      await open([doneAt(1, 'a'), task('o', TaskStatus.Open)])
+      expect(q('[role="tablist"]').getAttribute('aria-label')).toBe('Anzeige wählen')
+    })
+
     it('the shown deck keeps its name for assistive tech while its heading is visually hidden', async () => {
       await open([doneAt(1, 'a'), task('o', TaskStatus.Open)])
       const heading = q('[data-testid="recap-deck-label"]')
