@@ -40,7 +40,13 @@ export/import (#224, ADR 011). Mostly text; the path is shown because choosing t
         </section>
 
         <section v-if="desktop && problemText" class="space-y-3" data-testid="data-folder-problem">
-          <p class="text-sm" :class="isFailure ? 'text-error-700' : 'text-default'">{{ problemText }}</p>
+          <UAlert
+            :color="isFailure ? 'error' : 'neutral'"
+            variant="subtle"
+            :icon="isFailure ? 'i-ph-warning-circle' : 'i-ph-info'"
+            role="status"
+            :description="problemText"
+          />
           <p v-if="isFailure && state.error" class="font-mono text-xs wrap-break-word text-muted">{{ state.error }}</p>
           <div v-if="problemActions" class="flex flex-wrap gap-2">
             <UButton v-if="status === 'missing-file'" variant="soft" color="neutral" data-testid="data-folder-start-fresh" @click="onStartFresh">

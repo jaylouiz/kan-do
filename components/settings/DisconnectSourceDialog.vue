@@ -55,7 +55,6 @@ Notion settings page now and from the "Verbindungen" page (#324).
           variant="subtle"
           icon="i-ph-x-circle"
           role="alert"
-          :ui="{ root: 'text-error-800', description: 'opacity-100' }"
           :title="failure === 'credentials' ? t('sources.disconnect.credentialsFailedTitle') : t('sources.disconnect.syncFailedTitle')"
           :description="failure === 'credentials'
             ? t('sources.disconnect.credentialsFailed', { source: sourceName })

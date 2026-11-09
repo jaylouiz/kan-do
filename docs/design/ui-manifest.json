@@ -1782,8 +1782,14 @@
       "Names the meaning for hover and screen readers; not a tab stop (kd#27: 8+ extra stops on a board of carried-over cards) (\"Tag 3 auf dem Board\")",
       "Never interactive: no click handler and no focus, so it adds no drag-vs-click target"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "day-2",
+      "day-4",
+      "decorative"
+    ],
+    "states": [
+      "long-text"
+    ],
     "usedBy": {
       "components": 4,
       "pages": 0,
@@ -1857,8 +1863,13 @@
       "`prefers-reduced-motion`: the picture only crossfades (no scale), the drain line is static, the gap closes without gliding",
       "Contrast: \"Im Papierkorb\" and the pill text are `error-700` on the 12% wash (earlier figures were measured on 6%; re-measure with the rendered Impeccable scan `npm run design:detect`); the `error-500` drain line is a graphic and needs 3:1"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "open"
+    ],
+    "states": [
+      "long-text",
+      "focus"
+    ],
     "usedBy": {
       "components": 2,
       "pages": 0,
@@ -2442,6 +2453,33 @@
     }
   },
   {
+    "name": "EmptyNote",
+    "path": "components/ui/EmptyNote.vue",
+    "source": "app",
+    "kind": "primitive",
+    "category": "feedback",
+    "description": "The one empty state: a muted one-sentence line (\"Noch keine X.\") for a list, table or panel that fills with use.",
+    "usage": "<EmptyNote data-testid=\"trash-empty-state\">{{ t('trash.empty') }}</EmptyNote>; spacing comes from the call site's `class`.",
+    "avoid": "Not for a search or filter without a result beyond the sentence \"Keine X gefunden.\", not for an error (UAlert) and never for an empty board column, which stays blank.",
+    "responsibility": [
+      "Render the sentence as muted small text, nothing else: no icon, no heading, no action (DESIGN.md \"Voice and copy\": \"Noch keine X.\")",
+      "Pass attributes (testid, role) and the call site's spacing class through to the paragraph"
+    ],
+    "variants": [
+      "default"
+    ],
+    "states": [
+      "empty",
+      "long-text"
+    ],
+    "usedBy": {
+      "components": 6,
+      "pages": 1,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
     "name": "ExternalLink",
     "path": "components/ui/ExternalLink.vue",
     "source": "app",
@@ -2813,6 +2851,32 @@
     "usedBy": {
       "components": 1,
       "pages": 0,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "UAlert",
+    "path": "catalog/feedback/UAlert.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "compound",
+    "category": "feedback",
+    "description": "The inline notice: a short message with an optional title, icon and actions in the semantic colour roles (DESIGN.md \"Notices and toasts\").",
+    "usage": "`variant=\"subtle\"` with `color` `error` for a failure, `warning` for \"needs attention\", `info` for a hint, `success` for a confirmed good result, `neutral` for a quiet result. The call site sets `role` (`alert` for a failure that appears, `status` for a state) and `data-testid`; text goes into `description` (and `title` when a second line helps). A system notice with actions is `orientation=\"horizontal\"` (DataStorageNotice).",
+    "avoid": "Not for a field's own error (UFormField error), not for a reaction to an action that passes by (a toast, raised with `useToast`), and no hand-built tinted box or coloured `<p role=\"alert\">` line next to it.",
+    "responsibility": [],
+    "variants": [
+      "color",
+      "variant"
+    ],
+    "states": [
+      "error",
+      "long-text",
+      "icon-only"
+    ],
+    "usedBy": {
+      "components": 16,
+      "pages": 1,
       "layouts": 0,
       "app": 0
     }

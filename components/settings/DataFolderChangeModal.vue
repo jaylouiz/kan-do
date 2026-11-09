@@ -27,7 +27,15 @@ stays), a folder that already holds data offers "use the data already there" (th
           <p class="font-mono text-sm break-all text-highlighted" data-testid="data-folder-target">{{ choice.folder }}</p>
         </div>
 
-        <p v-if="blockedText" class="text-sm text-error-700" role="alert" data-testid="data-folder-blocked">{{ blockedText }}</p>
+        <UAlert
+          v-if="blockedText"
+          color="error"
+          variant="subtle"
+          icon="i-ph-x-circle"
+          role="alert"
+          :description="blockedText"
+          data-testid="data-folder-blocked"
+        />
 
         <template v-else-if="step === 'confirm'">
           <p class="text-sm text-default" data-testid="data-folder-confirm">{{ t('settings.data.modal.confirmReplace') }}</p>
@@ -56,7 +64,15 @@ stays), a folder that already holds data offers "use the data already there" (th
           />
         </template>
 
-        <p v-if="errorText" class="text-sm text-error-700" role="alert" data-testid="data-folder-error">{{ errorText }}</p>
+        <UAlert
+          v-if="errorText"
+          color="error"
+          variant="subtle"
+          icon="i-ph-x-circle"
+          role="alert"
+          :description="errorText"
+          data-testid="data-folder-error"
+        />
       </div>
     </template>
 

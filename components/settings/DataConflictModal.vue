@@ -39,7 +39,15 @@ it collapses to one action, "Neu laden".
           {{ conflict.localChanges ? t('settings.data.conflict.bothKept') : t('settings.data.conflict.noChanges') }}
         </p>
         <p v-if="blockedHint" class="text-sm text-default" data-testid="data-conflict-hint">{{ blockedHint }}</p>
-        <p v-if="errorText" class="text-sm text-error-700" role="alert" data-testid="data-conflict-error">{{ errorText }}</p>
+        <UAlert
+          v-if="errorText"
+          color="error"
+          variant="subtle"
+          icon="i-ph-x-circle"
+          role="alert"
+          :description="errorText"
+          data-testid="data-conflict-error"
+        />
       </div>
     </template>
 

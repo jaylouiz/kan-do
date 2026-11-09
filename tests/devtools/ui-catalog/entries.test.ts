@@ -27,10 +27,10 @@ function files(dir: string, accept: (name: string) => boolean): string[] {
 }
 
 describe('catalog entries (#66)', () => {
-  it('ships entries for the proofs (UButton, ExternalLink), the Aktion slice (#71) and the Darstellung slice (#76), library components included', () => {
+  it('ships entries for the proofs (UButton, ExternalLink), the Aktion slice (#71), the Darstellung slice (#76) and the feedback slice (#74), library components included', () => {
     const names = loaded.map(l => l.entry.component)
     expect(names).toEqual(expect.arrayContaining([
-      'ExternalLink', 'UButton', 'ListRow', 'UBadge', 'UCard', 'UTable', 'UCollapsible', 'TaskCard',
+      'ExternalLink', 'UButton', 'ListRow', 'UBadge', 'UCard', 'UTable', 'UCollapsible', 'TaskCard', 'UAlert', 'EmptyNote',
       'AddTaskSlot', 'ColumnSortingControl', 'DataExportImport', 'TaskCardContextMenu', 'TaskCarryOverTriage', 'TaskTimeboxNudge', 'UDropdownMenu', 'ULink',
     ]))
   })
@@ -74,7 +74,7 @@ describe('catalog entries (#66)', () => {
   })
 
   it('a landed category needs an entry for each of its manifest components; a category that has not landed does not', () => {
-    expect(LANDED_CATEGORIES).toEqual(['action', 'display']) // the category slices (#71 and #76 landed; #72 to #75, #77 add theirs here)
+    expect(LANDED_CATEGORIES).toEqual(['action', 'display', 'feedback']) // the category slices (#71, #76, #74 landed; #72, #73, #75, #77 add theirs here)
     expect(missingEntries(manifest, loaded.map(l => l.entry))).toEqual([])
     const missing = missingEntries(manifest, loaded.map(l => l.entry), ['navigation'])
     expect(missing).toContain('AppNav')
