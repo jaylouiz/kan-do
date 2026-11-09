@@ -29,7 +29,7 @@ const topicColor = vi.hoisted(() => ({ colors: {} as Record<string, string> }))
 vi.mock('~/composables/useTopicColor', () => ({
   useTopicColor: () => ({ colorCodeFor: (topic: string | null, source: string) => (source === 'todoist' ? null : topicColor.colors[topic ?? ''] ?? null) }),
 }))
-vi.mock('~/composables/useIsDesktop', () => ({ useIsDesktop: () => ref(true) }))
+vi.mock('~/composables/useIsDesktop', () => ({ useIsDesktop: () => ref(true), isPhoneNow: () => false }))
 
 const stubs = {
   TaskCard: { props: ['task'], template: '<div class="task-face" :data-title="task.title" :data-topic="task.topic" :data-color="task.topicColorCode"><p class="task-title-text" /></div>' },

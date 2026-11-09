@@ -73,8 +73,13 @@ describe('catalog entries (#66)', () => {
     expect(entryProblems(path, withSamples, manifest)).toEqual(expect.arrayContaining([expect.stringContaining('has samples')]))
   })
 
+  it('a trigger example without a slot is rejected, as it would render nothing (#75)', () => {
+    const entry = { component: 'UModal', source: 'nuxt-ui', theme: 'modal', alternatives: [], states: [], variants: [{ id: 'trigger', trigger: true }] } as CatalogEntry
+    expect(entryProblems('catalog/overlay/UModal.catalog.ts', entry, manifest)).toEqual(expect.arrayContaining([expect.stringContaining('no slot')]))
+  })
+
   it('a landed category needs an entry for each of its manifest components; a category that has not landed does not', () => {
-    expect(LANDED_CATEGORIES).toEqual(['action', 'display', 'feedback']) // the category slices (#71, #76, #74 landed; #72, #73, #75, #77 add theirs here)
+    expect(LANDED_CATEGORIES).toEqual(['action', 'display', 'feedback', 'overlay']) // the category slices (#71 to #77) add theirs here
     expect(missingEntries(manifest, loaded.map(l => l.entry))).toEqual([])
     const missing = missingEntries(manifest, loaded.map(l => l.entry), ['navigation'])
     expect(missing).toContain('AppNav')

@@ -1750,7 +1750,7 @@
     "path": "components/task/TaskCardContextMenu.vue",
     "source": "app",
     "kind": "component",
-    "category": "action",
+    "category": "overlay",
     "description": "Wraps TaskCard with a context menu for quick task actions. On desktop: right-click opens the menu via the native contextmenu event. On mobile/touch: a 750ms long press opens the menu; moving more than 14px (grace pixels) cancels it so a drag gesture is never interrupted. Keyboard: the ContextMenu key or Shift+F10 on the focused card (its `.task-wrapper`, a parent of this component) opens the menu at the card; on close focus returns to the card (kd#23). If a drag starts while the menu is open it is closed immediately.",
     "usage": "Used in BoardColumn to provide right-click / long-press menu on task cards",
     "avoid": "Only wraps TaskCard for the right-click / long-press menu; not for stack headers or other rows.",
@@ -2378,7 +2378,7 @@
     "path": "components/topic/TopicEditorHost.vue",
     "source": "app",
     "kind": "compound",
-    "category": "layout",
+    "category": "overlay",
     "description": "Where the shared TopicEditor appears (#430). At >=768px a muted inline panel under the row it belongs to (settings list row, task-sheet property row); below, a bottom drawer. Opened from inside the task sheet's drawer (`nested`) it is a second, nested drawer: vaul scales the sheet back and its top edge stays visible above the editor (\"one thing at a time\"); over the settings page it is a plain drawer.",
     "usage": "`<TopicEditorHost :key=\"name\" :topic=\"name\" kind=\"topic\" @close=\"...\" @saved=\"...\" />`; the parent re-keys by the name and closes the host on `close` (the editor emits `saved` before `close`)",
     "avoid": "Only places the shared TopicEditor (inline panel or overlay); it holds no form of its own.",
@@ -2877,6 +2877,133 @@
     "usedBy": {
       "components": 16,
       "pages": 1,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "UContextMenu",
+    "path": "catalog/overlay/UContextMenu.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "compound",
+    "category": "overlay",
+    "description": "A menu of actions that opens at the pointer on right-click or long-press.",
+    "usage": "Wrapping a row or card that has quick actions (the task card); items carry icons from lib/icons.ts and a destructive item uses the error colour.",
+    "avoid": "Not the only way to reach an action (it is invisible until used: every action also has a visible control) and not a dropdown from a button.",
+    "responsibility": [],
+    "variants": [
+      "trigger"
+    ],
+    "states": [],
+    "usedBy": {
+      "components": 1,
+      "pages": 0,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "UDrawer",
+    "path": "catalog/overlay/UDrawer.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "compound",
+    "category": "overlay",
+    "description": "A panel that slides up from the bottom edge (a bottom sheet) on a phone.",
+    "usage": "Only through ResponsiveOverlay (below 768 px its bottom sheet); TopicEditorHost uses it on a phone and is an inline panel from 768 px. The theme sets scrim and z-index.",
+    "avoid": "Not a desktop dialog (UModal) and not a persistent side panel.",
+    "responsibility": [],
+    "variants": [
+      "trigger"
+    ],
+    "states": [],
+    "usedBy": {
+      "components": 3,
+      "pages": 0,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "UModal",
+    "path": "catalog/overlay/UModal.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "compound",
+    "category": "overlay",
+    "description": "A centred dialog on a scrim: a title, a body, a footer with the actions, closed with Esc, the scrim or the close button.",
+    "usage": "A confirmation or a short form on desktop. Declare the width through MODAL_WIDTH (sm confirmations, md forms, lg wide content) in the :ui prop; the footer is right-aligned by the theme. A dialog that must be a drawer on a phone is ResponsiveOverlay.",
+    "avoid": "Not for a hint on hover (UTooltip), a small menu next to a control (UPopover) or an inline notice (UAlert); no ad-hoc max-width classes and no identity classes in :ui (they belong in the theme).",
+    "responsibility": [],
+    "variants": [
+      "trigger"
+    ],
+    "states": [],
+    "usedBy": {
+      "components": 13,
+      "pages": 0,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "UPopover",
+    "path": "catalog/overlay/UPopover.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "primitive",
+    "category": "overlay",
+    "description": "A small floating panel anchored to a trigger, closed by Esc or an outside click.",
+    "usage": "Pickers and short forms next to a control (date picker, topic picker, sync status); position with the content prop, size with :ui content. z-index comes from the theme.",
+    "avoid": "Not a modal task (UModal), not a hint (UTooltip) and not a menu of commands (UDropdownMenu).",
+    "responsibility": [],
+    "variants": [
+      "trigger"
+    ],
+    "states": [],
+    "usedBy": {
+      "components": 4,
+      "pages": 0,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "USlideover",
+    "path": "catalog/overlay/USlideover.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "compound",
+    "category": "overlay",
+    "description": "A panel that slides in from the right edge.",
+    "usage": "Only inside ResponsiveOverlay (the task sheet on desktop), width SHEET_WIDTH; it has a transparent overlay so the board stays visible.",
+    "avoid": "Not a general dialog (UModal) and not used directly in feature code.",
+    "responsibility": [],
+    "variants": [
+      "trigger"
+    ],
+    "states": [],
+    "usedBy": {
+      "components": 1,
+      "pages": 0,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "UTooltip",
+    "path": "catalog/overlay/UTooltip.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "primitive",
+    "category": "overlay",
+    "description": "A one-line label that appears on hover or focus of its trigger.",
+    "usage": "Names an icon-only control or adds a shortcut hint (kbds); the trigger keeps its own aria-label.",
+    "avoid": "Not for information the user needs to proceed (put it on the page), not on touch-only controls and not for long text.",
+    "responsibility": [],
+    "variants": [
+      "text",
+      "kbds"
+    ],
+    "states": [],
+    "usedBy": {
+      "components": 4,
+      "pages": 0,
       "layouts": 0,
       "app": 0
     }

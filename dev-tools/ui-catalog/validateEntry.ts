@@ -5,8 +5,8 @@
 import { CATALOG_STATES, type CatalogEntry } from '~/catalog/types'
 import { isI18nRef, type ManifestRow } from './catalogModel'
 
-/** Categories whose slice has landed: every manifest component of such a category needs an entry. The category slices (#71 to #77) add theirs (Aktion: #71, Darstellung: #76, Rückmeldung: #74). */
-export const LANDED_CATEGORIES: string[] = ['action', 'display', 'feedback']
+/** Categories whose slice has landed: every manifest component of such a category needs an entry. The category slices (#71 to #77) add theirs (Aktion: #71, Darstellung: #76, Rückmeldung: #74, Overlay: #75). */
+export const LANDED_CATEGORIES: string[] = ['action', 'display', 'feedback', 'overlay']
 
 /** Every i18n key an entry refers to (slots and props, nested). */
 export function referencedKeys(entry: CatalogEntry): string[] {
@@ -39,6 +39,9 @@ export function entryProblems(path: string, entry: CatalogEntry, manifest: Manif
   const hasSamples = Boolean(entry.matrix) || (entry.variants?.length ?? 0) > 0 || entry.states.length > 0
   if (!hasSamples && !entry.sampleNote) problems.push('an entry without samples says why in `sampleNote`')
   if (hasSamples && entry.sampleNote) problems.push('`sampleNote` is set but the entry has samples')
+  for (const example of [...(entry.variants ?? []), ...entry.states]) {
+    if (example.trigger && example.slot === undefined) problems.push(`example "${example.id}" is a trigger but has no slot (nothing would render)`)
+  }
   for (const name of entry.alternatives) {
     if (!manifest.some(r => r.name === name)) problems.push(`alternative ${name} has no manifest row`)
   }

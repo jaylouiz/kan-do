@@ -231,8 +231,7 @@ import TaskCard from '~/components/task/TaskCard.vue';
 import NewCardOptionList from '~/components/board/NewCardOptionList.vue';
 import { useAddTarget } from '~/composables/useAddTarget';
 import { useErrorHandler } from '~/composables/useErrorHandler';
-import { BREAKPOINT_QUERIES } from '~/lib/breakpoints';
-import { useIsDesktop } from '~/composables/useIsDesktop';
+import { isPhoneNow, useIsDesktop } from '~/composables/useIsDesktop';
 import { usePropertyOptionsSync } from '~/composables/usePropertyOptionsSync';
 import { useTaskSync } from '~/composables/useTaskSync';
 import { useTimeboxSuggestion } from '~/composables/useTimeboxSuggestion';
@@ -662,7 +661,7 @@ onMounted(() => {
   ensureOptionsAvailable();
   void showTitleField();
   // On a phone the card sits at the end of a long list, under the keyboard: bring it into view
-  const mobile = window.matchMedia(BREAKPOINT_QUERIES.phone).matches;
+  const mobile = isPhoneNow();
   rootEl.value?.scrollIntoView?.({ block: mobile ? 'start' : 'nearest', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
 });
 

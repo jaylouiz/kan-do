@@ -28,7 +28,7 @@ import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TaskCard from '~/components/task/TaskCard.vue';
 import { useTaskDraft } from '~/composables/useTaskDraft';
-import { BREAKPOINT_QUERIES } from '~/lib/breakpoints';
+import { isPhoneNow } from '~/composables/useIsDesktop';
 
 defineOptions({ name: 'TaskDraftCard' });
 
@@ -39,7 +39,7 @@ const rootEl = ref<HTMLElement | null>(null);
 // On mobile the sheet covers the lower half of the board: bring the draft into the visible part.
 onMounted(() => {
   if (!import.meta.client) return;
-  const mobile = window.matchMedia(BREAKPOINT_QUERIES.phone).matches;
+  const mobile = isPhoneNow();
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   rootEl.value?.scrollIntoView?.({
     block: mobile ? 'start' : 'nearest',
