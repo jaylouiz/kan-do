@@ -75,4 +75,6 @@ export interface CatalogEntry {
   /** Named variants of an app component (the variants of a Nuxt UI component come from `matrix`). */
   variants?: CatalogExample[]
   states: CatalogStateExample[]
+  /** Why the entry has no live sample (a block that reads a store, a composable or a page's data): shown instead of the samples; variants and states then stay empty. */
+  sampleNote?: string
 }
