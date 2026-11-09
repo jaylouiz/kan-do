@@ -52,9 +52,9 @@
         </div>
       </div>
 
-      <div v-if="eligibleCustomProps.length === 0" class="p-6 text-center text-sm text-muted">
+      <EmptyNote v-if="eligibleCustomProps.length === 0" class="p-6 text-center">
         {{ t('notion.customProps.empty') }}
-      </div>
+      </EmptyNote>
     </div>
   </div>
 </template>

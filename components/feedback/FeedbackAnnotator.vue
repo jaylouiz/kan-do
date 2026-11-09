@@ -79,9 +79,15 @@ three tools (Rechteck, Pfeil, Schwärzen), undo last, clear all, and the toggle 
         data-testid="annotate-mask"
         @update:model-value="(value) => setMaskPrivate(value === true)"
       />
-      <p v-if="captureFailure" class="text-sm text-error-700" role="alert" data-testid="annotate-capture-failed">
-        {{ captureFailure === 'too_large' ? t('feedback.screenshot.tooLarge') : t('feedback.screenshot.failed') }}
-      </p>
+      <UAlert
+        v-if="captureFailure"
+        color="error"
+        variant="subtle"
+        icon="i-ph-x-circle"
+        role="alert"
+        :description="captureFailure === 'too_large' ? t('feedback.screenshot.tooLarge') : t('feedback.screenshot.failed')"
+        data-testid="annotate-capture-failed"
+      />
       <p class="text-xs text-muted" data-testid="annotate-hint">{{ t('feedback.annotate.drawHint') }}</p>
     </div>
   </div>

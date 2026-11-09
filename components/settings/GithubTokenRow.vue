@@ -70,15 +70,15 @@
         >
           {{ row.upload === 'checking' ? t('settings.github.probe.checking') : t('settings.github.probe.action') }}
         </UButton>
-        <p v-if="probeText" class="flex items-center gap-1 text-sm" :class="row.upload === 'allowed' ? 'text-muted' : 'text-toned'" role="status" data-testid="github-upload-probe-result">
-          <UIcon
-            :name="row.upload === 'allowed' ? 'i-ph-check-circle' : 'i-ph-warning-circle'"
-            :class="row.upload === 'allowed' ? 'text-success' : 'text-warning-700'"
-            class="size-4 shrink-0"
-            aria-hidden="true"
-          />
-          {{ probeText }}
-        </p>
+        <UAlert
+          v-if="probeText"
+          :color="row.upload === 'allowed' ? 'neutral' : 'warning'"
+          variant="subtle"
+          :icon="row.upload === 'allowed' ? 'i-ph-check-circle' : 'i-ph-warning-circle'"
+          role="status"
+          :description="probeText"
+          data-testid="github-upload-probe-result"
+        />
         <ExternalLink
           v-if="row.upload === 'denied'"
           :href="manageTokensUrl"
@@ -92,12 +92,13 @@
 
     <!-- Empty, checking and rejected share the field -->
     <div v-else class="space-y-3" :data-testid="state === 'rejected' ? 'github-token-rejected' : 'github-token-empty'">
-      <p v-if="state === 'rejected'" class="flex items-center gap-2 text-sm" role="status">
-        <span class="font-mono text-muted" aria-hidden="true">{{ masked }}</span>
-        <span class="sr-only">{{ t('settings.github.savedAria', { last4: row.last4 ?? '' }) }}</span>
-        <UIcon name="i-ph-warning-circle" class="size-4 shrink-0 text-error" aria-hidden="true" />
-        <span class="text-error-700">{{ t('settings.github.rejectedLine') }}</span>
-      </p>
+      <template v-if="state === 'rejected'">
+        <p class="text-sm" role="status">
+          <span class="font-mono text-muted" aria-hidden="true">{{ masked }}</span>
+          <span class="sr-only">{{ t('settings.github.savedAria', { last4: row.last4 ?? '' }) }}</span>
+        </p>
+        <UAlert color="error" variant="subtle" icon="i-ph-warning-circle" role="status" :description="t('settings.github.rejectedLine')" />
+      </template>
       <ExternalLink
         :href="tokenUrl"
         class="inline-flex items-center gap-1 rounded-sm text-sm text-highlighted underline underline-offset-2 focus-ring"

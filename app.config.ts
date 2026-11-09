@@ -285,6 +285,15 @@ export default defineAppConfig({
             description: 'opacity-100'
           }
         },
+        // Same for subtle error (the plain error lines became UAlert, #74): error-500 on the error/10 wash is below AA
+        {
+          color: 'error',
+          variant: 'subtle',
+          class: {
+            root: 'text-error-800',
+            description: 'opacity-100'
+          }
+        },
         // Same for subtle info: sky-500 on the info/10 wash is below AA (#368)
         {
           color: 'info',

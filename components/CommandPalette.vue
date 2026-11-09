@@ -31,9 +31,9 @@ keyboard focus when the palette opened (issue #101, Direction B).
         @update:open="isOpen = $event"
       >
         <template #empty="{ searchTerm }">
-          <p role="status" class="px-4 py-6 text-sm text-muted">
+          <EmptyNote role="status" class="px-4 py-6">
             {{ t('commandPalette.empty', { term: searchTerm }) }}
-          </p>
+          </EmptyNote>
         </template>
         <template #footer>
           <p v-if="!hasCard" class="px-3 pt-2 text-xs text-muted">
