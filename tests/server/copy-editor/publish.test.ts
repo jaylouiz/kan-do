@@ -30,6 +30,9 @@ beforeEach(() => {
   git(remote, 'init', '-q', '--bare', '-b', 'main')
   clone = tmp('copy-clone-')
   git(clone, 'init', '-q', '-b', 'main')
+  // own identity, repo-local (worktrees share it): publish() commits without env, CI runners have no global one
+  git(clone, 'config', 'user.name', 't')
+  git(clone, 'config', 'user.email', 't@t')
   mkdirSync(join(clone, 'i18n/locales'), { recursive: true })
   writeFileSync(join(clone, 'i18n/locales/de.json'), json(de))
   writeFileSync(join(clone, 'i18n/locales/en.json'), json(en))
