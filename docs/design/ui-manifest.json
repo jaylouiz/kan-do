@@ -2,6 +2,7 @@
   {
     "name": "CommandPalette",
     "path": "components/CommandPalette.vue",
+    "source": "app",
     "kind": "component",
     "category": "keyboard",
     "description": "Cmd/Ctrl+K command palette: board-wide commands plus actions for the card that held keyboard focus when the palette opened (issue #101, Direction B).",
@@ -12,6 +13,8 @@
       "Show the shortcut hints of the commands (`kbds`) and the palette's own keys in the footer",
       "Empty and loading states; screen-reader result status via role=\"status\""
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -22,6 +25,7 @@
   {
     "name": "AddTaskSlot",
     "path": "components/board/AddTaskSlot.vue",
+    "source": "app",
     "kind": "component",
     "category": "action",
     "description": "Card-sized add control that morphs into the draft card of the task being added, in the same box (#125). Its soft surface rests label-wide and grows into the card shape on hover/focus (#466)",
@@ -38,6 +42,8 @@
       "During a drag (`hidden`) the slot keeps its geometry but is invisible and not interactive",
       "Reserves the card box only for the button or the draft: with neither (`showButton` off, no draft) it takes no space"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 2,
       "pages": 0,
@@ -48,6 +54,7 @@
   {
     "name": "Board",
     "path": "components/board/Board.vue",
+    "source": "app",
     "kind": "block",
     "category": "layout",
     "description": "Main kanban board component that organizes and displays tasks by status",
@@ -62,6 +69,8 @@
       "Phone: BoardPageDots, a non-interactive three-dot page indicator above the column title (kd#26)",
       "Erledigt footer: the \"Tag abschließen\" CTA while something is done today"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -72,6 +81,7 @@
   {
     "name": "BoardColumn",
     "path": "components/board/BoardColumn.vue",
+    "source": "app",
     "kind": "compound",
     "category": "layout",
     "description": "Column component for the kanban board that displays tasks of a specific status",
@@ -86,6 +96,8 @@
       "Handles visual states for different statuses and empty states",
       "Erledigt drop target (#124): a light teal wash under the list and a one-line hint while a card from another column hovers it"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -96,6 +108,7 @@
   {
     "name": "BoardColumnHeader",
     "path": "components/board/BoardColumnHeader.vue",
+    "source": "app",
     "kind": "component",
     "category": "display",
     "description": "Header component for kanban board columns",
@@ -106,6 +119,8 @@
       "Shows status-specific icons (checkmark for Done column)",
       "Handles visual states for different statuses (waiting, empty)"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -116,6 +131,7 @@
   {
     "name": "BoardColumnItem",
     "path": "components/board/BoardColumnItem.vue",
+    "source": "app",
     "kind": "compound",
     "category": "layout",
     "description": "One element of a standard column's task list: a collapsed stack, the header row of an expanded one, or a sortable card",
@@ -126,6 +142,8 @@
       "Renders a collapsed group as TaskStack (one sortable by its front task, #150), the header row of an expanded one as TaskStackHeader (not a sortable: it sits next to the sortables, never inside one), anything else as SortableTaskWrapper > context menu > TaskCard (the same markup for an ungrouped card, a single-card group and a member of an expanded stack)",
       "Has exactly one root element per item (no fragment). dnd-kit moves the dragged wrapper next to its target and Vue removes a fragment by walking its anchors: a card that sat in another card's fragment would be removed with it (#146). One root node per item keeps the list flat."
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -136,6 +154,7 @@
   {
     "name": "BoardColumnProgressContent",
     "path": "components/board/BoardColumnProgressContent.vue",
+    "source": "app",
     "kind": "compound",
     "category": "layout",
     "description": "Specialized content for the Progress column",
@@ -147,6 +166,8 @@
       "Hosts the add-and-start slot while Jetzt is empty (#125); it morphs into the Jetzt draft card",
       "Manages specific layout requirements for the progress column"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -157,6 +178,7 @@
   {
     "name": "BoardColumnYesterdayNote",
     "path": "components/board/BoardColumnYesterdayNote.vue",
+    "source": "app",
     "kind": "component",
     "category": "display",
     "description": "One-line \"Gestern erledigt\" note on a soft Done-Teal surface at the top of the Done column",
@@ -170,6 +192,8 @@
       "Surface (#605, D2; outline dropped #57): no border, `--done-note-wash` (70 % `success-100` over `success-50`: darker than the in-card confirmation wash so it separates without a frame, short of the `success-100` Erledigt drop wash so it never reads as a drop target), card radius. Tick and \"Gesehen\" in `success-800`; title row neutral, rows `toned`",
       "Collapse over 180ms when it leaves (instant under prefers-reduced-motion); the caret rotates 180ms"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -180,6 +204,7 @@
   {
     "name": "BoardPageDots",
     "path": "components/board/BoardPageDots.vue",
+    "source": "app",
     "kind": "primitive",
     "category": "navigation",
     "description": "Phone page indicator: three dots above the column title, the active one a stretched pill",
@@ -191,6 +216,8 @@
       "Pure indicator: not focusable, not tappable (`pointer-events: none`, `aria-hidden`), so it is no tab bar (#470, ADR 017); the page is already exposed by the column headings and `data-mobile-page`, a hidden \"page 2 of 3\" would say it twice",
       "Phone only (display none from 768 px; scoped CSS, since an unlayered `display: flex` beats the layered `md:hidden`); `prefers-reduced-motion` drops the settle transition Accepted trade-off: dots 6 px (`--page-dot`), active pill 20 px; colours `--ui-border-accented` and `--ui-text-muted`, no text."
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -201,12 +228,15 @@
   {
     "name": "ColumnDropZone",
     "path": "components/board/ColumnDropZone.vue",
+    "source": "app",
     "kind": "primitive",
     "category": "layout",
     "description": "Invisible droppable sentinel for each board column. Ensures @dnd-kit/vue can accept drops even when a column has no sortable items. Uses useDroppable with data.taskStatus so useBoardDndKit.onDragEnd can identify the target column for cross-column transfers. Ghost placeholder visibility: - Empty columns: isDropTarget becomes true when ColumnDropZone wins collision (collisionPriority: 0 guarantees sortables always win on non-empty columns) - Non-empty columns: dnd-kit's sortable handles insertion preview via .kando-dnd-dragged moving physically to the destination — no ghost needed here - A column whose only card (or stack) is the one being dragged counts as empty once dnd-kit moved that node into another column (#372): it is judged by its list's DOM, not by the store, which still holds the task. The ghost shows there; the node stays in the other column, its slot made transparent by the same `:has(.column-drop-zone__ghost)` rule as for any empty target (taken out of the layout when other cards remain there, so they leave no gap, #393). The DOM answer is re-read whenever the list's children change during a drag (dnd-kit moves the node after the zone became the target) - A refused drop (the WIP limit, or any stack into Jetzt, #150) shows no ghost: the slot would promise a landing",
     "usage": "Rendered once per BoardColumn so an empty column still accepts a drop",
     "avoid": "Invisible; never a visible drop target and never outside a board column (the sortable cards are the visible targets).",
     "responsibility": [],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 2,
       "pages": 0,
@@ -217,6 +247,7 @@
   {
     "name": "ColumnSortingControl",
     "path": "components/board/ColumnSortingControl.vue",
+    "source": "app",
     "kind": "component",
     "category": "input",
     "description": "Per-column sort menu in the column header: sort field and direction for one column",
@@ -226,6 +257,8 @@
       "List the sort options for the column's status, mark the active one",
       "Emit `change` (field, direction) and `open-change` so the header can keep the control visible while the menu is open"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -236,6 +269,7 @@
   {
     "name": "DayCloseBody",
     "path": "components/board/DayCloseBody.vue",
+    "source": "app",
     "kind": "block",
     "category": "display",
     "description": "Scrolling content of the closing step (#98): what got done today, what is not done yet, one closing line.",
@@ -248,6 +282,8 @@
       "Closing line chosen by local date",
       "Emits `smaller` so the host can close and open the task sheet; Delete goes through useTaskDeletion. The board's gap sits behind the modal, so a deleted row is answered here by one line (\"Im Papierkorb\", \"Rückgängig\") until its window ends (#422)"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -258,6 +294,7 @@
   {
     "name": "DayCloseDialog",
     "path": "components/board/DayCloseDialog.vue",
+    "source": "app",
     "kind": "block",
     "category": "overlay",
     "description": "Optional, quiet closing step for the day (#98): what got done, what is not done yet, a closing line and a copyable summary.",
@@ -271,6 +308,8 @@
       "\"Make smaller\" closes the dialog first, then opens the task sheet with the title in edit mode (never modal on modal)",
       "Focus returns to the trigger, or to the board when the trigger is gone (palette)"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -281,6 +320,7 @@
   {
     "name": "DayCloseTaskRow",
     "path": "components/board/DayCloseTaskRow.vue",
+    "source": "app",
     "kind": "component",
     "category": "display",
     "description": "One \"not done yet\" row in the closing step (#98): title, column label, carry-over dots, and the optional triage actions.",
@@ -291,6 +331,8 @@
       "Offen/Jetzt past the #99 threshold: TaskCarryOverTriage in `compact` mode; Wartet never (the block renders nothing there)",
       "Delete goes through useTaskDeletion (upstream-aware, undo in the row's place, see DayCloseBody); Make smaller is emitted to the host"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -301,6 +343,7 @@
   {
     "name": "FocusOverlay",
     "path": "components/board/FocusOverlay.vue",
+    "source": "app",
     "kind": "primitive",
     "category": "display",
     "description": "The layer that calms the board while a task sits in Jetzt (#394): a soft radial pool of warm dusk centred on the Jetzt card (a desk lamp), with a flat defocus under the whole layer.",
@@ -315,6 +358,8 @@
       "Accepted contrast trade-off (DESIGN.md \"Receding Text\"): the dimmed board is intentionally below 4.5:1 while the overlay is on. Measured 2026-10-29 from composited colours without the blur: worst case muted text on paper at the rim 3.13:1 (3.24:1 on a card, body text on a card 5.7:1); the lit Jetzt column keeps its normal contrast. #503 puts the Erledigt footer under the same trade-off (same rule, same reversal); the app bar is no longer dimmed (#694). It is reversible (mouse move, tap, the Fokus setting); `tests/e2e/a11y.spec.ts` exempts exactly what it covers",
       "Never covers a focused control (a key press hides it, WCAG 2.2 SC 2.4.11), never changes drop collision, and the Jetzt card stays laid out at its real size"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -325,6 +370,7 @@
   {
     "name": "NewCardFlow",
     "path": "components/board/NewCardFlow.vue",
+    "source": "app",
     "kind": "block",
     "category": "form-structure",
     "description": "Guided in-card adding of a task in Offen (#649): the add slot's box becomes a card that takes the title, then asks Thema, Aktivität, Timebox and Notiz one after another and saves at the end. No sheet, no route change.",
@@ -342,6 +388,8 @@
       "\"···\" (Timebox) and the lists: ↑/↓ (wrapping) walk field and options, Home/End jump between options (caret keys inside the field), Enter/Space pick, Esc closes (kd#15; plain buttons with one shared handler, not UDropdownMenu: the drawer has no menu primitive and the key-4/3 focus flow (#685) stays). Motion is instant under prefers-reduced-motion",
       "Accepted: unsaved input is lost when the page is left (the card saves only at the end, as the story asks); activity and note have no place on a card, so the pulse is their only cue"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -352,6 +400,7 @@
   {
     "name": "NewCardOptionList",
     "path": "components/board/NewCardOptionList.vue",
+    "source": "app",
     "kind": "component",
     "category": "input",
     "description": "The list behind \"Mehr\" (Thema, Aktivität, kd#16) and \"···\" (Timebox) of the guided new-card flow: the values that are not pills, with a search field and a \"Neu: „text“\" row on Thema and Aktivität",
@@ -363,6 +412,8 @@
       "Keys: ↑/↓ (wrapping) walk field, \"Neu\" row and options; Home/End jump between options only while focus is not in the field (there they move the caret); handled keys stop here so no surrounding handler sees them (kd#15). Digits typed in the field never reach the step's 1-4 keys (the parent ignores keys while the list is open)",
       "Options are plain buttons with one shared handler (not UDropdownMenu: the drawer has no menu primitive, kd#15)"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -373,6 +424,7 @@
   {
     "name": "SortableTaskWrapper",
     "path": "components/board/SortableTaskWrapper.vue",
+    "source": "app",
     "kind": "component",
     "category": "layout",
     "description": "Per-item sortable wrapper for dnd-kit. Each task card in a column is wrapped in this component so it can be dragged and sorted within/across columns.",
@@ -388,6 +440,8 @@
       "Describe a member of an expanded stack for assistive tech: a visually hidden \"n of m in <group>\" wired by aria-describedby (#154). The accessible name stays the task title.",
       "Mark a member of an expanded stack with data-from-stack=\"<group key>\" (#147): a click on it is not an outside click for the column's expanded stacks"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 2,
       "pages": 0,
@@ -398,6 +452,7 @@
   {
     "name": "TaskDraftCard",
     "path": "components/board/TaskDraftCard.vue",
+    "source": "app",
     "kind": "component",
     "category": "display",
     "description": "Representative card for the task being added in the sheet (#110): empty and white at first, fills live as the form is filled in",
@@ -408,6 +463,8 @@
       "Not interactive, not draggable, not part of the tasks store",
       "Looks like a normal card; the spotlight (#96/#102) fades the other cards while the draft is open"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -418,6 +475,7 @@
   {
     "name": "ElementPickerBar",
     "path": "components/feedback/ElementPickerBar.vue",
+    "source": "app",
     "kind": "component",
     "category": "overlay",
     "description": "Chrome of the feedback element picker (#227): a hover outline with a name chip around the candidate element and a small hint bar at the bottom centre. Exists only while picking; it is not a toolbar.",
@@ -428,6 +486,8 @@
       "The hint bar carries the keys and a cancel button; a live region announces \"<Komponente>, <Selektor>\"",
       "All picker UI is marked `data-feedback-picker`, so its own events pass the picker's capture listeners"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -438,6 +498,7 @@
   {
     "name": "FeedbackAnnotator",
     "path": "components/feedback/FeedbackAnnotator.vue",
+    "source": "app",
     "kind": "block",
     "category": "input",
     "description": "The annotate step of the feedback dialog (#247, ADR 014): the native snapshot on a canvas with three tools (Rechteck, Pfeil, Schwärzen), undo last, clear all, and the toggle \"Aufgabentexte schwärzen\".",
@@ -448,6 +509,8 @@
       "Tool buttons carry icon and name (typography over decoration) with `aria-pressed`; the canvas is `role=\"img\"` with a text alternative that names the number of marks",
       "Drawing needs a pointer; the keyboard path is to leave the step (\"Zurück\") or rely on the default mask"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -458,6 +521,7 @@
   {
     "name": "FeedbackDialog",
     "path": "components/feedback/FeedbackDialog.vue",
+    "source": "app",
     "kind": "block",
     "category": "overlay",
     "description": "In-app feedback (#227, Direction A; screenshot #247): one UModal, three steps. Form (title, description, optional element, optional screenshot, automatic context line), the annotate step (only after a capture), then \"Prüfen und senden\", which shows exactly what is sent.",
@@ -472,6 +536,8 @@
       "Calm inline errors with \"Erneut versuchen\"; the draft survives every one of them",
       "Escape/X close and keep the draft; focus returns to the board (the palette is gone)"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -482,6 +548,7 @@
   {
     "name": "FeedbackImage",
     "path": "components/feedback/FeedbackImage.vue",
+    "source": "app",
     "kind": "primitive",
     "category": "display",
     "description": "Shows a screenshot of the feedback dialog on a `<canvas>` (#247, ADR 014). The image only ever lives in an `ImageBitmap`; it is never turned into an `<img>` with a blob or data source, so the CSP keeps `img-src 'self'`.",
@@ -491,6 +558,8 @@
       "Draws the bitmap (and optional marks) at its own pixel size; CSS scales it to the width of the dialog",
       "`role=\"img\"` with a text alternative from the caller"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -501,6 +570,7 @@
   {
     "name": "AppNav",
     "path": "components/nav/AppNav.vue",
+    "source": "app",
     "kind": "block",
     "category": "navigation",
     "description": "The global app bar (#470, ADR 017): the `kan-do` wordmark (outside any pill, #642), one pill with the two places (Heute, Statistik) plus, on a page behind ⋯, that page as a third segment (#583), then a separate round ⋯ pill that opens the Mehr panel",
@@ -518,6 +588,8 @@
       "Phone: fades out and ignores pointers while a card is dragged (no drop target is covered); the pills and the veil fade, not `.app-nav` itself, so the blur does not pop in at the end (#631)",
       "Desktop ⋯ tooltip \"Mehr\" (+ \"Befehle ⌘K\" on the board, where the palette is mounted); no tooltip on touch"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 0,
@@ -528,6 +600,7 @@
   {
     "name": "MorePanel",
     "path": "components/nav/MorePanel.vue",
+    "source": "app",
     "kind": "block",
     "category": "navigation",
     "description": "Content of the Mehr popover behind the app bar's ⋯ (#470): the board controls and the pages that are not places",
@@ -544,6 +617,8 @@
       "Keyboard: ↑/↓ move focus to the previous/next enabled control (clamped, no wrap), Home/End to the first/last; Tab order and roles stay (a popover, not role=menu)",
       "Emits `close` when a navigation row is chosen and `dayClose` for \"Tag abschließen\": AppNav closes the panel and returns focus to ⋯ first, then opens the dialog"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -554,6 +629,7 @@
   {
     "name": "NotionSettingsSection",
     "path": "components/notion/settings/NotionSettingsSection.vue",
+    "source": "app",
     "kind": "compound",
     "category": "form-structure",
     "description": "Wrapper component for settings sections with save/cancel actions",
@@ -564,6 +640,8 @@
       "Manages save/cancel button states",
       "Shows loading state during save operations"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -574,6 +652,7 @@
   {
     "name": "NotionSetupModal",
     "path": "components/notion/setup/NotionSetupModal.vue",
+    "source": "app",
     "kind": "block",
     "category": "overlay",
     "description": "Content component for the Notion setup modal",
@@ -585,6 +664,8 @@
       "Controls navigation between setup steps",
       "Provides configuration options (disconnecting is the dialog of #320, opened from the \"Verbindungen\" page)"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -595,6 +676,7 @@
   {
     "name": "PropertyMapper",
     "path": "components/notion/setup/mapping/PropertyMapper.vue",
+    "source": "app",
     "kind": "component",
     "category": "input",
     "description": "Maps Notion database properties to kan-do task fields",
@@ -605,6 +687,8 @@
       "Validates mapping configuration",
       "Provides save functionality for completing setup"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 1,
@@ -615,6 +699,7 @@
   {
     "name": "WizardController",
     "path": "components/notion/setup/wizard/WizardController.vue",
+    "source": "app",
     "kind": "compound",
     "category": "form-structure",
     "description": "Controller component for the Notion setup wizard",
@@ -626,6 +711,8 @@
       "Communicates with Notion API",
       "Saves configuration on completion"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 2,
       "pages": 0,
@@ -636,6 +723,7 @@
   {
     "name": "CustomPropertiesStep",
     "path": "components/notion/setup/wizard/steps/CustomPropertiesStep.vue",
+    "source": "app",
     "kind": "component",
     "category": "form-structure",
     "description": "Dedicated step to select additional (read-only) Notion properties to import",
@@ -646,6 +734,8 @@
       "Allows enabling/disabling and labeling of each custom property",
       "Emits selected custom properties on save"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 1,
@@ -656,6 +746,7 @@
   {
     "name": "DatabaseSelectionStep",
     "path": "components/notion/setup/wizard/steps/DatabaseSelectionStep.vue",
+    "source": "app",
     "kind": "component",
     "category": "form-structure",
     "description": "Step for selecting a Notion database during setup",
@@ -666,6 +757,8 @@
       "Manages the selected database state",
       "Communicates selection changes to parent component"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -676,6 +769,7 @@
   {
     "name": "MappingStep",
     "path": "components/notion/setup/wizard/steps/MappingStep.vue",
+    "source": "app",
     "kind": "component",
     "category": "form-structure",
     "description": "Setup wizard step for mapping Notion database properties to kan-do task fields",
@@ -686,6 +780,8 @@
       "Handles saving and emitting mapping configuration",
       "Provides an exposed save method for parent components"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -696,6 +792,7 @@
   {
     "name": "PriorityMappingStep",
     "path": "components/notion/setup/wizard/steps/PriorityMappingStep.vue",
+    "source": "app",
     "kind": "component",
     "category": "form-structure",
     "description": "Maps kan-do's three priority levels to Notion select options (#617): several options may share a level",
@@ -710,6 +807,8 @@
       "Emits `change` for the user's own edits only: the suggestion (also when the schema loads late) never counts as an edit (#627)",
       "`reset()` restores the form as it was on first open, also when no mapping is stored (#627)"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 1,
@@ -720,6 +819,7 @@
   {
     "name": "StatusMappingStep",
     "path": "components/notion/setup/wizard/steps/StatusMappingStep.vue",
+    "source": "app",
     "kind": "component",
     "category": "form-structure",
     "description": "Maps kan-do status values to Notion select option names",
@@ -730,6 +830,8 @@
       "Validates mapping configuration",
       "Provides save functionality for completing setup"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 1,
@@ -740,6 +842,7 @@
   {
     "name": "TokenStep",
     "path": "components/notion/setup/wizard/steps/TokenStep.vue",
+    "source": "app",
     "kind": "component",
     "category": "form-structure",
     "description": "Step for entering and validating a Notion API token",
@@ -751,6 +854,8 @@
       "Manages token input state and validation process",
       "Offers links to Notion integration setup"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -761,6 +866,7 @@
   {
     "name": "NewDayRecap",
     "path": "components/recap/NewDayRecap.vue",
+    "source": "app",
     "kind": "block",
     "category": "overlay",
     "description": "\"Kurzer Rückblick\" (#385, #451, #44): the recap on the first start of a new day, shown over the dimmed board. A still-open deck and a done deck like the board's Offen → Erledigt, and one submit panel with the switch \"Erledigte archivieren\" and the button \"Weiter zum Board\".",
@@ -775,6 +881,8 @@
       "Dialog semantics, focus trap and the inert board: reka's dialog plus `pages/tasks.vue`; focus starts on the button, `finishLeave()` after the leave hands focus to the board",
       "Submit panel: switch left and button right in a container query (`@md`), stacked when narrow"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -785,6 +893,7 @@
   {
     "name": "RecapDeck",
     "path": "components/recap/RecapDeck.vue",
+    "source": "app",
     "kind": "component",
     "category": "display",
     "description": "One group of the new-day recap (#385, #451): the finished or still-open tasks as a swipe deck. The front card shows with up to two layers peeking behind it; swiping, tapping, ←/→ or the chevrons send it to the back. The deck never changes size, so nothing on the page moves while it is looked at.",
@@ -802,6 +911,8 @@
       "Gesture, queue and timers live in `useSwipeDeck` (drag past 80px or tap = next, 6px tap slop, queue of 8)",
       "Accepted trade-offs (#451): one card at a time, no list view; two chevrons per deck stay focusable (six tab stops for two decks) so keyboard users need not discover the arrow keys"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -812,6 +923,7 @@
   {
     "name": "DataBackupList",
     "path": "components/settings/DataBackupList.vue",
+    "source": "app",
     "kind": "block",
     "category": "display",
     "description": "The \"Sicherungen\" section of /settings/data (#224, ADR 011): when the last backup was taken, \"Jetzt sichern\", and the backups newest first with their kind, origin and task count. Mostly text; the only colour is the orange line when a daily or manual backup failed. Restoring is requested through an event, the page owns the single confirmation modal.",
@@ -823,6 +935,8 @@
       "Unreadable files are listed as \"nicht lesbar\" without an action; a backup from a newer app version shows a disabled \"App aktualisieren\"",
       "\"Wiederherstellen\" follows `restoreBlock`: off with a one-line reason in a conflict, a newer-schema file or an unavailable folder; on in a corrupt file, where restoring is the way out"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -833,6 +947,7 @@
   {
     "name": "DataConflictCopies",
     "path": "components/settings/DataConflictCopies.vue",
+    "source": "app",
     "kind": "block",
     "category": "display",
     "description": "The \"Konflikt-Kopien\" section of /settings/data (#224, ADR 011): files a sync client left next to the data file (Dropbox \"conflicted copy\", iCloud `kan-do-data 2.json`, Syncthing `.sync-conflict-`) that parse as a data file. Only rendered when there are any. Nothing is ever deleted: \"Wiederherstellen\" runs the restore flow with that file as the source, \"Ablegen\" moves it into `backups/` so the sync client stops showing it.",
@@ -842,6 +957,8 @@
       "Lists each copy with its time and task count",
       "\"Ablegen\" files it away and reports a failure inline"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -852,6 +969,7 @@
   {
     "name": "DataConflictModal",
     "path": "components/settings/DataConflictModal.vue",
+    "source": "app",
     "kind": "block",
     "category": "overlay",
     "description": "The whole-file choice when the data file was changed elsewhere (another device, a hand edit, a sync client) (#224, ADR 011). It shows exactly two versions with time, device and task count and lets the user keep mine or load theirs; both versions end up in `<folder>/backups/`. With no unsaved changes of mine it collapses to one action, \"Neu laden\".",
@@ -863,6 +981,8 @@
       "\"Andere Version laden\" / \"Neu laden\": my state goes to backups as `unsaved`, then the window reloads on their file; a failed backup stops the reload and shows the error inline",
       "Disables the choice that would be unsafe: keeping mine over a newer-schema file, loading an unreadable one"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -873,6 +993,7 @@
   {
     "name": "DataExportImport",
     "path": "components/settings/DataExportImport.vue",
+    "source": "app",
     "kind": "block",
     "category": "action",
     "description": "The \"Daten exportieren / importieren\" section of /settings/data (#224, ADR 011): a plain JSON file, independent of the data folder and without any credentials. Export writes through the native save dialog (web, #238: a browser download); import validates the picked file first and then asks the page to confirm (same modal as a restore; web: file chooser).",
@@ -882,6 +1003,8 @@
       "\"Exportieren…\": save dialog, then the current state; cancel changes nothing",
       "\"Importieren…\": open dialog, validation errors inline (invalid, not a kan-do file, newer schema), on success emits the preview for the confirmation modal"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -892,6 +1015,7 @@
   {
     "name": "DataFolderChangeModal",
     "path": "components/settings/DataFolderChangeModal.vue",
+    "source": "app",
     "kind": "block",
     "category": "overlay",
     "description": "Modal for switching the desktop data folder after the native picker returned a folder (#222, ADR 008). The target decides the choices: an empty folder gets \"copy my data here\" (the old file stays), a folder that already holds data offers \"use the data already there\" (the app reloads) or \"replace it with my data\" (explicit confirm step). Unwritable and unreadable targets are refused inline.",
@@ -902,6 +1026,8 @@
       "Calls `useDataFolder().applyFolder`; Rust flushes pending writes before the switch",
       "Keeps one dialog: replace asks for confirmation inside the same modal (no modal on modal)"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -912,6 +1038,7 @@
   {
     "name": "DataRestoreModal",
     "path": "components/settings/DataRestoreModal.vue",
+    "source": "app",
     "kind": "block",
     "category": "overlay",
     "description": "Confirmation with a preview for every action that replaces the data file with another version: restoring a backup, restoring a conflict copy, importing a JSON file (#224, ADR 011). It exists for the comparison (source vs. now), not as an \"are you sure?\"; the replace is reversible through the `pre-restore` backup the app takes first.",
@@ -923,6 +1050,8 @@
       "Runs `request.run`; the window reloads on success, so there is no toast",
       "Shows a failure inline and changes nothing; Cancel or Escape changes nothing"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -933,6 +1062,7 @@
   {
     "name": "DataStorageNotice",
     "path": "components/settings/DataStorageNotice.vue",
+    "source": "app",
     "kind": "component",
     "category": "feedback",
     "description": "Persistent single-line notice for the desktop data file (#222, ADR 008; #224, ADR 011). Shown for every state other than `ok`, for cloud-sync conflict copies and, last, for a data file iCloud has not uploaded (#271); it disappears on its own when the state is healthy again. Not a toast: it stays until the problem is gone, except the cloud notice, which \"Ausblenden\" hides for the rest of the app session (#289, memory only). Also hosts the conflict modal and opens it once when a conflict appears.",
@@ -944,6 +1074,8 @@
       "The cloud notice is held back (or kept) while a board drag runs, so it never shifts the board under a dragged card",
       "\"Details\" link to /settings/data (hidden on that page); \"Ausblenden\" on the cloud notice only; \"Lösen\" for a conflict; \"Erneut versuchen\" for an unavailable folder"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 3,
@@ -954,6 +1086,7 @@
   {
     "name": "DisconnectSourceDialog",
     "path": "components/settings/DisconnectSourceDialog.vue",
+    "source": "app",
     "kind": "component",
     "category": "overlay",
     "description": "Confirmation for taking an integration off the board (#320, epic #264 section 1). States how many tasks leave, where new tasks go when the source was the default, and what happens to changes the source does not hold yet.",
@@ -964,6 +1097,8 @@
       "Offers \"Erst synchronisieren, dann trennen\" only while the source can be reached; \"Trotzdem trennen\" and \"Abbrechen\" always",
       "Stays open and says why when the disconnect did not happen (changes left unsynced, Keychain refused)"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -974,6 +1109,7 @@
   {
     "name": "GithubTokenRow",
     "path": "components/settings/GithubTokenRow.vue",
+    "source": "app",
     "kind": "component",
     "category": "form-structure",
     "description": "One GitHub token entry on /settings/github: purpose, required access and the state area (empty, checking, saved, rejected, error). Flat section, no card (DESIGN.md sub-page pattern).",
@@ -984,6 +1120,8 @@
       "Paste, check and store a token (\"Speichern\"), re-check it (\"Testen\"), remove it with undo (\"Entfernen\")",
       "Keep focus on the field after remove and on the remove button after undo"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -994,6 +1132,7 @@
   {
     "name": "SettingsSubpageLink",
     "path": "components/settings/SettingsSubpageLink.vue",
+    "source": "app",
     "kind": "component",
     "category": "navigation",
     "description": "One quiet link row from a settings surface to a settings sub-page (#242): icon, label, muted description and a trailing arrow. Text weight, no card, no accent colour. Laid out like a connection row of /settings (icon column, gap-4, base-size title; #683): the row sits `-mx-2 px-2` so the icon lines up with the rows above and the hover fill still has room around the text.",
@@ -1004,6 +1143,8 @@
       "Hover and keyboard focus use the standard ink focus ring",
       "Re-emit the click so a host (e.g. a modal) can close itself while the link navigates"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 2,
@@ -1014,6 +1155,7 @@
   {
     "name": "SourceRow",
     "path": "components/settings/SourceRow.vue",
+    "source": "app",
     "kind": "component",
     "category": "display",
     "description": "One connected task source on the \"Verbindungen\" page (#324): icon, name with the quiet \"Standard\" badge, a status line and the actions that source offers. A hairline-divided list item, no card.",
@@ -1026,6 +1168,8 @@
       "Actions sit right-aligned and wrap under the name on a phone; every button is 44px high there",
       "Every button name contains the source (\"Notion als Standard festlegen\") so rows are told apart"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -1036,6 +1180,7 @@
   {
     "name": "LocalSetupFlow",
     "path": "components/setup/LocalSetupFlow.vue",
+    "source": "app",
     "kind": "block",
     "category": "form-structure",
     "description": "The local setup as page content inside the welcome sheet (#43): pick an empty or a sample board, then confirm",
@@ -1048,6 +1193,8 @@
       "Back returns to the choice",
       "Pattern: first-run setup, diverged from the modal wizard; the radio cards follow the welcome page's answer rows"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -1058,6 +1205,7 @@
   {
     "name": "NotionSetupFlow",
     "path": "components/setup/NotionSetupFlow.vue",
+    "source": "app",
     "kind": "block",
     "category": "form-structure",
     "description": "The Notion setup as page content inside the welcome sheet (#43): guide rail (md and up) or progress bar (below md) next to the existing wizard steps, Back and the proceed button. No dialog.",
@@ -1071,6 +1219,8 @@
       "Completion shows a short \"Notion ist verbunden\" status beat, then emits `complete`",
       "Pattern: first-run setup, diverged from the modal wizard (a process the user stays in); step progress via SetupRail"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -1081,6 +1231,7 @@
   {
     "name": "SetupRail",
     "path": "components/setup/SetupRail.vue",
+    "source": "app",
     "kind": "component",
     "category": "navigation",
     "description": "Guide rail of a multi-step setup on a page (#43): a vertical rail with one-line help at md and up, a label plus \"n / m\" and a progress bar below md. Non-interactive: the steps validate in order.",
@@ -1091,6 +1242,8 @@
       "Pattern: step progress, new (guide rail). Replaces the dialog stepper of the Notion modal for the welcome page only",
       "Reduced motion: dot, line and bar changes are instant"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1101,6 +1254,7 @@
   {
     "name": "StatsEstimateRing",
     "path": "components/statistics/StatsEstimateRing.vue",
+    "source": "app",
     "kind": "component",
     "category": "display",
     "description": "Q3 chart: ring of the timeboxed tasks of the last 8 weeks that ran longer / as planned / shorter, with its legend",
@@ -1110,6 +1264,8 @@
       "Ink ramp only: longer = darkest, as planned = 32 %, shorter = 10 %; no status colour",
       "The aria-label and the legend carry the same numbers"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1120,6 +1276,7 @@
   {
     "name": "StatsOutliers",
     "path": "components/statistics/StatsOutliers.vue",
+    "source": "app",
     "kind": "component",
     "category": "display",
     "description": "Q3 proof: the tasks of the last 4 weeks that overran their timebox most, each opening the task detail",
@@ -1129,6 +1286,8 @@
       "List up to five completed tasks (title, planned vs. taken time) as buttons",
       "Emit `open` with the task id; the page owns the detail modal"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1139,6 +1298,7 @@
   {
     "name": "StatsPatterns",
     "path": "components/statistics/StatsPatterns.vue",
+    "source": "app",
     "kind": "component",
     "category": "display",
     "description": "Q3 detail: the ranked estimate patterns as diverging bars with sample size and a next-timebox line",
@@ -1149,6 +1309,8 @@
       "Label a pattern by its kind (activity, topic, timebox size, time of day); activity and topic names are user data (`data-private`)",
       "Bars take the ink ramp only: longer than planned = darkest, shorter = 32 %"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1159,6 +1321,7 @@
   {
     "name": "StatsRhythmBars",
     "path": "components/statistics/StatsRhythmBars.vue",
+    "source": "app",
     "kind": "component",
     "category": "display",
     "description": "\"Wann arbeite ich?\" chart (#600): one bar per visible hour (6:00 to 22:00) with the time tracked in it over the last 8 weeks, the 3-hour peak window in the strong ink and the rest one ramp step lighter; or, without data, muted ghost bars",
@@ -1169,6 +1332,8 @@
       "`ghost` draws a fixed muted shape for the first-run state and is hidden from assistive tech",
       "Carry the numbers as text alternative (`role=\"img\"` and an `aria-label` naming the peak window and its share)"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1179,6 +1344,7 @@
   {
     "name": "StatsRhythmGrid",
     "path": "components/statistics/StatsRhythmGrid.vue",
+    "source": "app",
     "kind": "component",
     "category": "display",
     "description": "Open panel of the work-rhythm tile (#600): a grid of 7 weekday rows (Monday first) x 16 hour columns (6:00 to 22:00) with the average minutes tracked per weekday and hour over the last 8 weeks, in the ink ramp (darkest = most, `bg-muted` = nothing), hour labels every third column and a \"weniger ... mehr\" legend",
@@ -1189,6 +1355,8 @@
       "`role=\"img\"` with an `aria-label` that names the peak window and the longest weekday; the sentence and rows beside it carry the same numbers as text",
       "Cells shrink to squares at 390px; weekday and hour labels stay"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1199,6 +1367,7 @@
   {
     "name": "StatsRing",
     "path": "components/statistics/StatsRing.vue",
+    "source": "app",
     "kind": "primitive",
     "category": "display",
     "description": "Hand-built SVG ring (DESIGN.md \"Ink ring\"): segments share one circle in the ink ramp, a neutral track, an optional tick for the user's usual value. No chart library.",
@@ -1208,6 +1377,8 @@
       "Draw up to six segments (percent of the circle, ramp step) separated by a small gap",
       "Carry the numbers as a text alternative (`role=\"img\"` + `aria-label`); the centre slot is decoration and hidden from assistive tech"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 3,
       "pages": 0,
@@ -1218,6 +1389,7 @@
   {
     "name": "StatsTile",
     "path": "components/statistics/StatsTile.vue",
+    "source": "app",
     "kind": "compound",
     "category": "display",
     "description": "Disclosure tile of the Statistik page (DESIGN.md \"Disclosure tile\"): a question as heading, one line and a mini chart; it expands in place to its full panel",
@@ -1230,6 +1402,8 @@
       "Without `toggleable` (no timeboxes at all) the heading is plain text and there is no panel",
       "Expose `focus()` so the grid can restore focus after it reorders the tiles in the DOM"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1240,6 +1414,7 @@
   {
     "name": "StatsTiles",
     "path": "components/statistics/StatsTiles.vue",
+    "source": "app",
     "kind": "block",
     "category": "display",
     "description": "Q2 to Q4 of the Statistik page: three question tiles in a grid (one column below `md`) that open in place, one at a time, plus the full-width work-rhythm tile \"Wann arbeite ich?\" (#600) under them, which shares the same open state",
@@ -1255,6 +1430,8 @@
       "Q4 detail (#537): one muted line for the time the completion records do not hold (tasks still open, tasks deleted before completion); no line when both are 0",
       "Emit `open-task` when an outlier is chosen"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -1265,6 +1442,7 @@
   {
     "name": "StatsTimeSplit",
     "path": "components/statistics/StatsTimeSplit.vue",
+    "source": "app",
     "kind": "component",
     "category": "display",
     "description": "Q4 chart: donut of where the time of the last 4 weeks went (completed tasks only), by topic or activity, in the ink ramp, with a legend",
@@ -1275,6 +1453,8 @@
       "Name the numbers in the aria-label of the ring",
       "`rows` mode renders the full legend (time and share per slice) for the open panel"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1285,6 +1465,7 @@
   {
     "name": "StatsTrendBars",
     "path": "components/statistics/StatsTrendBars.vue",
+    "source": "app",
     "kind": "component",
     "category": "display",
     "description": "Q2 chart: eight bars of the in-timebox share per 7-day window, the last window in the strong ink, the others quiet; a window without a value has no bar",
@@ -1295,6 +1476,8 @@
       "Carry the values as text alternative; the bars are decoration for assistive tech",
       "Value labels only while `labelled` (open tile); eight columns stay across at 390px"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1305,6 +1488,7 @@
   {
     "name": "StatsVerdict",
     "path": "components/statistics/StatsVerdict.vue",
+    "source": "app",
     "kind": "block",
     "category": "display",
     "description": "Q1 of the Statistik page, always open: one sentence on the last 7 days against the user's own 4 weeks before, one supporting line and a ring of the in-timebox share with a tick at the usual value",
@@ -1315,6 +1499,8 @@
       "Show the ring only in the `verdict` state (#687: with too little history a full ring read as an achievement against the headline); its `aria-label` and the line carry the same numbers",
       "Drop clauses that have no data (no timeboxed task now, no usual value) instead of showing zeros"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -1325,6 +1511,7 @@
   {
     "name": "StatsWeekTable",
     "path": "components/statistics/StatsWeekTable.vue",
+    "source": "app",
     "kind": "component",
     "category": "display",
     "description": "The numbers behind the Q2 bars: one row per 7-day window, newest first (period, tasks, share in the timebox, time spent, tasks still open at day end)",
@@ -1335,6 +1522,8 @@
       "Day end (#537): the mean number of tasks still in Offen/Jetzt/Wartet at the last count the app saw on each day of the window, from 3 days with a value on; fewer days read `–`, never 0. The count is the last one seen, not an exact closing time (term `day-end`)",
       "Reflow to two lines at 390px (period above, figures below)"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1345,6 +1534,7 @@
   {
     "name": "TasksTable",
     "path": "components/statistics/TasksTable.vue",
+    "source": "app",
     "kind": "component",
     "category": "display",
     "description": "Table displaying task completion records with columns that can be re-ordered",
@@ -1356,6 +1546,8 @@
       "Show empty state when no data available",
       "Keep the horizontal scroll region keyboard-focusable and named"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -1366,6 +1558,7 @@
   {
     "name": "SyncWarningModal",
     "path": "components/sync/SyncWarningModal.vue",
+    "source": "app",
     "kind": "block",
     "category": "overlay",
     "description": "Warning when the sync of one source returns an empty or a much smaller result; the user confirms or cancels the sync of that source. Names the source (#318)",
@@ -1375,6 +1568,8 @@
       "Show why the result looks suspicious, the stored and fetched task counts and the last merged sync",
       "Emit `action` ('confirm' | 'cancel'); the caller applies or drops the fetched tasks. Closing the dialog is a cancel (`update:open`)"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -1385,6 +1580,7 @@
   {
     "name": "AddTargetSwitch",
     "path": "components/task/AddTargetSwitch.vue",
+    "source": "app",
     "kind": "component",
     "category": "input",
     "description": "The quiet \"Speichern in\" line in the add sheet's footer: picks the source a new task is saved to (#321)",
@@ -1396,6 +1592,8 @@
       "Locked while the save runs, enabled again after a failed save with the chosen target kept",
       "Opens upward: the line sits at the bottom of the sheet"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -1406,6 +1604,7 @@
   {
     "name": "DatePickerField",
     "path": "components/task/DatePickerField.vue",
+    "source": "app",
     "kind": "component",
     "category": "input",
     "description": "Popover calendar picker for task custom date properties. Wraps UPopover + UCalendar. Replaces <input type=\"date\">.",
@@ -1417,6 +1616,8 @@
       "Emit update:modelValue with { start: string } on date select",
       "Provide Löschen and Heute shortcuts in the popover footer"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1427,6 +1628,7 @@
   {
     "name": "TaskCard",
     "path": "components/task/TaskCard.vue",
+    "source": "app",
     "kind": "compound",
     "category": "display",
     "description": "Displays and manages an individual task card on the kanban board",
@@ -1447,6 +1649,8 @@
       "Provides drag-and-drop styling",
       "`readonly` (#422): the card of a trash entry. Same face, but no task id on the DOM (board selectors never match it), no open gesture and no pointer cursor; a card that came back from an undo plays its grow-back (`task--returning`)"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 9,
       "pages": 0,
@@ -1457,6 +1661,7 @@
   {
     "name": "TaskCardContextMenu",
     "path": "components/task/TaskCardContextMenu.vue",
+    "source": "app",
     "kind": "component",
     "category": "action",
     "description": "Wraps TaskCard with a context menu for quick task actions. On desktop: right-click opens the menu via the native contextmenu event. On mobile/touch: a 750ms long press opens the menu; moving more than 14px (grace pixels) cancels it so a drag gesture is never interrupted. Keyboard: the ContextMenu key or Shift+F10 on the focused card (its `.task-wrapper`, a parent of this component) opens the menu at the card; on close focus returns to the card (kd#23). If a drag starts while the menu is open it is closed immediately.",
@@ -1467,6 +1672,8 @@
       "Handles custom timebox modal",
       "Delegates task operations to composables"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 2,
       "pages": 0,
@@ -1477,6 +1684,7 @@
   {
     "name": "TaskCarryOverDots",
     "path": "components/task/TaskCarryOverDots.vue",
+    "source": "app",
     "kind": "primitive",
     "category": "feedback",
     "description": "Carried-over marker (#99): one small dot per board day, shown from day 2 (#121).",
@@ -1487,6 +1695,8 @@
       "Names the meaning for hover and screen readers; not a tab stop (kd#27: 8+ extra stops on a board of carried-over cards) (\"Tag 3 auf dem Board\")",
       "Never interactive: no click handler and no focus, so it adds no drag-vs-click target"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 4,
       "pages": 0,
@@ -1497,6 +1707,7 @@
   {
     "name": "TaskCarryOverTriage",
     "path": "components/task/TaskCarryOverTriage.vue",
+    "source": "app",
     "kind": "component",
     "category": "action",
     "description": "Calm triage block for a card carried over CARRY_OVER_NUDGE_DAYS or more board days (#99): \"Still here after N days.\" with Keep, Make smaller and Delete.",
@@ -1507,6 +1718,8 @@
       "Make smaller / Delete: emitted, the host owns the title field and the sheet lifecycle",
       "Delete copy names the upstream consequence (Notion, Todoist)"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 2,
       "pages": 0,
@@ -1517,6 +1730,7 @@
   {
     "name": "TaskCompletionBurst",
     "path": "components/task/TaskCompletionBurst.vue",
+    "source": "app",
     "kind": "primitive",
     "category": "feedback",
     "description": "The earned celebration of a completion (#692, DESIGN.md \"Earned celebration\"): a short burst of small teal pieces that flies out of the card's check, around and over the card, and fades.",
@@ -1529,6 +1743,8 @@
       "Decorative: `aria-hidden`, no focus, no text. Reduced motion: the card does not mount it and the CSS hides it.",
       "Pieces extend over neighbouring cards and clip at the edge of the screen: `.board-container` on mobile, `.board` on desktop (board.css, `overflow: clip`), so a card in the right column never grows the page sideways."
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1539,6 +1755,7 @@
   {
     "name": "TaskDeletedGap",
     "path": "components/task/TaskDeletedGap.vue",
+    "source": "app",
     "kind": "component",
     "category": "feedback",
     "description": "The slot of a card that was just deleted (#422, UX decision D \"Im Papierkorb\"): the card's own box, with a trash icon, \"Im Papierkorb\" and a \"Rückgängig\" pill centred in it, all in raspberry on a muted raspberry fill without an outline (#581, #57; destructive state, The Status Is Not Decoration Rule), and a draining line along its bottom edge. From #57 the gap is compact (`--task-note-height`, the collapsed Yesterday note's height): the cards below glide up by the difference and back on undo.",
@@ -1553,6 +1770,8 @@
       "`prefers-reduced-motion`: the picture only crossfades (no scale), the drain line is static, the gap closes without gliding",
       "Contrast: \"Im Papierkorb\" and the pill text are `error-700` on the 12% wash (earlier figures were measured on 6%; re-measure with the rendered Impeccable scan `npm run design:detect`); the `error-500` drain line is a graphic and needs 3:1"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 2,
       "pages": 0,
@@ -1563,6 +1782,7 @@
   {
     "name": "TaskDetailContent",
     "path": "components/task/TaskDetailContent.vue",
+    "source": "app",
     "kind": "compound",
     "category": "form-structure",
     "description": "Shared presentational component for task detail views with inline editing",
@@ -1579,6 +1799,8 @@
       "Host the carried-over triage block and line (#99)",
       "Guard against drift (#161, kd#4): at most six always-visible standard rows (Status, Priorität, Thema, Aktivität, Timebox, Aufgewendete Zeit), no per-row icons, no dividers; more always-visible rows must revisit the layout. The one hairline is the pin line above the desktop metadata footer, a boundary of the scroll region, not a row divider"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 1,
@@ -1589,6 +1811,7 @@
   {
     "name": "TaskDetailCustomFields",
     "path": "components/task/TaskDetailCustomFields.vue",
+    "source": "app",
     "kind": "component",
     "category": "form-structure",
     "description": "Custom (Notion) properties of a task as flat label/value rows with inline editing",
@@ -1600,6 +1823,8 @@
       "Integrates with the property options store for select/multi-select",
       "Emits update events for the parent to handle persistence"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1610,6 +1835,7 @@
   {
     "name": "TaskDetailMetadata",
     "path": "components/task/TaskDetailMetadata.vue",
+    "source": "app",
     "kind": "component",
     "category": "display",
     "description": "Metadata section of the task detail (source, created, id), collapsed by default",
@@ -1620,6 +1846,8 @@
       "`pinned` adds the hairline above it and its padding, so it reads as the sheet footer (the notes sit above, in the scroll region)",
       "The open state is a v-model owned by the parent, so a resize that swaps pinned and in-flow keeps it"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1630,6 +1858,7 @@
   {
     "name": "TaskDetailModal",
     "path": "components/task/TaskDetailModal.vue",
+    "source": "app",
     "kind": "block",
     "category": "overlay",
     "description": "Modal displaying detailed task information",
@@ -1640,6 +1869,8 @@
       "Handle modal open/close state",
       "Provide delete action with undo capability"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -1650,6 +1881,7 @@
   {
     "name": "TaskDetailNotes",
     "path": "components/task/TaskDetailNotes.vue",
+    "source": "app",
     "kind": "component",
     "category": "input",
     "description": "Notes section of the task detail: rendered Markdown in read mode, a plain textarea while editing",
@@ -1661,6 +1893,8 @@
       "Empty notes keep the muted placeholder trigger with the dotted rule; written notes use the soft hover fill (a dotted rule under every rendered line would be noise)",
       "Save with Cmd+Enter (macOS) or Ctrl+Enter, the hint names the key of the current platform"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1671,6 +1905,7 @@
   {
     "name": "TaskForm",
     "path": "components/task/TaskForm.vue",
+    "source": "app",
     "kind": "block",
     "category": "form-structure",
     "description": "Form component for creating and editing tasks with integration support",
@@ -1687,6 +1922,8 @@
       "Emits task data for parent to save to integration",
       "Exposes submitFormExternal method for parent modal footer buttons"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -1697,6 +1934,7 @@
   {
     "name": "TaskPriorityBadge",
     "path": "components/task/TaskPriorityBadge.vue",
+    "source": "app",
     "kind": "primitive",
     "category": "display",
     "description": "Visual indicator for task priority level (low, regular, high; #617)",
@@ -1706,6 +1944,8 @@
       "Displays appropriate priority indicator based on task priority level",
       "Done cards show no priority badge (#124, TaskCard)"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 2,
       "pages": 0,
@@ -1716,6 +1956,7 @@
   {
     "name": "TaskProgressChip",
     "path": "components/task/TaskProgressChip.vue",
+    "source": "app",
     "kind": "primitive",
     "category": "display",
     "description": "The timebox label of a task card as its progress item (#388)",
@@ -1735,6 +1976,8 @@
       "A silent progressbar: the value is the percent, no value text and no live region, so per-second updates stay quiet; without a timebox the name is the spent time and there is no value",
       "Accepted: in Jetzt the bar covers the source icon, carry-over dots and priority badge (TaskCard makes the group after the chip inert); the spring overshoot may poke a few px past the footer padding, inside the card"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1745,6 +1988,7 @@
   {
     "name": "TaskPropertyRow",
     "path": "components/task/TaskPropertyRow.vue",
+    "source": "app",
     "kind": "primitive",
     "category": "form-structure",
     "description": "One labelled property row of the task sheet: quiet label left, value right",
@@ -1756,6 +2000,8 @@
       "44px hit area at <=767px; no icon, divider or box (space separates groups)",
       "`private` marks the value (not the label) `data-private`: hidden during a feedback screenshot (#247)"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 3,
       "pages": 0,
@@ -1766,6 +2012,7 @@
   {
     "name": "TaskPropertySelect",
     "path": "components/task/TaskPropertySelect.vue",
+    "source": "app",
     "kind": "component",
     "category": "input",
     "description": "Value-as-text picker for a property row (status, priority, topic, activity, select fields)",
@@ -1778,6 +2025,8 @@
       "Menu items use Nuxt UI size `md`, the same text size as the task card context menu (text-sm)",
       "Optional `item-leading` slot per option (the topic mark), a `content-top` slot above the search (after the hint; the edit rows of TopicPropertyPicker, #443) and a `content-extra` slot above the clear action (\"Bearbeiten\", \"Themen verwalten\")"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 5,
       "pages": 0,
@@ -1788,6 +2037,7 @@
   {
     "name": "TaskSheet",
     "path": "components/task/TaskSheet.vue",
+    "source": "app",
     "kind": "block",
     "category": "overlay",
     "description": "Responsive sheet that hosts the nested task routes (/tasks/:id, /tasks/add)",
@@ -1801,6 +2051,8 @@
       "Falls back to the board when there is no trigger to return focus to (deep link)",
       "After adding a task, focus goes to the saved card instead of the add slot (#125)"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -1811,6 +2063,7 @@
   {
     "name": "TaskSourceIcon",
     "path": "components/task/TaskSourceIcon.vue",
+    "source": "app",
     "kind": "primitive",
     "category": "display",
     "description": "The source a task belongs to, as a 16px muted icon (#323)",
@@ -1821,6 +2074,8 @@
       "Names the source for assistive tech (\"Lokal\", \"Notion\") and for hover; shows no visible text",
       "Is not focusable and not interactive, so it adds no tab stop and is no drag handle"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1831,6 +2086,7 @@
   {
     "name": "TaskStack",
     "path": "components/task/TaskStack.vue",
+    "source": "app",
     "kind": "compound",
     "category": "display",
     "description": "A collapsed stack of task cards in a grouped column: front card, peek layers, pill",
@@ -1847,6 +2103,8 @@
       "Marks its root `kando-dnd-dragged` while it is the drag source: assets/css/dnd.css turns it into one grey slot of the stack's footprint (front card greyed, layers and pill invisible)",
       "Its members become individual sortables once the column expands the group (#147)"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 2,
       "pages": 0,
@@ -1857,6 +2115,7 @@
   {
     "name": "TaskStackHeader",
     "path": "components/task/TaskStackHeader.vue",
+    "source": "app",
     "kind": "component",
     "category": "display",
     "description": "Header row of an expanded stack: the stack's pill as its title and a round close button (#578)",
@@ -1868,6 +2127,8 @@
       "The root is a role=group named by the stack caption text; it is not a sortable and carries no data-task-id: dnd-kit and the drop mapping never see it",
       "Row min-height 2rem (2.75rem on touch widths)"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1878,6 +2139,7 @@
   {
     "name": "TaskStackPill",
     "path": "components/task/TaskStackPill.vue",
+    "source": "app",
     "kind": "primitive",
     "category": "display",
     "description": "The face of a collapsed stack's pill (#504): one split capsule, \"<property> | <stack icon> <n>\"",
@@ -1890,6 +2152,8 @@
       "Soft neutral like the former text pill (`bg-muted`, label role 500 / 0.6875rem, 0.75rem on touch), 1.5rem high, fully rounded outer shape, a 1px hairline between the segments",
       "Never takes a pointer event (its layer is `pointer-events: none`)"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 2,
       "pages": 0,
@@ -1900,6 +2164,7 @@
   {
     "name": "TaskTimeboxNudge",
     "path": "components/task/TaskTimeboxNudge.vue",
+    "source": "app",
     "kind": "component",
     "category": "action",
     "description": "In-card micro dialog (#389) that offers a timebox when a card without one lands in Jetzt",
@@ -1917,6 +2182,8 @@
       "`role=\"group\"` named by the question, real buttons after the card's content in DOM order, never `role=\"dialog\"` or `aria-modal`; no announcement and no focus move. Accepted: a keyboard user reaches it by tabbing and has the palette, menu and sheet for the same action",
       "The countdown is a functional animation and stays under reduced motion; fades and the settle do not"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1927,6 +2194,7 @@
   {
     "name": "TopicPropertyPicker",
     "path": "components/task/TopicPropertyPicker.vue",
+    "source": "app",
     "kind": "compound",
     "category": "input",
     "description": "The task sheet's Thema / Aktivität picker: the shared TaskPropertySelect plus an edit mode in its footer (#443)",
@@ -1941,6 +2209,8 @@
       "Enter and Space on the rows and the toggle stop at the button: the combobox would otherwise swallow them",
       "Edit list scrolls at about 8 rows; rows are 32px, 44px at max-md (touch target)"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1951,6 +2221,7 @@
   {
     "name": "TopicEditor",
     "path": "components/topic/TopicEditor.vue",
+    "source": "app",
     "kind": "component",
     "category": "form-structure",
     "description": "The one editor every entry point opens (#430, #431): Name, Farbe (nine hues plus none, radio swatches) and Symbol (a button showing the current mark; a popover with 24 glyphs plus none). An activity has the Name only. A name a source owns (Notion schema or any non-Local task) is disabled with the reason; Farbe and Symbol stay editable and say they apply only in kan-do. A new name that already exists merges into it and the target's style stays. Saving is local and immediate: no loading or error state.",
@@ -1963,6 +2234,8 @@
       "Focus starts in the Name (the first colour when the name is gated); Escape closes the editor only (the task sheet vetoes its own dismissal, `data-topic-editor`)",
       "Hue and symbol groups are `role=\"radiogroup\"` with arrow keys; the symbol popover closes on pick or Escape and keeps the editor open"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1973,6 +2246,7 @@
   {
     "name": "TopicEditorHost",
     "path": "components/topic/TopicEditorHost.vue",
+    "source": "app",
     "kind": "compound",
     "category": "layout",
     "description": "Where the shared TopicEditor appears (#430). At >=768px a muted inline panel under the row it belongs to (settings list row, task-sheet property row); below, a bottom drawer. Opened from inside the task sheet's drawer (`nested`) it is a second, nested drawer: vaul scales the sheet back and its top edge stays visible above the editor (\"one thing at a time\"); over the settings page it is a plain drawer.",
@@ -1983,6 +2257,8 @@
       "Keep the drawer open only while mounted; closing it (overlay, swipe, Escape) emits `close`",
       "A drawer unmounted mid-edit (the sheet closes, the viewport crosses 768px) drops the unsaved edit, nothing is saved half-way"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 1,
       "pages": 1,
@@ -1993,6 +2269,7 @@
   {
     "name": "TopicMark",
     "path": "components/topic/TopicMark.vue",
+    "source": "app",
     "kind": "primitive",
     "category": "display",
     "description": "The mark before a topic's name (#431): a 12px hue dot, or the Phosphor fill glyph (16px) in the hue when a symbol is set (muted gray when it has no hue). A topic with neither hue nor symbol renders nothing, so no gap appears and the card looks as it did. Decorative: `aria-hidden`, the name carries the meaning; never a pointer target (the card is a drag item, #430 known issue 4).",
@@ -2003,6 +2280,8 @@
       "Or show an explicit `hue` / `symbol` (the editor previews an unsaved choice)",
       "Colour comes from the `--topic-<hue>` tokens (assets/css/main.css) through one custom property, never a palette class"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 8,
       "pages": 1,
@@ -2013,6 +2292,7 @@
   {
     "name": "TrashEntryRow",
     "path": "components/trash/TrashEntryRow.vue",
+    "source": "app",
     "kind": "component",
     "category": "display",
     "description": "One deleted task in the trash (#422): the board's own card, read-only, with when it was deleted, where it was and the actions.",
@@ -2025,6 +2305,8 @@
       "The ✕ asks in place (kd#21, aligned with \"Papierkorb leeren\"): question, \"Endgültig löschen\", \"Abbrechen\" (focused); Esc or Abbrechen returns focus to the ✕",
       "A failed restore leaves the entry where it is (`useTrash` reports the error)"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -2035,6 +2317,7 @@
   {
     "name": "ExternalLink",
     "path": "components/ui/ExternalLink.vue",
+    "source": "app",
     "kind": "primitive",
     "category": "navigation",
     "description": "Link to an external page. In the desktop app it opens in the system browser through tauri-plugin-opener (narrow URL permission in src-tauri/capabilities); on web it is a plain `<a target=\"_blank\">`.",
@@ -2044,6 +2327,13 @@
       "Keep the href real so middle-click, copy-link and screen readers behave on web",
       "Hand the URL to the opener plugin on desktop instead of navigating the webview",
       "Report an opener failure through useErrorHandler (context `external_link`), never swallow it"
+    ],
+    "variants": [
+      "default"
+    ],
+    "states": [
+      "focus",
+      "long-text"
     ],
     "usedBy": {
       "components": 2,
@@ -2055,6 +2345,7 @@
   {
     "name": "PageHeader",
     "path": "components/ui/PageHeader.vue",
+    "source": "app",
     "kind": "primitive",
     "category": "layout",
     "description": "Reusable header for settings-style pages with title, description and optional actions; scrolls away with the page (#615)",
@@ -2068,6 +2359,8 @@
       "Support page-specific actions via slot",
       "`narrow`: the title and actions sit in the same 672 px column as the content below (sub-page layout, `pageWidth: 'narrow'`, #673)"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 0,
@@ -2078,6 +2371,7 @@
   {
     "name": "ResponsiveOverlay",
     "path": "components/ui/ResponsiveOverlay.vue",
+    "source": "app",
     "kind": "compound",
     "category": "overlay",
     "description": "The one overlay shell of the app: a centred modal (or a right-hand slideover) from 768px up, a bottom drawer below. The day close dialog and the task sheet are its hosts (#555, U12).",
@@ -2091,6 +2385,8 @@
       "Focus into the drawer (#566): vaul cancels reka's open auto-focus (to keep the mobile keyboard closed), so the drawer never took focus and reka's trap never engaged. The drawer variant moves focus onto the drawer itself once it is mounted and again when its enter animation ends, unless hosted content already focused something inside (the task add form focuses its title field). The modal and slideover need none: reka focuses them. Hosts do not handle this",
       "Focus handling (Escape guards, focus return) is the host's, handed in as `contentProps`"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 3,
       "pages": 0,
@@ -2101,6 +2397,7 @@
   {
     "name": "SectionHeader",
     "path": "components/ui/SectionHeader.vue",
+    "source": "app",
     "kind": "primitive",
     "category": "layout",
     "description": "Reusable section header with optional icon and configurable HTML tag",
@@ -2111,6 +2408,8 @@
       "Support optional icons",
       "Allow semantic HTML tag selection"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 4,
       "pages": 0,
@@ -2121,6 +2420,7 @@
   {
     "name": "InlineEditable",
     "path": "components/ui/inline/InlineEditable.vue",
+    "source": "app",
     "kind": "primitive",
     "category": "input",
     "description": "A generic component for inline editing of values.",
@@ -2133,6 +2433,8 @@
       "Provide slots for custom display and input components",
       "Keyboard-reachable edit: the read-mode trigger is `role=\"button\"` `tabindex=\"0\"` named \"<field>: <value>\"; Enter or Space edits, Enter saves, Escape cancels (and never closes the surrounding dialog), focus returns to the trigger"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 3,
       "pages": 0,
@@ -2143,6 +2445,7 @@
   {
     "name": "UpdateDialog",
     "path": "components/updates/UpdateDialog.vue",
+    "source": "app",
     "kind": "block",
     "category": "overlay",
     "description": "Confirmation dialog for installing a found update (#225, ADR 009). Names the new and the current version, says that data is backed up first and the app restarts, and installs only on \"Installieren und neu starten\". While it downloads or installs it cannot be closed.",
@@ -2154,6 +2457,8 @@
       "Failures stay inline and change nothing: data blocked (orange, linking to the data folder page), install failed (raspberry), with a retry",
       "Highlights of the new version come from getUpdateNotes() (#226): with them, the line \"Neu seit deiner Version (x):\" labels the list (#390); without (null), \"Du nutzt x.\" stays and no list renders"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 0,
@@ -2164,6 +2469,7 @@
   {
     "name": "WhatsNewDialog",
     "path": "components/updates/WhatsNewDialog.vue",
+    "source": "app",
     "kind": "block",
     "category": "overlay",
     "description": "\"What's new\" after a desktop update (#226): one calm dialog with the Highlights of every version since the last one seen, newest first. Opened by the \"Was ist neu\" button of the post-update toast (#390) and by the re-open from the palette and /settings/updates.",
@@ -2175,11 +2481,42 @@
       "Text is rendered with interpolation only (never v-html); the bold title is a <strong>",
       "No version with highlights (re-open only): one muted line"
     ],
+    "variants": [],
+    "states": [],
     "usedBy": {
       "components": 0,
       "pages": 0,
       "layouts": 0,
       "app": 1
+    }
+  },
+  {
+    "name": "UButton",
+    "path": "catalog/action/UButton.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "primitive",
+    "category": "action",
+    "description": "The one button of the app: solid, outline, soft, subtle, ghost and link variants in the semantic colour roles, in five sizes.",
+    "usage": "Every action that is not a navigation. `md` is the default; the one primary action of a surface sets `size=\"lg\"`, rows and cards use `sm`, `xs` only sits inside text (the button ladder, DESIGN.md \"Buttons\"). Icon-only buttons set `square` and an aria-label.",
+    "avoid": "Not for navigation to a page (NuxtLink, ExternalLink for outside pages) and not for a toggle that stays pressed (UCheckbox, USwitch).",
+    "responsibility": [],
+    "variants": [
+      "color",
+      "variant",
+      "size"
+    ],
+    "states": [
+      "disabled",
+      "loading",
+      "focus",
+      "icon-only",
+      "long-text"
+    ],
+    "usedBy": {
+      "components": 37,
+      "pages": 7,
+      "layouts": 0,
+      "app": 0
     }
   }
 ]
