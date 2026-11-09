@@ -1,10 +1,10 @@
 # kan-do
 
-A calm board for today's work. Kan-do is a focus layer on top of your existing tasks (Notion or tasks kept in the app itself): it shows only what you chose for today, lets you work on one thing at a time, and helps you close the day with fewer things in flight. It is not a second task manager to maintain.
+A calm personal kanban board for today's work. Kan-do is an opinionated focus layer on top of your existing tasks (Notion or tasks kept in the app itself): it shows only what you chose for today, lets you work on one thing at a time, and helps you close the day with fewer things in flight. It is not a second task manager to maintain.
 
 It is built for one person managing their own day: short, frequent sessions where you glance, move a card, check a timer and close.
 
-> **Status: alpha.** Kan-do is well tested and in daily use by its author, but it does not yet keep its promise for external to-do apps: Notion is the only one you can connect, and that connection still has gaps; Todoist is planned. Expect rough edges and changes between versions.
+> **Status: alpha.** Though well tested and in daily use by its maintainer, it does not yet keep its promise yet: Notion is the only one you can connect, and that connection still has gaps; Todoist is planned. Also, UI design still has some rough edges and there are frequent partly changes between versions.
 
 **Platforms:** a macOS desktop app (Apple silicon) and a web app (Nuxt), built from the same code.
 
