@@ -313,14 +313,13 @@ test.describe('delete is confirmed in the card slot (#422)', () => {
     await expectTrashRow(page, 'Papierkorb (1)')
   })
 
-  test('390px: the gap fills the card slot and Papierkorb opens the page', async ({ page }) => {
+  test('390px: the gap is the compact 46px note and Papierkorb opens the page', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/tasks')
-    const slot = await card(page, OPEN_TITLE).boundingBox()
     await deleteCard(page, OPEN_TITLE)
     await expect(gap(page)).toContainText('Im Papierkorb')
-    const gapBox = await gap(page).boundingBox()
-    expect(gapBox?.height).toBeCloseTo(slot!.height, 0)
+    // compact (#57): 46px under 768px (the box glides there in 220 ms, so poll)
+    await expect.poll(async () => (await gap(page).boundingBox())?.height).toBeCloseTo(46, 0)
     await expect(gap(page).getByRole('button', { name: /Rückgängig/ })).toBeVisible()
     await windowEnds(page)
     await expectTrashRow(page, 'Papierkorb (1)')

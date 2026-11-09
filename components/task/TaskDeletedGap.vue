@@ -17,7 +17,7 @@ SortableTaskWrapper (a gap is no dnd-kit sortable: not draggable, not droppable,
 - Window end (`state: 'closing'`): the box glides shut in 280 ms (grid row 1fr -> 0fr, the list gap's negative margin
   included) and focus moves to the next card, or the list when it was the last, if it was in or lost with the gap
 - `prefers-reduced-motion`: the picture only crossfades (no scale), the drain line is static, the gap closes without gliding
-- Contrast: "Im Papierkorb" and the pill text are `error-700` on the wash measured 7.0:1 (label) and 6.2:1 (pill, on its own tint); the `error-500` drain line is 4.2:1 on the wash (a graphic needs 3:1)
+- Contrast: "Im Papierkorb" and the pill text are `error-700` on the 12% wash (earlier figures were measured on 6%; re-measure with the rendered Impeccable scan `npm run design:detect`); the `error-500` drain line is a graphic and needs 3:1
 -->
 <template>
   <div
@@ -110,6 +110,7 @@ watch(() => props.gap.state, (state) => {
   margin-right: auto;
   width: min(var(--task-card-width), 100%);
   max-width: var(--task-card-max-width);
+  --gap-h: var(--gap-from, var(--task-card-height));
   transition:
     grid-template-rows 280ms cubic-bezier(0.4, 0, 0.2, 1),
     margin-bottom 280ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -132,16 +133,17 @@ watch(() => props.gap.state, (state) => {
   position: relative;
   /* Compact (#57): the height of the collapsed Yesterday note. It glides there from the card's measured height while the
      picture fades, so the column closes up with the picture instead of jumping. */
-  height: var(--task-note-height);
+  /* min-height, not height: when the label and the pill wrap (large text, zoom) the box grows instead of clipping the undo pill */
+  min-height: var(--task-note-height);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   border-radius: var(--task-card-radius);
-  animation: task-gap-shrink 220ms cubic-bezier(0, 0, 0.2, 1) both;
+  animation: task-gap-shrink 220ms cubic-bezier(0, 0, 0.2, 1) backwards;
 }
 @keyframes task-gap-shrink {
-  from { height: var(--gap-from, var(--task-card-height)); }
+  from { height: var(--gap-h); }
   to { height: var(--task-note-height); }
 }
 
@@ -162,8 +164,8 @@ watch(() => props.gap.state, (state) => {
   position: absolute;
   top: 50%;
   left: 0;
-  height: var(--gap-from, var(--task-card-height));
-  margin: calc(var(--gap-from, var(--task-card-height)) / -2) 0 0;
+  height: var(--gap-h);
+  margin: calc(var(--gap-h) / -2) 0 0;
   width: 100%;
   max-width: none;
   pointer-events: none;

@@ -148,7 +148,7 @@ A warm-neutral paper palette with one quiet ink accent, three fixed status colou
 - **Warning Orange** (`warning-orange`, `custom-orange`, Nuxt UI `secondary` and `warning`): attention. High priority, a timebox running out or over, a connection that needs a look. Never a brand accent.
 
 ### Tertiary
-- **Done Teal** (`done-teal`, `custom-teal`, Nuxt UI `success`): completion. It marks the done state (the check on a done card, the Erledigt drop wash, the in-card confirmation, the Yesterday note surface: the same `success-50` wash as the confirmation, no outline, a darker wash than the confirmation but short of the drop wash), never a card sheet and never a solid action fill.
+- **Done Teal** (`done-teal`, `custom-teal`, Nuxt UI `success`): completion. It marks the done state (the check on a done card, the Erledigt drop wash, the in-card confirmation, the Yesterday note surface: no outline, a darker wash than the confirmation but short of the drop wash), never a card sheet and never a solid action fill.
 - **Raspberry** (`error-raspberry`, `custom-raspberry`, Nuxt UI `error`): destructive and failed states only.
 - **Focus Dusk** (`focus-dusk`): a warm brown-grey that exists only as the tint of the Jetzt focus overlay and of the lifted card's shadow; never text, fill or border, and not part of the primary.
 
