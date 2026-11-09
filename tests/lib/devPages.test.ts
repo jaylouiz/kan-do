@@ -3,7 +3,7 @@ import { removeDevPages, shouldShipDevPages, type PageRecord } from '../../lib/d
 
 // #65: `/ui` and `/error-test` ship only in dev and in the E2E build (flag), never in a plain production build.
 describe('shouldShipDevPages', () => {
-  it('ships in dev, prepare and typecheck (NODE_ENV is not production)', () => {
+  it('ships whenever NODE_ENV is not production (dev, tests)', () => {
     expect(shouldShipDevPages({})).toBe(true)
     expect(shouldShipDevPages({ NODE_ENV: 'development' })).toBe(true)
     expect(shouldShipDevPages({ NODE_ENV: 'test' })).toBe(true)

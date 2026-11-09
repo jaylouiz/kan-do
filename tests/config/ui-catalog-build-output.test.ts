@@ -4,13 +4,16 @@ import { join, resolve } from 'node:path'
 
 // Proof for #65 that the dev-only pages are dev-only: a build made WITHOUT KANDO_UI_CATALOG=1 (npm run generate, or
 // `nuxt build` with NITRO_PRESET=node-server) has no /ui, /styleguide or /error-test route and none of the catalog's
-// strings. It reads the build output, so it needs a build first and skips without one (like copy-editor-build-output.test.ts):
-//   npm run generate && npx vitest run tests/config/ui-catalog-build-output.test.ts
-//   UI_CATALOG_BUILD_DIR=<dir> picks another output directory (a node-server build).
-// CI and `npm run release` run exactly this after the build, with UI_CATALOG_REQUIRE_BUILD=1 (no build then fails
-// instead of skipping). The E2E build carries the catalog on purpose (scripts/e2e-server.mjs).
+// strings. It reads the build output, so it runs only when told which build is meant: a plain `vitest run` skips it,
+// because whatever `.output` happens to exist may be stale or from another checkout (a pre-PR build still holds /styleguide).
+//   npm run generate && UI_CATALOG_BUILD_DIR=.output npx vitest run tests/config/ui-catalog-build-output.test.ts
+//   UI_CATALOG_BUILD_DIR=<dir> picks the output directory (also a node-server build).
+// CI and `npm run release` run this after the build with UI_CATALOG_REQUIRE_BUILD=1 (default `.output`; no build then
+// fails instead of skipping, and they never skip). The E2E build carries the catalog on purpose (scripts/e2e-server.mjs).
 
 const outputDir = resolve(process.env.UI_CATALOG_BUILD_DIR ?? resolve(__dirname, '../../.output'))
+// Opt-in: a build the caller named, or a step that requires one. Never an `.output` found by chance.
+const requested = Boolean(process.env.UI_CATALOG_REQUIRE_BUILD || process.env.UI_CATALOG_BUILD_DIR)
 
 // Strings only the catalog page and its Tokens part contain; each survives minification because it is a string literal.
 const MARKERS = [
@@ -26,7 +29,7 @@ function files(dir: string): string[] {
   })
 }
 
-describe.skipIf(!existsSync(outputDir) && !process.env.UI_CATALOG_REQUIRE_BUILD)('a build without KANDO_UI_CATALOG has no /ui, /styleguide or /error-test (#65)', () => {
+describe.skipIf(!requested || (!existsSync(outputDir) && !process.env.UI_CATALOG_REQUIRE_BUILD))('a build without KANDO_UI_CATALOG has no /ui, /styleguide or /error-test (#65)', () => {
   const textFiles = existsSync(outputDir) ? files(outputDir).filter(path => /\.(m?js|css|html|json)$/.test(path)) : []
   const text = textFiles.map(path => ({ path, source: readFileSync(path, 'utf8') }))
 

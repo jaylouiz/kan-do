@@ -757,7 +757,8 @@
       "specs": [
         "welcome-setup",
         "sources-settings",
-        "tasks-settings"
+        "tasks-settings",
+        "a11y"
       ]
     },
     {

@@ -11,7 +11,7 @@
 export const DEV_ONLY_PAGE_FILES = ['pages/ui.vue', 'pages/error-test.vue'] as const
 
 /**
- * Whether the dev-only pages are part of the build: any non-production run (`nuxt dev`, `nuxt prepare`, typecheck),
+ * Whether the dev-only pages are part of the build: any run whose NODE_ENV is not `production` (`nuxt dev`, tests; `nuxi prepare` and typecheck set it to production, so they omit the pages),
  * or a production build with `KANDO_UI_CATALOG=1` (set only by `scripts/e2e-server.mjs`, like `NOTION_STUB_ENABLED`).
  */
 export function shouldShipDevPages(env: Record<string, string | undefined>): boolean {
