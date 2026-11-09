@@ -105,18 +105,18 @@ Findings of `docs/design/audit-2026-11.md` (audited at `2bc0f398`). Filed fix se
 | ~~U1 (#550)~~ | ~~Sticky page header is translucent and blurred; its height is copied as `7rem`~~ | `components/ui/PageHeader.vue`, `assets/css/app-nav.css` | done 2026-11-03: opaque `bg-page`, PageHeader publishes `--page-header-height` |
 | U2 | The app bar's row is transparent, content shows beside the pills while scrolling | `assets/css/app-nav.css:42-54` | open, needs a layout decision (redesign) |
 | ~~U3 (#551)~~ | ~~Day close: secondary actions heavier than the CTA, footer duplicated~~ | `TaskCarryOverTriage.vue`, `DayCloseDialog.vue` | done 2026-11-03: compact triage is ghost, footer buttons carry `touch-target` (Fertig 44 px at 390) |
-| U4 (#552) | No button size and variant ladder | `DESIGN.md`, `app.config.ts` | filed, needs-design |
+| ~~U4 (#552)~~ | ~~No button size and variant ladder~~ | `DESIGN.md`, `app.config.ts` | ~~filed, needs-design~~ done (`tests/config/button-ladder.test.ts`; checked 2026-11-09, `docs/design/ui-kit-audit.md`) |
 | U5 (#553) | Unused components, helper and CSS | `OnboardingWelcome.vue`, `ui/feedback/ProgressBar.vue`, `ui/Section.vue`, `task-detail.css:29-61` | ~~filed, ready~~ done 2026-11-03 (#553) |
 | U6 (#554) | Legacy statistics modal and the always-on `statisticsPageEnabled` flag | `TaskStatisticsModal.vue`, `app.config.ts:271` | ~~filed, needs-spec~~ done 2026-11-03 (#554) |
 | U7 | Statistics drill-down opens `TaskDetailModal`, the board opens `TaskSheet` | `pages/statistics.vue:44` | open, needs a layout decision (redesign) |
-| U8 (#556) | Section-heading class string copied 11× | settings pages and components | filed, ready |
+| ~~U8 (#556)~~ | ~~Section-heading class string copied 11×~~ | settings pages and components | ~~filed, ready~~ done (`@utility section-heading`; checked 2026-11-09) |
 | U9 (#557) | Three tab looks | `pages/settings/topics.vue:17`, `notion.vue:36`, `StatsTiles.vue:55` | ~~filed, needs-spec~~ done 2026-11-03 (#557) |
-| U10 (#558) | Hand-rolled warning boxes, drifting warning text step | `SyncWarningModal.vue:100`, wizard steps | filed, needs-spec |
+| ~~U10 (#558)~~ | ~~Hand-rolled warning boxes, drifting warning text step~~ | `SyncWarningModal.vue:100`, wizard steps | ~~filed, needs-spec~~ done (boxes gone, `warning-notices.test.ts`; plain coloured lines remain, tracked in #74; checked 2026-11-09) |
 | U11 (#557) | Orange warning icon as an empty state, ALL CAPS eyebrow, `trash.empty` wording | `notion.vue:28`, `TaskDetailContent.vue:23`, `NotionSettingsSection.vue:14` | ~~filed, needs-spec~~ done 2026-11-03 (#557) |
 | ~~U12 (#555)~~ | ~~Modal/drawer split and `matchMedia` copied~~ | `ResponsiveOverlay.vue`, `useIsDesktop.ts` | done 2026-11-03 |
-| U13 (#559) | 16 components without `defineOptions`, 4 without a doc block, stale `trash.vue` doc, stale dark test runs | see audit doc | filed, ready |
-| U14 (#556) | Focus-ring utilities hand-written 11× | 8 files | filed, ready |
-| U15 (#551, #552) | `.touch-target` applied by hand, missed in the day-close footer | `board.css:62`, `DayCloseDialog.vue` | day-close footer done with U3 (#551); the rest folded into U4 (#552) |
+| ~~U13 (#559)~~ | ~~16 components without `defineOptions`, 4 without a doc block, stale `trash.vue` doc, stale dark test runs~~ | see audit doc | ~~filed, ready~~ done for components (`component-conventions.test.ts`; checked 2026-11-09) |
+| ~~U14 (#556)~~ | ~~Focus-ring utilities hand-written 11×~~ | 8 files | ~~filed, ready~~ done (`@utility focus-ring`; one hand-written ring left in `NewDayRecap.vue:41`, goes with #73; checked 2026-11-09) |
+| ~~U15 (#551, #552)~~ | ~~`.touch-target` applied by hand, missed in the day-close footer~~ | `board.css:62`, `DayCloseDialog.vue` | done with U3 (#551) and U4 (#552) |
 | U16 | Large components mixing jobs: `TaskForm` 777, `notion.vue` 699, `TaskDetailContent` 655, `BoardColumn` 610, `TaskCard` 594 lines | `components/task`, `components/board`, `pages/settings` | open; the board files are a drag-and-drop and visual-regression risk area, so each split is its own spec |
 | U17 | 40 `data-testid`s that no test references (`day-close-body`, `trash-restore`, `trash-remove`, `gap-undo`, `settings-subpage-link`, `focus-settings`, …) | `components/**` | open, low; drop or use them in a cleanup |
 | U18 | Page title scale: `PageHeader` h1 is `text-xl font-semibold`, DESIGN.md "Pages" says display headings | `components/ui/PageHeader.vue:15` | open, needs a layout decision (redesign) |
