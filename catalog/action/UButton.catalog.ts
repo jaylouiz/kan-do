@@ -1,4 +1,5 @@
 import type { CatalogEntry } from '../types'
+import { ICONS } from '../../lib/icons.ts'
 
 /**
  * Nuxt UI button. The matrix is read from the merged theme (`.nuxt/ui/button.ts` plus `app.config.ts`), so a colour,
@@ -23,7 +24,7 @@ export default {
     { id: 'disabled', state: 'disabled', props: { disabled: true }, slot: { $t: 'common.save' } },
     { id: 'loading', state: 'loading', props: { loading: true }, slot: { $t: 'common.save' } },
     { id: 'focus', state: 'focus', slot: { $t: 'common.save' } },
-    { id: 'icon-only', state: 'icon-only', props: { icon: 'i-ph-x', square: true, 'aria-label': { $t: 'common.close' }, variant: 'ghost', color: 'neutral' } },
+    { id: 'icon-only', state: 'icon-only', props: { icon: ICONS.close, square: true, 'aria-label': { $t: 'common.close' }, variant: 'ghost', color: 'neutral' } },
     { id: 'icon-leading', state: 'long-text', label: 'long German label with icon', props: { icon: 'i-ph-warning' }, slot: { $t: 'board.dropToComplete' } },
   ],
 } satisfies CatalogEntry
