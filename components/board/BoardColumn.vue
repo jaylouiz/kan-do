@@ -556,7 +556,7 @@ const columnClasses = computed(() => ({
  * ======================================== */
 .column[data-status="done"] {
   border-radius: var(--task-card-radius);
-  transition: background-color var(--done-wash-duration) cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color var(--done-wash-duration) var(--ease-standard);
 }
 
 .column[data-status="done"].is-done-drop-target {
@@ -575,7 +575,7 @@ const columnClasses = computed(() => ({
 
 .done-drop-hint-enter-active,
 .done-drop-hint-leave-active {
-  transition: opacity var(--done-wash-duration) cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity var(--done-wash-duration) var(--ease-standard);
 }
 
 .done-drop-hint-enter-from,
@@ -583,7 +583,7 @@ const columnClasses = computed(() => ({
   opacity: 0;
 }
 
-@media (max-width: 767px) {
+@media (--phone) {
   .column[data-status="done"] {
     border-radius: 0;
   }
@@ -609,6 +609,6 @@ const columnClasses = computed(() => ({
   padding: 1rem 0;
   /* Above the cards (z-index 100 + index, board.css) so the sticky CTA is never painted under a card; below the
      stack control (500) and the focus overlay's lift (1100, board-focus-overlay.css) */
-  z-index: 400;
+  z-index: var(--z-column-footer);
 }
 </style>

@@ -231,7 +231,7 @@ function getCardStyles(index: number): Record<string, string> {
 .task-stack__pill-layer {
   position: absolute;
   inset: 0 0 calc(var(--stack-layers, 0) * var(--stack-collapsed-offset)) 0;
-  z-index: 450;
+  z-index: var(--z-stack-pill);
   isolation: isolate; /* the wash's z-index -1 stays inside this layer */
   display: grid;
   place-items: center;
@@ -277,7 +277,7 @@ function getCardStyles(index: number): Record<string, string> {
 .task-stack__control {
   position: absolute;
   inset: 0;
-  z-index: 500; /* above every card's --stack-z */
+  z-index: var(--z-stack-control); /* above every card's --stack-z */
   border-radius: var(--task-card-radius);
   cursor: pointer;
 }

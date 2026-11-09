@@ -1,6 +1,6 @@
 /**
  * @composable useIsDesktop
- * @description The one 768px breakpoint ("desktop" = the viewport is at least 768px wide) as a live ref.
+ * @description The one desktop breakpoint (`lib/breakpoints.ts`, 768px) ("desktop" = the viewport is at least 768px wide) as a live ref.
  * @responsibility
  * - Single source for the modal-or-drawer choice: `ResponsiveOverlay`, the task detail layout and the topic editor
  * - `useOverlayIsDesktop()` follows the enclosing overlay's variant when there is one, the live query otherwise
@@ -9,8 +9,9 @@
 
 import { inject, type InjectionKey, type Ref } from 'vue';
 import { useMediaQuery } from '@vueuse/core';
+import { BREAKPOINT_QUERIES } from '~/lib/breakpoints';
 
-export const DESKTOP_QUERY = '(min-width: 768px)';
+export const DESKTOP_QUERY = BREAKPOINT_QUERIES.desktop;
 
 /**
  * Provided by `ResponsiveOverlay`: the variant it actually renders (modal/slideover vs drawer).

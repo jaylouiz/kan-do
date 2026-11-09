@@ -65,7 +65,7 @@ const isWaiting = computed(() => props.status === TaskStatus.Waiting);
     margin-top: 1.75rem;
     margin-bottom: 0;
     text-align: center;
-    font-size: 2.25rem; /* display step; one size at every width (DESIGN.md ramp) */
+    font-size: var(--text-display); /* display step; one size at every width (DESIGN.md ramp) */
     /* Weight and tracking spelled out: scoped CSS cannot use the font-semibold / tracking-display utilities */
     font-weight: 600;
     letter-spacing: -0.015em;
@@ -76,7 +76,7 @@ const isWaiting = computed(() => props.status === TaskStatus.Waiting);
     /* The colour follows the Erledigt drop wash (#124, BoardColumn) */
     transition:
       all 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-      color var(--done-wash-duration) cubic-bezier(0.4, 0, 0.2, 1);
+      color var(--done-wash-duration) var(--ease-standard);
   }
 
   .waiting-header h2 {

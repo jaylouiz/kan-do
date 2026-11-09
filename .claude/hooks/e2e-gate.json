@@ -832,6 +832,7 @@
         "composables/useNavIndicator.ts",
         "lib/navSpring.ts",
         "lib/icons.ts",
+        "lib/breakpoints.ts",
         "composables/useManualSync.ts",
         "assets/css/app-nav.css",
         "layouts/**",

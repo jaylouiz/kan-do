@@ -3,6 +3,7 @@ import { defineNuxtConfig } from 'nuxt/config'
 import * as fs from 'fs'
 import { fileURLToPath } from 'node:url'
 import { removeDevPages } from './lib/devPages'
+import postcssBreakpoints, { viteBreakpointDefinitions } from './scripts/postcss-breakpoints.mjs'
 
 // reading version to make it available in nuxt context for displaying
 const packageJson = fs.readFileSync('./package.json', 'utf8')
@@ -26,6 +27,10 @@ export default defineNuxtConfig({
   hooks: {
     'pages:extend'(pages) {
       removeDevPages(pages, process.env)
+    },
+    // `@media (--phone)` (lib/breakpoints.ts): main.css needs the definitions before Tailwind compiles it (#70)
+    'vite:extendConfig'(config) {
+      (config.plugins ||= []).unshift(viteBreakpointDefinitions())
     },
   },
 
@@ -201,6 +206,10 @@ export default defineNuxtConfig({
 
   // Build-time constants
   vite: {
+    css: {
+      // `@media (--phone)` -> the query of lib/breakpoints.ts (#70)
+      postcss: { plugins: [postcssBreakpoints()] },
+    },
     optimizeDeps: {
       // Pre-bundle deps that Vite otherwise discovers only at runtime. On a cold dep cache
       // (fresh checkout, CI, or after a dependency change) runtime discovery triggers a

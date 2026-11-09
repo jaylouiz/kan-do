@@ -171,7 +171,7 @@ watch(() => props.isNow, (now) => {
   --chip-h-now: 1.875rem;
   --chip-radius-now: 0.9375rem; /* half the bar height */
   --chip-spring: linear(0, 0.032, 0.114, 0.225, 0.35, 0.477, 0.598, 0.707, 0.802, 0.88, 0.942, 0.989, 1.022, 1.044, 1.057, 1.063, 1.063, 1.059, 1.053, 1.045, 1.037, 1.029, 1.022, 1.015, 1.01, 1.005, 1.002, 1, 0.998, 0.997, 0.996, 0.996, 0.996, 0.996, 0.997, 0.997, 0.998, 0.998, 0.999, 0.999, 1);
-  --chip-ease: cubic-bezier(0.2, 0, 0, 1);
+  --chip-ease: var(--ease-emphasized);
   --chip-duration: 600ms;
   --chip-settle-delay: 240ms; /* the card lands first (drop animation ~150 ms), then the label morphs */
   --chip-fill-duration: 700ms;
@@ -202,7 +202,7 @@ watch(() => props.isNow, (now) => {
   visibility: hidden;
 }
 .chip__sizer-icon { width: 0.8125rem; flex-shrink: 0; }
-.chip__sizer--boxless-now { font-size: 0.75rem; padding-inline: 0.625rem; }
+.chip__sizer--boxless-now { font-size: var(--text-xs); padding-inline: 0.625rem; }
 
 .chip {
   --chip-track: color-mix(in oklab, var(--ui-color-neutral-100), var(--ui-color-neutral-200)); /* #584 D2: half a step lighter than --ui-bg-muted (neutral-200); a whole step (neutral-100) left the track at 1.05:1 on the card sheet */
@@ -248,11 +248,11 @@ watch(() => props.isNow, (now) => {
   width: var(--footer-w, 100%);
   height: var(--chip-h-now);
   padding-inline: 0.75rem;
-  font-size: 0.875rem; /* body step */
+  font-size: var(--text-sm); /* body step */
   border-radius: var(--chip-radius-now);
 }
 .chip-slot--armed .chip--now { transition-delay: var(--chip-settle-delay); }
-.chip--now.chip--boxless { width: auto; min-width: 100%; font-size: 0.75rem; --chip-track: var(--ui-color-primary-100); }
+.chip--now.chip--boxless { width: auto; min-width: 100%; font-size: var(--text-xs); --chip-track: var(--ui-color-primary-100); }
 
 .chip__fill {
   position: absolute;
@@ -262,7 +262,7 @@ watch(() => props.isNow, (now) => {
   background: var(--chip-fill);
   border-radius: inherit;
 }
-.chip-slot--armed .chip__fill { transition: width var(--chip-fill-duration) var(--chip-ease), background-color 300ms ease-in-out; }
+.chip-slot--armed .chip__fill { transition: width var(--chip-fill-duration) var(--chip-ease), background-color var(--duration-slow) ease-in-out; }
 .chip--boxless .chip__fill { width: 0; }
 .chip-slot--armed .chip--now .chip__fill { transition-delay: 0ms, var(--chip-settle-delay); }
 
@@ -273,7 +273,7 @@ watch(() => props.isNow, (now) => {
   flex-shrink: 0;
   color: var(--chip-accent);
 }
-.chip-slot--armed .chip__icon { transition: width var(--chip-duration) var(--chip-ease), height var(--chip-duration) var(--chip-ease), color 300ms; }
+.chip-slot--armed .chip__icon { transition: width var(--chip-duration) var(--chip-ease), height var(--chip-duration) var(--chip-ease), color var(--duration-slow); }
 .chip--now .chip__icon { width: 1.0625rem; height: 1.0625rem; }
 .chip-slot--armed .chip--now .chip__icon { transition-delay: var(--chip-settle-delay); }
 
@@ -284,7 +284,7 @@ watch(() => props.isNow, (now) => {
   margin-right: -0.25rem; /* collapsed: the empty column must not add a flex gap */
   opacity: 0;
 }
-.chip-slot--armed .chip__spent { transition: grid-template-columns var(--chip-duration) var(--chip-spring), margin-right var(--chip-duration) var(--chip-spring), opacity 200ms ease-out; }
+.chip-slot--armed .chip__spent { transition: grid-template-columns var(--chip-duration) var(--chip-spring), margin-right var(--chip-duration) var(--chip-spring), opacity var(--duration-base) ease-out; }
 .chip--now .chip__spent { grid-template-columns: 1fr; margin-right: 0; opacity: 1; }
 .chip-slot--armed .chip--now .chip__spent { transition-delay: var(--chip-settle-delay); }
 .chip__spent-inner { overflow: hidden; min-width: 0; }
@@ -294,14 +294,14 @@ watch(() => props.isNow, (now) => {
 
 /* A chip that appears (no timebox: entering Jetzt or first time spent) pops in; leaving it pops back out */
 .chip-pop-enter-active { animation: chip-pop 240ms var(--chip-ease, ease-out) var(--chip-settle-delay, 240ms) both; }
-.chip-pop-leave-active { animation: chip-pop 200ms ease-in reverse both; }
+.chip-pop-leave-active { animation: chip-pop var(--duration-base) ease-in reverse both; }
 @keyframes chip-pop { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
 
-@media (max-width: 767px) {
+@media (--phone) {
   .chip-slot { --chip-text: 0.75rem; }
-  .chip--now { font-size: 0.9375rem; } /* title step */
+  .chip--now { font-size: var(--text-title); } /* title step */
   .chip--now.chip--boxless,
-  .chip__sizer--boxless-now { font-size: 0.875rem; }
+  .chip__sizer--boxless-now { font-size: var(--text-sm); }
 }
 
 @media (prefers-reduced-motion: reduce) {

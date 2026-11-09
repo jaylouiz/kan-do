@@ -45,7 +45,7 @@
           <span class="block text-sm text-muted">{{ option.hint }}</span>
         </span>
         <span class="flex size-5 shrink-0 items-center justify-center rounded-full border-[1.5px]" :class="pick === option.key ? 'border-inverted' : 'border-accented'" aria-hidden="true">
-          <span class="size-2.5 rounded-full bg-inverted transition-transform duration-150 motion-reduce:transition-none" :class="pick === option.key ? 'scale-100' : 'scale-0'" />
+          <span class="size-2.5 rounded-full bg-inverted transition-transform duration-(--duration-fast) motion-reduce:transition-none" :class="pick === option.key ? 'scale-100' : 'scale-0'" />
         </span>
       </RadioGroupItem>
     </RadioGroupRoot>

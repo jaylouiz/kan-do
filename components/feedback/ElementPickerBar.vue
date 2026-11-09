@@ -15,7 +15,7 @@ candidate element and a small hint bar at the bottom centre. Exists only while p
   <div v-if="active" :data-feedback-picker="''" role="region" :aria-label="t('feedback.picker.region')">
     <div
       v-if="box"
-      class="pointer-events-none fixed z-50 rounded-sm ring-2 ring-primary"
+      class="pointer-events-none fixed z-(--z-picker) rounded-sm ring-2 ring-primary"
       :style="{ top: `${box.top}px`, left: `${box.left}px`, width: `${box.width}px`, height: `${box.height}px` }"
       data-testid="element-picker-outline"
     >
@@ -29,7 +29,7 @@ candidate element and a small hint bar at the bottom centre. Exists only while p
     <p class="sr-only" role="status" aria-live="polite" data-testid="element-picker-live">{{ label }}</p>
 
     <div
-      class="fixed bottom-16 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-lg bg-elevated py-2 pr-2 pl-4 text-sm text-default shadow-(--shadow-overlay) ring ring-default"
+      class="fixed bottom-16 left-1/2 z-(--z-picker) flex -translate-x-1/2 items-center gap-3 rounded-lg bg-elevated py-2 pr-2 pl-4 text-sm text-default shadow-(--shadow-overlay) ring ring-default"
       data-testid="element-picker-bar"
     >
       <span>{{ t('feedback.picker.hint') }}</span>

@@ -23,7 +23,7 @@
 }
 
 .task-detail-content {
-  animation: task-detail-fade-in 0.2s ease-out;
+  animation: task-detail-fade-in var(--duration-base) ease-out;
 }
 
 /* ========================================
@@ -40,7 +40,7 @@
 
 /* Smooth section transitions */
 .task-detail-section {
-  transition: opacity 200ms ease;
+  transition: opacity var(--duration-base) ease;
 }
 
 /* ========================================
@@ -51,7 +51,7 @@
 .task-property-value {
   text-decoration: underline dotted transparent 1px;
   text-underline-offset: 0.3em;
-  transition: text-decoration-color 150ms ease;
+  transition: text-decoration-color var(--duration-fast) ease;
 }
 
 .task-property-value:hover,
@@ -178,7 +178,7 @@
   outline-offset: -2px;
 }
 
-@media (max-width: 767px) {
+@media (--phone) {
   .picker-edit-row {
     min-height: 2.75rem;
   }

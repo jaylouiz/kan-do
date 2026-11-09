@@ -225,6 +225,7 @@ import TaskCard from '~/components/task/TaskCard.vue';
 import NewCardOptionList from '~/components/board/NewCardOptionList.vue';
 import { useAddTarget } from '~/composables/useAddTarget';
 import { useErrorHandler } from '~/composables/useErrorHandler';
+import { BREAKPOINT_QUERIES } from '~/lib/breakpoints';
 import { useIsDesktop } from '~/composables/useIsDesktop';
 import { usePropertyOptionsSync } from '~/composables/usePropertyOptionsSync';
 import { useTaskSync } from '~/composables/useTaskSync';
@@ -655,7 +656,7 @@ onMounted(() => {
   ensureOptionsAvailable();
   void showTitleField();
   // On a phone the card sits at the end of a long list, under the keyboard: bring it into view
-  const mobile = window.matchMedia('(max-width: 767px)').matches;
+  const mobile = window.matchMedia(BREAKPOINT_QUERIES.phone).matches;
   rootEl.value?.scrollIntoView?.({ block: mobile ? 'start' : 'nearest', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
 });
 
@@ -668,7 +669,7 @@ onBeforeUnmount(() => {
 <style scoped>
 /* One box with the add slot: width and radius as the sheet's draft card */
 .ncf {
-  --ncf-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ncf-ease: var(--ease-standard);
   /* The padding of the card body (app.config.ts, task variant); the title input, the head and the answer row stand on it */
   --ncf-pad-x: 0.625rem;
   --ncf-pad-top: 0.5rem;
@@ -683,13 +684,13 @@ onBeforeUnmount(() => {
   max-width: var(--task-card-width);
   margin: 0 auto;
   border-radius: var(--task-card-radius);
-  font-size: 0.9375rem;
+  font-size: var(--text-title);
   line-height: var(--lh-snug);
   text-align: left;
   animation: ncf-in var(--task-transform-duration) var(--ncf-ease);
 }
 
-@media (min-width: 640px) {
+@media (--smPx) {
   .ncf {
     --ncf-pad-x: 0.75rem;
     --ncf-pad-top: 0.75rem;
@@ -702,9 +703,9 @@ onBeforeUnmount(() => {
   }
 }
 
-@media (max-width: 767px) {
+@media (--phone) {
   .ncf {
-    font-size: 1rem;
+    font-size: var(--text-base);
   }
 }
 
@@ -845,7 +846,7 @@ onBeforeUnmount(() => {
   margin: 0;
   grid-column: 2;
   text-align: center;
-  font-size: 0.9375rem;
+  font-size: var(--text-title);
   line-height: 1.25rem;
   font-weight: 500;
   color: var(--ui-text-highlighted);
@@ -875,7 +876,7 @@ onBeforeUnmount(() => {
   background: color-mix(in oklab, var(--ui-bg-elevated) 88%, transparent);
   color: var(--ui-text-muted);
   cursor: pointer;
-  transition: background-color 150ms var(--ncf-ease), color 150ms var(--ncf-ease);
+  transition: background-color var(--duration-fast) var(--ncf-ease), color var(--duration-fast) var(--ncf-ease);
 }
 
 .ncf__nav:hover:not(:disabled) {
@@ -958,12 +959,12 @@ onBeforeUnmount(() => {
   border-radius: 9999px;
   background: var(--ui-bg-muted);
   color: var(--ui-text);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   font-weight: 500;
   line-height: 1rem;
   white-space: nowrap;
   cursor: pointer;
-  transition: background-color 150ms var(--ncf-ease), color 150ms var(--ncf-ease), transform 150ms var(--ncf-ease);
+  transition: background-color var(--duration-fast) var(--ncf-ease), color var(--duration-fast) var(--ncf-ease), transform var(--duration-fast) var(--ncf-ease);
 }
 
 .ncf__pill {
@@ -1034,7 +1035,7 @@ onBeforeUnmount(() => {
   box-shadow: inset 0 0 0 1px var(--ui-border-accented);
   color: var(--ui-text-highlighted);
   font: inherit;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 .ncf__note::placeholder {
@@ -1054,7 +1055,7 @@ onBeforeUnmount(() => {
   background: color-mix(in oklab, currentColor 14%, transparent);
   color: inherit;
   font: inherit;
-  font-size: 0.6875rem;
+  font-size: var(--text-label);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   line-height: 1;
@@ -1092,7 +1093,7 @@ onBeforeUnmount(() => {
 }
 
 /* Phone: touch targets 40 px, no key cues */
-@media (max-width: 767px) {
+@media (--phone) {
   .ncf {
     --ncf-control-h: 2.5rem;
     --ncf-grid-top: 3rem;
@@ -1106,7 +1107,7 @@ onBeforeUnmount(() => {
   }
 
   .ncf__note {
-    font-size: 1rem;
+    font-size: var(--text-base);
   }
 
   /* 32 px (above the 24 px target floor): the head ends 12 px above the answer row of a 128 px card */

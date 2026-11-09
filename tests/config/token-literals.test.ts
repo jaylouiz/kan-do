@@ -2,7 +2,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { checkTokenLiterals, LITERAL_ALLOWLIST } from '../../scripts/lint/design-tokens.mjs'
+import { checkBaselineSlack, checkScaleLiterals, checkTokenLiterals, LITERAL_ALLOWLIST, SCALE_ALLOWLIST } from '../../scripts/lint/design-tokens.mjs'
 
 // The literal ratchet (#69, scripts/lint/design-tokens.mjs `checkTokenLiterals`): a new raw colour, shadow colour,
 // palette-hue class or off-scale radius fails. Each rule has one failing and one allowed fixture here; the repo-wide
@@ -124,5 +124,85 @@ describe('allowlist', () => {
     const file = join(dir, 'assets/css/integrations.css')
     writeFileSync(file, '.x { color: #db4035; }')
     expect(checkTokenLiterals(dir, [file])).toEqual([])
+  })
+})
+
+// The #70 ratchet (`checkScaleLiterals`): z-index, breakpoint, type, spacing and motion. The fixture folder has no
+// baseline file, so every motion literal counts as new.
+
+/** Findings of `checkScaleLiterals` for one fixture as `line: first word of the message`. */
+function scale(name: string, source: string) {
+  const file = join(dir, 'components', name)
+  writeFileSync(file, source)
+  return (checkScaleLiterals(dir, [file]) as Finding[]).sort((a, b) => a.line - b.line).map(f => `${f.line}: ${f.message.split(' ')[0]}`)
+}
+
+describe('z-index (#70)', () => {
+  it('flags a layer above 20 in CSS and as a class, passes local stacking and tokens', () => {
+    expect(scale('Z.vue', `<template><div class="z-2100 md:z-[500] z-10 z-(--z-overlay)" /></template>\n${style('z-index: 450;', 'z-index: 20;', 'z-index: -1;', 'z-index: var(--z-bar);', 'z-index: calc(var(--z-item-base) + var(--item-index, 0));')}`))
+      .toEqual(['1: z-2100', '1: md:z-[500]', '4: z-index:'])
+  })
+})
+
+describe('breakpoints (#70)', () => {
+  it('flags a width written as a number in @media, matchMedia and useMediaQuery', () => {
+    expect(scale('Bp.vue', `<script setup>\nconst a = window.matchMedia('(max-width: 767px)')\nconst b = useMediaQuery("(min-width: 768px)")\n</script>\n<template><div /></template>\n<style>\n@media (max-width: 767px) { .a { color: var(--ui-text); } }\n@container (min-width: 20rem) { .b { color: var(--ui-text); } }\n</style>`))
+      .toEqual(['2: matchMedia(\'(max-width:', '3: useMediaQuery("(min-width:', '7: @media', '8: @container'])
+  })
+
+  it('passes a named breakpoint and other media features', () => {
+    expect(scale('BpOk.vue', `<script setup>\nconst a = window.matchMedia(BREAKPOINT_QUERIES.phone)\nconst b = window.matchMedia('(prefers-reduced-motion: reduce)')\n</script>\n<template><div /></template>\n<style>\n@media (--phone) { .a { color: var(--ui-text); } }\n@media (pointer: coarse), (--phone) { .b { color: var(--ui-text); } }\n</style>`)).toEqual([])
+  })
+})
+
+describe('type (#70)', () => {
+  it('flags a font-size that equals a role or Tailwind step and an arbitrary text size', () => {
+    expect(scale('Type.vue', `<template><div class="text-[0.6875rem]/3" /></template>\n${style('font-size: 0.9375rem;', 'font-size: 0.875rem;')}`))
+      .toEqual(['1: text-[0.6875rem]/3', '4: font-size:', '5: font-size:'])
+  })
+
+  it('passes tokens, em and off-scale sizes', () => {
+    expect(scale('TypeOk.vue', `<template><div class="text-label/3 text-sm" /></template>\n${style('font-size: var(--text-title);', 'font-size: 0.9em;', 'font-size: 0.8125rem;', 'font-size: inherit;')}`)).toEqual([])
+  })
+})
+
+describe('spacing (#70)', () => {
+  it('flags an arbitrary spacing or size class, passes calc, viewport units and the scale', () => {
+    expect(scale('Space.vue', '<template><div class="min-w-[260px] gap-[7px] md:p-[1rem] max-h-[80vh] w-[calc(100%-2.5rem)] p-3 gap-(--task-list-gap) w-65" /></template>'))
+      .toEqual(['1: min-w-[260px]', '1: gap-[7px]', '1: md:p-[1rem]'])
+  })
+})
+
+describe('motion (#70)', () => {
+  it('counts durations and curves in transition and animation, not tokens, custom properties or 0', () => {
+    const file = join(dir, 'components', 'Motion.vue')
+    writeFileSync(file, `<template><div class="duration-300 ease-[cubic-bezier(0.1,0,0,1)] duration-(--duration-fast)" /></template>\n${style(
+      'transition: color 150ms ease, opacity var(--duration-base) var(--ease-standard);',
+      'animation: pop 0.2s cubic-bezier(0.4, 0, 0.2, 1);',
+      '--local-ease: cubic-bezier(0.2, 0, 0, 1);',
+      '--local-duration: 220ms;',
+      'transition-duration: 0ms;',
+      'transition: opacity calc(var(--duration-fast) * 2);',
+    )}`)
+    expect((checkScaleLiterals(dir, [file]) as Finding[]).map(f => f.message.split(' ').slice(0, 3).join(' '))).toEqual(['5 motion literals'])
+  })
+
+  it('fails above the baseline and reports a baseline above the count', () => {
+    mkdirSync(join(dir, 'scripts/lint'), { recursive: true })
+    const file = join(dir, 'components', 'Base.vue')
+    writeFileSync(file, style('transition: opacity 150ms ease;', 'transition: color 150ms ease;'))
+    writeFileSync(join(dir, 'scripts/lint/literal-baseline.json'), JSON.stringify({ motion: { 'components/Base.vue': 2, 'components/Gone.vue': 3 } }))
+    expect(checkScaleLiterals(dir, [file])).toEqual([])
+    writeFileSync(join(dir, 'scripts/lint/literal-baseline.json'), JSON.stringify({ motion: { 'components/Base.vue': 1 } }))
+    expect(checkScaleLiterals(dir, [file])).toHaveLength(1)
+    writeFileSync(join(dir, 'scripts/lint/literal-baseline.json'), JSON.stringify({ motion: { 'components/Base.vue': 5 } }))
+    expect((checkBaselineSlack(dir) as Finding[]).map(f => f.message)).toEqual([expect.stringContaining('has 2 motion literals, the baseline says 5')])
+    rmSync(join(dir, 'scripts/lint/literal-baseline.json'))
+  })
+})
+
+describe('scale allowlist (#70)', () => {
+  it('names a reason for every entry', () => {
+    for (const reason of Object.values(SCALE_ALLOWLIST)) expect(reason.length).toBeGreaterThan(10)
   })
 })
