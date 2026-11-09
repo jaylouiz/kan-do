@@ -1906,7 +1906,7 @@
     "avoid": "Only the face of a collapsed stack's pill inside TaskStack.",
     "responsibility": [
       "Left segment names the grouping property the way a card shows it: topic = TopicMark + neutral name (hue only on the mark); priority 1-3 = the real TaskPriorityBadge as the segment itself (no hairline after it); activity, custom/Notion value and the empty group = the plain name",
-      "Right segment is the stack icon (`ph:stack`) and the count; it never shrinks, a large count widens it only",
+      "Right segment is the stack icon (`i-ph-stack`) and the count; it never shrinks, a large count widens it only",
       "The property segment is capped at 10rem and truncates with an ellipsis (look decision, tune here); the full name stays in the stack control's accessible name, so there is no tooltip. The pill is decorative: the visible word \"Aufgaben\" is gone, the control still says it",
       "Soft neutral like the former text pill (`bg-muted`, label role 500 / 0.6875rem, 0.75rem on touch), 1.5rem high, fully rounded outer shape, a 1px hairline between the segments",
       "Never takes a pointer event (its layer is `pointer-events: none`)"
