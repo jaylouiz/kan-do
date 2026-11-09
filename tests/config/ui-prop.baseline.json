@@ -7,6 +7,10 @@
     "count": 1,
     "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
   },
+  "components/board/DayCloseDialog.vue": {
+    "count": 2,
+    "reason": "forwarding *-ui props into a :ui; moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
   "components/board/NewCardFlow.vue": {
     "count": 1,
     "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
@@ -22,6 +26,10 @@
   "components/notion/setup/NotionSetupModal.vue": {
     "count": 1,
     "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/recap/NewDayRecap.vue": {
+    "count": 2,
+    "reason": "forwarding *-ui props into a :ui; moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
   },
   "components/settings/DataConflictModal.vue": {
     "count": 1,
@@ -55,6 +63,10 @@
     "count": 1,
     "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
   },
+  "components/task/AddTargetSwitch.vue": {
+    "count": 1,
+    "reason": "forwarding *-ui props into a :ui; moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
   "components/task/TaskCard.vue": {
     "count": 1,
     "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
@@ -78,6 +90,14 @@
   "components/task/TaskPropertySelect.vue": {
     "count": 1,
     "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/task/TaskSheet.vue": {
+    "count": 2,
+    "reason": "forwarding *-ui props into a :ui; moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/task/TopicPropertyPicker.vue": {
+    "count": 1,
+    "reason": "forwarding *-ui props into a :ui; moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
   },
   "components/topic/TopicEditor.vue": {
     "count": 1,

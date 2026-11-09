@@ -5,7 +5,7 @@
  *
  * - `raw-button`: `<button>` elements in shipped Vue UI. A button is a `UButton` (DESIGN.md "Buttons", `/ui` Aktion
  *   entries) or the `ListRow` action row; a raw one needs a reason in the baseline.
- * - `ui-prop`: `:ui="…"` / `ui="…"` bindings. Visual identity belongs in the `app.config.ts` theme or in tokens (epic #58
+ * - `ui-prop`: `:ui="…"` / `ui="…"` bindings, and the `*-ui` forwarding props (`:desktop-ui`, `:picker-ui`, …) that carry call-site classes into a `:ui`. Visual identity belongs in the `app.config.ts` theme or in tokens (epic #58
  *   D1, DESIGN.md "Styling"); the call-site `ui` prop only places a part.
  *
  * Lower: `npm run ratchet:lower` (never raises; raising is a hand edit of the baseline, visible in the diff).
@@ -23,7 +23,7 @@ export const RATCHETS = {
   },
   'ui-prop': {
     baseline: 'tests/config/ui-prop.baseline.json',
-    pattern: /(?<![\w:.-])(?::|v-bind:)?ui=(?=["'])/g,
+    pattern: /(?<![\w:.-])(?::|v-bind:)?(?:[a-z]+-)*ui=(?=["'])/g,
     unit: ':ui binding',
     fix: 'move the visual identity into the app.config.ts theme or a token (DESIGN.md "Styling", epic #58 D1); the call-site ui prop only places a part',
   },

@@ -50,15 +50,15 @@ describe('seeded violations (#78)', () => {
     expect(finding).toContain('DESIGN.md "Buttons"')
   })
 
-  it('a new :ui or ui binding fails and names the theme and the epic decision; picker-ui and comments do not count', () => {
+  it('a new :ui or ui binding fails and names the theme and the epic decision; the *-ui forwarding props count, comments do not', () => {
     const dir = fixture({
       'pages/p.vue': '<template><UCard :ui="{ root: \'p-0\' }" /><UCard ui="x" /><Foo :picker-ui="a" :desktop-ui="b" /></template>',
       'components/c.vue': '<!-- doc: <button> and :ui="x" are described here -->\n<template><UCard /></template>',
     })
-    expect(countRatchet(dir, 'ui-prop')).toEqual({ 'pages/p.vue': 2 })
+    expect(countRatchet(dir, 'ui-prop')).toEqual({ 'pages/p.vue': 4 })
     expect(countRatchet(dir, 'raw-button')).toEqual({})
     const [finding] = checkRatchet(dir, 'ui-prop')
-    expect(finding).toContain('pages/p.vue has 2 :ui bindings, the baseline allows 0')
+    expect(finding).toContain('pages/p.vue has 4 :ui bindings, the baseline allows 0')
     expect(finding).toContain('app.config.ts theme')
     expect(finding).toContain('D1')
   })
