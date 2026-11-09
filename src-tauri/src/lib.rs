@@ -24,10 +24,7 @@ fn sandbox_background() -> bool {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
   let builder = tauri::Builder::default();
-  // The Keychain service follows the identifier the app runs under (a sandbox gets its own, kd#54), so it is read from the
-  // context before the builder manages `Secrets`.
   let context = tauri::generate_context!();
-  let keychain_service = secrets::service_for(cfg!(debug_assertions), &context.config().identifier);
 
   // Agent sandbox runs (docs/testing/tauri-dev-sandbox.md, #623) must not take the user's focus: tao activates the app at
   // launch unless told otherwise, and no window config can turn that off. Debug builds only, never set in a real run.
@@ -61,7 +58,6 @@ pub fn run() {
     .plugin(tauri_plugin_http::init())
     .plugin(tauri_plugin_opener::init())
     .plugin(tauri_plugin_dialog::init())
-    .manage(secrets::Secrets::native(&keychain_service))
     .manage(updater::UpdaterState::default())
     .invoke_handler(tauri::generate_handler![
       secrets::secret_set,
@@ -110,8 +106,17 @@ pub fn run() {
       // The log first, so the migration can report; then the identifier migration (#42, ADR 019): it must finish before
       // `DataFile` exists and before any command is served, so no call sees the pre-migration data or Keychain.
       app.handle().plugin(logging::plugin())?;
-      log::info!("secrets: Keychain service {}", keychain_service);
       let dirs = identifier_migration::run(app.handle());
+      // The Keychain service follows the identifier the app runs under (a sandbox gets its own, kd#54) and, for `tauri dev`,
+      // the migration marker (kd#60), which lives in the config dir: so `Secrets` is managed here, after the migration and
+      // before the first command is served.
+      let keychain_service = secrets::service_for(
+        cfg!(debug_assertions),
+        &app.config().identifier,
+        &app.path().app_config_dir().expect("app config dir"),
+      );
+      log::info!("secrets: Keychain service {}", keychain_service);
+      app.manage(secrets::Secrets::native(&keychain_service));
       app.manage(data_file::DataFile::for_app(app.handle(), dirs));
       app.state::<data_file::DataFile>().start_watcher();
       Ok(())

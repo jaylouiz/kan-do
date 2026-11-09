@@ -1,6 +1,6 @@
 //! Keychain-backed secret store (#223, ADR 007).
 //!
-//! Four fixed entries live under one Keychain service, `io.github.jaylouiz.kan-do` in a release build ([`service_for`] derives it from the running identifier). The Notion and Todoist tokens
+//! Four fixed entries live under one Keychain service, `io.github.jaylouiz.kan-do` in a release build ([`service_for`] derives it from the running identifier and, for `tauri dev`, the migration marker). The Notion and Todoist tokens
 //! can be read back by the webview (their client code needs the string). The two GitHub tokens
 //! are write-only for JS: it can set, delete and ask for status, and `github::github_request`
 //! performs the calls. Rust code in this process reads them through [`get`].
@@ -20,14 +20,16 @@ use tauri::{AppHandle, Manager, State};
 pub const SERVICE: &str = "io.github.jaylouiz.kan-do";
 
 /// The Keychain service the running build uses, from the identifier it runs under. A debug build with the production
-/// identifier (`tauri dev`) keeps the legacy service of the installed 0.11.0, exactly as before the rename, so a dev run
-/// neither creates entries under the new service (which would make the release's Keychain step keep them as "new wins")
-/// nor strands the real tokens; only a release build migrates and then uses [`SERVICE`] (#42, ADR 019). Any other
-/// identifier is its own service: a sandboxed run (`…sandbox-<port>`, `docs/testing/tauri-dev-sandbox.md`) gets an empty
-/// service and never reads, writes or deletes a real entry (kd#54).
-pub fn service_for(debug_build: bool, identifier: &str) -> String {
-    if debug_build && identifier == crate::identifier_migration::PRODUCTION_IDENTIFIER {
-        crate::identifier_migration::LEGACY_IDENTIFIER.to_owned()
+/// identifier (`tauri dev`) never migrates: until the release's Keychain step is over (`identifier_migration::secrets_settled`
+/// on the marker in `config_dir`, read-only) it keeps the legacy service of the installed 0.11.0, so a dev run neither
+/// creates entries under the new service (which would make the release's step keep them as "new wins") nor strands the
+/// real tokens. Afterwards the installed app lives under [`SERVICE`] and the dev run uses the same entries (kd#60). A release
+/// build always uses [`SERVICE`]. Any other identifier is its own service: a sandboxed run (`…sandbox-<port>`,
+/// `docs/testing/tauri-dev-sandbox.md`) gets an empty service and never reads, writes or deletes a real entry (kd#54).
+pub fn service_for(debug_build: bool, identifier: &str, config_dir: &std::path::Path) -> String {
+    use crate::identifier_migration::{secrets_settled, LEGACY_IDENTIFIER, PRODUCTION_IDENTIFIER};
+    if debug_build && identifier == PRODUCTION_IDENTIFIER && !secrets_settled(config_dir) {
+        LEGACY_IDENTIFIER.to_owned()
     } else {
         identifier.to_owned()
     }
@@ -513,18 +515,32 @@ mod tests {
     }
 
     #[test]
-    fn the_keychain_service_follows_the_identifier_except_a_debug_build_with_the_production_one() {
+    fn the_keychain_service_follows_the_identifier_and_a_debug_build_with_the_production_one_follows_the_marker() {
         use crate::identifier_migration::{LEGACY_IDENTIFIER, PRODUCTION_IDENTIFIER};
-        // `tauri dev` carries the production identifier; its tokens stay where the installed 0.11.0 keeps them, so the
-        // release's Keychain step (never run in a debug build) is the only thing that moves them (#42).
-        assert_eq!(service_for(true, PRODUCTION_IDENTIFIER), LEGACY_IDENTIFIER);
-        assert_eq!(service_for(false, PRODUCTION_IDENTIFIER), SERVICE);
-        // A sandboxed run never touches a real service, neither the legacy nor the new one (kd#54).
+        let config = tempfile::TempDir::new().unwrap();
+        let marker = config.path().join("identifier-migration.json");
+        // `tauri dev` carries the production identifier; until the release's Keychain step is over its tokens stay where the
+        // installed 0.11.0 keeps them, so the release (the only thing that moves them) finds them (#42).
+        assert_eq!(service_for(true, PRODUCTION_IDENTIFIER, config.path()), LEGACY_IDENTIFIER, "no marker");
+        std::fs::write(&marker, br#"{"data":"done","secretsAttempts":1}"#).unwrap();
+        assert_eq!(service_for(true, PRODUCTION_IDENTIFIER, config.path()), LEGACY_IDENTIFIER, "move still pending");
+        std::fs::write(&marker, b"{").unwrap();
+        assert_eq!(service_for(true, PRODUCTION_IDENTIFIER, config.path()), LEGACY_IDENTIFIER, "unreadable marker");
+        // Afterwards the installed app lives under the new service and so does the dev run (kd#60).
+        std::fs::write(&marker, br#"{"data":"done","secrets":"done"}"#).unwrap();
+        assert_eq!(service_for(true, PRODUCTION_IDENTIFIER, config.path()), SERVICE);
+        std::fs::write(&marker, br#"{"data":"done","secretsAttempts":3}"#).unwrap();
+        assert_eq!(service_for(true, PRODUCTION_IDENTIFIER, config.path()), SERVICE, "gave up: the app uses the new service");
+        // A release build always uses the new service, whatever the marker says.
+        std::fs::remove_file(&marker).unwrap();
+        assert_eq!(service_for(false, PRODUCTION_IDENTIFIER, config.path()), SERVICE);
+        // A sandboxed run never touches a real service, neither the legacy nor the new one, even with a finished marker (kd#54).
+        std::fs::write(&marker, br#"{"data":"done","secrets":"done"}"#).unwrap();
         let sandbox = "io.github.jaylouiz.kan-do.sandbox-3105";
-        assert_eq!(service_for(true, sandbox), sandbox);
-        assert_ne!(service_for(true, sandbox), LEGACY_IDENTIFIER);
-        assert_ne!(service_for(true, sandbox), SERVICE);
-        assert_eq!(service_for(false, "io.github.jaylouiz.kan-do.other"), "io.github.jaylouiz.kan-do.other");
+        assert_eq!(service_for(true, sandbox, config.path()), sandbox);
+        assert_ne!(service_for(true, sandbox, config.path()), LEGACY_IDENTIFIER);
+        assert_ne!(service_for(true, sandbox, config.path()), SERVICE);
+        assert_eq!(service_for(false, "io.github.jaylouiz.kan-do.other", config.path()), "io.github.jaylouiz.kan-do.other");
     }
 
     #[test]
