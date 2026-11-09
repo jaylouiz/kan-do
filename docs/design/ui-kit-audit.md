@@ -10,7 +10,7 @@ Audit of what the UI kit consists of: every component, variant and state, librar
 
 ## Summary
 
-- **105 components** under `components/` (24 Layout/blocks, 31 Darstellung, 21 Eingabe, 15 Overlay, 6 Navigation, 4 Feedback, 4 Aktion). 4 are dead (styleguide-only). 33 Nuxt UI components are used in templates (32 once `/styleguide` goes).
+- **105 components** under `components/` (24 Layout/blocks, 31 Darstellung, 21 Eingabe, 15 Overlay, 6 Navigation, 4 Feedback, 4 Aktion). 4 are dead (styleguide-only). 33 Nuxt UI components are used in templates (31 once `/styleguide` and its orphans go: `UContainer`, `UProgress`).
 - **32 raw `<button>` elements in 18 files** (the issue counted 18 files; same files). 13 move onto `UButton` or `UTabs`, 7 merge into one list-row or choice-chip primitive, 12 are kept with a reason.
 - **Biggest duplication families:** back/forward (5 implementations), icon notation (`i-ph-*` in 61 files, `ph:*` in 9), external-link icon (2), list rows (about 10 hand-built), notices (plain coloured lines 28 against `UAlert` 9), choice chips (4 hand-built looks).
 - **Hard-coded values:** 20 colour literals outside the token definitions, 133 motion literals, 73 spacing literals, 54 z-index literals; table in "Hard-coded values".
@@ -19,115 +19,115 @@ Audit of what the UI kit consists of: every component, variant and state, librar
 
 ## Component table
 
-105 rows, one per `components/**/*.vue`, sorted by folder. `variant or state` lists the props of the component that are a string union or a boolean (`–` = none), `library / custom / mixed` compares Nuxt UI tags, raw buttons and literals in the file, `usage` is the number of non-test files that render or import it. Re-measure with the commands in "Dead code".
+105 rows, one per `components/**/*.vue`, sorted by folder. `variant or state` lists the props of the component that are a string union or a boolean (`–` = none), `library / custom / mixed` compares Nuxt UI tags, raw buttons (`<button` tags in the source: a `v-for` renders several) and literals in the file, `usage` is the number of non-test files that render or import it. Re-measure with the commands in "Dead code".
 
 | Component | Kind | Category | Variant or state (props) | Location | Library / custom / hard-coded | Usage | Decision | Sub-issue |
 |---|---|---|---|---|---|---|---|---|
-| `CommandPalette` | compound | Navigation | – | `components/CommandPalette.vue` (108 l) | library, 6 U* | 1 | keep: UCommandPalette in a UModal, the one keyboard entry (⌘K) | #73 |
-| `AddTaskSlot` | block | Layout | showButton, hidden, inCard | `components/board/AddTaskSlot.vue` (363 l) | mixed, 1 U*, 1 raw button, 11 literals | 2 | keep: board slot; its raw `add-task-button` has its own row below | #77 |
-| `Board` | block | Layout | – | `components/board/Board.vue` (516 l) | library, 3 U* | 2 | keep: drag-and-drop risk area, no split here (U16); page-step arrows are the back/forward family (see Duplicates) | #73 |
-| `BoardColumn` | block | Layout | – | `components/board/BoardColumn.vue` (612 l) | custom, 6 literals | 2 | keep: drag-and-drop risk area | #77 |
-| `BoardColumnHeader` | block | Layout | isEmpty | `components/board/BoardColumnHeader.vue` (84 l) | custom, 8 literals | 1 | keep: part of the column | #77 |
-| `BoardColumnItem` | block | Layout | staticMode | `components/board/BoardColumnItem.vue` (100 l) | custom | 1 | keep: part of the column | #77 |
-| `BoardColumnProgressContent` | block | Layout | isDragging | `components/board/BoardColumnProgressContent.vue` (202 l) | custom, 2 literals | 1 | keep: column progress readout | #77 |
-| `BoardColumnYesterdayNote` | block | Layout | – | `components/board/BoardColumnYesterdayNote.vue` (326 l) | mixed, 2 U*, 3 raw button, 20 literals | 1 | keep: 3 raw buttons (rows below); hand-built disclosure note | #71 |
-| `BoardPageDots` | component | Navigation | live | `components/board/BoardPageDots.vue` (87 l) | custom, 5 literals | 1 | keep: mobile page indicator, no library equivalent | #73 |
-| `ColumnDropZone` | block | Layout | isEmpty | `components/board/ColumnDropZone.vue` (124 l) | custom, 1 literals | 2 | keep: drag-and-drop risk area | #77 |
-| `ColumnSortingControl` | compound | Aktion | visible | `components/board/ColumnSortingControl.vue` (128 l) | library, 2 U*, 1 literals | 1 | keep: UDropdownMenu + UButton, a library composition | #71 |
-| `DayCloseBody` | block | Layout | – | `components/board/DayCloseBody.vue` (130 l) | library, 3 U* | 1 | keep: shared by the dialog and the drawer | #77 |
-| `DayCloseDialog` | block | Overlay | – | `components/board/DayCloseDialog.vue` (162 l) | library, 4 U* | 1 | keep: uses `ResponsiveOverlay` (U12 done) | #75 |
-| `DayCloseTaskRow` | compound | Darstellung | – | `components/board/DayCloseTaskRow.vue` (53 l) | custom | 1 | keep: list row (see Duplicates: list rows) | #76 |
-| `FocusOverlay` | block | Layout | on, leaving, touch, swallowTap | `components/board/FocusOverlay.vue` (113 l) | custom | 1 | keep: Jetzt focus backdrop, board-only | #77 |
-| `NewCardFlow` | block | Eingabe | – | `components/board/NewCardFlow.vue` (1132 l) | mixed, 10 U*, 7 raw button, 36 literals | 1 | keep: 1132 lines, 7 raw buttons, its own `ncf__*` look; each raw button is a row below; do not split here (risk area) | #72 |
-| `NewCardOptionList` | compound | Eingabe | searchable, showMark, large | `components/board/NewCardOptionList.vue` (139 l) | mixed, 2 U*, 2 raw button | 1 | keep: option list with search; 2 raw buttons (rows below) | #72 |
-| `SortableTaskWrapper` | block | Layout | stackPosition: first·middle·last | `components/board/SortableTaskWrapper.vue` (119 l) | custom | 2 | keep: drag-and-drop risk area | #77 |
-| `TaskDraftCard` | block | Layout | – | `components/board/TaskDraftCard.vue` (70 l) | custom, 2 literals | 1 | keep: in-card add draft | #77 |
-| `ElementPickerBar` | compound | Feedback | – | `components/feedback/ElementPickerBar.vue` (82 l) | library, 1 U*, 2 literals | 1 | keep: feedback tooling, UButton only | #74 |
-| `FeedbackAnnotator` | block | Eingabe | – | `components/feedback/FeedbackAnnotator.vue` (161 l) | library, 6 U* | 1 | keep: screenshot annotator; icon tools use UButton | #72 |
-| `FeedbackDialog` | block | Overlay | – | `components/feedback/FeedbackDialog.vue` (330 l) | library, 28 U* | 1 | keep: UModal + form; plain `text-error-700` lines (see Duplicates: notices) | #75 |
-| `FeedbackImage` | component | Darstellung | – | `components/feedback/FeedbackImage.vue` (53 l) | custom | 1 | keep: screenshot preview | #76 |
-| `AppNav` | block | Navigation | – | `components/nav/AppNav.vue` (336 l) | mixed, 4 U*, 1 raw button | 1 | keep: the app bar pill; 1 raw button (`app-nav-more`, row below) | #73 |
-| `MorePanel` | block | Navigation | – | `components/nav/MorePanel.vue` (245 l) | library, 17 U* | 1 | keep: popover panel of the app bar; rows are hand-built (see Duplicates: list rows) | #73 |
-| `NotionSettingsSection` | block | Layout | isSaving, hasChanges, alwaysShowSave | `components/notion/settings/NotionSettingsSection.vue` (91 l) | library, 2 U* | 1 | keep: settings section | #77 |
-| `NotionSetupModal` | block | Overlay | forceSetup | `components/notion/setup/NotionSetupModal.vue` (268 l) | library, 4 U*, 2 literals | 2 | keep: UModal wizard shell | #75 |
-| `PropertyMapper` | block | Eingabe | – | `components/notion/setup/mapping/PropertyMapper.vue` (965 l) | library, 28 U* | 2 | keep: 965 lines, 16 `size="lg"` selects; revisit the size ladder | #72 |
-| `WizardController` | block | Layout | broken, animate | `components/notion/setup/wizard/WizardController.vue` (830 l) | custom | 2 | keep: wizard state, no own look | #77 |
-| `CustomPropertiesStep` | block | Eingabe | – | `components/notion/setup/wizard/steps/CustomPropertiesStep.vue` (211 l) | library, 3 U*, 2 literals | 2 | keep: wizard step | #72 |
-| `DatabaseSelectionStep` | block | Eingabe | loading | `components/notion/setup/wizard/steps/DatabaseSelectionStep.vue` (206 l) | library, 4 U* | 1 | keep: wizard step; two-line empty state (see Duplicates: empty states) | #74 |
-| `MappingStep` | block | Layout | – | `components/notion/setup/wizard/steps/MappingStep.vue` (55 l) | custom | 1 | keep: wizard step host | #77 |
-| `PriorityMappingStep` | block | Eingabe | – | `components/notion/setup/wizard/steps/PriorityMappingStep.vue` (233 l) | library, 3 U* | 2 | keep: wizard step; UAlert already (U10 done) | #72 |
-| `StatusMappingStep` | block | Eingabe | – | `components/notion/setup/wizard/steps/StatusMappingStep.vue` (289 l) | library, 11 U* | 2 | keep: wizard step; UAlert already (U10 done) | #72 |
-| `TokenStep` | block | Eingabe | – | `components/notion/setup/wizard/steps/TokenStep.vue` (163 l) | library, 3 U* | 1 | keep: wizard step | #72 |
-| `NewDayRecap` | block | Layout | – | `components/recap/NewDayRecap.vue` (182 l) | mixed, 2 U*, 1 raw button | 1 | keep: recap shell; the kind switch is a raw segmented control (row below) | #77 |
-| `RecapDeck` | block | Darstellung | kind: done·undone, hideHeading | `components/recap/RecapDeck.vue` (241 l) | mixed, 2 U*, 9 literals | 1 | keep: swipe deck; caret-left/right buttons are the back/forward family | #73 |
-| `DataBackupList` | block | Darstellung | – | `components/settings/DataBackupList.vue` (174 l) | library, 5 U* | 1 | keep: list rows plus a plain `text-warning-700` line | #76 |
-| `DataConflictCopies` | block | Darstellung | – | `components/settings/DataConflictCopies.vue` (95 l) | library, 2 U* | 1 | keep: list rows plus a plain error line | #76 |
-| `DataConflictModal` | block | Overlay | – | `components/settings/DataConflictModal.vue` (166 l) | library, 5 U* | 1 | keep: UModal; plain error line | #75 |
-| `DataExportImport` | block | Layout | – | `components/settings/DataExportImport.vue` (98 l) | library, 2 U* | 1 | keep: settings section; plain status lines | #77 |
-| `DataFolderChangeModal` | block | Overlay | – | `components/settings/DataFolderChangeModal.vue` (194 l) | library, 5 U* | 1 | keep: UModal + URadioGroup | #75 |
-| `DataRestoreModal` | block | Overlay | – | `components/settings/DataRestoreModal.vue` (136 l) | library, 4 U* | 1 | keep: UModal | #75 |
-| `DataStorageNotice` | compound | Feedback | showDetails | `components/settings/DataStorageNotice.vue` (120 l) | library, 1 U* | 3 | keep: the system notice: UAlert subtle | #74 |
-| `DisconnectSourceDialog` | block | Overlay | – | `components/settings/DisconnectSourceDialog.vue` (174 l) | library, 6 U* | 1 | keep: UModal + 2 UAlert | #75 |
-| `GithubTokenRow` | compound | Eingabe | – | `components/settings/GithubTokenRow.vue` (223 l) | library, 11 U* | 1 | keep: token field row; `arrow-up-right` external link (see Duplicates) | #67 |
-| `SettingsSubpageLink` | compound | Navigation | – | `components/settings/SettingsSubpageLink.vue` (43 l) | library, 2 U* | 2 | keep: link row to a sub-page (list row family) | #73 |
-| `SourceRow` | compound | Darstellung | – | `components/settings/SourceRow.vue` (116 l) | library, 6 U* | 1 | keep: the canonical list row (audit-2026-11) | #76 |
-| `LocalSetupFlow` | block | Layout | – | `components/setup/LocalSetupFlow.vue` (94 l) | mixed, 3 U*, 1 raw button, 1 literals | 1 | keep: imports reka-ui directly; raw back button (row below) | #73 |
-| `NotionSetupFlow` | block | Layout | – | `components/setup/NotionSetupFlow.vue` (188 l) | mixed, 3 U*, 1 raw button, 1 literals | 1 | keep: raw back button (row below) | #73 |
-| `SetupRail` | compound | Navigation | – | `components/setup/SetupRail.vue` (97 l) | library, 1 U*, 3 literals | 1 | keep: stepper rail | #73 |
-| `StatsEstimateRing` | component | Darstellung | – | `components/statistics/StatsEstimateRing.vue` (49 l) | custom | 1 | keep: SVG chart, custom | #76 |
-| `StatsOutliers` | compound | Darstellung | – | `components/statistics/StatsOutliers.vue` (42 l) | mixed, 1 raw button | 1 | keep: 1 raw row button (row below) | #76 |
-| `StatsPatterns` | compound | Darstellung | – | `components/statistics/StatsPatterns.vue` (75 l) | library, 1 U* | 1 | keep: chart tile content | #76 |
-| `StatsRhythmBars` | component | Darstellung | ghost | `components/statistics/StatsRhythmBars.vue` (55 l) | custom | 1 | keep: SVG chart, custom | #76 |
-| `StatsRhythmGrid` | component | Darstellung | – | `components/statistics/StatsRhythmGrid.vue` (77 l) | custom | 1 | keep: SVG chart, custom | #76 |
-| `StatsRing` | component | Darstellung | – | `components/statistics/StatsRing.vue` (82 l) | custom | 3 | keep: SVG ring, 3 users | #76 |
-| `StatsTile` | compound | Darstellung | open, tone: default·elevated, toggleable, wide | `components/statistics/StatsTile.vue` (82 l) | mixed, 1 U*, 2 raw button | 1 | keep: disclosure tile; the raw toggle sits inside an `<h2>` (row below) | #76 |
-| `StatsTiles` | block | Darstellung | – | `components/statistics/StatsTiles.vue` (249 l) | library, 1 U* | 1 | keep: tile group with UTabs | #76 |
-| `StatsTimeSplit` | component | Darstellung | by: topic·activity, mode: chart·rows, stacked | `components/statistics/StatsTimeSplit.vue` (81 l) | custom | 1 | keep: SVG chart, custom | #76 |
-| `StatsTrendBars` | component | Darstellung | – | `components/statistics/StatsTrendBars.vue` (46 l) | custom | 1 | keep: SVG chart, custom | #76 |
-| `StatsVerdict` | block | Darstellung | – | `components/statistics/StatsVerdict.vue` (84 l) | custom | 1 | keep: verdict surface | #76 |
-| `StatsWeekTable` | component | Darstellung | – | `components/statistics/StatsWeekTable.vue` (47 l) | custom | 1 | keep: small table with hairlines; UTable is not used here, see `TasksTable` | #76 |
-| `TasksTable` | compound | Darstellung | showCompletedDate | `components/statistics/TasksTable.vue` (190 l) | library, 1 U*, 1 literals | 1 | keep: the only UTable | #76 |
-| `SyncWarningModal` | block | Overlay | open | `components/sync/SyncWarningModal.vue` (147 l) | library, 6 U* | 2 | keep: UModal + 3 UAlert | #75 |
-| `AddTargetSwitch` | compound | Eingabe | – | `components/task/AddTargetSwitch.vue` (56 l) | custom | 1 | keep: add target switch (#321) | #72 |
-| `DatePickerField` | compound | Eingabe | disabled | `components/task/DatePickerField.vue` (118 l) | mixed, 4 U*, 1 raw button, 1 literals | 1 | keep: UPopover + UCalendar; the trigger is a raw button (row below) | #72 |
-| `TaskCard` | block | Darstellung | muted, preview, draft, readonly | `components/task/TaskCard.vue` (670 l) | mixed, 4 U*, 31 literals | 9 | keep: UCard `variant="task"`; 670 lines, 26 hard-coded literals, motion heavy; drag-and-drop risk area | #69 |
-| `TaskCardContextMenu` | compound | Overlay | – | `components/task/TaskCardContextMenu.vue` (334 l) | library, 5 U* | 2 | keep: UContextMenu | #75 |
-| `TaskCarryOverDots` | component | Darstellung | decorative | `components/task/TaskCarryOverDots.vue` (106 l) | mixed, 1 U*, 6 literals | 4 | keep: 4 users | #76 |
-| `TaskCarryOverTriage` | compound | Aktion | compact | `components/task/TaskCarryOverTriage.vue` (114 l) | library, 3 U* | 2 | keep: 3 UButtons (U3 done) | #71 |
-| `TaskCompletionBurst` | component | Feedback | – | `components/task/TaskCompletionBurst.vue` (160 l) | custom, 4 literals | 1 | keep: celebration animation | #74 |
-| `TaskDeletedGap` | block | Feedback | – | `components/task/TaskDeletedGap.vue` (238 l) | mixed, 2 U*, 20 literals | 2 | keep: undo pill with its own motion (17 literals) | #70 |
-| `TaskDetailContent` | block | Layout | isPreview, startSmaller | `components/task/TaskDetailContent.vue` (751 l) | mixed, 2 U*, 1 raw button | 3 | keep: sheet content; 1 raw button (row below) | #77 |
-| `TaskDetailCustomFields` | compound | Eingabe | – | `components/task/TaskDetailCustomFields.vue` (225 l) | library, 2 U* | 1 | keep: custom field editors | #72 |
-| `TaskDetailMetadata` | compound | Darstellung | pinned | `components/task/TaskDetailMetadata.vue` (65 l) | library, 3 U*, 1 literals | 1 | keep: UCollapsible | #76 |
-| `TaskDetailModal` | compound | Overlay | modelValue | `components/task/TaskDetailModal.vue` (75 l) | library, 1 U*, 1 literals | 2 | keep: modal twin of the sheet, used from `/statistics` only (U7, a layout decision, stays open) | #75 |
-| `TaskDetailNotes` | compound | Eingabe | – | `components/task/TaskDetailNotes.vue` (91 l) | library, 1 U* | 1 | keep: notes textarea | #72 |
-| `TaskForm` | block | Eingabe | autoFocus, isUnplanned, isPreview | `components/task/TaskForm.vue` (823 l) | mixed, 10 U*, 2 raw button | 2 | keep: 823 lines, 2 raw buttons (rows below) | #72 |
-| `TaskPriorityBadge` | component | Darstellung | size: xs·sm·md·lg·xl | `components/task/TaskPriorityBadge.vue` (89 l) | library, 2 U* | 3 | keep: UBadge + UTooltip | #76 |
-| `TaskProgressBar` | component | Darstellung | – | `components/task/TaskProgressBar.vue` (218 l) | mixed, 2 U*, 4 literals | 1 | replace: dead: only `pages/styleguide.vue` uses it; `TaskProgressChip` is the live one; delete with `/styleguide` | #86 |
-| `TaskProgressChip` | component | Darstellung | isNow | `components/task/TaskProgressChip.vue` (313 l) | mixed, 1 U*, 20 literals | 1 | keep: live progress readout | #76 |
-| `TaskPropertyRow` | compound | Eingabe | private | `components/task/TaskPropertyRow.vue` (45 l) | custom | 3 | keep: label + value row of the sheet (form structure) | #72 |
-| `TaskPropertySelect` | compound | Eingabe | multiple, searchAutofocus, createItem, disabled, side: top·bottom, align: start·center·end | `components/task/TaskPropertySelect.vue` (153 l) | library, 2 U* | 5 | keep: USelectMenu `property` variant (app.config) | #72 |
-| `TaskSheet` | block | Overlay | open, hideTitle, flushBody | `components/task/TaskSheet.vue` (191 l) | custom | 2 | keep: uses `ResponsiveOverlay` | #75 |
-| `TaskSourceIcon` | primitive | Darstellung | – | `components/task/TaskSourceIcon.vue` (39 l) | library, 1 U* | 1 | keep: source glyph | #76 |
-| `TaskStack` | block | Layout | muted, preview | `components/task/TaskStack.vue` (358 l) | custom, 3 literals | 2 | keep: drag-and-drop risk area | #77 |
-| `TaskStackHeader` | block | Layout | – | `components/task/TaskStackHeader.vue` (134 l) | custom, 3 literals | 1 | keep: drag-and-drop risk area | #77 |
-| `TaskStackPill` | compound | Darstellung | – | `components/task/TaskStackPill.vue` (142 l) | custom, 10 literals | 2 | keep: domain chip | #76 |
-| `TaskTimebox` | component | Darstellung | – | `components/task/TaskTimebox.vue` (54 l) | library, 1 U* | 1 | replace: dead: only `pages/styleguide.vue` uses it; delete with `/styleguide` | #86 |
-| `TaskTimeboxNudge` | block | Eingabe | – | `components/task/TaskTimeboxNudge.vue` (516 l) | mixed, 2 U*, 3 raw button, 24 literals | 1 | keep: 516 lines, 3 raw buttons (rows below) with its own `nudge__*` look | #72 |
-| `TaskTimer` | component | Darstellung | – | `components/task/TaskTimer.vue` (107 l) | library, 1 U* | 1 | replace: dead: only `pages/styleguide.vue` uses it; delete with `/styleguide` | #86 |
-| `TopicPropertyPicker` | compound | Eingabe | kind: topic·activity, createItem, editable | `components/task/TopicPropertyPicker.vue` (185 l) | mixed, 3 U*, 1 raw button | 1 | keep: picker with one raw row button (row below) | #72 |
-| `TopicEditor` | compound | Eingabe | – | `components/topic/TopicEditor.vue` (355 l) | mixed, 7 U*, 3 raw button, 4 literals | 1 | keep: swatch and symbol radio groups are raw buttons (rows below) | #72 |
-| `TopicEditorHost` | compound | Overlay | – | `components/topic/TopicEditorHost.vue` (58 l) | library, 1 U* | 2 | keep: UDrawer host | #75 |
-| `TopicMark` | primitive | Darstellung | task: Pick<Task,source·topic·topicColorCode>·n | `components/topic/TopicMark.vue` (77 l) | library, 1 U* | 9 | keep: topic glyph, 9 users | #76 |
-| `TrashEntryRow` | compound | Darstellung | forever | `components/trash/TrashEntryRow.vue` (155 l) | mixed, 4 U*, 5 literals | 1 | keep: list row (canonical with `SourceRow`) | #76 |
-| `ExpandingButton` | component | Aktion | – | `components/ui/ExpandingButton.vue` (113 l) | library, 2 U*, 1 literals | 1 | replace: dead: only `pages/styleguide.vue` uses it; delete with `/styleguide` | #86 |
-| `ExternalLink` | compound | Aktion | – | `components/ui/ExternalLink.vue` (49 l) | custom | 3 | keep: the one external-link anchor; icon notation decided in #67 | #67 |
-| `PageHeader` | compound | Layout | narrow | `components/ui/PageHeader.vue` (50 l) | custom | 1 | keep: sticky page header (U1 done) | #77 |
-| `ResponsiveOverlay` | compound | Overlay | open, desktop: modal·slideover, closeButton | `components/ui/ResponsiveOverlay.vue` (173 l) | library, 3 U* | 3 | keep: modal on desktop, drawer on phone (U12 done) | #75 |
-| `SectionHeader` | compound | Layout | tag: div·h1·h2·h3·h4·h5·h6 | `components/ui/SectionHeader.vue` (52 l) | library, 1 U* | 5 | keep: 5 users; the `section-heading` utility covers the page-level heading | #77 |
-| `InlineEditable` | compound | Eingabe | showEditIcon, multiline, affordance: fill·rule, interactiveDisplay, required | `components/ui/inline/InlineEditable.vue` (320 l) | library, 2 U*, 1 literals | 4 | keep: inline edit; UInput inside | #72 |
-| `UpdateDialog` | block | Overlay | – | `components/updates/UpdateDialog.vue` (135 l) | library, 4 U* | 1 | keep: UModal | #75 |
-| `WhatsNewDialog` | block | Overlay | – | `components/updates/WhatsNewDialog.vue` (63 l) | library, 2 U* | 1 | keep: UModal | #75 |
+| `CommandPalette` | compound | Navigation | – | `components/CommandPalette.vue` (107 l) | library, 6 U* | 1 | keep: UCommandPalette in a UModal, the one keyboard entry (⌘K) | #73 |
+| `AddTaskSlot` | block | Layout | showButton, hidden, inCard | `components/board/AddTaskSlot.vue` (362 l) | mixed, 1 U*, 1 raw button, 11 literals | 2 | keep: board slot; its raw `add-task-button` has its own row below | #77 |
+| `Board` | block | Layout | – | `components/board/Board.vue` (515 l) | library, 3 U* | 2 | keep: drag-and-drop risk area, no split here (U16); page-step arrows are the back/forward family (see Duplicates) | #73 |
+| `BoardColumn` | block | Layout | – | `components/board/BoardColumn.vue` (611 l) | custom, 6 literals | 2 | keep: drag-and-drop risk area | #77 |
+| `BoardColumnHeader` | block | Layout | isEmpty | `components/board/BoardColumnHeader.vue` (83 l) | custom, 8 literals | 1 | keep: part of the column | #77 |
+| `BoardColumnItem` | block | Layout | staticMode | `components/board/BoardColumnItem.vue` (99 l) | custom | 1 | keep: part of the column | #77 |
+| `BoardColumnProgressContent` | block | Layout | isDragging | `components/board/BoardColumnProgressContent.vue` (201 l) | custom, 2 literals | 1 | keep: column progress readout | #77 |
+| `BoardColumnYesterdayNote` | block | Layout | – | `components/board/BoardColumnYesterdayNote.vue` (325 l) | mixed, 2 U*, 3 raw button, 20 literals | 1 | keep: 3 raw buttons (rows below); hand-built disclosure note | #71 |
+| `BoardPageDots` | component | Navigation | live | `components/board/BoardPageDots.vue` (86 l) | custom, 5 literals | 1 | keep: mobile page indicator, no library equivalent | #73 |
+| `ColumnDropZone` | block | Layout | isEmpty | `components/board/ColumnDropZone.vue` (123 l) | custom, 1 literals | 2 | keep: drag-and-drop risk area | #77 |
+| `ColumnSortingControl` | compound | Aktion | visible | `components/board/ColumnSortingControl.vue` (127 l) | library, 2 U*, 1 literals | 1 | keep: UDropdownMenu + UButton, a library composition | #71 |
+| `DayCloseBody` | block | Layout | – | `components/board/DayCloseBody.vue` (129 l) | library, 3 U* | 1 | keep: shared by the dialog and the drawer | #77 |
+| `DayCloseDialog` | block | Overlay | – | `components/board/DayCloseDialog.vue` (161 l) | library, 4 U* | 1 | keep: uses `ResponsiveOverlay` (U12 done) | #75 |
+| `DayCloseTaskRow` | compound | Darstellung | – | `components/board/DayCloseTaskRow.vue` (52 l) | custom | 1 | keep: list row (see Duplicates: list rows) | #76 |
+| `FocusOverlay` | block | Layout | on, leaving, touch, swallowTap | `components/board/FocusOverlay.vue` (112 l) | custom | 1 | keep: Jetzt focus backdrop, board-only | #77 |
+| `NewCardFlow` | block | Eingabe | – | `components/board/NewCardFlow.vue` (1131 l) | mixed, 10 U*, 7 raw button, 36 literals | 1 | keep: 1132 lines, 7 raw buttons, its own `ncf__*` look; each raw button is a row below; do not split here (risk area) | #72 |
+| `NewCardOptionList` | compound | Eingabe | searchable, showMark, large | `components/board/NewCardOptionList.vue` (138 l) | mixed, 2 U*, 2 raw button | 1 | keep: option list with search; 2 raw buttons (rows below) | #72 |
+| `SortableTaskWrapper` | block | Layout | stackPosition: first·middle·last | `components/board/SortableTaskWrapper.vue` (118 l) | custom | 2 | keep: drag-and-drop risk area | #77 |
+| `TaskDraftCard` | block | Layout | – | `components/board/TaskDraftCard.vue` (69 l) | custom, 2 literals | 1 | keep: in-card add draft | #77 |
+| `ElementPickerBar` | compound | Feedback | – | `components/feedback/ElementPickerBar.vue` (81 l) | library, 1 U*, 2 literals | 1 | keep: feedback tooling, UButton only | #74 |
+| `FeedbackAnnotator` | block | Eingabe | – | `components/feedback/FeedbackAnnotator.vue` (160 l) | library, 6 U* | 1 | keep: screenshot annotator; icon tools use UButton | #72 |
+| `FeedbackDialog` | block | Overlay | – | `components/feedback/FeedbackDialog.vue` (329 l) | library, 28 U* | 1 | keep: UModal + form; plain `text-error-700` lines (see Duplicates: notices) | #75 |
+| `FeedbackImage` | component | Darstellung | – | `components/feedback/FeedbackImage.vue` (52 l) | custom | 1 | keep: screenshot preview | #76 |
+| `AppNav` | block | Navigation | – | `components/nav/AppNav.vue` (335 l) | mixed, 4 U*, 1 raw button | 1 | keep: the app bar pill; 1 raw button (`app-nav-more`, row below) | #73 |
+| `MorePanel` | block | Navigation | – | `components/nav/MorePanel.vue` (244 l) | library, 17 U* | 1 | keep: popover panel of the app bar; rows are hand-built (see Duplicates: list rows) | #73 |
+| `NotionSettingsSection` | block | Layout | isSaving, hasChanges, alwaysShowSave | `components/notion/settings/NotionSettingsSection.vue` (90 l) | library, 2 U* | 1 | keep: settings section | #77 |
+| `NotionSetupModal` | block | Overlay | forceSetup | `components/notion/setup/NotionSetupModal.vue` (267 l) | library, 4 U*, 2 literals | 2 | keep: UModal wizard shell | #75 |
+| `PropertyMapper` | block | Eingabe | – | `components/notion/setup/mapping/PropertyMapper.vue` (964 l) | library, 28 U* | 2 | keep: 965 lines, 16 `size="lg"` selects; revisit the size ladder | #72 |
+| `WizardController` | block | Layout | broken, animate | `components/notion/setup/wizard/WizardController.vue` (829 l) | custom | 2 | keep: wizard state, no own look | #77 |
+| `CustomPropertiesStep` | block | Eingabe | – | `components/notion/setup/wizard/steps/CustomPropertiesStep.vue` (210 l) | library, 3 U*, 2 literals | 2 | keep: wizard step | #72 |
+| `DatabaseSelectionStep` | block | Eingabe | loading | `components/notion/setup/wizard/steps/DatabaseSelectionStep.vue` (205 l) | library, 4 U* | 1 | keep: wizard step; two-line empty state (see Duplicates: empty states) | #74 |
+| `MappingStep` | block | Layout | – | `components/notion/setup/wizard/steps/MappingStep.vue` (54 l) | custom | 1 | keep: wizard step host | #77 |
+| `PriorityMappingStep` | block | Eingabe | – | `components/notion/setup/wizard/steps/PriorityMappingStep.vue` (232 l) | library, 3 U* | 2 | keep: wizard step; UAlert already (U10 done) | #72 |
+| `StatusMappingStep` | block | Eingabe | – | `components/notion/setup/wizard/steps/StatusMappingStep.vue` (288 l) | library, 11 U* | 2 | keep: wizard step; UAlert already (U10 done) | #72 |
+| `TokenStep` | block | Eingabe | – | `components/notion/setup/wizard/steps/TokenStep.vue` (162 l) | library, 3 U* | 1 | keep: wizard step | #72 |
+| `NewDayRecap` | block | Layout | – | `components/recap/NewDayRecap.vue` (181 l) | mixed, 2 U*, 1 raw button | 1 | keep: recap shell; the kind switch is a raw segmented control (row below) | #77 |
+| `RecapDeck` | block | Darstellung | kind: done·undone, hideHeading | `components/recap/RecapDeck.vue` (240 l) | mixed, 2 U*, 9 literals | 1 | keep: swipe deck; caret-left/right buttons are the back/forward family | #73 |
+| `DataBackupList` | block | Darstellung | – | `components/settings/DataBackupList.vue` (173 l) | library, 5 U* | 1 | keep: list rows plus a plain `text-warning-700` line | #76 |
+| `DataConflictCopies` | block | Darstellung | – | `components/settings/DataConflictCopies.vue` (94 l) | library, 2 U* | 1 | keep: list rows plus a plain error line | #76 |
+| `DataConflictModal` | block | Overlay | – | `components/settings/DataConflictModal.vue` (165 l) | library, 5 U* | 1 | keep: UModal; plain error line | #75 |
+| `DataExportImport` | block | Layout | – | `components/settings/DataExportImport.vue` (97 l) | library, 2 U* | 1 | keep: settings section; plain status lines | #77 |
+| `DataFolderChangeModal` | block | Overlay | – | `components/settings/DataFolderChangeModal.vue` (193 l) | library, 5 U* | 1 | keep: UModal + URadioGroup | #75 |
+| `DataRestoreModal` | block | Overlay | – | `components/settings/DataRestoreModal.vue` (135 l) | library, 4 U* | 1 | keep: UModal | #75 |
+| `DataStorageNotice` | compound | Feedback | showDetails | `components/settings/DataStorageNotice.vue` (119 l) | library, 1 U* | 3 | keep: the system notice: UAlert subtle | #74 |
+| `DisconnectSourceDialog` | block | Overlay | – | `components/settings/DisconnectSourceDialog.vue` (173 l) | library, 6 U* | 1 | keep: UModal + 2 UAlert | #75 |
+| `GithubTokenRow` | compound | Eingabe | – | `components/settings/GithubTokenRow.vue` (222 l) | library, 11 U* | 1 | keep: token field row; `arrow-up-right` external link (see Duplicates) | #67 |
+| `SettingsSubpageLink` | compound | Navigation | – | `components/settings/SettingsSubpageLink.vue` (42 l) | library, 2 U* | 2 | keep: link row to a sub-page (list row family) | #73 |
+| `SourceRow` | compound | Darstellung | – | `components/settings/SourceRow.vue` (115 l) | library, 6 U* | 1 | keep: the canonical list row (audit-2026-11) | #76 |
+| `LocalSetupFlow` | block | Layout | – | `components/setup/LocalSetupFlow.vue` (93 l) | mixed, 3 U*, 1 raw button, 1 literals | 1 | keep: imports reka-ui directly; raw back button (row below) | #73 |
+| `NotionSetupFlow` | block | Layout | – | `components/setup/NotionSetupFlow.vue` (187 l) | mixed, 3 U*, 1 raw button, 1 literals | 1 | keep: raw back button (row below) | #73 |
+| `SetupRail` | compound | Navigation | – | `components/setup/SetupRail.vue` (96 l) | library, 1 U*, 3 literals | 1 | keep: stepper rail | #73 |
+| `StatsEstimateRing` | component | Darstellung | – | `components/statistics/StatsEstimateRing.vue` (48 l) | custom | 1 | keep: SVG chart, custom | #76 |
+| `StatsOutliers` | compound | Darstellung | – | `components/statistics/StatsOutliers.vue` (41 l) | mixed, 1 raw button | 1 | keep: 1 raw row button (row below) | #76 |
+| `StatsPatterns` | compound | Darstellung | – | `components/statistics/StatsPatterns.vue` (74 l) | library, 1 U* | 1 | keep: chart tile content | #76 |
+| `StatsRhythmBars` | component | Darstellung | ghost | `components/statistics/StatsRhythmBars.vue` (54 l) | custom | 1 | keep: SVG chart, custom | #76 |
+| `StatsRhythmGrid` | component | Darstellung | – | `components/statistics/StatsRhythmGrid.vue` (76 l) | custom | 1 | keep: SVG chart, custom | #76 |
+| `StatsRing` | component | Darstellung | – | `components/statistics/StatsRing.vue` (81 l) | custom | 3 | keep: SVG ring, 3 users | #76 |
+| `StatsTile` | compound | Darstellung | open, tone: default·elevated, toggleable, wide | `components/statistics/StatsTile.vue` (81 l) | mixed, 1 U*, 2 raw button | 1 | keep: disclosure tile; the raw toggle sits inside an `<h2>` (row below) | #76 |
+| `StatsTiles` | block | Darstellung | – | `components/statistics/StatsTiles.vue` (248 l) | library, 1 U* | 1 | keep: tile group with UTabs | #76 |
+| `StatsTimeSplit` | component | Darstellung | by: topic·activity, mode: chart·rows, stacked | `components/statistics/StatsTimeSplit.vue` (80 l) | custom | 1 | keep: SVG chart, custom | #76 |
+| `StatsTrendBars` | component | Darstellung | – | `components/statistics/StatsTrendBars.vue` (45 l) | custom | 1 | keep: SVG chart, custom | #76 |
+| `StatsVerdict` | block | Darstellung | – | `components/statistics/StatsVerdict.vue` (83 l) | custom | 1 | keep: verdict surface | #76 |
+| `StatsWeekTable` | component | Darstellung | – | `components/statistics/StatsWeekTable.vue` (46 l) | custom | 1 | keep: small table with hairlines; UTable is not used here, see `TasksTable` | #76 |
+| `TasksTable` | compound | Darstellung | showCompletedDate | `components/statistics/TasksTable.vue` (189 l) | library, 1 U*, 1 literals | 1 | keep: the only UTable | #76 |
+| `SyncWarningModal` | block | Overlay | open | `components/sync/SyncWarningModal.vue` (146 l) | library, 6 U* | 2 | keep: UModal + 3 UAlert | #75 |
+| `AddTargetSwitch` | compound | Eingabe | – | `components/task/AddTargetSwitch.vue` (55 l) | custom | 1 | keep: add target switch (#321) | #72 |
+| `DatePickerField` | compound | Eingabe | disabled | `components/task/DatePickerField.vue` (117 l) | mixed, 4 U*, 1 raw button, 1 literals | 1 | keep: UPopover + UCalendar; the trigger is a raw button (row below) | #72 |
+| `TaskCard` | block | Darstellung | muted, preview, draft, readonly | `components/task/TaskCard.vue` (669 l) | mixed, 4 U*, 31 literals | 9 | keep: UCard `variant="task"`; 670 lines, 26 hard-coded literals, motion heavy; drag-and-drop risk area | #69 |
+| `TaskCardContextMenu` | compound | Overlay | – | `components/task/TaskCardContextMenu.vue` (333 l) | library, 5 U* | 2 | keep: UContextMenu | #75 |
+| `TaskCarryOverDots` | component | Darstellung | decorative | `components/task/TaskCarryOverDots.vue` (105 l) | mixed, 1 U*, 6 literals | 4 | keep: 4 users | #76 |
+| `TaskCarryOverTriage` | compound | Aktion | compact | `components/task/TaskCarryOverTriage.vue` (113 l) | library, 3 U* | 2 | keep: 3 UButtons (U3 done) | #71 |
+| `TaskCompletionBurst` | component | Feedback | – | `components/task/TaskCompletionBurst.vue` (159 l) | custom, 4 literals | 1 | keep: celebration animation | #74 |
+| `TaskDeletedGap` | block | Feedback | – | `components/task/TaskDeletedGap.vue` (237 l) | mixed, 2 U*, 20 literals | 2 | keep: undo pill with its own motion (17 literals) | #70 |
+| `TaskDetailContent` | block | Layout | isPreview, startSmaller | `components/task/TaskDetailContent.vue` (750 l) | mixed, 2 U*, 1 raw button | 3 | keep: sheet content; 1 raw button (row below) | #77 |
+| `TaskDetailCustomFields` | compound | Eingabe | – | `components/task/TaskDetailCustomFields.vue` (224 l) | library, 2 U* | 1 | keep: custom field editors | #72 |
+| `TaskDetailMetadata` | compound | Darstellung | pinned | `components/task/TaskDetailMetadata.vue` (64 l) | library, 3 U*, 1 literals | 1 | keep: UCollapsible | #76 |
+| `TaskDetailModal` | compound | Overlay | modelValue | `components/task/TaskDetailModal.vue` (74 l) | library, 1 U*, 1 literals | 2 | keep: modal twin of the sheet, used from `/statistics` only (U7, a layout decision, stays open) | #75 |
+| `TaskDetailNotes` | compound | Eingabe | – | `components/task/TaskDetailNotes.vue` (90 l) | library, 1 U* | 1 | keep: notes textarea | #72 |
+| `TaskForm` | block | Eingabe | autoFocus, isUnplanned, isPreview | `components/task/TaskForm.vue` (822 l) | mixed, 10 U*, 2 raw button | 2 | keep: 823 lines, 2 raw buttons (rows below) | #72 |
+| `TaskPriorityBadge` | component | Darstellung | size: xs·sm·md·lg·xl | `components/task/TaskPriorityBadge.vue` (88 l) | library, 2 U* | 3 | keep: UBadge + UTooltip | #76 |
+| `TaskProgressBar` | component | Darstellung | – | `components/task/TaskProgressBar.vue` (217 l) | mixed, 2 U*, 4 literals | 1 | replace: dead: only `pages/styleguide.vue` uses it; `TaskProgressChip` is the live one; delete with `/styleguide` | #86 |
+| `TaskProgressChip` | component | Darstellung | isNow | `components/task/TaskProgressChip.vue` (312 l) | mixed, 1 U*, 20 literals | 1 | keep: live progress readout | #76 |
+| `TaskPropertyRow` | compound | Eingabe | private | `components/task/TaskPropertyRow.vue` (44 l) | custom | 3 | keep: label + value row of the sheet (form structure) | #72 |
+| `TaskPropertySelect` | compound | Eingabe | multiple, searchAutofocus, createItem, disabled, side: top·bottom, align: start·center·end | `components/task/TaskPropertySelect.vue` (152 l) | library, 2 U* | 5 | keep: USelectMenu `property` variant (app.config) | #72 |
+| `TaskSheet` | block | Overlay | open, hideTitle, flushBody | `components/task/TaskSheet.vue` (190 l) | custom | 2 | keep: uses `ResponsiveOverlay` | #75 |
+| `TaskSourceIcon` | primitive | Darstellung | – | `components/task/TaskSourceIcon.vue` (38 l) | library, 1 U* | 1 | keep: source glyph | #76 |
+| `TaskStack` | block | Layout | muted, preview | `components/task/TaskStack.vue` (357 l) | custom, 3 literals | 2 | keep: drag-and-drop risk area | #77 |
+| `TaskStackHeader` | block | Layout | – | `components/task/TaskStackHeader.vue` (133 l) | custom, 3 literals | 1 | keep: drag-and-drop risk area | #77 |
+| `TaskStackPill` | compound | Darstellung | – | `components/task/TaskStackPill.vue` (141 l) | custom, 10 literals | 2 | keep: domain chip | #76 |
+| `TaskTimebox` | component | Darstellung | – | `components/task/TaskTimebox.vue` (53 l) | library, 1 U* | 1 | replace: dead: only `pages/styleguide.vue` uses it; delete with `/styleguide` | #86 |
+| `TaskTimeboxNudge` | block | Eingabe | – | `components/task/TaskTimeboxNudge.vue` (515 l) | mixed, 2 U*, 3 raw button, 24 literals | 1 | keep: 516 lines, 3 raw buttons (rows below) with its own `nudge__*` look | #72 |
+| `TaskTimer` | component | Darstellung | – | `components/task/TaskTimer.vue` (106 l) | library, 1 U* | 1 | replace: dead: only `pages/styleguide.vue` uses it; delete with `/styleguide` | #86 |
+| `TopicPropertyPicker` | compound | Eingabe | kind: topic·activity, createItem, editable | `components/task/TopicPropertyPicker.vue` (184 l) | mixed, 3 U*, 1 raw button | 1 | keep: picker with one raw row button (row below) | #72 |
+| `TopicEditor` | compound | Eingabe | – | `components/topic/TopicEditor.vue` (354 l) | mixed, 7 U*, 3 raw button, 4 literals | 1 | keep: swatch and symbol radio groups are raw buttons (rows below) | #72 |
+| `TopicEditorHost` | compound | Overlay | – | `components/topic/TopicEditorHost.vue` (57 l) | library, 1 U* | 2 | keep: UDrawer host | #75 |
+| `TopicMark` | primitive | Darstellung | task: Pick<Task,source·topic·topicColorCode>·n | `components/topic/TopicMark.vue` (76 l) | library, 1 U* | 9 | keep: topic glyph, 9 users | #76 |
+| `TrashEntryRow` | compound | Darstellung | forever | `components/trash/TrashEntryRow.vue` (154 l) | mixed, 4 U*, 5 literals | 1 | keep: list row (canonical with `SourceRow`) | #76 |
+| `ExpandingButton` | component | Aktion | – | `components/ui/ExpandingButton.vue` (112 l) | library, 2 U*, 1 literals | 1 | replace: dead: only `pages/styleguide.vue` uses it; delete with `/styleguide` | #86 |
+| `ExternalLink` | compound | Aktion | – | `components/ui/ExternalLink.vue` (48 l) | custom | 3 | keep: the one external-link anchor; icon notation decided in #67 | #67 |
+| `PageHeader` | compound | Layout | narrow | `components/ui/PageHeader.vue` (49 l) | custom | 1 | keep: sticky page header (U1 done) | #77 |
+| `ResponsiveOverlay` | compound | Overlay | open, desktop: modal·slideover, closeButton | `components/ui/ResponsiveOverlay.vue` (172 l) | library, 3 U* | 3 | keep: modal on desktop, drawer on phone (U12 done) | #75 |
+| `SectionHeader` | compound | Layout | tag: div·h1·h2·h3·h4·h5·h6 | `components/ui/SectionHeader.vue` (51 l) | library, 1 U* | 5 | keep: 5 users; the `section-heading` utility covers the page-level heading | #77 |
+| `InlineEditable` | compound | Eingabe | showEditIcon, multiline, affordance: fill·rule, interactiveDisplay, required | `components/ui/inline/InlineEditable.vue` (319 l) | library, 2 U*, 1 literals | 4 | keep: inline edit; UInput inside | #72 |
+| `UpdateDialog` | block | Overlay | – | `components/updates/UpdateDialog.vue` (134 l) | library, 4 U* | 1 | keep: UModal | #75 |
+| `WhatsNewDialog` | block | Overlay | – | `components/updates/WhatsNewDialog.vue` (62 l) | library, 2 U* | 1 | keep: UModal | #75 |
 
 ## Nuxt UI components in use
 
@@ -157,7 +157,7 @@ Audit of what the UI kit consists of: every component, variant and state, librar
 | `UContainer` | primitive | Layout | – | `pages/styleguide.vue` | library; theme override: no; `:ui` on 0 tags | 2 tags in 1 files | replace: styleguide-only; gone with `/styleguide`, no replacement needed | #86 |
 | `UDropdownMenu` | compound | Aktion | no variant props set | `components/board/ColumnSortingControl.vue`, `components/task/TaskDetailContent.vue` | library; theme override: yes; `:ui` on 1 tags | 2 tags in 2 files | keep | #71 |
 | `ULink` | primitive | Aktion | no variant props set | `components/feedback/FeedbackDialog.vue` | library; theme override: no; `:ui` on 0 tags | 2 tags in 1 files | keep: wrapped by `ExternalLink` for external links | #71 |
-| `UProgress` | primitive | Feedback | color: dynamic ×1; size: 2xl ×1 | `components/task/TaskProgressBar.vue` | library; theme override: no; `:ui` on 1 tags | 2 tags in 1 files | keep | #74 |
+| `UProgress` | primitive | Feedback | color: dynamic ×1; size: 2xl ×1 | `components/task/TaskProgressBar.vue` | library; theme override: no; `:ui` on 1 tags | 2 tags in 1 files | keep until #86, then unused: its only app user is the dead `TaskProgressBar`; left out of `/ui` (the epic leaves unused components out) unless #74 finds a use | #86 |
 | `UApp` | primitive | Layout | no variant props set | `app.vue` | library; theme override: no; `:ui` on 0 tags | 1 tags in 1 files | keep: required Nuxt UI provider (toasts, tooltips, overlays) | #77 |
 | `UCalendar` | compound | Eingabe | no variant props set | `components/task/DatePickerField.vue` | library; theme override: no; `:ui` on 0 tags | 1 tags in 1 files | keep: one use (`DatePickerField`) | #72 |
 | `UChip` | primitive | Darstellung | color: error ×1; size: lg ×1 | `components/nav/AppNav.vue` | library; theme override: no; `:ui` on 1 tags | 1 tags in 1 files | keep: one use (the app bar problem dot) | #73 |
