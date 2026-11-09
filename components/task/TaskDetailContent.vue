@@ -293,6 +293,7 @@
 
 <script setup lang="ts">
 import { ICONS } from '~/lib/icons'
+import { openExternal } from '~/utils/openExternal';
 import { toRef, computed, ref, watch, nextTick, useId, onMounted } from 'vue';
 import { useOverlayIsDesktop } from '~/composables/useIsDesktop';
 import { useTaskDetail, formatTaskDuration, applyCustomValue } from '~/composables/useTaskDetail';
@@ -719,7 +720,7 @@ const utilityMenuItems = computed(() => {
     items.push({
       label: t('task.detail.openIn', { source: taskSource.value }),
       icon: ICONS.external,
-      onSelect: () => window.open(sourceUrl.value!, '_blank')
+      onSelect: () => { void openExternal(sourceUrl.value!); }
     });
   }
 

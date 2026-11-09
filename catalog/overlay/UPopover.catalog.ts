@@ -12,7 +12,7 @@ export default {
   alternatives: ['UTooltip', 'UModal'],
   theme: 'popover',
   variants: [
-    { id: 'trigger', label: 'trigger (closed)', props: {}, slot: { $t: 'common.save' }, trigger: true },
+    { id: 'trigger', label: 'trigger (closed)', props: {}, slot: { $t: 'common.settings' }, trigger: true },
   ],
   states: [],
 } satisfies CatalogEntry

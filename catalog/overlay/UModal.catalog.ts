@@ -13,7 +13,7 @@ export default {
   theme: 'modal',
   // Opened, an overlay covers the page, so the sample is the closed trigger (a button); the open look is the app blocks' and the fingerprint specs' (overlay-scrim, overlay-elevation, modal-style).
   variants: [
-    { id: 'trigger', label: 'trigger (closed)', props: { title: { $t: 'common.close' } }, slot: { $t: 'common.save' }, trigger: true },
+    { id: 'trigger', label: 'trigger (closed)', props: { title: { $t: 'common.settings' } }, slot: { $t: 'common.settings' }, trigger: true },
   ],
   states: [],
 } satisfies CatalogEntry

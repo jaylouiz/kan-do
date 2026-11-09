@@ -12,8 +12,8 @@ export default {
   alternatives: ['UPopover'],
   theme: 'tooltip',
   variants: [
-    { id: 'text', label: 'with text', props: { text: { $t: 'common.close' } }, slot: { $t: 'common.save' }, trigger: true },
-    { id: 'kbds', label: 'with shortcut', props: { text: { $t: 'common.close' }, kbds: ['esc'] }, slot: { $t: 'common.save' }, trigger: true },
+    { id: 'text', label: 'with text', props: { text: { $t: 'common.settings' } }, slot: { $t: 'common.settings' }, trigger: true },
+    { id: 'kbds', label: 'with shortcut', props: { text: { $t: 'common.settings' }, kbds: ['meta', ','] }, slot: { $t: 'common.settings' }, trigger: true },
   ],
   states: [],
 } satisfies CatalogEntry

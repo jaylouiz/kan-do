@@ -210,6 +210,18 @@ test.describe('Yesterday note', () => {
     }
   })
 
+  test('title rows reach the 44px touch floor at 390 (#71)', async ({ page, context }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await seedLocalBoard(context, board(3))
+    await page.goto('/tasks')
+    await showColumnPage(page, 2)
+    await openNote(page)
+    const heights = await note(page).locator('.yesterday-note__title').evaluateAll((els) =>
+      els.map((el) => el.getBoundingClientRect().height))
+    expect(heights).toHaveLength(3)
+    for (const h of heights) expect(h).toBeGreaterThanOrEqual(44)
+  })
+
   test('the note does not resize while dragging', async ({ page, context }) => {
     await seedLocalBoard(context, board(4))
     await page.goto('/tasks')

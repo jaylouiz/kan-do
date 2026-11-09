@@ -10,5 +10,6 @@ export default {
   component: 'DataStorageNotice',
   source: 'app',
   alternatives: ['UAlert'],
+  sampleNote: 'renders only from the live data-folder status (a desktop state); its look is the UAlert actions-and-close state',
   states: [],
 } satisfies CatalogEntry

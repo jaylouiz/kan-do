@@ -4,7 +4,7 @@ import type { CatalogEntry } from '../types'
 export default {
   component: 'TaskCardContextMenu',
   source: 'app',
-  alternatives: ['UContextMenu'],
+  alternatives: ['UContextMenu', 'UDropdownMenu'],
   sampleNote: 'opens on right-click or long-press of a task card, so it has no inline sample (it wraps TaskCard and the board actions).',
   states: [],
 } satisfies CatalogEntry
