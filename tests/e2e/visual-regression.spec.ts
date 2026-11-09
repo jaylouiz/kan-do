@@ -8,6 +8,13 @@
  * (rest + ghost), WIP-limit column (occupied + drag-over), drag overlay, focus states.
  * `settle()` waits for fonts + rendered icon SVGs so baselines never capture half-loaded icons.
  *
+ * Core flows (#63, the diff basis for the UI kit refactor of epic #58), each at 1280 and 390, light: the guided new card
+ * (title, a question, the Mehr list, saving), the day-close dialog and drawer, the new-day recap, /statistics (verdict and
+ * one open tile), /trash (filled, empty), the Mehr panel, /settings and /settings/topics, the Notion setup wizard
+ * (first and mapping step) and LocalSetupFlow on /welcome, the task sheet's add form, and the toast and UAlert notice
+ * styles. Day-sensitive flows pin the page clock to `FIXED_NOW` and seed relative to it. These are macOS pixels; the
+ * platform-independent CI coverage of the same surfaces is the `/ui` style fingerprint (epic #58, decision D3).
+ *
  * Updating baselines (intentional UI change): `PORT=<free port> npm run test:e2e -- tests/e2e/visual-regression.spec.ts --update-snapshots` (a PORT that serves nothing: `reuseExistingServer` would otherwise record from a dev server on :3000)
  * and commit the updated PNGs in tests/e2e/snapshots/. The run is against the production build (#540, #541; production
  * is what ships), so never pass a `BASE_URL` that points at `nuxt dev`.
@@ -16,15 +23,21 @@
  * by that glyph offset. Box geometry is identical in both modes. The gate and `npm run release` use the build only.
  */
 
-import { test, expect, type Locator, type Page } from '@playwright/test'
+import { test, expect, type BrowserContext, type Locator, type Page, type Route } from '@playwright/test'
 import { showColumnPage } from './helpers/dnd'
-import { moreButton, openMore } from './helpers/appNav'
+import { moreButton, openDayClose, openMore } from './helpers/appNav'
+import { installClock, pinnedNow } from './helpers/clock'
+import { emitDataStatus, installTauriStub } from './helpers/tauriStub'
 import {
+  seedDayRecapStore,
   seedLocalBoard,
   seedMixedBoard,
+  seedTrash,
+  trashTask,
   WORST_CASE_FOOTER_CARRY_OVER,
   WORST_CASE_FOOTER_ID,
   WORST_CASE_FOOTER_TASKS,
+  type SeedCarryOver,
   type SeedTask,
 } from './helpers/seed'
 
@@ -703,3 +716,426 @@ test.describe('focus overlay on (#394)', () => {
     await expect(page).toHaveScreenshot('settings-page.png', { animations: 'disabled' })
   })
 })
+
+// ---------------------------------------------------------------------------
+// Core flows before the UI kit refactor (#63). Each shot: 1280 and 390, light, deterministic.
+// Day-sensitive flows run on the page clock pinned to PINNED (it keeps ticking, timers fire) and are seeded
+// relative to it, never to the Node clock, so the pixels do not depend on the day the suite runs.
+// ---------------------------------------------------------------------------
+
+const CORE_VIEWPORTS = [
+  { size: '1280', viewport: { width: 1280, height: 900 } },
+  { size: '390', viewport: { width: 390, height: 844 } },
+] as const
+
+/** The pinned instant: local noon of the shared test day (`helpers/clock.ts`, #449), so day buckets hold in every time zone. */
+const PINNED = pinnedNow()
+const PINNED_ISO = PINNED.toISOString()
+
+/** Starts the page clock at `PINNED` and keeps it ticking; call before the seed and before `goto`. */
+const pinClockToFixedNow = (context: BrowserContext) => installClock(context, { pinned: true })
+
+/** Local time on the calendar day `daysAgo` before PINNED. */
+const localAt = (daysAgo: number, hour: number, minute = 0) =>
+  new Date(PINNED.getFullYear(), PINNED.getMonth(), PINNED.getDate() - daysAgo, hour, minute).toISOString()
+
+/** `YYYY-MM-DD` (local) of the day `daysAgo` before PINNED_ISO, the format of the stores' day keys. */
+const dayKeyAgo = (daysAgo: number) => {
+  const d = new Date(PINNED.getFullYear(), PINNED.getMonth(), PINNED.getDate() - daysAgo)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+const carriedFor = (days: number): SeedCarryOver => ({ firstOn: dayKeyAgo(days), days, lastOn: dayKeyAgo(0), keptAtDays: null })
+
+const coreTask = (task: Pick<SeedTask, 'id' | 'title' | 'status'> & Partial<SeedTask>): SeedTask => ({
+  priority: 3,
+  activity: null,
+  topic: null,
+  topicColorCode: null,
+  timeSpentSeconds: 0,
+  timeBoxSeconds: null,
+  custom: {},
+  createdAt: localAt(1, 10),
+  updatedAt: PINNED_ISO,
+  ...task,
+})
+
+// --- Guided new card (#649, kd#16) ----------------------------------------
+
+/** More than three topics and activities, so the Mehr cell has a list behind the three pills (kd#16). */
+const NEW_CARD_SEED: SeedTask[] = [
+  ...SEED,
+  ...['Marketing:Recherche', 'Büro:Abstimmung', 'Vertrieb:Telefonat', 'Finanzen:Auswertung'].map((pair, index) => {
+    const [topic, activity] = pair.split(':')
+    return coreTask({ id: `vr-rich-${index}`, title: `Reich ${index}`, status: 2, topic, activity })
+  }),
+]
+
+for (const { size, viewport } of CORE_VIEWPORTS) {
+  test.describe(`new card (${size})`, () => {
+    test.use({ viewport })
+
+    const openCard = async (page: Page) => {
+      await page.goto('/tasks')
+      await expect(page.locator('#column-open .task-wrapper').first()).toBeVisible()
+      await page.locator('#column-open .add-task-button').click()
+      await expect(page.getByTestId('new-card-title')).toBeFocused()
+    }
+    const toQuestion = async (page: Page) => {
+      await page.getByTestId('new-card-title').fill('Angebot schreiben')
+      await page.keyboard.press('Enter')
+      await expect(page.getByTestId('new-card-options')).toBeVisible()
+    }
+    const shot = async (page: Page, name: string) => {
+      await page.mouse.move(0, 0)
+      await settle(page)
+      await expect(page.locator('#column-open')).toHaveScreenshot(name, { animations: 'disabled' })
+    }
+
+    test.beforeEach(async ({ context }) => {
+      await seedLocalBoard(context, NEW_CARD_SEED)
+    })
+
+    test('title step', async ({ page }) => {
+      await openCard(page)
+      await page.getByTestId('new-card-title').fill('Angebot schreiben')
+      await shot(page, `new-card-title-${size}.png`)
+    })
+
+    test('one question step', async ({ page }) => {
+      await openCard(page)
+      await toQuestion(page)
+      await shot(page, `new-card-question-${size}.png`)
+    })
+
+    test('Mehr list', async ({ page }) => {
+      await openCard(page)
+      await toQuestion(page)
+      await page.getByTestId('new-card-more').click()
+      await expect(page.getByTestId('new-card-more-list')).toBeVisible()
+      await expect(page.getByTestId('new-card-search')).toBeFocused()
+      await shot(page, `new-card-more-${size}.png`)
+    })
+
+    test('saving', async ({ context, page }) => {
+      // A Notion default source: the card rests in `is-saving` while the create call is held
+      await seedMixedBoard(context, MIXED_VR_TASKS)
+      const held: Route[] = []
+      // Only create-task is held; every other Notion call is refused so the stub never swaps the seeded rows (#364)
+      await page.route('**/api/notion/**', (route) => route.abort('connectionrefused'))
+      await page.route('**/api/notion/create-task', (route) => { held.push(route) })
+      await openCard(page)
+      await toQuestion(page)
+      // Cmd/Ctrl+Enter saves from any step
+      await page.keyboard.press('ControlOrMeta+Enter')
+      await expect(page.getByTestId('new-card-flow')).toHaveClass(/is-saving/)
+      await expect.poll(() => held.length).toBe(1)
+      await shot(page, `new-card-saving-${size}.png`)
+      await page.unroute('**/api/notion/create-task', { behavior: 'ignoreErrors' })
+      await page.unroute('**/api/notion/**', { behavior: 'ignoreErrors' })
+    })
+  })
+}
+
+// --- Day close (#98): dialog at 1280, drawer at 390 -------------------------
+
+/** Done today at `h` hours before PINNED_ISO, so the day-close summary has a stable order and times. */
+const doneHoursAgo = (h: number) => new Date(PINNED.getTime() - h * 3_600_000).toISOString()
+
+const DAY_CLOSE_SEED: SeedTask[] = [
+  coreTask({ id: 'dc-done-1', title: 'Angebot an Kunden schicken', status: 3, priority: 2, activity: 'Planung', timeSpentSeconds: 4500, timeBoxSeconds: 3600, completedAt: doneHoursAgo(1) }),
+  coreTask({ id: 'dc-done-2', title: 'Steuerunterlagen sortieren', status: 3, timeSpentSeconds: 2700, completedAt: doneHoursAgo(2) }),
+  coreTask({ id: 'dc-done-3', title: 'Kurze Rückfrage beantwortet (ohne erfasste Zeit)', status: 3, completedAt: doneHoursAgo(3) }),
+  coreTask({ id: 'dc-done-4', title: 'Sehr langer Aufgabentitel, der in der Zusammenfassung sauber umbrechen muss, ohne die Zeile zu sprengen oder die Zeit zu verdrängen', status: 3, timeSpentSeconds: 1200, completedAt: doneHoursAgo(4) }),
+  coreTask({ id: 'dc-done-old', title: 'Gestern erledigt', status: 3, timeSpentSeconds: 900, completedAt: localAt(1, 15) }),
+  coreTask({ id: 'dc-progress-1', title: 'Präsentation vorbereiten', status: 1, priority: 1, activity: 'Entwicklung', topic: 'Backend', topicColorCode: '#10b981', timeSpentSeconds: 1800, timeBoxSeconds: 3600 }),
+  coreTask({ id: 'dc-open-stale', title: 'Steuerberater anrufen', status: 0, priority: 2 }),
+  coreTask({ id: 'dc-open-oldest', title: 'Altes Thema endlich klären', status: 0 }),
+  coreTask({ id: 'dc-open-fresh', title: 'Neue Idee notieren', status: 0, createdAt: PINNED_ISO }),
+  coreTask({ id: 'dc-waiting-stale', title: 'Rückmeldung vom Vermieter', status: 2, priority: 2 }),
+]
+
+for (const { size, viewport } of CORE_VIEWPORTS) {
+  test(`day close: ${size === '1280' ? 'dialog' : 'drawer'} (${size})`, async ({ context, page }) => {
+    await page.setViewportSize(viewport)
+    await pinClockToFixedNow(context)
+    await seedLocalBoard(context, DAY_CLOSE_SEED, {
+      'dc-open-stale': carriedFor(5),
+      'dc-open-oldest': carriedFor(9),
+      'dc-waiting-stale': carriedFor(6),
+    })
+    await page.goto('/tasks')
+    await expect(page.locator('#column-done-list .task-wrapper').first()).toBeVisible()
+    await openDayClose(page)
+    const dialog = page.getByRole('dialog', { name: 'Tag abschließen' })
+    await expect(dialog).toBeVisible()
+    await expect(dialog.getByTestId('day-close-in-flight-row').first()).toBeVisible()
+    await page.mouse.move(0, 0)
+    await settle(page)
+    await expect(page).toHaveScreenshot(`day-close-${size}.png`, { animations: 'disabled' })
+  })
+}
+
+// --- New-day recap (#385) ---------------------------------------------------
+
+const RECAP_SEED: SeedTask[] = [
+  coreTask({ id: 'nd-done-1', title: 'Angebot an Kunden schicken', status: 3, priority: 2, activity: 'Planung', timeSpentSeconds: 4500, timeBoxSeconds: 3600, completedAt: localAt(1, 11, 15) }),
+  coreTask({ id: 'nd-done-2', title: 'Kurze Rückfrage beantwortet', status: 3, completedAt: localAt(1, 13) }),
+  coreTask({ id: 'nd-done-3', title: 'Steuerunterlagen sortieren', status: 3, timeSpentSeconds: 2700, completedAt: localAt(1, 14, 30) }),
+  coreTask({ id: 'nd-done-4', title: 'Retrospektive nachbereiten', status: 3, activity: 'Planung', timeSpentSeconds: 3600, timeBoxSeconds: 3600, completedAt: localAt(1, 15, 45) }),
+  coreTask({ id: 'nd-open-1', title: 'Konzept ausarbeiten', status: 0, priority: 2, activity: 'Planung', topic: 'Design', topicColorCode: '#6366f1', timeBoxSeconds: 2700 }),
+  coreTask({ id: 'nd-waiting-1', title: 'Rückmeldung vom Vermieter', status: 2, priority: 2 }),
+]
+
+for (const { size, viewport } of CORE_VIEWPORTS) {
+  test(`new-day recap: ${size === '1280' ? 'modal' : 'drawer'} (${size})`, async ({ context, page }) => {
+    await page.setViewportSize(viewport)
+    await pinClockToFixedNow(context)
+    await seedLocalBoard(context, RECAP_SEED, { 'nd-open-1': carriedFor(2), 'nd-waiting-1': carriedFor(3) }, undefined, { once: true })
+    await seedDayRecapStore(context, { lastShownDay: dayKeyAgo(2), once: true })
+    await page.goto('/tasks')
+    const recap = page.getByTestId('new-day-recap')
+    await expect(recap).toBeVisible()
+    await expect(page.getByTestId('recap-summary')).toHaveText('Du hast gestern 4 von 6 Aufgaben erledigt.')
+    await expect(page.getByTestId('recap-continue')).toBeFocused()
+    await page.mouse.move(0, 0)
+    await settle(page)
+    await expect(page).toHaveScreenshot(`new-day-recap-${size}.png`, { animations: 'disabled' })
+  })
+}
+
+// --- Statistics (#469, #600): verdict and one open tile ---------------------
+
+/** Completion records, 20 baseline tasks over four weeks (half over the timebox) and four recent ones, dated in the browser (pinned clock). */
+async function seedStatistics(context: BrowserContext) {
+  await context.addInitScript(() => {
+    const day = (ago: number, minute: number) => {
+      const now = new Date()
+      return new Date(now.getFullYear(), now.getMonth(), now.getDate() - ago, 10, minute).toISOString()
+    }
+    const record = (index: number, ago: number, accuracy: number, topic: string) => ({
+      taskId: `vr-rec-${index}`,
+      title: `Aufgabe ${index}`,
+      completedAt: day(ago, index % 50),
+      timeBoxSeconds: 1800,
+      actualTimeSpentSeconds: Math.round(18 * accuracy),
+      estimationAccuracy: accuracy,
+      topic,
+      topicColorCode: null,
+      activity: 'Büro',
+      isUnplanned: false,
+    })
+    const baseline = Array.from({ length: 20 }, (_, i) => record(i, i === 0 ? 34 : 8 + (i % 26), i % 2 ? 150 : 100, i % 2 ? 'Büro' : 'Feld'))
+    const current = Array.from({ length: 4 }, (_, i) => record(20 + i, i, 100, 'Büro'))
+    localStorage.setItem('taskStatistics', JSON.stringify({ completionRecords: [...baseline, ...current] }))
+  })
+}
+
+for (const { size, viewport } of CORE_VIEWPORTS) {
+  test(`statistics: verdict and one open tile (${size})`, async ({ context, page }) => {
+    await page.setViewportSize(viewport)
+    await pinClockToFixedNow(context)
+    await seedLocalBoard(context, SEED)
+    await seedStatistics(context)
+    await page.goto('/statistics')
+    await expect(page.getByTestId('stats-verdict')).toBeVisible()
+    await page.getByTestId('stats-tile-2-toggle').click()
+    await expect(page.getByTestId('stats-tile-2-toggle')).toHaveAttribute('aria-expanded', 'true')
+    await page.mouse.move(0, 0)
+    await settle(page)
+    await expect(page).toHaveScreenshot(`statistics-${size}.png`, {
+      animations: 'disabled',
+      fullPage: true,
+      // The floating app bar lands at a different height in a full-page capture from run to run (301 px at 390)
+      mask: [page.getByTestId('app-nav')],
+    })
+  })
+}
+
+// --- Trash (#422): filled, empty --------------------------------------------
+
+for (const { size, viewport } of CORE_VIEWPORTS) {
+  test.describe(`trash (${size})`, () => {
+    test.use({ viewport })
+
+    test('filled: Heute, Gestern, Früher', async ({ context, page }) => {
+      await pinClockToFixedNow(context)
+      await seedLocalBoard(context, SEED)
+      await seedTrash(context, [
+        { task: trashTask('vr-trash-1', 'Angebot überarbeiten', 0), deletedAt: PINNED.getTime() - 210_000 },
+        { task: trashTask('vr-trash-2', 'Alte Notiz', 2), deletedAt: PINNED.getTime() - 5 * 3_600_000 },
+        { task: trashTask('vr-trash-3', 'Doppelter Eintrag', 3), deletedAt: new Date(localAt(1, 16)).getTime() },
+        { task: trashTask('vr-trash-4', 'Idee verworfen', 0), deletedAt: new Date(localAt(9, 9)).getTime() },
+      ])
+      await page.goto('/trash')
+      await expect(page.getByTestId('trash-page')).toBeVisible()
+      await expect(page.getByTestId('trash-empty')).toBeVisible()
+      await page.mouse.move(0, 0)
+      await settle(page)
+      await expect(page).toHaveScreenshot(`trash-filled-${size}.png`, { animations: 'disabled' })
+    })
+
+    test('empty', async ({ page }) => {
+      await page.goto('/trash')
+      await expect(page.getByTestId('trash-empty-state')).toBeVisible()
+      await page.mouse.move(0, 0)
+      await settle(page)
+      await expect(page).toHaveScreenshot(`trash-empty-${size}.png`, { animations: 'disabled' })
+    })
+  })
+}
+
+// --- Mehr panel, settings ---------------------------------------------------
+
+for (const { size, viewport } of CORE_VIEWPORTS) {
+  test.describe(`app bar and settings (${size})`, () => {
+    test.use({ viewport })
+
+    test('Mehr panel', async ({ page }) => {
+      await page.goto('/tasks')
+      await expect(page.locator('#column-open')).toBeVisible()
+      await openMore(page)
+      await page.mouse.move(0, 0)
+      await settle(page)
+      await expect(page).toHaveScreenshot(`more-panel-${size}.png`, { animations: 'disabled' })
+    })
+
+    test('/settings', async ({ page }) => {
+      await page.goto('/settings')
+      await expect(page.getByTestId('settings-tabs')).toBeVisible()
+      await expect(page.getByTestId('focus-switch')).toBeVisible()
+      await page.mouse.move(0, 0)
+      await settle(page)
+      await expect(page).toHaveScreenshot(`settings-board-${size}.png`, { animations: 'disabled' })
+    })
+
+    test('/settings/topics', async ({ page }) => {
+      await page.goto('/settings/topics')
+      await expect(page.getByTestId('topics-panel')).toBeVisible()
+      await expect(page.getByTestId('topics-row').first()).toBeVisible()
+      await page.mouse.move(0, 0)
+      await settle(page)
+      await expect(page).toHaveScreenshot(`settings-topics-${size}.png`, { animations: 'disabled' })
+    })
+  })
+}
+
+// --- Setup flows on /welcome: Notion wizard (stub) and LocalSetupFlow -------
+
+for (const { size, viewport } of CORE_VIEWPORTS) {
+  test.describe(`setup flows (${size})`, () => {
+    test.use({ viewport })
+
+    test('Notion wizard: first step', async ({ page }) => {
+      await page.goto('/welcome')
+      await page.getByTestId('welcome-choice-notion').click()
+      await expect(page.getByRole('heading', { name: 'Notion-Token' })).toBeFocused()
+      await page.mouse.move(0, 0)
+      await settle(page)
+      await expect(page).toHaveScreenshot(`notion-wizard-token-${size}.png`, { animations: 'disabled' })
+    })
+
+    test('Notion wizard: a mapping step', async ({ page }) => {
+      await page.goto('/welcome')
+      await page.getByTestId('welcome-choice-notion').click()
+      const flow = page.getByTestId('notion-setup-flow')
+      const proceed = page.getByTestId('wizard-proceed')
+      await flow.getByPlaceholder('Integrationstoken eingeben').fill('notion_test_stub')
+      // Token and database validate against the stub; the properties step enables "Weiter" once the schema is auto-mapped
+      for (let press = 0; press < 2; press++) {
+        const before = await flow.locator('[aria-current="step"]').first().innerText()
+        await expect(proceed).toBeEnabled()
+        await proceed.click()
+        await expect(flow.locator('[aria-current="step"]').first()).not.toHaveText(before, { useInnerText: true })
+      }
+      await expect(proceed).toBeEnabled()
+      await page.mouse.move(0, 0)
+      await settle(page)
+      await expect(page).toHaveScreenshot(`notion-wizard-mapping-${size}.png`, { animations: 'disabled' })
+    })
+
+    test('LocalSetupFlow', async ({ page }) => {
+      await page.goto('/welcome')
+      await page.getByTestId('welcome-choice-local').click()
+      await expect(page.getByTestId('local-confirm')).toBeVisible()
+      await page.mouse.move(0, 0)
+      await settle(page)
+      await expect(page).toHaveScreenshot(`local-setup-${size}.png`, { animations: 'disabled' })
+    })
+  })
+}
+
+// --- Task sheet add form ----------------------------------------------------
+
+for (const { size, viewport } of CORE_VIEWPORTS) {
+  test(`task sheet: add form (${size})`, async ({ page }) => {
+    await page.setViewportSize(viewport)
+    await page.goto('/tasks/add')
+    const sheet = page.getByRole('dialog')
+    await expect(sheet).toBeVisible()
+    await expect(page.getByPlaceholder('Aufgabe benennen…')).toBeFocused()
+    await page.mouse.move(0, 0)
+    await settle(page)
+    await expect(page).toHaveScreenshot(`task-add-form-${size}.png`, { animations: 'disabled' })
+  })
+}
+
+// --- Notice styles: the undo toast and the UAlert of the data notice --------
+
+for (const { size, viewport } of CORE_VIEWPORTS) {
+  test(`toast: undo after completing a card (${size})`, async ({ context, page }) => {
+    await page.setViewportSize(viewport)
+    await pinClockToFixedNow(context)
+    await seedLocalBoard(context, SEED)
+    await page.goto('/tasks')
+    if (size === '390') await showColumnPage(page, 0)
+    // Settle before the action: once the toast shows, the five second window runs and the clock must be paused at once
+    await settle(page)
+    await page.mouse.move(0, 0)
+    await page.locator('.task-wrapper', { hasText: 'Dokumentation lesen' }).first().click({ button: 'right' })
+    await page.getByRole('menuitem', { name: 'Status ändern' }).click()
+    await page.getByRole('menuitem', { name: 'Erledigt', exact: true }).click()
+    // The toast's wrapper slot holds the text and the undo button; its parent is the card
+    const toast = page.locator('[data-slot="wrapper"]').filter({ hasText: 'Rückgängig' }).last().locator('xpath=..')
+    await expect(toast).toBeVisible()
+    await expect(page.getByTestId('completion-burst')).toHaveCount(0)
+    // The undo window is five seconds: freeze the page's timers right away so the toast stays for the comparison, with
+    // a margin far above one round trip. A paused clock stalls the page's rAF, which the element screenshot's
+    // stability check waits on, so shoot the page. The countdown bar at the bottom edge depends on the elapsed time: masked
+    await page.clock.pauseAt(new Date((await page.evaluate(() => Date.now())) + 1000))
+    await expect(page).toHaveScreenshot(`toast-undo-${size}.png`, {
+      animations: 'disabled',
+      mask: [toast.locator('[data-slot="progress"]')],
+    })
+  })
+}
+
+const CONFIG_FOLDER = '/Users/test/Library/Application Support/io.github.jaylouiz.kan-do'
+
+for (const { size, viewport } of CORE_VIEWPORTS) {
+  test.describe(`UAlert: data notice (${size})`, () => {
+    test.use({ viewport })
+
+    for (const [status, label, extra] of [
+      ['missing-file', 'warning', {}],
+      ['write-failed', 'error', { error: 'No space left on device' }],
+    ] as const) {
+      test(`${label}`, async ({ context, page }) => {
+        await installTauriStub(context, {
+          data: {
+            folder: CONFIG_FOLDER,
+            envelope: { schemaVersion: 2, writtenAt: '2026-05-16T09:12:00.000Z', writtenBy: 'other-device', appVersion: '0.1.0', stores: { 'tasks-store': { tasks: [] } } },
+          },
+        })
+        await page.goto('/settings/data')
+        await expect(page.getByRole('heading', { name: 'Datenordner', level: 2 })).toBeVisible()
+        await emitDataStatus(page, { status, ...extra })
+        const notice = page.getByTestId('data-storage-notice')
+        await expect(notice).toBeVisible()
+        await page.mouse.move(0, 0)
+        await settle(page)
+        await expect(notice).toHaveScreenshot(`notice-${label}-${size}.png`, { animations: 'disabled' })
+      })
+    }
+  })
+}
