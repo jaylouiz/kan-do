@@ -443,9 +443,9 @@ function onTimeboxInput(event: Event) {
 const { t } = useI18n();
 
 const priorityItems = computed(() => [
-  { label: getPriorityLabel(1), value: 1, icon: 'ph:flag' },
-  { label: getPriorityLabel(2), value: 2, icon: 'ph:flag' },
-  { label: getPriorityLabel(3), value: 3, icon: 'ph:exclamation-mark' },
+  { label: getPriorityLabel(1), value: 1, icon: 'i-ph-flag' },
+  { label: getPriorityLabel(2), value: 2, icon: 'i-ph-flag' },
+  { label: getPriorityLabel(3), value: 3, icon: 'i-ph-exclamation-mark' },
 ]);
 
 /**

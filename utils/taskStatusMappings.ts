@@ -2,6 +2,7 @@
  * Centralized task status configuration for consistent UI rendering.
  * Single source of truth for status labels, icons, and colors.
  */
+import { ICONS } from '~/lib/icons'
 import { TaskStatus } from '~/types/taskStatus';
 import { translate } from '~/lib/i18n';
 import { normalizePriority } from '~/lib/priority';
@@ -23,27 +24,27 @@ export interface TaskStatusConfig {
 export const TASK_STATUS_CONFIG: Record<TaskStatus, TaskStatusConfig> = {
   [TaskStatus.Open]: {
     labelKey: 'taskStatus.open',
-    icon: 'ph:circle',
+    icon: 'i-ph-circle',
     color: 'neutral',
   },
   [TaskStatus.Progress]: {
     labelKey: 'taskStatus.progress',
-    icon: 'ph:play-circle',
+    icon: 'i-ph-play-circle',
     color: 'info',
   },
   [TaskStatus.Waiting]: {
     labelKey: 'taskStatus.waiting',
-    icon: 'ph:pause-circle',
+    icon: 'i-ph-pause-circle',
     color: 'warning',
   },
   [TaskStatus.Done]: {
     labelKey: 'taskStatus.done',
-    icon: 'ph:check-circle',
+    icon: 'i-ph-check-circle',
     color: 'success',
   },
   [TaskStatus.Backlog]: {
     labelKey: 'taskStatus.backlog',
-    icon: 'ph:archive',
+    icon: ICONS.archive,
     color: 'secondary',
   },
 };

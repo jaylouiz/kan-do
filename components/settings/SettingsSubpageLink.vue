@@ -25,11 +25,12 @@ fill still has room around the text.
       <span data-testid="settings-subpage-link-label">{{ label }}</span>
       <span class="text-sm text-muted">{{ description }}</span>
     </span>
-    <UIcon name="i-ph-arrow-right" class="size-4 shrink-0 text-muted" aria-hidden="true" />
+    <UIcon :name="ICONS.goOn" class="size-4 shrink-0 text-muted" aria-hidden="true" />
   </NuxtLink>
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '~/lib/icons';
 defineOptions({ name: 'SettingsSubpageLink' });
 
 interface Props {

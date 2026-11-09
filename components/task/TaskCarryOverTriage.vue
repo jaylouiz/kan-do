@@ -37,7 +37,7 @@ Standalone so the closing step (#98) can list it under "still open". Renders not
         color="neutral"
         variant="ghost"
         size="sm"
-        icon="ph:push-pin"
+        icon="i-ph-push-pin"
         data-testid="carry-over-keep"
         @click="handleKeep"
       >
@@ -47,7 +47,7 @@ Standalone so the closing step (#98) can list it under "still open". Renders not
         color="neutral"
         variant="ghost"
         size="sm"
-        icon="ph:arrows-in-simple"
+        icon="i-ph-arrows-in-simple"
         data-testid="carry-over-smaller"
         @click="emit('smaller')"
       >
@@ -57,7 +57,7 @@ Standalone so the closing step (#98) can list it under "still open". Renders not
         color="neutral"
         variant="ghost"
         size="sm"
-        icon="ph:trash"
+        :icon="ICONS.delete"
         :ui="{ leadingIcon: 'text-error' }"
         data-testid="carry-over-delete"
         @click="emit('delete')"
@@ -69,6 +69,7 @@ Standalone so the closing step (#98) can list it under "still open". Renders not
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '~/lib/icons'
 import { computed, useId } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useTasksStore } from '~/store/tasks'

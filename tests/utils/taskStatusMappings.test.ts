@@ -33,7 +33,7 @@ describe('TASK_STATUS_CONFIG', () => {
 
   it('Open status has correct values', () => {
     expect(getStatusLabel(TaskStatus.Open)).toBe('Offen')
-    expect(TASK_STATUS_CONFIG[TaskStatus.Open].icon).toBe('ph:circle')
+    expect(TASK_STATUS_CONFIG[TaskStatus.Open].icon).toBe('i-ph-circle')
     expect(TASK_STATUS_CONFIG[TaskStatus.Open].color).toBe('neutral')
   })
 
@@ -68,14 +68,14 @@ describe('getStatusLabel', () => {
 
 describe('getStatusIcon', () => {
   it('returns correct icon for each status', () => {
-    expect(getStatusIcon(TaskStatus.Open)).toBe('ph:circle')
-    expect(getStatusIcon(TaskStatus.Progress)).toBe('ph:play-circle')
-    expect(getStatusIcon(TaskStatus.Waiting)).toBe('ph:pause-circle')
-    expect(getStatusIcon(TaskStatus.Done)).toBe('ph:check-circle')
+    expect(getStatusIcon(TaskStatus.Open)).toBe('i-ph-circle')
+    expect(getStatusIcon(TaskStatus.Progress)).toBe('i-ph-play-circle')
+    expect(getStatusIcon(TaskStatus.Waiting)).toBe('i-ph-pause-circle')
+    expect(getStatusIcon(TaskStatus.Done)).toBe('i-ph-check-circle')
   })
 
   it('falls back to Open icon for unknown status', () => {
-    expect(getStatusIcon(999 as TaskStatus)).toBe('ph:circle')
+    expect(getStatusIcon(999 as TaskStatus)).toBe('i-ph-circle')
   })
 })
 

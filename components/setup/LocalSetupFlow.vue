@@ -20,7 +20,7 @@
       data-testid="setup-back"
       @click="emit('back')"
     >
-      <UIcon name="i-ph-arrow-left" class="size-4" aria-hidden="true" />
+      <UIcon :name="ICONS.back" class="size-4" aria-hidden="true" />
       {{ t('onboarding.flow.backToChoice') }}
     </button>
     <div>
@@ -57,6 +57,7 @@
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '~/lib/icons'
 import { ref, computed } from 'vue';
 import { RadioGroupRoot, RadioGroupItem } from 'reka-ui';
 import { useI18n } from 'vue-i18n';

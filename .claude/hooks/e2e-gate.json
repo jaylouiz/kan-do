@@ -18,6 +18,7 @@
       "assets/**",
       "app.vue",
       "app.config.ts",
+      "lib/icons.ts",
       "i18n/locales/**"
     ],
     "specs": [
@@ -335,6 +336,7 @@
         "package-lock.json",
         "nuxt.config.ts",
         "app.config.ts",
+        "lib/icons.ts",
         "vercel.json"
       ],
       "specs": [
@@ -826,6 +828,7 @@
         "composables/useAppNav.ts",
         "composables/useNavIndicator.ts",
         "lib/navSpring.ts",
+        "lib/icons.ts",
         "composables/useManualSync.ts",
         "assets/css/app-nav.css",
         "layouts/**",

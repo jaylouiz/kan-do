@@ -45,7 +45,7 @@
         >
           {{ t('settings.github.test') }}
         </UButton>
-        <UButton ref="removeButton" variant="ghost" color="neutral" icon="i-ph-trash" :ui="{ leadingIcon: 'text-error' }" @click="onRemove">
+        <UButton ref="removeButton" variant="ghost" color="neutral" :icon="ICONS.delete" :ui="{ leadingIcon: 'text-error' }" @click="onRemove">
           {{ t('settings.github.remove') }}
         </UButton>
       </div>
@@ -85,7 +85,7 @@
           class="inline-flex items-center gap-1 rounded-sm text-sm text-highlighted underline underline-offset-2 focus-ring"
         >
           {{ t('settings.github.probe.changeToken') }}
-          <UIcon name="i-ph-arrow-up-right" class="size-4" aria-hidden="true" />
+          <UIcon :name="ICONS.external" class="size-4" aria-hidden="true" />
         </ExternalLink>
       </div>
     </div>
@@ -103,7 +103,7 @@
         class="inline-flex items-center gap-1 rounded-sm text-sm text-highlighted underline underline-offset-2 focus-ring"
       >
         {{ t('settings.github.createToken') }}
-        <UIcon name="i-ph-arrow-up-right" class="size-4" aria-hidden="true" />
+        <UIcon :name="ICONS.external" class="size-4" aria-hidden="true" />
       </ExternalLink>
       <form class="flex flex-wrap items-start gap-2 sm:flex-nowrap" @submit.prevent="onSave">
         <UFormField
@@ -137,6 +137,7 @@
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '~/lib/icons'
 import { computed, nextTick, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ExternalLink from '~/components/ui/ExternalLink.vue';
