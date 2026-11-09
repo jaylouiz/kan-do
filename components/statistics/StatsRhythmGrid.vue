@@ -1,7 +1,10 @@
 <!--
 @component StatsRhythmGrid
+@kind component
+@category display
 @description Open panel of the work-rhythm tile (#600): a grid of 7 weekday rows (Monday first) x 16 hour columns (6:00 to 22:00) with the average minutes tracked per weekday and hour over the last 8 weeks, in the ink ramp (darkest = most, `bg-muted` = nothing), hour labels every third column and a "weniger ... mehr" legend
 @usage Detail of tile 5 in StatsTiles
+@avoid Only the open work-rhythm panel; the closed summary is StatsRhythmBars.
 @responsibility
 - Colour a cell by its share of the busiest cell (five ramp steps); weekends and days off are empty cells like any other, never marked
 - `role="img"` with an `aria-label` that names the peak window and the longest weekday; the sentence and rows beside it carry the same numbers as text

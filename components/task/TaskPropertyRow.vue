@@ -1,7 +1,10 @@
 <!--
 @component TaskPropertyRow
+@kind primitive
+@category form-structure
 @description One labelled property row of the task sheet: quiet label left, value right
 @usage Detail (TaskDetailContent, TaskDetailCustomFields) and add (TaskForm) share this row, so each property is learned once
+@avoid Only labelled property rows of the task sheet; a section title is SectionHeader.
 @responsibility
 - Fixed label column (Label role, text-muted) so values line up across rows
 - Value slot receives `labelId`, so the value control can be named by its label

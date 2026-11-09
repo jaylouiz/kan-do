@@ -1,11 +1,14 @@
 <!--
 @component TopicEditorHost
+@kind compound
+@category layout
 @description Where the shared TopicEditor appears (#430). At >=768px a muted inline panel under the row it belongs to
 (settings list row, task-sheet property row); below, a bottom drawer. Opened from inside the task sheet's drawer
 (`nested`) it is a second, nested drawer: vaul scales the sheet back and its top edge stays visible above the editor
 ("one thing at a time"); over the settings page it is a plain drawer.
 @usage `<TopicEditorHost :key="name" :topic="name" kind="topic" @close="..." @saved="..." />`; the parent re-keys by the
 name and closes the host on `close` (the editor emits `saved` before `close`)
+@avoid Only places the shared TopicEditor (inline panel or overlay); it holds no form of its own.
 @responsibility
 - Pick inline or drawer from the viewport; inside the task sheet follow the sheet's own frozen variant (#199)
 - Keep the drawer open only while mounted; closing it (overlay, swipe, Escape) emits `close`

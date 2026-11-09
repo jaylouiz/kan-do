@@ -1,7 +1,10 @@
 <!--
 @component NotionSetupModal
+@kind block
+@category overlay
 @description Content component for the Notion setup modal
 @usage Used during initial setup and when reconfiguring Notion integration settings
+@avoid Modal for reconfiguring Notion; first-time setup on the welcome page is NotionSetupFlow.
 @responsibility
 - Manages the Notion setup wizard flow
 - Handles token input and validation

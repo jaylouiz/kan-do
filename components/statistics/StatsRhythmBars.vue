@@ -1,7 +1,10 @@
 <!--
 @component StatsRhythmBars
+@kind component
+@category display
 @description "Wann arbeite ich?" chart (#600): one bar per visible hour (6:00 to 22:00) with the time tracked in it over the last 8 weeks, the 3-hour peak window in the strong ink and the rest one ramp step lighter; or, without data, muted ghost bars
 @usage Summary of the work-rhythm tile in StatsTiles, closed (about 20rem wide at `md+`, full width below)
+@avoid Only the work-rhythm summary; the open panel is StatsRhythmGrid.
 @responsibility
 - Draw the bars from `hours` (seconds per hour, first visible hour first); heights are relative to the busiest hour, an hour without time keeps a hairline
 - `ghost` draws a fixed muted shape for the first-run state and is hidden from assistive tech

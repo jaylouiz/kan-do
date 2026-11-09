@@ -1,8 +1,11 @@
 <!--
 @component ElementPickerBar
+@kind component
+@category overlay
 @description Chrome of the feedback element picker (#227): a hover outline with a name chip around the
 candidate element and a small hint bar at the bottom centre. Exists only while picking; it is not a toolbar.
 @usage Mounted once in pages/tasks.vue next to FeedbackDialog. The picking itself lives in useElementPicker.
+@avoid Chrome of the feedback element picker only; not a general highlight or tooltip.
 @responsibility
 - Outline and chip follow the candidate (`pointer-events: none`, so they never take a pick)
 - The hint bar carries the keys and a cancel button; a live region announces "<Komponente>, <Selektor>"

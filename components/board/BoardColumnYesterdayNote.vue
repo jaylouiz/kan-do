@@ -1,7 +1,10 @@
 <!--
 @component BoardColumnYesterdayNote
+@kind component
+@category display
 @description One-line "Gestern erledigt" note on a soft Done-Teal surface at the top of the Done column
 @usage Rendered by BoardColumn above today's done list while tasks finished before today are not acknowledged
+@avoid Only above the Erledigt list; not for an alert or an error (use a UAlert or the sync popover).
 @responsibility
 - Show an honest day label (yesterday / weekday / recently) and the count on one line; the label button opens the titles in place (aria-expanded, local view state, never persisted)
 - Opened: at most five titles as quiet rows (time spent on the right, hidden at zero) that open the task sheet, then "+ n weitere"

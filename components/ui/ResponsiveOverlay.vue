@@ -1,7 +1,10 @@
 <!--
 @component ResponsiveOverlay
+@kind compound
+@category overlay
 @description The one overlay shell of the app: a centred modal (or a right-hand slideover) from 768px up, a bottom drawer below. The day close dialog and the task sheet are its hosts (#555, U12).
 @usage `<ResponsiveOverlay :open="..." :title="..." @update:open="...">` with `#body` and optionally `#title`, `#description`, `#footer`. `desktop="slideover"` swaps the modal for a side sheet. The per-variant look stays with the host (`desktopUi`, `mobileUi`, `closeButton`); this component owns only the choice and the lifecycle.
+@avoid The one overlay shell; a confirmation without a drawer variant may use a plain UModal.
 @responsibility
 - Picks modal/slideover vs drawer from `useIsDesktop()` and freezes the choice while the overlay is open: swapping shells would remount the hosted content and drop drafts. A resize while open takes effect after the overlay has left
 - Provides the frozen choice to hosted content (`useOverlayIsDesktop()`), and passes it to the `#body` and `#footer` slots as `isDesktop`

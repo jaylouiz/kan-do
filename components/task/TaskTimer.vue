@@ -1,7 +1,10 @@
 <!--
 @component TaskTimer
+@kind primitive
+@category display
 @description Time display component for task timeboxes
-@usage Used inside `TaskCard` to show timebox and remaining time (German UI text)
+@usage Styleguide entry only: the cards show the timebox as TaskProgressChip (#388); German UI text
+@avoid Rendered nowhere in the app today (only the styleguide); cards show the timebox as TaskProgressChip.
 @responsibility
 - Format total/remaining time from seconds
 - Decide compact vs. full string depending on progress

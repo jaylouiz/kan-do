@@ -1,7 +1,10 @@
 <!--
 @component StatsPatterns
+@kind component
+@category display
 @description Q3 detail: the ranked estimate patterns as diverging bars with sample size and a next-timebox line
 @usage Open Q3 tile
+@avoid Only the Q3 detail on the Statistik page.
 @responsibility
 - Show the first four patterns, the rest behind "Alle n Muster anzeigen"
 - Label a pattern by its kind (activity, topic, timebox size, time of day); activity and topic names are user data (`data-private`)

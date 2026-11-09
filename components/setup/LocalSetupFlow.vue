@@ -1,7 +1,10 @@
 <!--
 @component LocalSetupFlow
+@kind block
+@category form-structure
 @description The local setup as page content inside the welcome sheet (#43): pick an empty or a sample board, then confirm
 @usage <LocalSetupFlow @back="flow = null" @complete="onLocalDone" /> inside pages/welcome.vue
+@avoid Only the local setup on the welcome page; Notion is NotionSetupFlow.
 @responsibility
 - Explains that tasks stay on this device and other connections come later
 - Two radio cards (empty board, sample board) on reka-ui's RadioGroup (the primitive under Nuxt UI's URadioGroup, whose card variant cannot carry the icon and the answer-row look): arrow keys select, one Tab stop (roving tabindex) and one "Los geht's" confirmation; nothing happens on the pick alone

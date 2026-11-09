@@ -1,9 +1,12 @@
 <!--
 @component WhatsNewDialog
+@kind block
+@category overlay
 @description "What's new" after a desktop update (#226): one calm dialog with the Highlights of every
 version since the last one seen, newest first. Opened by the "Was ist neu" button of the post-update toast
 (#390) and by the re-open from the palette and /settings/updates.
 @usage <WhatsNewDialog /> once in app.vue (desktop); open it with useWhatsNew()
+@avoid Only after a desktop update; installing one is UpdateDialog.
 @responsibility
 - One section per version: display headline "Version X.Y.Z", then the bullets as plain body text (bold title + sentence)
 - Footer: single primary "Schließen" on every path; Escape, overlay and X are the same close

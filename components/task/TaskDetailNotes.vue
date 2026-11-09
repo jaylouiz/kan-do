@@ -1,7 +1,10 @@
 <!--
 @component TaskDetailNotes
+@kind component
+@category input
 @description Notes section of the task detail: rendered Markdown in read mode, a plain textarea while editing
 @usage Used by TaskDetailContent; inline in the flow, directly after the property rows and time (#386)
+@avoid Only the notes of the task detail; other long text uses a plain textarea.
 @responsibility
 - Read mode renders the notes as sanitized Markdown (utils/renderMarkdown); edit mode stays the textarea
 - Written notes use `interactive-display` so links sit beside the edit trigger, not inside role=button (#208); empty notes have no links and keep the plain trigger. The trigger element is replaced when notes flip empty/written; InlineEditable restores keyboard focus to the new one

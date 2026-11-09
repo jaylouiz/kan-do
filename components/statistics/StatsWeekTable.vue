@@ -1,7 +1,10 @@
 <!--
 @component StatsWeekTable
+@kind component
+@category display
 @description The numbers behind the Q2 bars: one row per 7-day window, newest first (period, tasks, share in the timebox, time spent, tasks still open at day end)
 @usage Detail of the open Q2 tile
+@avoid Only the numbers behind the Q2 bars; for task records use TasksTable.
 @responsibility
 - List every window, a `–` for a missing value
 - Day end (#537): the mean number of tasks still in Offen/Jetzt/Wartet at the last count the app saw on each day of the window,

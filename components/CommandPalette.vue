@@ -1,8 +1,11 @@
 <!--
 @component CommandPalette
+@kind component
+@category keyboard
 @description Cmd/Ctrl+K command palette: board-wide commands plus actions for the card that held
 keyboard focus when the palette opened (issue #101, Direction B).
 @usage Mounted once in pages/tasks.vue; open with Cmd/Ctrl+K. Desktop/keyboard only (no entry point on mobile).
+@avoid Not for pointer navigation (AppNav, MorePanel); desktop and keyboard only, there is no entry point on a phone.
 @responsibility
 - Render UCommandPalette inside UModal; Esc closes and focus returns to the card
 - Show the shortcut hints of the commands (`kbds`) and the palette's own keys in the footer

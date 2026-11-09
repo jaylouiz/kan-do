@@ -1,9 +1,12 @@
 <!--
 @component UpdateDialog
+@kind block
+@category overlay
 @description Confirmation dialog for installing a found update (#225, ADR 009). Names the new and the
 current version, says that data is backed up first and the app restarts, and installs only on
 "Installieren und neu starten". While it downloads or installs it cannot be closed.
 @usage <UpdateDialog /> once in app.vue; open it with useAppUpdater().openDialog()
+@avoid Only installing a found update; the after-update highlights are WhatsNewDialog.
 @responsibility
 - Footer right-aligned: neutral "Später" first, primary install button last (the one filled element)
 - Progress as plain text on the button ("Wird geladen… 42%"), announced in a polite live region in 10% steps

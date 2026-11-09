@@ -1,7 +1,10 @@
 <!--
 @component DayCloseBody
+@kind block
+@category display
 @description Scrolling content of the closing step (#98): what got done today, what is not done yet, one closing line.
 @usage Hosted by DayCloseDialog (modal and drawer share it). Reads the local cache only; a sync that lands while it is open updates the lists in place.
+@avoid Not standalone: hosted by DayCloseDialog (modal and drawer share it); the start-of-day look back is NewDayRecap.
 @responsibility
 - Recap line and the quiet list of tasks completed today with their time (no archived, nothing from earlier days)
 - "Noch nicht erledigt": Offen, Jetzt and Wartet as plain rows (not draggable, not links), carry-over dots, the #99 triage block (compact) for Offen/Jetzt past the threshold

@@ -1,7 +1,10 @@
 <!--
 @component StatsVerdict
+@kind block
+@category display
 @description Q1 of the Statistik page, always open: one sentence on the last 7 days against the user's own 4 weeks before, one supporting line and a ring of the in-timebox share with a tick at the usual value
 @usage Top of pages/statistics.vue
+@avoid Only the always-open Q1 of the Statistik page; the other questions are StatsTile.
 @responsibility
 - Pick the sentence from `review.state` / `review.verdict` (empty, thin, quiet, three verdict branches); never red, never praise
 - Show the ring only in the `verdict` state (#687: with too little history a full ring read as an achievement against the headline); its `aria-label` and the line carry the same numbers
