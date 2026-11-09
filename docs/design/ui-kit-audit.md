@@ -177,10 +177,10 @@ Audit of what the UI kit consists of: every component, variant and state, librar
 |---|---|---|---|
 | `pages/welcome.vue:68` | choice card (icon, two lines, arrow) | keep: rich two-line card is not a button look; name it a documented "choice row" primitive | #71 |
 | `components/nav/AppNav.vue:81` | the app bar "more" pill with a status dot | keep: part of the app bar pill (`app-nav-more`, `is-open` state), not a button | #73 |
-| `components/setup/NotionSetupFlow.vue:31` | text back link (`arrow-left`) | replace: `UButton` ghost neutral, back icon of the semantic map | #73 |
-| `components/setup/LocalSetupFlow.vue:14` | text back link (`arrow-left`) | replace: same as above, one back control for both flows | #73 |
+| `components/setup/NotionSetupFlow.vue:31` | text back link (`arrow-left`) | replace: `UButton` ghost neutral, back icon of the semantic map (done, #73) | #73 |
+| `components/setup/LocalSetupFlow.vue:14` | text back link (`arrow-left`) | replace: same as above, one back control for both flows (done, #73) | #73 |
 | `pages/settings/topics.vue:30` | topic row button | merged: `ListRow` action (done, #76) | #76 |
-| `components/recap/NewDayRecap.vue:37` | two-way kind switch with hand-written focus outline | replace: `UTabs` `pill` variant (already in `app.config.ts`) | #73 |
+| `components/recap/NewDayRecap.vue:37` | two-way kind switch with hand-written focus outline | replace: `UTabs` `pill` variant (already in `app.config.ts`) (done, #73) | #73 |
 | `components/task/TaskTimeboxNudge.vue:44` | minute chip | merged: `ChoiceChip` `chip` (done, #72) | #72 |
 | `components/task/TaskTimeboxNudge.vue:54` | "custom" icon chip | merged: `ChoiceChip` `icon`, not `UButton` (done, #72; one hover language in the row) | #72 |
 | `components/task/TaskTimeboxNudge.vue:80` | apply (check) icon | merged: `ChoiceChip` `icon` (done, #72) | #72 |
@@ -196,8 +196,8 @@ Audit of what the UI kit consists of: every component, variant and state, librar
 | `components/board/BoardColumnYesterdayNote.vue:48` | "Gesehen" acknowledge | replace: `UButton` ghost | #71 |
 | `components/board/BoardColumnYesterdayNote.vue:67` | task title as link | replace: `UButton` `link` variant | #71 |
 | `components/board/NewCardFlow.vue:58` | confirm title (check) | replace: `UButton` icon, soft primary | #71 |
-| `components/board/NewCardFlow.vue:85` | step back (`caret-left`) | replace: back control of the semantic map | #73 |
-| `components/board/NewCardFlow.vue:97` | skip (`arrow-right`) | replace: forward control of the semantic map | #73 |
+| `components/board/NewCardFlow.vue:85` | step back (`caret-left`) | replace: back control of the semantic map (done, #73: `UButton` ghost neutral, `kbd` hint kept) | #73 |
+| `components/board/NewCardFlow.vue:97` | skip (`arrow-right`) | replace: forward control of the semantic map (done, #73) | #73 |
 | `components/board/NewCardFlow.vue:124` | save pill | replace: `UButton` primary | #71 |
 | `components/board/NewCardFlow.vue:139` | option pill | merged: `ChoiceChip` `pill` (done, #72) | #72 |
 | `components/board/NewCardFlow.vue:160` | "more options" pill | merged: `ChoiceChip` `pill` / `field` (done, #72) | #72 |
@@ -241,7 +241,7 @@ Each family lists the implementations found (counts from `rg` on 2026-11-09), th
 
 ### Tabs and segmented controls
 
-`UTabs` in 4 files (`pages/settings/index.vue:29`, `topics.vue:17`, `notion.vue:39`, `StatsTiles.vue:59`); no hand-rolled `role="tab"` left (U9 done, guarded by `design-patterns.test.ts`). Still hand-built: the two-way kind switch in `NewDayRecap.vue:37` (raw buttons), the group-by chips in `MorePanel`, the app bar pill (`app-nav.css`, a place switcher by decision). **Decision:** `NewDayRecap` moves onto `UTabs` `pill`; `MorePanel` chips are re-checked against it; the app bar pill stays (it navigates places, DESIGN.md "App bar"). Owner #73.
+`UTabs` in 4 files (`pages/settings/index.vue:29`, `topics.vue:17`, `notion.vue:39`, `StatsTiles.vue:59`); no hand-rolled `role="tab"` left (U9 done, guarded by `design-patterns.test.ts`). Still hand-built: the two-way kind switch in `NewDayRecap.vue:37` (raw buttons), the group-by chips in `MorePanel`, the app bar pill (`app-nav.css`, a place switcher by decision). **Decision:** `NewDayRecap` moves onto `UTabs` `pill`; `MorePanel` chips are re-checked against it (done, #73: they stay `UButton`s with `aria-pressed`: a wrapping set of three or more filter choices that changes the board, not a view of the page, which `UTabs` cannot do; they go to the choice-chip primitive of #72); the app bar pill stays (it navigates places, DESIGN.md "App bar"). Owner #73.
 
 ### Notices
 

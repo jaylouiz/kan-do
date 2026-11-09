@@ -3,25 +3,9 @@
     "count": 1,
     "reason": "keep: card-shaped slot with a reserved box UButton ghost block cannot reproduce (#71)"
   },
-  "components/board/NewCardFlow.vue": {
-    "count": 2,
-    "reason": "back and skip move to the semantic map in #73 (the pills are ChoiceChip, #72)"
-  },
   "components/nav/AppNav.vue": {
     "count": 1,
     "reason": "keep: the app bar \"more\" pill with its status dot (audit, #73)"
-  },
-  "components/recap/NewDayRecap.vue": {
-    "count": 1,
-    "reason": "moves onto UTabs pill in #73"
-  },
-  "components/setup/LocalSetupFlow.vue": {
-    "count": 1,
-    "reason": "moves onto UButton back control in #73"
-  },
-  "components/setup/NotionSetupFlow.vue": {
-    "count": 1,
-    "reason": "moves onto UButton back control in #73"
   },
   "components/statistics/StatsTile.vue": {
     "count": 1,

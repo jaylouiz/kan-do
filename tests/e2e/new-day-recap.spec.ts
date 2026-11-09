@@ -14,7 +14,7 @@ const continueButton = (page: Page) => page.getByTestId('recap-continue')
 const archiveSwitch = (page: Page) => page.getByTestId('recap-archive-toggle')
 /** The footer panel (container) that holds the switch and the button. */
 const panelOf = (page: Page) => archiveSwitch(page).locator('xpath=ancestor::div[contains(@class,"@container")][1]')
-const switcher = (page: Page, kind: 'done' | 'undone') => page.getByTestId(`recap-switch-${kind}`)
+const switcher = (page: Page, kind: 'done' | 'undone') => page.getByTestId('recap-switcher').getByRole('tab').nth(kind === 'undone' ? 0 : 1)
 const board = (page: Page) => page.locator('main[data-task-sheet-return]')
 const doneColumn = (page: Page) => page.locator('#column-done')
 const marker = (page: Page) =>
@@ -495,13 +495,13 @@ test.describe('New-day recap (#385)', () => {
       // One deck, "noch offen" first; the switcher says how many are in each
       await expect(switcher(page, 'undone')).toHaveText('2 noch offen')
       await expect(switcher(page, 'done')).toHaveText('4 erledigt')
-      await expect(switcher(page, 'undone')).toHaveAttribute('aria-pressed', 'true')
+      await expect(switcher(page, 'undone')).toHaveAttribute('aria-selected', 'true')
       await expect(deck(page, 'undone')).toBeVisible()
       await expect(deck(page, 'done')).toHaveCount(0)
       await expect(deck(page, 'undone')).toHaveAccessibleName('2 noch offen, mit Pfeiltasten wechseln')
 
       await switcher(page, 'done').tap()
-      await expect(switcher(page, 'done')).toHaveAttribute('aria-pressed', 'true')
+      await expect(switcher(page, 'done')).toHaveAttribute('aria-selected', 'true')
       await expect(deck(page, 'done')).toBeVisible()
       await expect(deck(page, 'undone')).toHaveCount(0)
       expect(await noScroll()).toEqual({ page: true, pageX: true, body: true })

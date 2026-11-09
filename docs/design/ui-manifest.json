@@ -231,8 +231,13 @@
       "Pure indicator: not focusable, not tappable (`pointer-events: none`, `aria-hidden`), so it is no tab bar (#470, ADR 017); the page is already exposed by the column headings and `data-mobile-page`, a hidden \"page 2 of 3\" would say it twice",
       "Phone only (display none from 768 px; scoped CSS, since an unlayered `display: flex` beats the layered `md:hidden`); `prefers-reduced-motion` drops the settle transition Accepted trade-off: dots 6 px (`--page-dot`), active pill 20 px; colours `--ui-border-accented` and `--ui-text-muted`, no text."
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "first-page",
+      "middle-page"
+    ],
+    "states": [
+      "selected"
+    ],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -901,7 +906,7 @@
     "responsibility": [
       "Shell only: headline (title slot), summary (description slot), decks (body), submit panel (footer, pinned)",
       "Escape, scrim click, swipe down and the button all call `leave()`, which follows the switch (#44); the desktop close button is off",
-      "Phone switcher (\"n noch offen\" / \"n erledigt\", `aria-pressed`): one RecapDeck mounted at a time, starts on \"noch offen\" (on \"erledigt\" when nothing is open, then without a switcher)",
+      "Phone switcher (\"n noch offen\" / \"n erledigt\", a `UTabs` pill: `role=\"tab\"`, `aria-selected`): one RecapDeck mounted at a time, starts on \"noch offen\" (on \"erledigt\" when nothing is open, then without a switcher)",
       "The decks never change size (RecapDeck), so nothing moves while they are looked at",
       "The switch writes `day-recap-store.archiveDone` at once",
       "Dialog semantics, focus trap and the inert board: reka's dialog plus `pages/tasks.vue`; focus starts on the button, `finishLeave()` after the leave hands focus to the board",
@@ -1169,8 +1174,13 @@
       "Hover and keyboard focus use the standard ink focus ring",
       "Re-emit the click so a host (e.g. a modal) can close itself while the link navigates"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "default"
+    ],
+    "states": [
+      "focus",
+      "long-text"
+    ],
     "usedBy": {
       "components": 0,
       "pages": 2,
@@ -1274,8 +1284,14 @@
       "Pattern: step progress, new (guide rail). Replaces the dialog stepper of the Notion modal for the welcome page only",
       "Reduced motion: dot, line and bar changes are instant"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "first",
+      "middle"
+    ],
+    "states": [
+      "selected",
+      "long-text"
+    ],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -2944,6 +2960,28 @@
     }
   },
   {
+    "name": "UChip",
+    "path": "catalog/display/UChip.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "primitive",
+    "category": "display",
+    "description": "A small dot or count anchored to the corner of another element.",
+    "usage": "A status dot on an icon or control (the problem dot on the app bar's more pill): `color: error`, a size from the scale, `inset` to sit on the corner. The wrapped element is the default slot.",
+    "avoid": "Not a label or count in a row (UBadge) and not a notice (UAlert); it carries no text of its own, so the element it marks needs the accessible name.",
+    "responsibility": [],
+    "variants": [
+      "color",
+      "size"
+    ],
+    "states": [],
+    "usedBy": {
+      "components": 1,
+      "pages": 0,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
     "name": "UCollapsible",
     "path": "catalog/display/UCollapsible.catalog.ts",
     "source": "nuxt-ui",
@@ -3262,6 +3300,74 @@
     "usedBy": {
       "components": 3,
       "pages": 0,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "UCommandPalette",
+    "path": "catalog/keyboard/UCommandPalette.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "compound",
+    "category": "keyboard",
+    "description": "A searchable list of grouped commands with a search field, keyboard navigation and an empty and a loading state.",
+    "usage": "The body of the Cmd/Ctrl+K palette: `groups` of items with an icon, a label and `kbds`, `loading` while the tasks load, an `#empty` slot with EmptyNote, `:back=\"false\"`. `:ui` only places (padding, height).",
+    "avoid": "Not for navigation by pointer (AppNav, MorePanel) and not a select (USelectMenu); the palette is desktop and keyboard only.",
+    "responsibility": [],
+    "variants": [],
+    "states": [],
+    "usedBy": {
+      "components": 1,
+      "pages": 0,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "UKbd",
+    "path": "catalog/keyboard/UKbd.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "primitive",
+    "category": "keyboard",
+    "description": "A keycap for a keyboard shortcut: `value` names a key (`meta`, `enter`, `arrowup`) and renders its symbol; outline, solid and subtle variants in three sizes.",
+    "usage": "Shortcut hints beside a command (`kbds` of the command palette, the more panel), the default variant and size. `value` takes the key name so the platform symbol follows (⌘ on macOS, Ctrl elsewhere). The hint of an action inside a flow (NewCardFlow) is a plain `kbd` that shows on fine pointers only.",
+    "avoid": "Not for a shortcut that has no visible action, not on a phone (there is no keyboard) and not as a button.",
+    "responsibility": [],
+    "variants": [
+      "variant",
+      "size"
+    ],
+    "states": [
+      "long-text"
+    ],
+    "usedBy": {
+      "components": 2,
+      "pages": 0,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "UTabs",
+    "path": "catalog/navigation/UTabs.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "compound",
+    "category": "navigation",
+    "description": "A row of tabs that switches between views of one place; the active tab is marked by an indicator. In the theme: neutral, pill and link variants, in sm to xl.",
+    "usage": "Switching between a few views of the same page (settings groups, the statistics tiles, the phone recap decks), always `:content=\"false\"` with the page rendering the view. `pill` is the white chip on a grey track; a switcher that must reach 44 px at 390 sets `touch-target` through `:ui` (placement only). Keyboard: arrow keys move, Home/End jump.",
+    "avoid": "Not for moving between places of the app (AppNav, whose selected rules are DESIGN.md \"App bar\"), not a step indicator (SetupRail), not a page indicator (BoardPageDots) and not a toggle for one setting (USwitch).",
+    "responsibility": [],
+    "variants": [
+      "variant",
+      "size"
+    ],
+    "states": [
+      "disabled",
+      "long-text"
+    ],
+    "usedBy": {
+      "components": 2,
+      "pages": 3,
       "layouts": 0,
       "app": 0
     }
