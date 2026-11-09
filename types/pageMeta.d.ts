@@ -1,6 +1,6 @@
 declare module '#app' {
   interface PageMeta {
-    /** `false` hides the global app bar on this route (welcome, styleguide, error-test, the empty index redirect; #470) */
+    /** `false` hides the global app bar on this route (welcome, ui, error-test, the empty index redirect; #470) */
     appNav?: boolean
     /** `false` drops the visible page header where the app bar already names the page (Einstellungen, Papierkorb; #670): the title stays as a screen-reader-only h1 */
     pageHeader?: boolean
