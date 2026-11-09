@@ -48,7 +48,7 @@
         <UButton
           v-else-if="forever"
           ref="removeBtn"
-          :icon="ICONS.close"
+          :icon="ICONS.delete"
           color="neutral"
           variant="ghost"
           :aria-label="t('trash.removeForeverNamed', { title: entry.task.title })"
