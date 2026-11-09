@@ -119,8 +119,15 @@
       "Shows status-specific icons (checkmark for Done column)",
       "Handles visual states for different statuses (waiting, empty)"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "s0",
+      "s1",
+      "s2",
+      "s3"
+    ],
+    "states": [
+      "empty"
+    ],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -331,8 +338,13 @@
       "Offen/Jetzt past the #99 threshold: TaskCarryOverTriage in `compact` mode; Wartet never (the block renders nothing there)",
       "Delete goes through useTaskDeletion (upstream-aware, undo in the row's place, see DayCloseBody); Make smaller is emitted to the host"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "default",
+      "waiting"
+    ],
+    "states": [
+      "long-text"
+    ],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1168,8 +1180,14 @@
       "Actions sit right-aligned and wrap under the name on a phone; every button is 44px high there",
       "Every button name contains the source (\"Notion als Standard festlegen\") so rows are told apart"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "default-source",
+      "integration"
+    ],
+    "states": [
+      "error",
+      "long-text"
+    ],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -1264,8 +1282,13 @@
       "Ink ramp only: longer = darkest, as planned = 32 %, shorter = 10 %; no status colour",
       "The aria-label and the legend carry the same numbers"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "default",
+      "stacked"
+    ],
+    "states": [
+      "empty"
+    ],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1286,8 +1309,13 @@
       "List up to five completed tasks (title, planned vs. taken time) as buttons",
       "Emit `open` with the task id; the page owns the detail modal"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "default"
+    ],
+    "states": [
+      "empty",
+      "long-text"
+    ],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1309,8 +1337,12 @@
       "Label a pattern by its kind (activity, topic, timebox size, time of day); activity and topic names are user data (`data-private`)",
       "Bars take the ink ramp only: longer than planned = darkest, shorter = 32 %"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "default"
+    ],
+    "states": [
+      "empty"
+    ],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1332,8 +1364,13 @@
       "`ghost` draws a fixed muted shape for the first-run state and is hidden from assistive tech",
       "Carry the numbers as text alternative (`role=\"img\"` and an `aria-label` naming the peak window and its share)"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "peak",
+      "ghost"
+    ],
+    "states": [
+      "empty"
+    ],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1377,8 +1414,14 @@
       "Draw up to six segments (percent of the circle, ramp step) separated by a small gap",
       "Carry the numbers as a text alternative (`role=\"img\"` + `aria-label`); the centre slot is decoration and hidden from assistive tech"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "single",
+      "with-tick",
+      "split"
+    ],
+    "states": [
+      "empty"
+    ],
     "usedBy": {
       "components": 3,
       "pages": 0,
@@ -1402,8 +1445,16 @@
       "Without `toggleable` (no timeboxes at all) the heading is plain text and there is no panel",
       "Expose `focus()` so the grid can restore focus after it reorders the tiles in the DOM"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "default",
+      "elevated",
+      "wide",
+      "fixed"
+    ],
+    "states": [
+      "open",
+      "long-text"
+    ],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1453,8 +1504,14 @@
       "Name the numbers in the aria-label of the ring",
       "`rows` mode renders the full legend (time and share per slice) for the open panel"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "topic-chart",
+      "activity-rows",
+      "stacked"
+    ],
+    "states": [
+      "empty"
+    ],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -1546,8 +1603,14 @@
       "Show empty state when no data available",
       "Keep the horizontal scroll region keyboard-focusable and named"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "default",
+      "no-date"
+    ],
+    "states": [
+      "empty",
+      "long-text"
+    ],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -1649,8 +1712,18 @@
       "Provides drag-and-drop styling",
       "`readonly` (#422): the card of a trash entry. Same face, but no task id on the DOM (board selectors never match it), no open gesture and no pointer cursor; a card that came back from an undo plays its grow-back (`task--returning`)"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "default",
+      "waiting",
+      "now",
+      "done",
+      "draft",
+      "readonly"
+    ],
+    "states": [
+      "long-text",
+      "selected"
+    ],
     "usedBy": {
       "components": 9,
       "pages": 0,
@@ -1846,7 +1919,11 @@
       "`pinned` adds the hairline above it and its padding, so it reads as the sheet footer (the notes sit above, in the scroll region)",
       "The open state is a v-model owned by the parent, so a resize that swaps pinned and in-flow keeps it"
     ],
-    "variants": [],
+    "variants": [
+      "local",
+      "notion",
+      "pinned"
+    ],
     "states": [],
     "usedBy": {
       "components": 1,
@@ -1944,7 +2021,17 @@
       "Displays appropriate priority indicator based on task priority level",
       "Done cards show no priority badge (#124, TaskCard)"
     ],
-    "variants": [],
+    "variants": [
+      "p1-sm",
+      "p1-md",
+      "p2-sm",
+      "p2-md",
+      "p3-sm",
+      "p3-md",
+      "size-xs",
+      "size-lg",
+      "size-xl"
+    ],
     "states": [],
     "usedBy": {
       "components": 2,
@@ -1976,8 +2063,13 @@
       "A silent progressbar: the value is the percent, no value text and no live region, so per-second updates stay quiet; without a timebox the name is the spent time and there is no value",
       "Accepted: in Jetzt the bar covers the source icon, carry-over dots and priority badge (TaskCard makes the group after the chip inert); the spring overshoot may poke a few px past the footer padding, inside the card"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "boxed",
+      "now"
+    ],
+    "states": [
+      "error"
+    ],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -2074,7 +2166,11 @@
       "Names the source for assistive tech (\"Lokal\", \"Notion\") and for hover; shows no visible text",
       "Is not focusable and not interactive, so it adds no tab stop and is no drag handle"
     ],
-    "variants": [],
+    "variants": [
+      "local",
+      "notion",
+      "todoist"
+    ],
     "states": [],
     "usedBy": {
       "components": 1,
@@ -2127,8 +2223,12 @@
       "The root is a role=group named by the stack caption text; it is not a sortable and carries no data-task-id: dnd-kit and the drop mapping never see it",
       "Row min-height 2rem (2.75rem on touch widths)"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "default"
+    ],
+    "states": [
+      "long-text"
+    ],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -2152,8 +2252,13 @@
       "Soft neutral like the former text pill (`bg-muted`, label role 500 / 0.6875rem, 0.75rem on touch), 1.5rem high, fully rounded outer shape, a 1px hairline between the segments",
       "Never takes a pointer event (its layer is `pointer-events: none`)"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "topic",
+      "priority"
+    ],
+    "states": [
+      "long-text"
+    ],
     "usedBy": {
       "components": 2,
       "pages": 0,
@@ -2280,7 +2385,10 @@
       "Or show an explicit `hue` / `symbol` (the editor previews an unsaved choice)",
       "Colour comes from the `--topic-<hue>` tokens (assets/css/main.css) through one custom property, never a palette class"
     ],
-    "variants": [],
+    "variants": [
+      "symbol",
+      "hue-only"
+    ],
     "states": [],
     "usedBy": {
       "components": 8,
@@ -2305,8 +2413,13 @@
       "The ✕ asks in place (kd#21, aligned with \"Papierkorb leeren\"): question, \"Endgültig löschen\", \"Abbrechen\" (focused); Esc or Abbrechen returns focus to the ✕",
       "A failed restore leaves the entry where it is (`useTrash` reports the error)"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "default",
+      "forever"
+    ],
+    "states": [
+      "long-text"
+    ],
     "usedBy": {
       "components": 0,
       "pages": 1,
@@ -2337,6 +2450,38 @@
     ],
     "usedBy": {
       "components": 2,
+      "pages": 1,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "ListRow",
+    "path": "components/ui/ListRow.vue",
+    "source": "app",
+    "kind": "compound",
+    "category": "display",
+    "description": "One hairline-divided list row (#76): content on the left, trailing actions on the right (the slot's own flex children), no card. The static row holds whatever the slot gives it; the `action` row is one full-width button (open, expand) with the focus ring and a 44 px target.",
+    "usage": "<ul class=\"divide-y divide-default\"><ListRow density=\"roomy\">…the row's own flex children, trailing buttons last…</ListRow></ul>; `action` with `@click` for a row that opens something; `#after` holds what unfolds below an action row.",
+    "avoid": "Not a card (TaskCard, UCard) and not a table row (UTable); a row that is only text with no trailing part is a plain `<li>`.",
+    "responsibility": [
+      "Render the `<li>`; the surrounding `<ul class=\"divide-y divide-default\">` draws the hairlines",
+      "`density` sets the vertical rhythm: roomy (sources), cozy (action rows), compact (backups)",
+      "`action`: the slot (use a `<span class=\"flex …\">` for its layout) sits inside one `<button>` with `focus-ring`, `min-h-11`, `aria-expanded` from `expanded`, `aria-label` from `label`; `focus()` is exposed for hosts that return focus to the row",
+      "Attributes (`data-testid`, …) land on the `<li>`; `buttonTestid` names the action button"
+    ],
+    "variants": [
+      "static-roomy",
+      "static-compact",
+      "action"
+    ],
+    "states": [
+      "focus",
+      "long-text",
+      "selected"
+    ],
+    "usedBy": {
+      "components": 4,
       "pages": 1,
       "layouts": 0,
       "app": 0
@@ -2515,6 +2660,99 @@
     "usedBy": {
       "components": 37,
       "pages": 7,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "UBadge",
+    "path": "catalog/display/UBadge.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "primitive",
+    "category": "display",
+    "description": "A small label in the semantic colour roles: soft, subtle, solid and outline variants, in five sizes (the theme sets the 11 px label step for sm).",
+    "usage": "A quiet status or count next to text, such as the Standard marker on a source row: `neutral` with `soft` or `subtle`, size `sm`. A domain chip with its own look (the stack pill) stays its own component.",
+    "avoid": "Not a button or a link (UButton), not a notification (UAlert) and not a task-status chip (the card footer chips are custom).",
+    "responsibility": [],
+    "variants": [
+      "color",
+      "variant",
+      "size"
+    ],
+    "states": [
+      "long-text"
+    ],
+    "usedBy": {
+      "components": 3,
+      "pages": 0,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "UCard",
+    "path": "catalog/display/UCard.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "compound",
+    "category": "display",
+    "description": "A surface with optional header, body and footer; the app adds the `task` variant (the board card: elevated ground, tight padding).",
+    "usage": "Only `variant=\"task\"` for the board card (TaskCard). Grouped surfaces other than the board card use the plain hairline layout of the page, not a card.",
+    "avoid": "Not a list row (ListRow) and not a modal surface (UModal); do not nest cards.",
+    "responsibility": [],
+    "variants": [
+      "variant"
+    ],
+    "states": [],
+    "usedBy": {
+      "components": 1,
+      "pages": 0,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "UCollapsible",
+    "path": "catalog/display/UCollapsible.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "compound",
+    "category": "display",
+    "description": "A trigger that shows or hides a block of content with a height animation.",
+    "usage": "A secondary detail the user opens on purpose (the task sheet metadata). The default slot is the trigger, `content` the revealed part.",
+    "avoid": "Not a tab set (UTabs) and not a modal; a disclosure tile with its own heading structure is StatsTile.",
+    "responsibility": [],
+    "variants": [
+      "closed"
+    ],
+    "states": [
+      "open"
+    ],
+    "usedBy": {
+      "components": 1,
+      "pages": 0,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "UTable",
+    "path": "catalog/display/UTable.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "compound",
+    "category": "display",
+    "description": "A data table with sortable columns, an empty text and a loading state, built on TanStack Table.",
+    "usage": "Tabular records with several comparable columns (the completed-tasks table of the Statistik page, TasksTable). Pass `data` and `columns`.",
+    "avoid": "Not for a list of one-line rows with actions (ListRow) and not for layout.",
+    "responsibility": [],
+    "variants": [
+      "default"
+    ],
+    "states": [
+      "empty",
+      "loading"
+    ],
+    "usedBy": {
+      "components": 1,
+      "pages": 0,
       "layouts": 0,
       "app": 0
     }

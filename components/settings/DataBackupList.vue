@@ -54,10 +54,11 @@ event, the page owns the single confirmation modal.
     </p>
 
     <ul v-if="visible.length" :aria-label="t('settings.data.backups.listLabel')" class="divide-y divide-default">
-      <li
+      <ListRow
         v-for="entry in visible"
         :key="entry.name"
-        class="flex min-h-11 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-1.5"
+        density="compact"
+        class="justify-between gap-y-1"
         data-testid="data-backup-row"
         :data-kind="entry.kind"
       >
@@ -95,7 +96,7 @@ event, the page owns the single confirmation modal.
         >
           {{ t('settings.data.backups.restore') }}
         </UButton>
-      </li>
+      </ListRow>
     </ul>
 
     <UButton
@@ -113,6 +114,7 @@ event, the page owns the single confirmation modal.
 </template>
 
 <script setup lang="ts">
+import ListRow from '~/components/ui/ListRow.vue'
 import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useDataFolder } from '~/composables/useDataFolder';

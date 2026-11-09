@@ -179,7 +179,7 @@ Audit of what the UI kit consists of: every component, variant and state, librar
 | `components/nav/AppNav.vue:81` | the app bar "more" pill with a status dot | keep: part of the app bar pill (`app-nav-more`, `is-open` state), not a button | #73 |
 | `components/setup/NotionSetupFlow.vue:31` | text back link (`arrow-left`) | replace: `UButton` ghost neutral, back icon of the semantic map | #73 |
 | `components/setup/LocalSetupFlow.vue:14` | text back link (`arrow-left`) | replace: same as above, one back control for both flows | #73 |
-| `pages/settings/topics.vue:30` | topic row button | merge: the one list-row primitive (see Duplicates: list rows) | #76 |
+| `pages/settings/topics.vue:30` | topic row button | merged: `ListRow` action (done, #76) | #76 |
 | `components/recap/NewDayRecap.vue:37` | two-way kind switch with hand-written focus outline | replace: `UTabs` `pill` variant (already in `app.config.ts`) | #73 |
 | `components/task/TaskTimeboxNudge.vue:44` | minute chip | merge: the choice-chip primitive | #72 |
 | `components/task/TaskTimeboxNudge.vue:54` | "custom" icon chip | replace: `UButton` icon, ghost | #72 |
@@ -205,7 +205,7 @@ Audit of what the UI kit consists of: every component, variant and state, librar
 | `components/topic/TopicEditor.vue:46` | colour swatch (`role="radio"`) | keep: swatches are not buttons; a documented swatch radio primitive | #72 |
 | `components/topic/TopicEditor.vue:75` | symbol picker trigger | replace: `UButton` soft | #72 |
 | `components/topic/TopicEditor.vue:91` | symbol option (`role="radio"`) | keep: with the swatch primitive | #72 |
-| `components/statistics/StatsOutliers.vue:15` | outlier row button | merge: list-row primitive | #76 |
+| `components/statistics/StatsOutliers.vue:15` | outlier row button | merged: `ListRow` action (done, #76) | #76 |
 | `components/board/AddTaskSlot.vue:21` | the column's add-task slot (`add-task-button`) | keep until baselines (#63) exist; then decide whether `UButton ghost block` reproduces it | #71 |
 
 Result: 13 replace (onto `UButton` or `UTabs`), 7 merge (into the list-row and choice-chip primitives), 12 keep with a reason. The two guards today: `tests/config/button-ladder.test.ts` covers `UButton` only; nothing stops a new raw `<button>` (ratchet for #78).
@@ -261,6 +261,20 @@ One muted sentence: `pages/trash.vue:37`, `WhatsNewDialog.vue:32`, `DataBackupLi
 ### List rows
 
 Hand-built, none through a shared component: `SourceRow` (canonical per audit-2026-11), `TrashEntryRow`, `DataBackupList`, `DataConflictCopies`, `DayCloseTaskRow`, `MorePanel` rows, `SettingsSubpageLink`, the topic rows in `pages/settings/topics.vue:30`, `StatsOutliers`, `StatsWeekTable`, `CustomPropertiesStep`; `divide-y divide-default` in 12 files. **Decision: merge** into one list-row primitive built from the `SourceRow` / `TrashEntryRow` look; raw-button rows (`topics.vue`, `TopicPropertyPicker`, `StatsOutliers`) become its action variant. Owner #76.
+
+**Outcome (#76):** `ListRow` (`components/ui/ListRow.vue`, kind compound, display) is the primitive: a static row with `density` roomy / cozy / compact (the padding each site already had) and an `action` row (one `<button>` with `focus-ring`, 44 px, `aria-expanded`, an `#after` slot for what unfolds). Adopted by `SourceRow` (roomy), `DataBackupList` (compact), `DataConflictCopies` (compact), `StatsOutliers` (action, raw button gone) and the topic rows of `pages/settings/topics.vue` (action, raw button gone). Kept with a reason:
+
+| Site | Outcome |
+|---|---|
+| `TrashEntryRow` | keep: a read-only `TaskCard` with a side column, not a hairline row |
+| `DayCloseTaskRow` | keep: two stacked lines in a dialog list without hairlines (title row plus triage block) |
+| `MorePanel` rows, `SettingsSubpageLink` | keep for #73: navigation rows of a popover and a link row (category Navigation) |
+| `CustomPropertiesStep` | keep for #72: a wizard form row with inputs |
+| `StatsWeekTable` | keep: a 7-row tile grid with a fixed column layout; `UTable` adds sorting and an empty state nothing here needs (`TasksTable` is the one `UTable`) |
+| `StatsTile` toggle | keep: the heading-wrapped disclosure button is the documented tile pattern; `UCollapsible` animates a block, the tile's toggle changes the tile's grid span |
+| `UBadge` | keep: `neutral` `soft`/`subtle`; the stack pill and priority badge are domain chips with their own look (DESIGN.md Chips / Badges) |
+| `UCard` | keep: only `variant="task"` is used (`TaskCard`) |
+| `UCollapsible` | keep: one use (`TaskDetailMetadata`) |
 
 ### Choice chips (pick one of a few)
 
