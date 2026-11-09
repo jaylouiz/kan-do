@@ -190,9 +190,10 @@ export const LITERAL_ALLOWLIST = {
 
 const NAMED_COLORS = 'aliceblue|antiquewhite|aqua|aquamarine|azure|beige|bisque|black|blanchedalmond|blue|blueviolet|brown|burlywood|cadetblue|chartreuse|chocolate|coral|cornflowerblue|cornsilk|crimson|cyan|darkblue|darkcyan|darkgoldenrod|darkgray|darkgreen|darkgrey|darkkhaki|darkmagenta|darkolivegreen|darkorange|darkorchid|darkred|darksalmon|darkseagreen|darkslateblue|darkslategray|darkslategrey|darkturquoise|darkviolet|deeppink|deepskyblue|dimgray|dimgrey|dodgerblue|firebrick|floralwhite|forestgreen|fuchsia|gainsboro|ghostwhite|gold|goldenrod|gray|green|greenyellow|grey|honeydew|hotpink|indianred|indigo|ivory|khaki|lavender|lavenderblush|lawngreen|lemonchiffon|lightblue|lightcoral|lightcyan|lightgoldenrodyellow|lightgray|lightgreen|lightgrey|lightpink|lightsalmon|lightseagreen|lightskyblue|lightslategray|lightslategrey|lightsteelblue|lightyellow|lime|limegreen|linen|magenta|maroon|mediumaquamarine|mediumblue|mediumorchid|mediumpurple|mediumseagreen|mediumslateblue|mediumspringgreen|mediumturquoise|mediumvioletred|midnightblue|mintcream|mistyrose|moccasin|navajowhite|navy|oldlace|olive|olivedrab|orange|orangered|orchid|palegoldenrod|palegreen|paleturquoise|palevioletred|papayawhip|peachpuff|peru|pink|plum|powderblue|purple|rebeccapurple|red|rosybrown|royalblue|saddlebrown|salmon|sandybrown|seagreen|seashell|sienna|silver|skyblue|slateblue|slategray|slategrey|snow|springgreen|steelblue|tan|teal|thistle|tomato|turquoise|violet|wheat|white|whitesmoke|yellow|yellowgreen'
 const HEX_RE = /#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b/
-const COLOR_FN_RE = /(?<![\w-])(?:rgba?|hsla?|hwb|oklch|oklab|lab|lch|color|device-cmyk)\(/
-/** Properties whose value can be a colour: a named colour is only a colour there (not in `animation-name`, `content`). */
-const COLOR_PROP_RE = /color|background|border|outline|fill|stroke|shadow|decoration|column-rule|^--/
+const COLOR_FNS = 'rgba?|hsla?|hwb|oklch|oklab|lab|lch'
+const COLOR_FN_RE = new RegExp(`(?<![\\w-])(?:${COLOR_FNS}|color|device-cmyk)\\(`)
+/** Properties whose value holds names and keywords, never a colour (`animation-name: lime`, `content`, `font-family`): a named colour is flagged everywhere else, also inside `filter: drop-shadow(… red)`. */
+const NON_COLOR_PROP_RE = /^(?:animation|transition|content|font|grid|counter|will-change|cursor|quotes|src|view-transition|anchor|container|list-style|scroll|appearance|mask-image)|-name$|-timeline$/
 const NAMED_COLOR_RE = new RegExp(`(?<![\\w-])(?:${NAMED_COLORS})(?![\\w-])`, 'i')
 const HUES = 'slate|gray|zinc|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose'
 const PALETTE_CLASS_RE = new RegExp(`(?<![\\w-])(?:[\\w-]+:)*!?(?:bg|text|border|ring|fill|stroke|from|via|to|outline|shadow|divide|decoration|accent|caret)-(?:(?:${HUES})(?:-\\d{2,3})?|white|black|custom-[a-z]+(?:-\\d{2,3})?)(?:/\\d+)?(?![\\w-])`, 'g')
@@ -226,7 +227,7 @@ export function checkTokenLiterals(root, files = styleSources(root)) {
       // custom-property names inside var() are tokens, `url(#fragment)` and quoted strings are not colours
       const bare = value.replace(/--[\w-]+/g, 'VARNAME').replace(/url\([^)]*\)/g, 'URL').replace(/(["'])(?:(?!\1).)*\1/g, 'STR')
       if (HEX_RE.test(bare) || COLOR_FN_RE.test(bare)) add(css, at, `${prop}: ${value} holds a colour literal; use a token (semantic role, --ui-* or a composition of tokens)`)
-      else if (COLOR_PROP_RE.test(prop) && NAMED_COLOR_RE.test(bare)) add(css, at, `${prop}: ${value} holds a named colour; use a token`)
+      else if (!NON_COLOR_PROP_RE.test(prop) && NAMED_COLOR_RE.test(bare)) add(css, at, `${prop}: ${value} holds a named colour; use a token`)
       if (/radius$/.test(prop)) {
         // var(--x) -> VAR; a calc() that holds a token -> CALCVAR (innermost first, until nothing changes)
         let v = value
@@ -245,11 +246,11 @@ export function checkTokenLiterals(root, files = styleSources(root)) {
       const text = readFileSync(file, 'utf8')
         .replace(/<!--[\s\S]*?-->/g, blank)
         .replace(/\/\*[\s\S]*?\*\//g, blank)
-        .replace(/(^|\s)\/\/(?:\s.*)?$/gm, (_m, lead) => lead + blank(_m.slice(lead.length))) // `// note` only: a `//` in a URL string is followed by a name
+        .replace(/(^|[;,{(])\/\/.*$|(\s)\/\/(?:\s.*)?$/gm, (m, a, b) => (a ?? b ?? '') + blank(m.slice((a ?? b ?? '').length))) // a `//` after `;`, `,`, `{`, `(` or the line start, or `// note` after a space: not a `//cdn` in a string
       const body = file.endsWith('.vue') ? text.replace(/<style[^>]*>[\s\S]*?<\/style>/g, blank) : text
       for (const m of body.matchAll(PALETTE_CLASS_RE)) add(body, m.index ?? 0, `${m[0]} is a raw palette class; use a semantic token (text-default, text-muted, bg-elevated …) or a role step (text-error-700)`)
-      for (const m of body.matchAll(/(['"`])#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6})\1/g)) add(body, m.index ?? 0, `${m[0]} is a hex colour literal; use a token`)
-      for (const m of body.matchAll(/(?<![\w-])(?:rgba?|hsla?|hwb|oklch|oklab)\([^)]*\)/g)) add(body, m.index ?? 0, `${m[0]} is a colour literal; use a token`)
+      for (const m of body.matchAll(/(?<!href=|to=|id=|querySelector\(|querySelectorAll\(|closest\(|matches\(|getElementById\(|hash\s*===?\s*)(['"`])#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\1/g)) add(body, m.index ?? 0, `${m[0]} is a hex colour literal; use a token`)
+      for (const m of body.matchAll(new RegExp(`(?<![\\w-])(?:${COLOR_FNS})\\([^)]*\\)`, 'g'))) add(body, m.index ?? 0, `${m[0]} is a colour literal; use a token`)
       for (const m of body.matchAll(/\b(?:shadow|rounded(?:-[a-z]{1,2})?)-\[([^\]]*)\]/g)) {
         if (!/^(?:var\(--[\w-]+\)|calc\(.*var\(--.*\))$/.test(m[1] ?? '')) add(body, m.index ?? 0, `${m[0]} is an arbitrary shadow or radius value; use a token`)
       }

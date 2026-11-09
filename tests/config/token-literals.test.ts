@@ -71,6 +71,22 @@ describe('false positives the review found', () => {
   })
 })
 
+describe('recall (review round 2)', () => {
+  it('still flags short quoted hex, colour functions in script and a named colour inside a function value', () => {
+    const source = [
+      '<script setup lang="ts">',
+      'const a = \'#fff\'; const b = \'#0008\'; const c = \'lab(50% 40 59)\'',
+      'const ok = document.querySelector(\'#add\');// #fff in a comment',
+      '</script>',
+      '<style scoped>',
+      '.x { filter: drop-shadow(0 2px 4px red); text-emphasis: filled tomato }',
+      '.y { color: #fff }',
+      '</style>',
+    ].join('\n')
+    expect(scan('Recall.vue', source)).toEqual(['2: \'#fff\'', '2: \'#0008\'', '2: lab(50%', '6: filter:', '6: text-emphasis:', '7: color:'])
+  })
+})
+
 describe('palette classes', () => {
   it('flags a raw hue, a custom-* palette step and the white/black utilities, also behind variants', () => {
     expect(scan('Classes.vue', '<template>\n<p class="bg-red-500" />\n<p class="hover:text-slate-700" />\n<p class="bg-custom-ink-900" />\n<p class="text-white border-black/10" />\n</template>'))

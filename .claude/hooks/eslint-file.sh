@@ -37,7 +37,7 @@ check_root() {
 
   # Design tokens: a `var(--x)` nothing defines renders nothing; a colour, shadow-colour or off-scale radius literal belongs in a token (#69; scripts/lint/design-tokens.mjs).
   local css=()
-  for f in "$@"; do case "$f" in *.vue | *.css) css+=("$f") ;; esac; done
+  for f in "$@"; do case "$f" in *.vue | *.css | */app.config.ts | app.config.ts) css+=("$f") ;; esac; done
   if [ ${#css[@]} -gt 0 ] && [ -f scripts/lint/design-tokens.mjs ] && ! out=$(node scripts/lint/design-tokens.mjs "${css[@]}" 2>&1); then
     errors="${errors:+$errors
 
