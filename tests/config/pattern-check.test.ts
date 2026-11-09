@@ -26,6 +26,19 @@ describe('Pattern check rule (#586)', () => {
     expect(rule.split('\n').length).toBeLessThan(45)
   })
 
+  it('searches the manifest with ui:find first, then /ui, then the old searches (#79)', () => {
+    const step = rule.split('\n').find(l => l.startsWith('2. '))
+    expect(step).toBeDefined()
+    const [find = -1, ui = -1, old = -1] = ['npm run ui:find', '/ui', 'rg -i'].map(w => step!.indexOf(w))
+    expect(find).toBeGreaterThan(-1)
+    expect(find).toBeLessThan(ui)
+    expect(ui).toBeLessThan(old)
+    expect(step).toContain('docs/design/ui-manifest.json')
+    expect(JSON.parse(read('package.json')).scripts['ui:find']).toBe('node scripts/ui-find.mjs')
+    expect(read('.claude/issue-workflow.md')).toContain('npm run ui:find')
+    expect(read('CLAUDE.md')).toContain('npm run ui:find')
+  })
+
   it('is listed in CLAUDE.md, which stays under the 200-line budget', () => {
     const claude = read('CLAUDE.md')
     expect(claude).toContain('`ui-patterns.md`')
@@ -136,5 +149,17 @@ describe('wf_pr_body_check Pattern gate (#586)', () => {
   it('keeps the file free of a syntax error', () => {
     expect(existsSync(join(root, '.claude/issue-workflow.sh'))).toBe(true)
     execFileSync('bash', ['-n', join(root, '.claude/issue-workflow.sh')])
+  })
+})
+
+describe('ui:find (#79)', () => {
+  it('finds a component by job words in its doc-block text, not by name', async () => {
+    const { findEntries, queryWords } = await import('../../scripts/ui-find.mjs')
+    const manifest = JSON.parse(read('docs/design/ui-manifest.json'))
+    const names = (q: string) => findEntries(manifest, queryWords(q)).map(r => String(r.entry.name))
+    expect(names('confirm destructive')).toContain('DataRestoreModal')
+    expect(names('confirmation integration off the board')[0]).toBe('DisconnectSourceDialog')
+    expect(names('persistent notice desktop data file')).toContain('DataStorageNotice')
+    expect(names('zzzxqq')).toEqual([])
   })
 })
