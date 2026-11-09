@@ -1,7 +1,10 @@
 <!--
 @component BoardPageDots
+@kind primitive
+@category navigation
 @description Phone page indicator: three dots above the column title, the active one a stretched pill
 @usage Rendered once by Board.vue beside .board (so it does not slide with the pages)
+@avoid Phone only, for the three board pages; not a tab bar or pagination on desktop.
 @responsibility
 - Says that three pages exist (Offen, Jetzt + Wartet, Erledigt) and which one is showing (kd#26)
 - Follows a live swipe: the pill stretches from one dot to the next with the finger, then settles on the board's own timing

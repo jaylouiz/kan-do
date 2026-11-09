@@ -1,10 +1,13 @@
 <!--
 @component DataRestoreModal
+@kind block
+@category overlay
 @description Confirmation with a preview for every action that replaces the data file with another
 version: restoring a backup, restoring a conflict copy, importing a JSON file (#224, ADR 011). It exists
 for the comparison (source vs. now), not as an "are you sure?"; the replace is reversible through the
 `pre-restore` backup the app takes first.
 @usage <DataRestoreModal v-model:open="open" :request="request" @after:leave="restoreFocus" />
+@avoid Only for actions that replace the data file; other confirmations use a plain UModal.
 @responsibility
 - Shows what will be restored and the task counts of the source and of now
 - Web import (#238): optional default-checked "safety download" of the current data, passed to `request.run`

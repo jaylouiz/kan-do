@@ -1,7 +1,10 @@
 <!--
 @component SyncWarningModal
+@kind block
+@category overlay
 @description Warning when the sync of one source returns an empty or a much smaller result; the user confirms or cancels the sync of that source. Names the source (#318)
 @usage Mounted once in pages/tasks.vue, opened by useSyncValidation
+@avoid Only for a suspiciously empty or small sync result; a broken source is repaired through the sync popover, never a dialog.
 @responsibility
 - Show why the result looks suspicious, the stored and fetched task counts and the last merged sync
 - Emit `action` ('confirm' | 'cancel'); the caller applies or drops the fetched tasks. Closing the dialog is a cancel (`update:open`)

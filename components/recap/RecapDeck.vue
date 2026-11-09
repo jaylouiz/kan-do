@@ -1,9 +1,12 @@
 <!--
 @component RecapDeck
+@kind component
+@category display
 @description One group of the new-day recap (#385, #451): the finished or still-open tasks as a swipe deck. The front card
 shows with up to two layers peeking behind it; swiping, tapping, ←/→ or the chevrons send it to the back. The deck never
 changes size, so nothing on the page moves while it is looked at.
 @usage Rendered by NewDayRecap, kind `undone` (left) and kind `done` (right). The parent skips the `undone` group when it is empty; the `done` group is always rendered and copes with an empty list itself (counter "0 / 0", no card, chevrons and keys inert, not a tab stop), as it does with a single card.
+@avoid Only inside NewDayRecap; a plain list of tasks uses DayCloseTaskRow rows.
 @responsibility
 - `hideHeading`: the heading row turns visually hidden (still the section's name) when the phone switcher already says which deck it is (#44)
 - Layout: heading row (`min-h-10`, `h2` above the cards), the deck (card height + 1.25rem, whatever the card content or n), the bar (chevron, counter "1 / n", chevron)

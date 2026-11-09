@@ -1,7 +1,10 @@
 <!--
 @component StatsTiles
+@kind block
+@category display
 @description Q2 to Q4 of the Statistik page: three question tiles in a grid (one column below `md`) that open in place, one at a time, plus the full-width work-rhythm tile "Wann arbeite ich?" (#600) under them, which shares the same open state
 @usage Under the verdict in pages/statistics.vue
+@avoid Only under the verdict on the Statistik page.
 @responsibility
 - Own the page state `open: 2 | 3 | 4 | 5 | null` (initial value from the `initialOpen` prop, i.e. `?open=`; never written back, never persisted)
 - At `md+` render the open tile first (the list is reordered in the DOM, never with CSS `order`, so reading and focus order match the visual order); below `md` the order stays natural. Tile 5 is full width already and always stays last

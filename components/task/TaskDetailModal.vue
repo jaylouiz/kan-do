@@ -1,7 +1,10 @@
 <!--
 @component TaskDetailModal
+@kind block
+@category overlay
 @description Modal displaying detailed task information
 @usage Reusable modal for showing task details
+@avoid Only the task detail modal; new code opens tasks in TaskSheet.
 @responsibility
 - Display task properties, notes, and custom fields via TaskDetailContent
 - Handle modal open/close state

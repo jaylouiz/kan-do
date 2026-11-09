@@ -1,7 +1,10 @@
 <!--
 @component TopicPropertyPicker
+@kind compound
+@category input
 @description The task sheet's Thema / Aktivität picker: the shared TaskPropertySelect plus an edit mode in its footer (#443)
 @usage Value slot of the Thema and Aktivität rows in TaskDetailContent
+@avoid Only the Thema / Aktivität rows of the task sheet; other properties use TaskPropertySelect.
 @responsibility
 - Picking mode is the plain picker (topic mark per option); options carry no control, so the open picker has no
   button inside a `role="option"` item (axe `nested-interactive`, #430 D6)

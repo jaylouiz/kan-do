@@ -1,7 +1,10 @@
 <!--
 @component TasksTable
+@kind component
+@category display
 @description Table displaying task completion records with columns that can be re-ordered
 @usage Used in statistics page to show filtered tasks
+@avoid Only filtered task records on the Statistik page; board tasks are TaskCard.
 @responsibility
 - Display task records in table format
 - Handle row clicks to open task detail modal

@@ -1,7 +1,10 @@
 <!--
 @component DatabaseSelectionStep
+@kind component
+@category form-structure
 @description Step for selecting a Notion database during setup
 @usage Used in the Notion setup wizard
+@avoid Only a step of the Notion setup wizard.
 @responsibility
 - Displays available Notion databases for selection
 - Manages the selected database state

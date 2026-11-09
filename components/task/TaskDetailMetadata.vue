@@ -1,7 +1,10 @@
 <!--
 @component TaskDetailMetadata
+@kind component
+@category display
 @description Metadata section of the task detail (source, created, id), collapsed by default
 @usage Used by TaskDetailContent; last in the flow on mobile, pinned to the bottom of the desktop slideover (#386)
+@avoid Only the collapsed metadata section of the task detail.
 @responsibility
 - Quiet collapsible with the source, the creation date and the stable task id
 - `pinned` adds the hairline above it and its padding, so it reads as the sheet footer (the notes sit above, in the scroll region)

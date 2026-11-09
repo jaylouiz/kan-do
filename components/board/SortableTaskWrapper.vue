@@ -1,7 +1,11 @@
 <!--
 @component SortableTaskWrapper
+@kind primitive
+@category layout
 @description Per-item sortable wrapper for dnd-kit. Each task card in a column
 is wrapped in this component so it can be dragged and sorted within/across columns.
+@usage Wraps every task card of a sortable column (BoardColumnItem)
+@avoid Only for task cards in a sortable column; static lists (trash, recap, day close) render the card without it.
 @responsibility
 - Register with dnd-kit's DragDropManager via useColumnSortable
 - Expose isDragging state for placeholder styling

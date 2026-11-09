@@ -72,7 +72,7 @@ Path-scoped rules in `.claude/rules/` load when you read or edit a matching file
 ### Component Conventions
 
 - `defineOptions({ name: 'ComponentName' })` on every component
-- Include `@component` / `@description` / `@usage` / `@responsibility` header doc block
+- Include `@component` / `@kind` (primitive, component, compound, block) / `@category` (one of the nine in `scripts/ui-manifest.mjs`) / `@description` / `@usage` / `@avoid` / `@responsibility` header doc block; after editing one run `npm run ui:manifest` (`docs/design/ui-manifest.json` is generated, a test fails when stale); terms in `GLOSSARY.md`
 - Props via `defineProps<Props>()`, emits via `defineEmits<{...}>()`, v-model via `defineModel<T>()`
 - Never mutate Pinia state directly in templates; route through store actions
 - Gate browser APIs with `if (import.meta.client)`; guard dev logs with `if (import.meta.dev)`

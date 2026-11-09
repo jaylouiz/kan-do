@@ -1,7 +1,10 @@
 <!--
 @component TaskPropertySelect
+@kind component
+@category input
 @description Value-as-text picker for a property row (status, priority, topic, activity, select fields)
 @usage Value slot of TaskPropertyRow in the detail and add views
+@avoid Only a value picker inside a TaskPropertyRow; topic and activity use TopicPropertyPicker.
 @responsibility
 - Text-style trigger (USelectMenu `property` variant from app.config.ts), named "<label>: <value>"
 - Optional help text at the top of the open picker (reachable on touch, replaces tooltips)

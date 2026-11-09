@@ -1,10 +1,13 @@
 <!--
 @component DisconnectSourceDialog
+@kind component
+@category overlay
 @description Confirmation for taking an integration off the board (#320, epic #264 section 1). States how many
 tasks leave, where new tasks go when the source was the default, and what happens to changes the source does
 not hold yet.
 @usage <DisconnectSourceDialog v-model:open="open" :source="'notion'" @disconnected="..." />, opened from the
 Notion settings page now and from the "Verbindungen" page (#324).
+@avoid Only for taking an integration off the board; deleting tasks has its own undo, not a dialog.
 @responsibility
 - Reads the plan from `useSourceConnections().disconnectPlan` (live) and calls `disconnectSource`
 - Offers "Erst synchronisieren, dann trennen" only while the source can be reached; "Trotzdem trennen" and

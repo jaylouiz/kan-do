@@ -1,7 +1,10 @@
 <!--
 @component TaskTimeboxNudge
+@kind component
+@category action
 @description In-card micro dialog (#389) that offers a timebox when a card without one lands in Jetzt
 @usage Inside TaskCard (the Jetzt card only); the board store's `timeboxNudgeTaskId` decides which card shows it
+@avoid Only the micro dialog of the Jetzt card without a timebox; other prompts are not cards.
 @responsibility
 - Non-modal layer over the card face: no focus move, no trap; only its controls take pointer events, so the
   card stays draggable and a click on the face still opens the sheet (on touch the layer swallows the tap)

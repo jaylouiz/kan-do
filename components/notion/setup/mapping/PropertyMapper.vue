@@ -1,7 +1,10 @@
 <!--
 @component PropertyMapper
+@kind component
+@category input
 @description Maps Notion database properties to kan-do task fields
 @usage Part of the Notion setup wizard that configures how database fields correspond to task properties
+@avoid Only maps Notion properties to task fields inside the Notion setup; not a generic key-value editor.
 @responsibility
 - Allows selection of title, status, and optional fields (due date, priority, timebox, time spent)
 - Validates mapping configuration

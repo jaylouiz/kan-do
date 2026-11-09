@@ -1,7 +1,10 @@
 <!--
 @component StatsEstimateRing
+@kind component
+@category display
 @description Q3 chart: ring of the timeboxed tasks of the last 8 weeks that ran longer / as planned / shorter, with its legend
 @usage Summary of the Q3 tile
+@avoid Only the Q3 estimate chart; a generic ring is StatsRing.
 @responsibility
 - Ink ramp only: longer = darkest, as planned = 32 %, shorter = 10 %; no status colour
 - The aria-label and the legend carry the same numbers

@@ -1,7 +1,10 @@
 <!--
 @component TaskCard
+@kind compound
+@category display
 @description Displays and manages an individual task card on the kanban board
 @usage Used within BoardColumn to render task items with their properties and interactive elements
+@avoid The board card; static read-only copies (trash, day close, recap) use their own rows, drafts use TaskDraftCard.
 @responsibility
 - Displays task information: the topic first, the title below it (#584), then the footer (timebox chip, source icon,
   carried-over dots, priority). The activity is not on the card (#584): the sheet, the grouping and the statistics keep it.

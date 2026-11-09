@@ -1,7 +1,10 @@
 <!--
 @component BoardColumn
+@kind compound
+@category layout
 @description Column component for the kanban board that displays tasks of a specific status
 @usage Used within the main board layout to organize tasks by their status
+@avoid Not for the Jetzt column, whose single card has its own content (BoardColumnProgressContent); not a drop target on its own (ColumnDropZone).
 @responsibility
 - Displays tasks of a specific status (Today, Doing, Waiting, Done)
 - Grouped columns: renders each group of 2+ as a collapsed TaskStack or, once expanded, as a header
