@@ -1,6 +1,6 @@
 <!--
 @component SortableTaskWrapper
-@kind primitive
+@kind component
 @category layout
 @description Per-item sortable wrapper for dnd-kit. Each task card in a column
 is wrapped in this component so it can be dragged and sorted within/across columns.

@@ -31,6 +31,6 @@ _Avoid_: component (that's the code unit; one pattern can span several component
 
 **Compound component**: a parent together with the child components that only work in it, wired through slots or provide/inject, so the parts are used together. Example: `ResponsiveOverlay` (shell with `#body`, `#footer` slots), `TaskStack` with `TaskStackHeader` and `TaskStackPill`. `@kind compound`.
 
-**Block**: a feature-sized surface that a page or `app.vue` mounts, feeding itself from stores and composables rather than props, and that orchestrates components. Example: `DayCloseDialog`, `StatsTiles`, `AppNav`. `@kind block`.
+**Block**: a feature-sized surface that a page or `app.vue` mounts, feeding itself from stores, composables or the route rather than props, and that orchestrates components. Example: `DayCloseDialog`, `StatsTiles`, `AppNav`. `@kind block`.
 
 **Layout**: a component or file whose only job is arrangement: where things sit, not what they say or do. Example: `layouts/sub-page.vue`, `SectionHeader`, the board's `BoardColumn` container. As a doc-block `@category`, `layout` marks such components; `layouts/` holds the page layouts Nuxt picks per route.

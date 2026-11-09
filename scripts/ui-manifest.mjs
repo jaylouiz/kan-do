@@ -103,7 +103,7 @@ function usedBy(name, path, sources) {
 const oneLine = text => text.replace(/\s+/g, ' ').trim()
 
 /**
- * The manifest of the doc blocks under `root`: an array sorted by path. Throws on a doc block `checkDocBlock` rejects.
+ * The manifest of the doc blocks under `root`: an array sorted by path. Throws on a doc block `checkDocBlock` rejects or an `@component` that is not the file's name.
  * @param {string} [root]
  * @returns {Array<{ name: string, path: string, kind: string, category: string, description: string, usage: string, avoid: string, responsibility: string[], usedBy: Record<string, number> }>}
  */
@@ -115,12 +115,15 @@ export function buildManifest(root = ROOT) {
     ...walk(join(root, 'layouts'), name => name.endsWith('.vue')).map(path => relative(root, path).split('\\').join('/')),
     'app.vue',
   ].map(file => [file, readFileSync(join(root, file), 'utf8')])
+  // A tag written in a comment (a doc block's `@usage <TaskCard ...>`) is no use.
+  const rendered = sources.map(([file, text]) => [file, text.replace(/<!--[\s\S]*?-->/g, '')])
   const source = new Map(sources)
   return paths.map((path) => {
     const problems = checkDocBlock(source.get(path))
     if (problems.length > 0) throw new Error(`${path}: ${problems.join('; ')}`)
     const tags = /** @type {Record<string, string>} */ (parseDocBlock(source.get(path)))
     const name = oneLine(tags.component.split(/\s+/)[0])
+    if (path.split('/').pop() !== `${name}.vue`) throw new Error(`${path}: @component "${name}" must equal the file name`)
     return {
       name,
       path,
@@ -134,7 +137,7 @@ export function buildManifest(root = ROOT) {
         .map(oneLine)
         .filter(Boolean)
         .map(item => item.replace(/^- /, '')),
-      usedBy: usedBy(name, path, sources),
+      usedBy: usedBy(name, path, rendered),
     }
   })
 }

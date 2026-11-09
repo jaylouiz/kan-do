@@ -373,7 +373,7 @@
   {
     "name": "SortableTaskWrapper",
     "path": "components/board/SortableTaskWrapper.vue",
-    "kind": "primitive",
+    "kind": "component",
     "category": "layout",
     "description": "Per-item sortable wrapper for dnd-kit. Each task card in a column is wrapped in this component so it can be dragged and sorted within/across columns.",
     "usage": "Wraps every task card of a sortable column (BoardColumnItem)",
