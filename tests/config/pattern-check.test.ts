@@ -153,13 +153,25 @@ describe('wf_pr_body_check Pattern gate (#586)', () => {
 })
 
 describe('ui:find (#79)', () => {
-  it('finds a component by job words in its doc-block text, not by name', async () => {
+  const row = (name: string, description: string, usage: string, avoid: string) =>
+    ({ name, kind: 'component', category: 'overlay', source: 'app', path: `components/${name}.vue`, description, usage, avoid, variants: [] })
+  const manifest = [
+    row('RestoreModal', 'Confirmation before a destructive restore replaces the data.', 'Open from settings.', 'Not for navigation.'),
+    row('StatusNotice', 'Persistent one-line notice.', 'Shown under the header.', 'Not for confirmation of a destructive action.'),
+    row('PointerNav', 'Top navigation.', 'Pointer navigation between pages.', 'Not for keyboard commands.'),
+  ]
+
+  it('finds a component by job words in its doc-block text, not by name, and ranks description/usage above avoid', async () => {
     const { findEntries, queryWords } = await import('../../scripts/ui-find.mjs')
-    const manifest = JSON.parse(read('docs/design/ui-manifest.json'))
     const names = (q: string) => findEntries(manifest, queryWords(q)).map(r => String(r.entry.name))
-    expect(names('confirm destructive')).toContain('DataRestoreModal')
-    expect(names('confirmation integration off the board')[0]).toBe('DisconnectSourceDialog')
-    expect(names('persistent notice desktop data file')).toContain('DataStorageNotice')
+    expect(names('confirm destructive')).toEqual(['RestoreModal', 'StatusNotice'])
+    expect(names('keyboard commands')[0]).toBe('PointerNav')
     expect(names('zzzxqq')).toEqual([])
+  })
+
+  it('searches the committed manifest without throwing', async () => {
+    const { findEntries, queryWords } = await import('../../scripts/ui-find.mjs')
+    const live = JSON.parse(read('docs/design/ui-manifest.json'))
+    expect(findEntries(live, queryWords('dialog')).length).toBeGreaterThan(0)
   })
 })

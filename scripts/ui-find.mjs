@@ -37,7 +37,7 @@ export function findEntries(manifest, words) {
       let score = 0
       const hits = []
       for (const word of words) {
-        const stem = word.length > 4 ? word.slice(0, -1) : word
+        const stem = word.length > 6 ? word.slice(0, -2) : word
         for (const [field, weight] of Object.entries(WEIGHTS)) {
           if (fields[field].some(t => t.startsWith(stem))) {
             score += weight
@@ -68,7 +68,14 @@ if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.me
     console.error('usage: npm run ui:find -- <job words>   e.g. npm run ui:find -- "confirm destructive"')
     process.exit(2)
   }
-  const found = findEntries(JSON.parse(readFileSync(MANIFEST_PATH, 'utf8')), words)
+  let manifest
+  try {
+    manifest = JSON.parse(readFileSync(MANIFEST_PATH, 'utf8'))
+  } catch {
+    console.error('docs/design/ui-manifest.json is missing or unreadable: run `npm run ui:manifest`')
+    process.exit(1)
+  }
+  const found = findEntries(manifest, words)
   if (!found.length) {
     console.log(`no manifest entry matches "${words.join(' ')}": try other wordings, then /ui and the old searches (rule step 2)`)
   } else {
