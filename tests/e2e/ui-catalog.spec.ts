@@ -176,7 +176,9 @@ test.describe('/ui style fingerprint', () => {
         if (wrapper.dataset.kdState === 'focus') element.focus()
         const style = getComputedStyle(element)
         // font-family: the first family only; the fallback list Nuxt Fonts appends is long and says nothing the first one does not
-        result[key] = Object.fromEntries(properties.map(property => [property, property === 'font-family' ? style.getPropertyValue(property).split(',')[0]!.trim() : style.getPropertyValue(property)]))
+        // outline-style `auto` is the browser's own focus ring: its colour and width come from the OS accent, so they differ between macOS and Linux and are not recorded
+        const uaRing = style.getPropertyValue('outline-style') === 'auto'
+        result[key] = Object.fromEntries(properties.map(property => [property, property === 'font-family' ? style.getPropertyValue(property).split(',')[0]!.trim() : uaRing && (property === 'outline-color' || property === 'outline-width') ? 'ua-default' : style.getPropertyValue(property)]))
         if (wrapper.dataset.kdState === 'focus') element.blur()
       }
       if (duplicates.length) throw new Error(`duplicate sample keys: ${duplicates.join(', ')}`)
