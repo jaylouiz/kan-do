@@ -31,15 +31,16 @@
     </div>
 
     <template v-else>
-      <button
-        type="button"
-        class="focus-ring -ml-1 inline-flex min-h-11 items-center gap-1.5 self-start rounded-lg px-1 text-sm text-toned hover:text-highlighted"
+      <UButton
+        color="neutral"
+        variant="ghost"
+        :icon="ICONS.back"
+        class="-ml-2 min-h-11 self-start"
         data-testid="setup-back"
         @click="goBack"
       >
-        <UIcon :name="ICONS.back" class="size-4" aria-hidden="true" />
         {{ isFirst ? t('onboarding.flow.backToChoice') : t('common.back') }}
-      </button>
+      </UButton>
 
       <div class="flex flex-col gap-6 md:grid md:grid-cols-[13rem_1fr] md:gap-10">
         <SetupRail

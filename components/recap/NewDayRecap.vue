@@ -9,7 +9,7 @@ Hosted by ResponsiveOverlay (modal at >=768px with both decks side by side, bott
 @responsibility
 - Shell only: headline (title slot), summary (description slot), decks (body), submit panel (footer, pinned)
 - Escape, scrim click, swipe down and the button all call `leave()`, which follows the switch (#44); the desktop close button is off
-- Phone switcher ("n noch offen" / "n erledigt", `aria-pressed`): one RecapDeck mounted at a time, starts on "noch offen" (on "erledigt" when nothing is open, then without a switcher)
+- Phone switcher ("n noch offen" / "n erledigt", a `UTabs` pill: `role="tab"`, `aria-selected`): one RecapDeck mounted at a time, starts on "noch offen" (on "erledigt" when nothing is open, then without a switcher)
 - The decks never change size (RecapDeck), so nothing moves while they are looked at
 - The switch writes `day-recap-store.archiveDone` at once
 - Dialog semantics, focus trap and the inert board: reka's dialog plus `pages/tasks.vue`; focus starts on the button, `finishLeave()` after the leave hands focus to the board
@@ -36,20 +36,16 @@ Hosted by ResponsiveOverlay (modal at >=768px with both decks side by side, bott
       <div v-if="snapshot">
         <!-- Phones: one deck at a time. Nothing open: only the done deck, no switcher -->
         <div v-if="!isDesktop && snapshot.undone.length > 0" class="mb-4 flex justify-center">
-          <div class="inline-flex rounded-full bg-elevated p-1 ring ring-default" role="group" :aria-label="t('recap.switcher.label')">
-            <button
-              v-for="option in switcherOptions"
-              :key="option.kind"
-              type="button"
-              class="min-h-11 rounded-full px-4 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-primary"
-              :class="shownKind === option.kind ? 'bg-default text-highlighted shadow-xs' : 'text-muted hover:text-default'"
-              :aria-pressed="shownKind === option.kind"
-              :data-testid="`recap-switch-${option.kind}`"
-              @click="pickedKind = option.kind"
-            >
-              {{ option.label }}
-            </button>
-          </div>
+          <UTabs
+            :model-value="shownKind"
+            :items="switcherOptions"
+            :content="false"
+            variant="pill"
+            :ui="{ trigger: 'touch-target px-4' }"
+            :aria-label="t('recap.switcher.label')"
+            data-testid="recap-switcher"
+            @update:model-value="pickedKind = $event === 'done' ? 'done' : 'undone'"
+          />
         </div>
 
         <!-- Board order: Offen left, Erledigt right -->
@@ -139,8 +135,8 @@ const archiveDone = computed({
 const pickedKind = ref<'undone' | 'done'>('undone')
 const shownKind = computed(() => (snapshot.value && snapshot.value.undone.length === 0 ? 'done' : pickedKind.value))
 const switcherOptions = computed(() => [
-  { kind: 'undone' as const, label: t('recap.deck.undone', { n: snapshot.value?.undone.length ?? 0 }) },
-  { kind: 'done' as const, label: t('recap.deck.done', { n: snapshot.value?.done.length ?? 0 }) },
+  { value: 'undone' as const, label: t('recap.deck.undone', { n: snapshot.value?.undone.length ?? 0 }) },
+  { value: 'done' as const, label: t('recap.deck.done', { n: snapshot.value?.done.length ?? 0 }) },
 ])
 
 const summary = computed(() => {

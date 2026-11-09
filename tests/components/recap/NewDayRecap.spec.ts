@@ -44,6 +44,12 @@ const stubs = {
     emits: ['update:modelValue'],
     template: '<label><input type="checkbox" role="switch" :checked="modelValue" v-bind="$attrs" @change="$emit(\'update:modelValue\', $event.target.checked)" />{{ label }}</label>',
   },
+  UTabs: {
+    inheritAttrs: false,
+    props: ['modelValue', 'items', 'content', 'variant', 'ui'],
+    emits: ['update:modelValue'],
+    template: '<div v-bind="$attrs" role="tablist"><button v-for="item in items" :key="item.value" type="button" role="tab" :aria-selected="modelValue === item.value" @click="$emit(\'update:modelValue\', item.value)">{{ item.label }}</button></div>',
+  },
   UButton: {
     props: ['color', 'variant', 'size', 'icon', 'trailingIcon'],
     template: '<button type="button" v-bind="$attrs"><slot /></button>',
@@ -360,22 +366,23 @@ describe('NewDayRecap', () => {
 
   describe('on a phone', () => {
     beforeEach(() => setDesktop(false))
-    const pressed = () => [...document.querySelectorAll('[data-testid^="recap-switch-"]')].filter(b => b.getAttribute('aria-pressed') === 'true').map(b => b.getAttribute('data-testid'))
+    const tab = (kind: 'undone' | 'done') => document.querySelectorAll('[data-testid="recap-switcher"] [role="tab"]')[kind === 'undone' ? 0 : 1] as HTMLElement
+    const pressed = () => (['undone', 'done'] as const).filter(k => tab(k).getAttribute('aria-selected') === 'true').map(k => `recap-switch-${k}`)
     const decks = () => [...document.querySelectorAll('[data-testid^="recap-deck-"][role="group"]')].map(el => el.getAttribute('data-testid'))
 
     it('shows one deck at a time, starting on "noch offen", and the switcher counts say what is in each', async () => {
       await open([doneAt(1, 'a'), doneAt(1, 'b'), task('o', TaskStatus.Open)])
-      expect(q('[data-testid="recap-switch-undone"]').textContent?.trim()).toBe('1 noch offen')
-      expect(q('[data-testid="recap-switch-done"]').textContent?.trim()).toBe('2 erledigt')
+      expect(tab('undone').textContent?.trim()).toBe('1 noch offen')
+      expect(tab('done').textContent?.trim()).toBe('2 erledigt')
       expect(pressed()).toEqual(['recap-switch-undone'])
       expect(decks()).toEqual(['recap-deck-undone'])
 
-      q('[data-testid="recap-switch-done"]').click()
+      tab('done').click()
       await nextTick()
       expect(pressed()).toEqual(['recap-switch-done'])
       expect(decks()).toEqual(['recap-deck-done'])
 
-      q('[data-testid="recap-switch-undone"]').click()
+      tab('undone').click()
       await nextTick()
       expect(decks()).toEqual(['recap-deck-undone'])
     })
@@ -389,7 +396,7 @@ describe('NewDayRecap', () => {
 
     it('with nothing open there is no switcher, only the done deck with its heading', async () => {
       await open([doneAt(1, 'a'), doneAt(1, 'b')])
-      expect(document.querySelector('[data-testid^="recap-switch-"]')).toBeNull()
+      expect(document.querySelector('[data-testid="recap-switcher"]')).toBeNull()
       expect(decks()).toEqual(['recap-deck-done'])
       expect(q('[data-testid="recap-deck-label"]').parentElement!.classList.contains('sr-only')).toBe(false)
     })
@@ -397,7 +404,7 @@ describe('NewDayRecap', () => {
     it('a reopened recap starts on "noch offen" again', async () => {
       await open([doneAt(1, 'a'), task('o', TaskStatus.Open)])
       useDayRecapStore().setArchiveDone(false)
-      q('[data-testid="recap-switch-done"]').click()
+      tab('done').click()
       await nextTick()
       q('[data-testid="recap-continue"]').click()
       await nextTick()
@@ -412,7 +419,7 @@ describe('NewDayRecap', () => {
 
   it('on desktop both decks show side by side and there is no switcher', async () => {
     await open([doneAt(1, 'a'), task('o', TaskStatus.Open)])
-    expect(document.querySelector('[data-testid^="recap-switch-"]')).toBeNull()
+    expect(document.querySelector('[data-testid="recap-switcher"]')).toBeNull()
     expect(document.querySelectorAll('[data-testid^="recap-deck-"][role="group"]')).toHaveLength(2)
   })
 })
