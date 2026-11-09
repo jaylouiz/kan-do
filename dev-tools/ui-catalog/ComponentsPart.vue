@@ -13,7 +13,7 @@
   <section id="components" tabindex="-1" aria-labelledby="components-title" class="scroll-mt-16 space-y-8 outline-none" :data-kd-catalog-ready="ready || undefined">
     <div>
       <h2 id="components-title" class="font-display text-2xl text-highlighted">Components</h2>
-      <p class="mt-1 text-sm text-muted">
+      <p class="mt-1 max-w-lg text-sm text-muted">
         {{ manifest.length }} components from the manifest, {{ entryCount }} with a catalog entry. Texts come from the doc blocks (Nuxt UI components: their entry), variants of a Nuxt UI component from the merged theme.
       </p>
     </div>
@@ -31,7 +31,7 @@
         @update:model-value="chooseLocale"
       />
     </div>
-    <p class="-mt-4 text-xs text-muted">The viewport switch narrows the frame of the samples; media queries still follow the browser window. The language switch changes the app locale of the samples, not this page.</p>
+    <p class="-mt-4 max-w-lg text-xs text-muted">The viewport switch narrows the frame of the samples; media queries still follow the browser window. The language switch changes the app locale of the samples, not this page.</p>
 
     <p v-if="!ready" class="text-sm text-muted" role="status">Loading entries…</p>
     <template v-else>

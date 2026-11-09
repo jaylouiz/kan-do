@@ -20,7 +20,7 @@
       </p>
     </header>
 
-    <dl class="space-y-2 text-sm">
+    <dl class="max-w-lg space-y-2 text-sm">
       <div>
         <dt class="text-xs text-muted">Description</dt>
         <dd class="break-words text-default">{{ row.description }}</dd>
@@ -43,7 +43,7 @@
       </div>
     </dl>
 
-    <p v-if="!entry" class="text-sm text-muted">No catalog entry yet: its samples arrive with its category slice.</p>
+    <p v-if="!entry" class="max-w-lg text-sm text-muted">No catalog entry yet: its samples arrive with its category slice.</p>
     <p v-else-if="error" role="alert" class="text-sm text-error">Could not render the samples: {{ error }}</p>
     <template v-else-if="component">
       <div class="space-y-2">
