@@ -5,7 +5,7 @@
 @description Carried-over marker (#99): one small dot per board day, shown from day 2 (#121).
 @usage <TaskCarryOverDots :day="displayDay" /> in the TaskCard footer; renders nothing on day 1 (and below).
 `decorative` next to text that already names the count (task sheet).
-@avoid Only the carried-over marker (day 2 and later); not a progress indicator (TaskProgressBar).
+@avoid Only the carried-over marker (day 2 and later); not a progress indicator.
 @responsibility
 - Shows up to CARRY_OVER_DOT_CAP dots; only past the cap a "+" and the muted numeral follow (#584; never in decorative mode)
 - Names the meaning for hover and screen readers; not a tab stop (kd#27: 8+ extra stops on a board of carried-over cards) ("Tag 3 auf dem Board")
