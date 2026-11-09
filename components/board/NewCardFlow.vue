@@ -1003,7 +1003,7 @@ onBeforeUnmount(() => {
   flex: 0 0 auto;
 }
 
-/* Hover/press and the picked value fill with ink, like the nudge's answers; the check is the one filled control */
+/* Hover/press and the picked value fill with ink, like the nudge's answers; the two save controls are UButton soft primary (#71) */
 .ncf__control:hover:not(:disabled),
 .ncf__control:active:not(:disabled),
 .ncf__control.is-picked {
