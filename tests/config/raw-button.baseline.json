@@ -1,0 +1,66 @@
+{
+  "components/board/AddTaskSlot.vue": {
+    "count": 1,
+    "reason": "keep: card-shaped slot with a reserved box UButton ghost block cannot reproduce (#71)"
+  },
+  "components/board/NewCardFlow.vue": {
+    "count": 5,
+    "reason": "pills move to the choice-chip primitive (#72), back and skip to the semantic map (#73)"
+  },
+  "components/board/NewCardOptionList.vue": {
+    "count": 2,
+    "reason": "keep: option rows of a searchable list (audit, #72)"
+  },
+  "components/nav/AppNav.vue": {
+    "count": 1,
+    "reason": "keep: the app bar \"more\" pill with its status dot (audit, #73)"
+  },
+  "components/recap/NewDayRecap.vue": {
+    "count": 1,
+    "reason": "moves onto UTabs pill in #73"
+  },
+  "components/setup/LocalSetupFlow.vue": {
+    "count": 1,
+    "reason": "moves onto UButton back control in #73"
+  },
+  "components/setup/NotionSetupFlow.vue": {
+    "count": 1,
+    "reason": "moves onto UButton back control in #73"
+  },
+  "components/statistics/StatsTile.vue": {
+    "count": 1,
+    "reason": "keep: disclosure toggle inside the heading (audit, #76)"
+  },
+  "components/task/DatePickerField.vue": {
+    "count": 1,
+    "reason": "keep: sheet property value trigger primitive (audit, #72)"
+  },
+  "components/task/TaskDetailContent.vue": {
+    "count": 1,
+    "reason": "keep: sheet property value trigger primitive (audit, #72)"
+  },
+  "components/task/TaskForm.vue": {
+    "count": 2,
+    "reason": "keep: sheet property value trigger primitive (audit, #72)"
+  },
+  "components/task/TaskTimeboxNudge.vue": {
+    "count": 3,
+    "reason": "chips move onto the choice-chip primitive or UButton in #72"
+  },
+  "components/task/TopicPropertyPicker.vue": {
+    "count": 1,
+    "reason": "merges into the list-row primitive (audit, #76)"
+  },
+  "components/topic/TopicEditor.vue": {
+    "count": 3,
+    "reason": "keep: colour swatch and symbol radios; symbol trigger moves in #72"
+  },
+  "components/ui/ListRow.vue": {
+    "count": 1,
+    "reason": "keep: the action row is the one button of the list-row primitive (#76)"
+  },
+  "pages/welcome.vue": {
+    "count": 1,
+    "reason": "keep: rich two-line choice card, not a button look (audit, #71)"
+  }
+}
