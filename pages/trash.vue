@@ -57,6 +57,7 @@
 <script setup lang="ts">
 import { nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import EmptyNote from '~/components/ui/EmptyNote.vue'
 import TrashEntryRow from '~/components/trash/TrashEntryRow.vue'
 import { useTrash } from '~/composables/useTrash'
 

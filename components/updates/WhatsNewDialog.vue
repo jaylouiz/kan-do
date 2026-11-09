@@ -49,6 +49,7 @@ version since the last one seen, newest first. Opened by the "Was ist neu" butto
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import EmptyNote from '~/components/ui/EmptyNote.vue';
 import { useWhatsNew } from '~/composables/useWhatsNew';
 import { MODAL_WIDTH } from '~/utils/modalSizes';
 

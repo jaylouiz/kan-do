@@ -294,6 +294,15 @@ export default defineAppConfig({
             description: 'opacity-100'
           }
         },
+        // Same for subtle success (the upload probe's "allowed", #74): teal-500 on the success/10 wash is below AA
+        {
+          color: 'success',
+          variant: 'subtle',
+          class: {
+            root: 'text-success-800',
+            description: 'opacity-100'
+          }
+        },
         // Same for subtle info: sky-500 on the info/10 wash is below AA (#368)
         {
           color: 'info',

@@ -2564,7 +2564,7 @@
     "kind": "compound",
     "category": "feedback",
     "description": "The inline notice: a short message with an optional title, icon and actions in the semantic colour roles (DESIGN.md \"Notices and toasts\").",
-    "usage": "`variant=\"subtle\"` with `color` `error` for a failure, `warning` for \"needs attention\", `info` for a hint, `neutral` for a quiet result. The call site sets `role` (`alert` for a failure that appears, `status` for a state) and `data-testid`; text goes into `description` (and `title` when a second line helps). A system notice with actions is `orientation=\"horizontal\"` (DataStorageNotice).",
+    "usage": "`variant=\"subtle\"` with `color` `error` for a failure, `warning` for \"needs attention\", `info` for a hint, `success` for a confirmed good result, `neutral` for a quiet result. The call site sets `role` (`alert` for a failure that appears, `status` for a state) and `data-testid`; text goes into `description` (and `title` when a second line helps). A system notice with actions is `orientation=\"horizontal\"` (DataStorageNotice).",
     "avoid": "Not for a field's own error (UFormField error), not for a reaction to an action that passes by (a toast, raised with `useToast`), and no hand-built tinted box or coloured `<p role=\"alert\">` line next to it.",
     "responsibility": [],
     "variants": [
@@ -2578,7 +2578,7 @@
     ],
     "usedBy": {
       "components": 16,
-      "pages": 0,
+      "pages": 1,
       "layouts": 0,
       "app": 0
     }

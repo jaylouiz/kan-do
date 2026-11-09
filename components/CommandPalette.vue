@@ -61,6 +61,7 @@ keyboard focus when the palette opened (issue #101, Direction B).
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import EmptyNote from '~/components/ui/EmptyNote.vue'
 import { useTasksStore } from '~/store/tasks'
 import { useCommandPalette } from '~/composables/useCommandPalette'
 

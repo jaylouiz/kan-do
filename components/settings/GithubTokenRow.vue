@@ -49,14 +49,14 @@
           {{ t('settings.github.remove') }}
         </UButton>
       </div>
-      <p
+      <UAlert
         v-if="problemText"
-        class="w-full text-sm"
-        :class="isOfflineProblem ? 'text-muted' : 'text-error-700'"
+        :color="isOfflineProblem ? 'neutral' : 'error'"
+        variant="subtle"
+        :icon="isOfflineProblem ? 'i-ph-info' : 'i-ph-warning-circle'"
         :role="isOfflineProblem ? 'status' : 'alert'"
-      >
-        {{ problemText }}
-      </p>
+        :description="problemText"
+      />
 
       <!-- Screenshot upload (#247): only the feedback token uploads; the probe leaves nothing in the repository -->
       <div v-if="entry === 'github-feedback'" class="flex w-full flex-wrap items-center gap-x-4 gap-y-1" data-testid="github-upload-probe">
@@ -72,8 +72,9 @@
         </UButton>
         <UAlert
           v-if="probeText"
-          :color="row.upload === 'allowed' ? 'neutral' : 'warning'"
+          :color="row.upload === 'allowed' ? 'success' : 'warning'"
           variant="subtle"
+          class="w-auto"
           :icon="row.upload === 'allowed' ? 'i-ph-check-circle' : 'i-ph-warning-circle'"
           role="status"
           :description="probeText"

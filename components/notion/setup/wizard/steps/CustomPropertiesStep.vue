@@ -62,6 +62,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import EmptyNote from '~/components/ui/EmptyNote.vue'
 import { useLocaleFormat } from '~/composables/useLocaleFormat'
 import type { NotionCustomPropertyConfig, NotionDatabaseSchema, NotionPropertyMapping, CustomPropertyType } from '~/types/notion'
 

@@ -33,6 +33,7 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
+import EmptyNote from '~/components/ui/EmptyNote.vue';
 import { useLocaleFormat } from "~/composables/useLocaleFormat";
 import { getAccuracyTier, getAccuracyVerdict, getVerdictColor } from "~/utils/statisticsAccuracy";
 import { computed, h } from 'vue';

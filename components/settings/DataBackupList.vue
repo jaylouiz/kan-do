@@ -54,7 +54,7 @@ event, the page owns the single confirmation modal.
       {{ t('settings.data.backups.loading') }}
     </p>
     <div v-else-if="backupsLoad === 'error'" class="flex flex-wrap items-center gap-x-3 gap-y-1" data-testid="data-backups-failed">
-      <UAlert color="error" variant="subtle" icon="i-ph-x-circle" :description="t('settings.data.backups.loadFailed')" />
+      <UAlert color="error" variant="subtle" icon="i-ph-x-circle" class="w-auto" :description="t('settings.data.backups.loadFailed')" />
       <UButton variant="link" color="neutral" size="sm" @click="refreshBackups">{{ t('settings.data.backups.reload') }}</UButton>
     </div>
     <EmptyNote v-else-if="backups.length === 0" data-testid="data-backups-empty">
@@ -123,6 +123,7 @@ event, the page owns the single confirmation modal.
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import EmptyNote from '~/components/ui/EmptyNote.vue';
 import { useDataFolder } from '~/composables/useDataFolder';
 import { useLocaleFormat } from '~/composables/useLocaleFormat';
 import { CURRENT_SCHEMA_VERSION } from '~/utils/dataFile/envelope';
