@@ -15,7 +15,7 @@
 //!
 //! Debug builds with the production identifier (`tauri dev`) run neither step. Until a release has finished a step they keep
 //! using the legacy folder and Keychain service; afterwards they follow the marker, read-only, and use the folder and
-//! service the installed app uses, see [`run_gated`] and [`secrets_settled`] (#60).
+//! service the installed app uses, see [`run_gated`] and [`secrets_settled`] (kd#60).
 //!
 //! Progress lives in `identifier-migration.json` in the new config dir (states only, never a value). Token values never
 //! reach a log line, an error or that file. Log lines name steps and counts, never paths with user content.
@@ -460,7 +460,7 @@ pub fn secrets_settled(config_dir: &Path) -> bool {
 /// and strand the real data in the legacy folder (#42). So until the release has finished the data step (the marker in
 /// the new config dir says `done` or `skipped`) the legacy folder is the data folder, the new folder is never created or
 /// written, and (see `secrets::service_for`) the legacy Keychain service is used. Once the marker says so, the new
-/// folder is the one the installed app works in, and the dev run uses it as well instead of a frozen copy (#60). The
+/// folder is the one the installed app works in, and the dev run uses it as well instead of a frozen copy (kd#60). The
 /// marker is only read, in every state. A sandbox identifier (`docs/testing/tauri-dev-sandbox.md`, a debug build by
 /// nature) still runs the data step against its throwaway `HOME`; its Keychain step is skipped by [`run_secrets`].
 pub fn run_gated(
@@ -471,10 +471,14 @@ pub fn run_gated(
     backends: impl FnOnce() -> Option<(Box<dyn Backend>, Box<dyn Backend>)>,
 ) -> Dirs {
     if debug_build && identifier == PRODUCTION_IDENTIFIER {
-        if data_settled(config_dir) {
+        let marker = read_state(config_dir);
+        if matches!(&marker, Ok(state) if matches!(state.data.as_deref(), Some(DONE | SKIPPED))) {
             log::info!("identifier migration: debug build with the production identifier follows the finished migration and uses the new folder");
         } else {
-            log::info!("identifier migration: skipped, debug build with the production identifier keeps using the legacy folder until a release has migrated");
+            match &marker {
+                Err(reason) => log::warn!("identifier migration: marker unreadable ({reason}), debug build with the production identifier keeps using the legacy folder"),
+                Ok(_) => log::info!("identifier migration: debug build with the production identifier keeps using the legacy folder until a release has migrated"),
+            }
             if let (Some(config_dir), Some(default_folder)) = (legacy_sibling(config_dir), legacy_sibling(default_folder)) {
                 return Dirs { config_dir, default_folder };
             }

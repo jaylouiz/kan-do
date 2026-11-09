@@ -445,16 +445,21 @@ fn a_debug_build_follows_a_finished_data_step_and_uses_the_new_folder_without_wr
 fn a_debug_build_stays_on_the_legacy_folder_while_the_release_has_not_finished_or_the_marker_is_unreadable() {
     let t = Support::new();
     t.seed_default_install();
+    // Every state that is not a finished data step: the legacy folder is used and neither folder is written.
+    let mut check = |label: &str| {
+        let (old_before, new_before) = (snapshot(&t.old), snapshot(&t.new));
+        let dirs = run_gated(true, PRODUCTION_IDENTIFIER, &t.new, &t.new, || panic!("no Keychain in a debug build"));
+        assert_eq!(dirs.default_folder, t.old, "{label}: the copy is not authoritative");
+        assert_eq!(dirs.config_dir, t.old, "{label}");
+        assert_eq!((snapshot(&t.old), snapshot(&t.new)), (old_before, new_before), "{label}: nothing is written");
+    };
     put_marker(&t, marker(Some(IN_PROGRESS), None, 0));
-    let dirs = run_gated(true, PRODUCTION_IDENTIFIER, &t.new, &t.new, || panic!("no Keychain in a debug build"));
-    assert_eq!(dirs.default_folder, t.old, "in-progress: the copy is not authoritative yet");
+    check("in-progress");
     // A marker with only the Keychain half (data not recorded) is not a finished data step either.
     put_marker(&t, marker(None, Some(DONE), 0));
-    assert_eq!(run_gated(true, PRODUCTION_IDENTIFIER, &t.new, &t.new, || None).default_folder, t.old);
+    check("data not recorded");
     fs::write(t.new.join(STATE_FILE), b"not json").unwrap();
-    let before = snapshot(&t.new);
-    assert_eq!(run_gated(true, PRODUCTION_IDENTIFIER, &t.new, &t.new, || None).default_folder, t.old, "unreadable marker");
-    assert_eq!(snapshot(&t.new), before, "an unreadable marker is not repaired by a dev run");
+    check("unreadable marker");
 }
 
 #[test]

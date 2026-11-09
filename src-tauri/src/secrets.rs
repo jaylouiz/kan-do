@@ -23,7 +23,7 @@ pub const SERVICE: &str = "io.github.jaylouiz.kan-do";
 /// identifier (`tauri dev`) never migrates: until the release's Keychain step is over (`identifier_migration::secrets_settled`
 /// on the marker in `config_dir`, read-only) it keeps the legacy service of the installed 0.11.0, so a dev run neither
 /// creates entries under the new service (which would make the release's step keep them as "new wins") nor strands the
-/// real tokens. Afterwards the installed app lives under [`SERVICE`] and the dev run uses the same entries (#60). A release
+/// real tokens. Afterwards the installed app lives under [`SERVICE`] and the dev run uses the same entries (kd#60). A release
 /// build always uses [`SERVICE`]. Any other identifier is its own service: a sandboxed run (`…sandbox-<port>`,
 /// `docs/testing/tauri-dev-sandbox.md`) gets an empty service and never reads, writes or deletes a real entry (kd#54).
 pub fn service_for(debug_build: bool, identifier: &str, config_dir: &std::path::Path) -> String {
@@ -526,7 +526,7 @@ mod tests {
         assert_eq!(service_for(true, PRODUCTION_IDENTIFIER, config.path()), LEGACY_IDENTIFIER, "move still pending");
         std::fs::write(&marker, b"{").unwrap();
         assert_eq!(service_for(true, PRODUCTION_IDENTIFIER, config.path()), LEGACY_IDENTIFIER, "unreadable marker");
-        // Afterwards the installed app lives under the new service and so does the dev run (#60).
+        // Afterwards the installed app lives under the new service and so does the dev run (kd#60).
         std::fs::write(&marker, br#"{"data":"done","secrets":"done"}"#).unwrap();
         assert_eq!(service_for(true, PRODUCTION_IDENTIFIER, config.path()), SERVICE);
         std::fs::write(&marker, br#"{"data":"done","secretsAttempts":3}"#).unwrap();

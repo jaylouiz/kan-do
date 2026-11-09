@@ -108,7 +108,7 @@ pub fn run() {
       app.handle().plugin(logging::plugin())?;
       let dirs = identifier_migration::run(app.handle());
       // The Keychain service follows the identifier the app runs under (a sandbox gets its own, kd#54) and, for `tauri dev`,
-      // the migration marker (#60), which lives in the config dir: so `Secrets` is managed here, after the migration and
+      // the migration marker (kd#60), which lives in the config dir: so `Secrets` is managed here, after the migration and
       // before the first command is served.
       let keychain_service = secrets::service_for(
         cfg!(debug_assertions),
