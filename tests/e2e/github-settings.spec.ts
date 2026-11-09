@@ -202,7 +202,8 @@ test.describe('GitHub settings (desktop)', () => {
     await page.goto('/settings/github')
     const rejected = updates(page).getByTestId('github-token-rejected')
     await expect(rejected).toContainText('GitHub hat dieses Token abgelehnt. Füge ein neues ein.')
-    await expect(rejected.getByText('GitHub hat dieses Token abgelehnt. Füge ein neues ein.')).toHaveClass(/text-error/)
+    // The rejection is a subtle error alert (#74): the tone sits on the alert root
+    await expect(rejected.getByRole('status').filter({ hasText: 'GitHub hat dieses Token abgelehnt. Füge ein neues ein.' })).toHaveClass(/text-error/)
     await expect(rejected.getByRole('link', { name: /Token auf GitHub erstellen/ })).toBeVisible()
   })
 

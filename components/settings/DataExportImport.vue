@@ -31,7 +31,15 @@ independent of the data folder and without any credentials. Export writes throug
       {{ t(`settings.data.restoreBlocked.${restoreBlock}`) }}
     </p>
     <p v-if="doneText" class="text-sm text-default" role="status" data-testid="data-transfer-done">{{ doneText }}</p>
-    <p v-if="errorText" class="text-sm text-error-700" role="alert" data-testid="data-transfer-error">{{ errorText }}</p>
+    <UAlert
+      v-if="errorText"
+      color="error"
+      variant="subtle"
+      icon="i-ph-x-circle"
+      role="alert"
+      :description="errorText"
+      data-testid="data-transfer-error"
+    />
   </section>
 </template>
 

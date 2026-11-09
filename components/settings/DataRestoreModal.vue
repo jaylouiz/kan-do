@@ -37,7 +37,15 @@ for the comparison (source vs. now), not as an "are you sure?"; the replace is r
           :label="t('settings.data.exportImport.safetyDownload')"
           data-testid="data-restore-safety"
         />
-        <p v-if="errorText" class="text-sm text-error-700" role="alert" data-testid="data-restore-error">{{ errorText }}</p>
+        <UAlert
+          v-if="errorText"
+          color="error"
+          variant="subtle"
+          icon="i-ph-x-circle"
+          role="alert"
+          :description="errorText"
+          data-testid="data-restore-error"
+        />
       </div>
     </template>
 

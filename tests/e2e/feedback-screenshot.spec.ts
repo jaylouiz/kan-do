@@ -308,6 +308,11 @@ test.describe('Settings: screenshot upload probe', () => {
     const row = page.getByRole('region', { name: 'Feedback' })
     await row.getByRole('button', { name: 'Screenshot-Upload prüfen' }).click()
     await expect(row.getByTestId('github-upload-probe-result')).toHaveText('Upload erlaubt')
+    // Allowed keeps its success tone; the alert is not full width, so button and result share one line (#74)
+    await expect(row.getByTestId('github-upload-probe-result')).toHaveClass(/text-success/)
+    const buttonBox = (await row.getByRole('button', { name: 'Screenshot-Upload prüfen' }).boundingBox())!
+    const resultBox = (await row.getByTestId('github-upload-probe-result').boundingBox())!
+    expect(Math.abs((resultBox.y + resultBox.height / 2) - (buttonBox.y + buttonBox.height / 2))).toBeLessThan(buttonBox.height)
     const [call] = await probeCalls(page)
     expect(call).toMatchObject({ entry: 'github-feedback', method: 'POST', path: '/repos/jaylouiz/kan-do/git/blobs', body: { content: '', encoding: 'utf-8' } })
 

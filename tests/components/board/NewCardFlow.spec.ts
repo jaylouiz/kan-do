@@ -35,6 +35,8 @@ const stubs = {
   TaskCard: { props: ['task'], template: '<div class="task-face" :data-title="task.title" :data-topic="task.topic" :data-color="task.topicColorCode"><p class="task-title-text" /></div>' },
   TopicMark: true,
   UIcon: true,
+  // The real UButton is a Nuxt UI component the unit environment does not register: a native button with the same disabled behaviour.
+  UButton: { props: ['disabled', 'color', 'variant', 'size'], template: '<button v-bind="$attrs" :disabled="disabled"><slot /></button>' },
   UPopover: { template: '<div><slot /><slot name="content" /></div>' },
   UInput: {
     props: ['modelValue'],

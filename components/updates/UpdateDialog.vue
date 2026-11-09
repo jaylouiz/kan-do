@@ -38,7 +38,15 @@ current version, says that data is backed up first and the app restarts, and ins
           {{ t('updates.dialog.current', { version: update.currentVersion }) }}
         </p>
         <p class="text-sm text-muted">{{ t('updates.dialog.backupNote') }}</p>
-        <p v-if="failureText" class="text-sm" :class="failureClass" role="alert" data-testid="update-error">{{ failureText }}</p>
+        <UAlert
+          v-if="failureText"
+          :color="failureColor"
+          variant="subtle"
+          :icon="failureColor === 'warning' ? 'i-ph-warning' : 'i-ph-x-circle'"
+          role="alert"
+          :description="failureText"
+          data-testid="update-error"
+        />
         <UButton
           v-if="state.installError?.kind === 'data_blocked'"
           to="/settings/data"
@@ -133,5 +141,5 @@ const failureText = computed(() => {
 });
 
 /** Orange for "fix this first", raspberry for a failed install. */
-const failureClass = computed(() => (state.installError?.kind === 'data_blocked' ? 'text-warning-700' : 'text-error-700'));
+const failureColor = computed(() => (state.installError?.kind === 'data_blocked' ? 'warning' : 'error'));
 </script>

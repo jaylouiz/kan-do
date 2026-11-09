@@ -55,7 +55,15 @@ showing it.
         </div>
       </ListRow>
     </ul>
-    <p v-if="errorText" class="text-sm text-error-700" role="alert" data-testid="data-copies-error">{{ errorText }}</p>
+    <UAlert
+      v-if="errorText"
+      color="error"
+      variant="subtle"
+      icon="i-ph-x-circle"
+      role="alert"
+      :description="errorText"
+      data-testid="data-copies-error"
+    />
   </section>
 </template>
 

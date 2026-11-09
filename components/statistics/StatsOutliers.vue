@@ -12,7 +12,7 @@
 <template>
   <div>
     <h3 class="font-display tracking-display text-lg leading-(--lh-tight) text-highlighted">{{ t('statistics.outliers.heading') }}</h3>
-    <p v-if="outliers.length === 0" class="mt-3 text-sm text-muted">{{ t('statistics.outliers.empty') }}</p>
+    <EmptyNote v-if="outliers.length === 0" class="mt-3">{{ t('statistics.outliers.empty') }}</EmptyNote>
     <ul v-else class="mt-3 divide-y divide-default" data-testid="stats-outliers">
       <ListRow
         v-for="outlier in outliers"
@@ -33,6 +33,7 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import EmptyNote from '~/components/ui/EmptyNote.vue'
 import ListRow from '~/components/ui/ListRow.vue'
 import { useLocaleFormat } from '~/composables/useLocaleFormat'
 import type { Outlier } from '~/lib/statisticsReview'

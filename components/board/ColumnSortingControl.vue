@@ -1,7 +1,7 @@
 <!--
 @component ColumnSortingControl
 @kind component
-@category input
+@category action
 @description Per-column sort menu in the column header: sort field and direction for one column
 @usage Rendered by BoardColumn; fades out while not hovered or focused (`visible`)
 @avoid Sorts one column only; board-wide controls (grouping, day close) live in MorePanel.

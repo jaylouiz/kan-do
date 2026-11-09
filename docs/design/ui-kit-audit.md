@@ -254,9 +254,11 @@ Each family lists the implementations found (counts from `rg` on 2026-11-09), th
 
 **Decision: merge** the plain lines that explain a failure or a state into `UAlert` subtle; keep an inline field error as the `UFormField` error. Which of toast, alert and inline line is right is the #68 rule. Owner #74.
 
+**Done in #74:** the plain failure and state lines of the `Data*` modals and cards, `FeedbackDialog`, `FeedbackAnnotator`, `UpdateDialog`, `DataBackupList` and `GithubTokenRow` are `UAlert` subtle (`error`, `warning`, `neutral`), with the `error` subtle contrast step in the `alert` theme of `app.config.ts`. Kept on purpose: field errors (`TaskForm`, `InlineEditable`), `sr-only` live regions, search "no result" hints, the trash confirm sentences (a question asked in place), the `TopicEditor` merge note, `pages/settings/data.vue:43` and `MorePanel` tone (status text inside a row). Toasts: no call site moved (the choice is #68).
+
 ### Empty states
 
-One muted sentence: `pages/trash.vue:37`, `WhatsNewDialog.vue:32`, `DataBackupList.vue:50`, `StatsOutliers.vue:12`, `TasksTable.vue:15`, `CommandPalette.vue:32`, `CustomPropertiesStep.vue:53`. Two lines (sentence plus hint): `DatabaseSelectionStep.vue:41`. Empty board columns stay blank (P5, open in `docs/design/backlog.md`, not re-filed). The orange icon empty state is gone (U11 done). **Decision: keep** the muted sentence as the one empty state; the two-line step becomes sentence plus `UAlert` hint only if the #68 rule asks for it. Owner #74.
+One muted sentence: `pages/trash.vue:37`, `WhatsNewDialog.vue:32`, `DataBackupList.vue:50`, `StatsOutliers.vue:12`, `TasksTable.vue:15`, `CommandPalette.vue:32`, `CustomPropertiesStep.vue:53`. Two lines (sentence plus hint): `DatabaseSelectionStep.vue:41`. Empty board columns stay blank (P5, open in `docs/design/backlog.md`, not re-filed). The orange icon empty state is gone (U11 done). **Done in #74:** the seven one-sentence sites render `EmptyNote` (`components/ui/EmptyNote.vue`, text-sm muted; `trash` and `TasksTable` moved from 16 px to 14 px, an intentional change). **Decision: keep** the muted sentence as the one empty state; the two-line step becomes sentence plus `UAlert` hint only if the #68 rule asks for it. Owner #74.
 
 ### List rows
 
