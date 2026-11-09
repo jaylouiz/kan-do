@@ -58,9 +58,12 @@
         @input="onTitleInput"
         @keydown.enter.exact.prevent="onTitleEnter"
       />
-      <button
+      <UButton
         type="submit"
-        class="ncf__check ncf__control"
+        color="primary"
+        variant="soft"
+        size="sm"
+        class="ncf__action ncf__check"
         data-testid="new-card-confirm-title"
         aria-keyshortcuts="Enter"
         :disabled="!title.trim()"
@@ -69,7 +72,7 @@
       >
         <UIcon name="i-ph-check-bold" class="size-4" aria-hidden="true" />
         <kbd class="ncf__key" :data-key="KEY_ENTER" aria-hidden="true" />
-      </button>
+      </UButton>
     </form>
 
     <div
@@ -124,9 +127,12 @@
               :placeholder="t('board.quickAdd.notesPlaceholder')"
               :aria-label="t('task.field.notes')"
             >
-            <button
+            <UButton
               type="submit"
-              class="ncf__pill ncf__pill--check ncf__control"
+              color="primary"
+              variant="soft"
+              size="sm"
+              class="ncf__action"
               data-testid="new-card-save"
               aria-keyshortcuts="Enter"
               :disabled="saving"
@@ -135,7 +141,7 @@
             >
               <UIcon name="i-ph-check-bold" class="size-4" aria-hidden="true" />
               <kbd class="ncf__key" :data-key="KEY_ENTER" aria-hidden="true" />
-            </button>
+            </UButton>
           </form>
 
           <div v-else class="ncf__row ncf__row--grid" data-testid="new-card-options">
@@ -948,6 +954,20 @@ onBeforeUnmount(() => {
   color: var(--ui-text-highlighted);
 }
 
+/* The two save controls (the title's check, the Notiz row's save) are UButton soft primary (#71): the theme brings the
+   colours, hover, disabled look and focus ring. This is their geometry only: the round control of the flow's row height. */
+.ncf__action {
+  flex: 0 0 auto;
+  justify-content: center;
+  gap: 0.375rem;
+  height: var(--ncf-control-h);
+  min-width: var(--ncf-control-h);
+  /* the flow's 40 px phone control (the pills stay 40 too; #72 owns the choice pills and the floor they share) */
+  min-height: var(--ncf-control-h);
+  padding: 0 0.75rem;
+  border-radius: 9999px;
+}
+
 .ncf__control {
   display: inline-flex;
   align-items: center;
@@ -979,17 +999,14 @@ onBeforeUnmount(() => {
   min-width: 7ch;
 }
 
-.ncf__pill--more,
-.ncf__pill--check {
+.ncf__pill--more {
   flex: 0 0 auto;
 }
 
 /* Hover/press and the picked value fill with ink, like the nudge's answers; the check is the one filled control */
 .ncf__control:hover:not(:disabled),
 .ncf__control:active:not(:disabled),
-.ncf__control.is-picked,
-.ncf__pill--check:not(:disabled),
-.ncf__check:not(:disabled) {
+.ncf__control.is-picked {
   background: var(--ui-primary);
   color: var(--ui-bg);
 }
@@ -1003,18 +1020,8 @@ onBeforeUnmount(() => {
   transform: scale(0.97);
 }
 
-.ncf__check:disabled {
-  color: var(--ui-text-muted);
-  cursor: default;
-}
-
 .ncf__control:disabled {
   cursor: default;
-}
-
-.ncf__pill--check:disabled {
-  background: var(--ui-bg-muted);
-  color: var(--ui-text-muted);
 }
 
 .ncf__control:focus-visible,
@@ -1101,6 +1108,7 @@ onBeforeUnmount(() => {
   }
 
   .ncf__control,
+  .ncf__action,
   .ncf__note {
     height: var(--ncf-control-h);
     min-width: var(--ncf-control-h);

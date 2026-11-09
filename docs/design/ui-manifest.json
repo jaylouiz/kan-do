@@ -39,11 +39,18 @@
       "While the in-card form is open the Jetzt focus overlay steps aside (useInCardAdding, kd#56)",
       "Drafting (useTaskDraft holds a draft for this column): the draft card fades in over the button, the label fades out; the button stays mounted but inert, so focus can return to it",
       "In-card adding (#649, `inCard`, Offen): the button opens NewCardFlow in the same box instead of the sheet and the slot is held grown like for a draft. Esc on a typed title also shows a \"Rückgängig\" toast that reopens the card with it (#665). Esc, a press outside a blank card, the sheet opening or a drag cancel it and send focus back to the button; a save swaps it for the saved card (no fade) and focuses that card. Jetzt and every other entry (palette, nav, menu) keep the sheet",
+      "The slot is a raw `<button>` on purpose (#71, audit): a card-shaped target whose box is reserved and held while a draft or a drag runs (`add-task-button`, `data-add-slot`, `inert`), which `UButton ghost block` cannot reproduce; revisit with the redesign (#1)",
       "During a drag (`hidden`) the slot keeps its geometry but is invisible and not interactive",
       "Reserves the card box only for the button or the draft: with neither (`showButton` off, no draft) it takes no space"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "open"
+    ],
+    "states": [
+      "focus",
+      "long-text",
+      "disabled"
+    ],
     "usedBy": {
       "components": 2,
       "pages": 0,
@@ -190,6 +197,7 @@
       "Offer exactly one action (\"Gesehen\") on the line; the parent archives all tasks of the note",
       "Keep today's wins on top: `--task-note-height` collapsed, 42px on desktop (46px at 390px so both controls reach 44px), card width, centred",
       "Surface (#605, D2; outline dropped #57): no border, `--done-note-wash` (70 % `success-100` over `success-50`: darker than the in-card confirmation wash so it separates without a frame, short of the `success-100` Erledigt drop wash so it never reads as a drop target), card radius. Tick and \"Gesehen\" in `success-800`; title row neutral, rows `toned`",
+      "Its three controls (label toggle, \"Gesehen\", title rows) are `UButton` ghost neutral (#71): the theme brings focus ring, hover wash and the 44 px phone floor; the note's scoped CSS keeps only its geometry, type and colours. The toggle stays a button inside the `<h3>` (`aria-expanded`)",
       "Collapse over 180ms when it leaves (instant under prefers-reduced-motion); the caret rotates 180ms"
     ],
     "variants": [],
@@ -249,7 +257,7 @@
     "path": "components/board/ColumnSortingControl.vue",
     "source": "app",
     "kind": "component",
-    "category": "input",
+    "category": "action",
     "description": "Per-column sort menu in the column header: sort field and direction for one column",
     "usage": "Rendered by BoardColumn; fades out while not hovered or focused (`visible`)",
     "avoid": "Sorts one column only; board-wide controls (grouping, day close) live in MorePanel.",
@@ -257,8 +265,14 @@
       "List the sort options for the column's status, mark the active one",
       "Emit `change` (field, direction) and `open-change` so the header can keep the control visible while the menu is open"
     ],
-    "variants": [],
-    "states": [],
+    "variants": [
+      "open-column",
+      "done-column"
+    ],
+    "states": [
+      "long-text",
+      "focus"
+    ],
     "usedBy": {
       "components": 1,
       "pages": 0,
@@ -2319,7 +2333,7 @@
     "path": "components/ui/ExternalLink.vue",
     "source": "app",
     "kind": "primitive",
-    "category": "navigation",
+    "category": "action",
     "description": "Link to an external page. In the desktop app it opens in the system browser through tauri-plugin-opener (narrow URL permission in src-tauri/capabilities); on web it is a plain `<a target=\"_blank\">`.",
     "usage": "<ExternalLink href=\"https://www.notion.so/my-integrations\">Manage token</ExternalLink>",
     "avoid": "Only for pages outside the app (opens the system browser on desktop); in-app links use NuxtLink.",
@@ -2497,7 +2511,7 @@
     "kind": "primitive",
     "category": "action",
     "description": "The one button of the app: solid, outline, soft, subtle, ghost and link variants in the semantic colour roles, in five sizes.",
-    "usage": "Every action that is not a navigation. `md` is the default; the one primary action of a surface sets `size=\"lg\"`, rows and cards use `sm`, `xs` only sits inside text (the button ladder, DESIGN.md \"Buttons\"). Icon-only buttons set `square` and an aria-label.",
+    "usage": "Every action that is not a navigation; a text-style action inside a quiet surface is `ghost` neutral, a button that reads as a link `link`. Back and forward steps are a ghost neutral square button with `ICONS.back` / `ICONS.forward` and an `aria-label` (never a raw `<button>`). `md` is the default; the one primary action of a surface sets `size=\"lg\"`, rows and cards use `sm`, `xs` only sits inside text (the button ladder, DESIGN.md \"Buttons\"). Icon-only buttons set `square` and an aria-label.",
     "avoid": "Not for navigation to a page (NuxtLink, ExternalLink for outside pages) and not for a toggle that stays pressed (UCheckbox, USwitch).",
     "responsibility": [],
     "variants": [
@@ -2513,8 +2527,53 @@
       "long-text"
     ],
     "usedBy": {
-      "components": 37,
+      "components": 39,
       "pages": 7,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "UDropdownMenu",
+    "path": "catalog/action/UDropdownMenu.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "compound",
+    "category": "action",
+    "description": "A menu of actions or choices that opens from a button: items with a leading icon, labels, descriptions, checkbox or radio items and groups.",
+    "usage": "Several secondary actions behind one trigger. The trigger is a ghost neutral `UButton`, icon-only ones set an aria-label (task sheet \"more actions\"); a menu that picks one of a few values shows the active one in the trigger (column sort). Action items carry a leading `i-ph-*` icon (a meaning that has an `ICONS` entry takes the glyph from there) and an i18n label; choice items (checkbox, radio) show their check instead of an icon. A destructive item sets `color: 'error'`. `:ui` only places (width, wrapping), identity lives in the theme.",
+    "avoid": "Not for navigation between places (AppNav, tabs), not for right-click or long-press on a card (TaskCardContextMenu) and not for one action (a `UButton`). Not inside a drawer that has no menu primitive (NewCardFlow keeps plain buttons).",
+    "responsibility": [],
+    "variants": [],
+    "states": [],
+    "usedBy": {
+      "components": 2,
+      "pages": 0,
+      "layouts": 0,
+      "app": 0
+    }
+  },
+  {
+    "name": "ULink",
+    "path": "catalog/action/ULink.catalog.ts",
+    "source": "nuxt-ui",
+    "kind": "primitive",
+    "category": "action",
+    "description": "Text link to a page inside the app, with the theme's active and disabled looks.",
+    "usage": "An in-app link inside a sentence (the feedback dialog's \"Zugang einrichten\"): `to` is a route and the caller adds the underline. Without a `class` it is unstyled apart from the theme's active colour.",
+    "avoid": "Not for a page outside the app (ExternalLink: it opens the system browser on desktop), not for an action (UButton, `link` variant when it must read as text), not for a settings row (SettingsSubpageLink).",
+    "responsibility": [],
+    "variants": [
+      "default",
+      "active"
+    ],
+    "states": [
+      "focus",
+      "disabled",
+      "long-text"
+    ],
+    "usedBy": {
+      "components": 1,
+      "pages": 0,
       "layouts": 0,
       "app": 0
     }

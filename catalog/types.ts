@@ -72,6 +72,11 @@ export interface CatalogEntry {
   /** `nuxt-ui` only: the theme the matrix and the axis values are read from (`.nuxt/ui/<theme>.ts` merged with `app.config.ts`). */
   theme?: string
   matrix?: CatalogMatrix
+  /**
+   * Why the entry has no samples: a component that cannot render from plain props (it needs a store, a trigger element or
+   * a host). The page prints this instead of samples; an entry with samples must not set it, one without must.
+   */
+  noSamples?: string
   /** Named variants of an app component (the variants of a Nuxt UI component come from `matrix`). */
   variants?: CatalogExample[]
   states: CatalogStateExample[]

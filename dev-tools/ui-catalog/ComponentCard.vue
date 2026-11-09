@@ -44,6 +44,7 @@
     </dl>
 
     <p v-if="!entry" class="max-w-lg text-sm text-muted">No catalog entry yet: its samples arrive with its category slice.</p>
+    <p v-else-if="entry.noSamples" class="max-w-lg text-sm text-muted">No live sample: {{ entry.noSamples }}</p>
     <p v-else-if="error" role="alert" class="text-sm text-error">Could not render the samples: {{ error }}</p>
     <template v-else-if="component">
       <div class="space-y-2">
