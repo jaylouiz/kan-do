@@ -1,8 +1,11 @@
 <!--
 @component DatePickerField
+@kind component
+@category input
 @description Popover calendar picker for task custom date properties.
              Wraps UPopover + UCalendar. Replaces <input type="date">.
 @usage <DatePickerField v-model="field.value" />
+@avoid Only custom date properties; other values use TaskPropertySelect or InlineEditable.
 @responsibility
 - Show the formatted date as plain text in read mode (or the muted empty CTA when value is null), no icon
 - Open a UCalendar popover on click

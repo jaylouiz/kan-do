@@ -1,7 +1,10 @@
 <!--
 @component TaskDraftCard
+@kind component
+@category display
 @description Representative card for the task being added in the sheet (#110): empty and white at first, fills live as the form is filled in
 @usage Rendered by AddTaskSlot in the same box as the add button while `useTaskDraft` has a draft for that column (Offen, or Jetzt for add-and-start, #125)
+@avoid Not a saved task (TaskCard); shown only while a task draft exists in the add slot.
 @responsibility
 - Reuses TaskCard for the layout so the draft matches the saved card (regular size; in Jetzt it shows the running time)
 - Not interactive, not draggable, not part of the tasks store

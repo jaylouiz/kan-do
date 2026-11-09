@@ -1,10 +1,13 @@
 <!--
 @component SettingsSubpageLink
+@kind component
+@category navigation
 @description One quiet link row from a settings surface to a settings sub-page (#242): icon, label, muted
 description and a trailing arrow. Text weight, no card, no accent colour. Laid out like a connection row of /settings
 (icon column, gap-4, base-size title; #683): the row sits `-mx-2 px-2` so the icon lines up with the rows above and the hover
 fill still has room around the text.
 @usage <SettingsSubpageLink to="/settings/github" icon="i-ph-key" :label="t('settings.subpages.github.label')" :description="t('settings.subpages.github.description')" />
+@avoid Only a link row to a settings sub-page; links to external pages are ExternalLink.
 @responsibility
 - Render a single NuxtLink whose accessible name is label + description
 - Hover and keyboard focus use the standard ink focus ring

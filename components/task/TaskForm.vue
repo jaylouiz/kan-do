@@ -1,7 +1,10 @@
 <!--
 @component TaskForm
+@kind block
+@category form-structure
 @description Form component for creating and editing tasks with integration support
 @usage Used in task creation and editing modals, with buttons handled by parent modal
+@avoid Only creating and editing a task in the sheet; the in-card flow is NewCardFlow.
 @responsibility
 - Provides the same labelled property rows as TaskDetailContent (#161): one grammar for add and detail
 - Title as a large clean input, properties as label/value rows; Thema/Aktivität are rows with the empty "Auswählen" state

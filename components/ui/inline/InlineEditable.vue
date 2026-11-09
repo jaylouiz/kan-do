@@ -1,7 +1,10 @@
 <!--
 @component InlineEditable
+@kind primitive
+@category input
 @description A generic component for inline editing of values.
 @usage Wraps content that switches between a read-only display view and an editable input view.
+@avoid Only read-or-edit in place; a form field that is always editable uses a plain input.
 @responsibility
 - Handle read/edit mode toggling
 - `required`: an empty value is never saved; Enter shows `requiredMessage` and stays in the editor, Esc and blur restore (kd#27)

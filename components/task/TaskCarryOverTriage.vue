@@ -1,5 +1,7 @@
 <!--
 @component TaskCarryOverTriage
+@kind component
+@category action
 @description Calm triage block for a card carried over CARRY_OVER_NUDGE_DAYS or more board days (#99):
 "Still here after N days." with Keep, Make smaller and Delete.
 @usage <TaskCarryOverTriage :task-id="id" @smaller="focusTitle" @delete="deleteTask" />
@@ -7,6 +9,7 @@
 ghost, #551; the task sheet block too, #552) so the block never outweighs the primary of the surface that lists it.
 Standalone so the closing step (#98) can list it under "still open". Renders nothing when no nudge is due
 (fewer days, kept recently, Wartet or Erledigt).
+@avoid Only on cards carried over several days; not a general card menu (TaskCardContextMenu).
 @responsibility
 - Keep: silences the nudge for CARRY_OVER_NUDGE_DAYS further days (store), the dots keep counting
 - Make smaller / Delete: emitted, the host owns the title field and the sheet lifecycle

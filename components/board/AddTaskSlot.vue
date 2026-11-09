@@ -1,7 +1,10 @@
 <!--
 @component AddTaskSlot
+@kind component
+@category action
 @description Card-sized add control that morphs into the draft card of the task being added, in the same box (#125). Its soft surface rests label-wide and grows into the card shape on hover/focus (#466)
 @usage Offen: last item of the task list (BoardColumn). Jetzt: overlay of the empty column (BoardColumnProgressContent), opens add-and-start
+@avoid Not the full add form: the sheet's TaskForm adds with all fields, NewCardFlow asks the guided questions; not for editing an existing task.
 @responsibility
 - Native button named by its visible label, in a regular card's box (width, --task-card-height, card radius); the box never changes size, so layout, hit area and DnD rects stay put
 - Inside the button, `.add-task-button-surface` (centred icon + label on --ui-bg-muted, button radius) is the visible shape. Offen: label-wide at rest (2.25rem = 36px on desktop, the height of the day-close `lg` button beside it, #582; 3rem on mobile, where `lg` is 48px), grows to the card box over --add-slot-grow-duration on hover (pointer devices only, so a tap never sticks), focus-visible and while drafting (held grown, so it does not jump back under the fading label); the label stays centred throughout. Growth animates min-width/min-height inside the fixed box (an accepted trade-off: a transform would distort radius and label)

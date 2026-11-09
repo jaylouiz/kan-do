@@ -1,7 +1,10 @@
 <!--
 @component StatsOutliers
+@kind component
+@category display
 @description Q3 proof: the tasks of the last 4 weeks that overran their timebox most, each opening the task detail
 @usage Open Q3 tile, under the patterns
+@avoid Only the Q3 proof list on the Statistik page.
 @responsibility
 - List up to five completed tasks (title, planned vs. taken time) as buttons
 - Emit `open` with the task id; the page owns the detail modal

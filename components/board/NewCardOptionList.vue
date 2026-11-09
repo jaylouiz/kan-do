@@ -1,7 +1,10 @@
 <!--
 @component NewCardOptionList
+@kind component
+@category input
 @description The list behind "Mehr" (Thema, Aktivität, kd#16) and "···" (Timebox) of the guided new-card flow: the values that are not pills, with a search field and a "Neu: „text“" row on Thema and Aktivität
 @usage Inside NewCardFlow's popover (desktop) and drawer (phone); the parent owns open/close, the picks and the focus hand-back
+@avoid Only inside NewCardFlow's popover or drawer; the task sheet's property pickers use TaskPropertySelect.
 @responsibility
 - Search (Thema, Aktivität): the text filters every value of the step, pills included; a "Neu" row shows when no value has that name (any case) and the source allows free values (`newValues`, the source's rules clean the text: Notion turns commas into spaces and cuts at 100 characters, so the row shows what would be created); without free values the field only searches
 - Enter in the field: a value named exactly as typed (any case) is picked, else the first match, else the text is created (a partial match never creates by accident: the "Neu" row is the first stop of ArrowDown, or a tap); no match shows "Keine Treffer gefunden." (a status line)

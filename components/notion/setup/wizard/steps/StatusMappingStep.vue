@@ -1,7 +1,10 @@
 <!--
 @component StatusMappingStep
+@kind component
+@category form-structure
 @description Maps kan-do status values to Notion select option names
 @usage Part of the Notion setup wizard that configures how status values correspond to Notion select options
+@avoid Only a step of the Notion setup wizard.
 @responsibility
 - Allows mapping of Today, Doing, Done (mandatory) and Waiting (optional) to Notion select options
 - Validates mapping configuration

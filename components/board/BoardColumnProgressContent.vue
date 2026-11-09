@@ -1,6 +1,10 @@
 <!--
 @component BoardColumnProgressContent
+@kind compound
+@category layout
 @description Specialized content for the Progress column
+@usage Rendered by BoardColumn for the Jetzt column only
+@avoid Only for the Jetzt column; the other columns render lists through BoardColumnItem.
 @responsibility
 - Renders the task list for "In Progress" tasks
 - Displays the dedicated progress bar for the active task
