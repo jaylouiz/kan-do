@@ -255,3 +255,43 @@ test.describe('new-day recap (#44)', () => {
     await expect(recap(page)).toMatchAriaSnapshot({ name: 'recap-drawer-all-done-390.aria.yml' })
   })
 })
+
+// Live copy editor (#59): a dev-only tool that the E2E build carries (KANDO_COPY_EDITOR=1). Its dev routes are mocked.
+test.describe('live copy editor (#59)', () => {
+  async function openEditor(context: Parameters<typeof seedLocalBoard>[0], page: Page) {
+    await seedLocalBoard(context)
+    await page.goto('/tasks')
+    await expect(page.locator('#column-open')).toBeVisible()
+    await page.keyboard.press('Control+k')
+    await page.keyboard.type('Edit UI copy')
+    await page.getByRole('option', { name: /Edit UI copy: text selection mode/ }).click()
+  }
+
+  test('the mode bar (1280)', async ({ context, page }) => {
+    await openEditor(context, page)
+    await expect(page.getByRole('region', { name: 'UI copy editor' })).toMatchAriaSnapshot({ name: 'copy-editor-bar-1280.aria.yml' })
+  })
+
+  test('the editor pane: one language written, the other left to the agent (1280)', async ({ context, page }) => {
+    await openEditor(context, page)
+    await page.getByText('Offen', { exact: true }).first().click()
+    await expect(page.getByTestId('copy-editor-form')).toMatchAriaSnapshot({ name: 'copy-editor-editor-1280.aria.yml' })
+  })
+
+  test('Publish: empty state, then the translation failing keeps the edit (390)', async ({ context, page }) => {
+    await page.setViewportSize(MOBILE)
+    await page.route('**/api/dev/copy/translate', route => route.fulfill({ status: 502, json: { ok: false, errors: ['the agent did not answer within 180 s'] } }))
+    await openEditor(context, page)
+    await page.getByTestId('copy-editor-publish').click()
+    await expect(page.getByTestId('copy-editor-publish-view')).toMatchAriaSnapshot({ name: 'copy-editor-publish-empty-390.aria.yml' })
+
+    await page.getByRole('button', { name: 'Edit', exact: true }).first().click()
+    await page.getByTestId('copy-editor-search-list').getByRole('option').first().click()
+    await page.getByTestId('copy-editor-text').fill('Zurück zur Liste')
+    await page.getByTestId('copy-editor-save').click()
+    await page.getByTestId('copy-editor-tab-publish').click()
+    await page.getByTestId('copy-editor-translate').click()
+    await expect(page.getByTestId('copy-editor-error')).toBeVisible()
+    await expect(page.getByTestId('copy-editor-publish-view')).toMatchAriaSnapshot({ name: 'copy-editor-publish-error-390.aria.yml' })
+  })
+})

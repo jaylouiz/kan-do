@@ -34,12 +34,14 @@
         }"
       />
     </NuxtLayout>
+    <component :is="CopyEditorHost" v-if="CopyEditorHost" />
     <UpdateDialog v-if="updaterAvailable" />
     <WhatsNewDialog v-if="updaterAvailable" />
   </UApp>
 </template>
 
 <script setup lang="ts">
+import { defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 import AppNav from "~/components/nav/AppNav.vue";
 import UpdateDialog from "~/components/updates/UpdateDialog.vue";
@@ -52,6 +54,9 @@ import { isTauri } from "~/utils/isTauri";
 import { useTasksStore } from "~/store/tasks";
 import { useTaskStatisticsStore } from "~/store/taskStatistics";
 import { TaskStatus } from "~/types/taskStatus";
+
+// Live copy editor (#59): present only when the bundle is built with it (dev, E2E build); `false` drops the import.
+const CopyEditorHost = __COPY_EDITOR__ ? defineAsyncComponent(() => import("~/dev-tools/copy-editor/CopyEditorHost.vue")) : null;
 
 const { syncPendingChanges } = useTaskSync();
 const timerDriver = useTaskTimerDriver();

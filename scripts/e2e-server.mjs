@@ -33,6 +33,8 @@ const env = {
   NODE_ENV: 'production',
   NITRO_PRESET: 'node-server',
   NOTION_STUB_ENABLED: 'true',
+  // The live copy editor (#59) is dev-only; the E2E build carries it (the dev routes stay out, specs mock them).
+  KANDO_COPY_EDITOR: '1',
   E2E_NOTION_STUB: process.env.E2E_NOTION_STUB || '1',
 }
 // The build must not inherit a BASE_URL (it would become `app.baseURL`); the config only uses it for the dev path.

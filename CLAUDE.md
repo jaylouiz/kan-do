@@ -98,6 +98,8 @@ Rules live in `DESIGN.md` (direction, tokens, named rules, recurring patterns; p
 - Locales: `i18n/locales/de.json` + `en.json` (vue-i18n syntax, not ICU); every key in both. Check with `npm run i18n:check`.
 - Locale resolution (no switcher, `plugins/i18n-locale.client.ts`): `?lang=de|en` (persisted) > `KANDO_LOCALE` (dev only, not persisted) > stored `kando-locale` > `navigator.languages` > `de`. Try it: `KANDO_LOCALE=en npm run dev` or `/tasks?lang=en`. Rationale: `docs/adr/006-i18n-routing-and-locale-detection.md`.
 
+Live copy editor (dev only, `docs/copy/live-copy-editor.md`): `dev-tools/copy-editor/` and `server/copy-editor/` exist only behind `__COPY_EDITOR__` (dev, E2E build); keep tool code there, never import it from app code.
+
 UI status labels (used in E2E assertions): `Offen`, `Jetzt`, `Wartet`, `Erledigt`
 
 ## Design canvas
