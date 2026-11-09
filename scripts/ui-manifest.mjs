@@ -8,7 +8,12 @@
  * the only source: the manifest has no hand-written field (`npm run ui:manifest` rewrites it, a vitest test fails when
  * the committed file is stale).
  *
- * Entry: `{ name, path, kind, category, description, usage, avoid, responsibility, usedBy }`.
+ * Row: `{ name, path, source, kind, category, description, usage, avoid, responsibility, variants, states, usedBy }`.
+ * `source` is `app` (a component of this repo, text from its doc block) or `nuxt-ui` (a library component the catalog
+ * (#66) shows; its row comes from `catalog/<category>/<Name>.catalog.ts`, which carries the text). `variants` and
+ * `states` are the names an entry declares (`[]` for a component without an entry): the variant names of an app
+ * component, the theme axes (`color`, `variant`, `size`) of a library one, and the state labels. App rows come first
+ * (sorted by path), then the library rows.
  * `usedBy` counts the files that render the component as a tag (`<Name`, `<kebab-name`, `<LazyName`) or import its file (`.../Name.vue`), split by
  * `components` / `pages` / `layouts` / `app` (app.vue); the component itself and `pages/styleguide.vue` (the dev showcase
  * #65 removes: it is no real use) are not counted. A component mounted by `<component :is>` is not seen.
@@ -16,6 +21,7 @@
  * `checkDocBlock` is pure: the missing or unknown tags of one doc block, used by `tests/config/component-conventions.test.ts`.
  */
 import { readdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { basename, dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -26,6 +32,7 @@ export const UI_KINDS = ['primitive', 'component', 'compound', 'block']
 export const UI_CATEGORIES = ['input', 'form-structure', 'action', 'navigation', 'keyboard', 'feedback', 'overlay', 'display', 'layout']
 export const REQUIRED_TAGS = ['component', 'kind', 'category', 'description', 'usage', 'avoid']
 const TAGS = [...REQUIRED_TAGS, 'responsibility', 'accessibility']
+const CATALOG_DIR = 'catalog'
 const USAGE_EXCLUDED = new Set(['pages/styleguide.vue'])
 
 /**
@@ -100,12 +107,38 @@ function usedBy(name, path, sources) {
   return counts
 }
 
+/**
+ * Every catalog entry file (`catalog/<category>/<Name>.catalog.ts`), relative to the repo root, sorted.
+ * @param {string} [root]
+ * @returns {string[]}
+ */
+export function catalogFiles(root = ROOT) {
+  try {
+    return walk(join(root, CATALOG_DIR), name => name.endsWith('.catalog.ts')).map(path => relative(root, path).split('\\').join('/'))
+  } catch (error) {
+    if (/** @type {NodeJS.ErrnoException} */ (error).code === 'ENOENT') return []
+    throw error
+  }
+}
+
+/**
+ * The parsed entries (`export default` of each entry file). They are plain data with type-only imports, so Node 24
+ * loads the `.ts` itself (type stripping); no bundler is needed.
+ * @param {string} [root]
+ * @returns {Array<{ path: string, entry: any }>}
+ */
+export function loadCatalogEntries(root = ROOT) {
+  const require = createRequire(join(root, 'package.json'))
+  return catalogFiles(root).map(path => ({ path, entry: require(join(root, path)).default }))
+}
+
 const oneLine = text => text.replace(/\s+/g, ' ').trim()
 
 /**
- * The manifest of the doc blocks under `root`: an array sorted by path. Throws on a doc block `checkDocBlock` rejects or an `@component` that is not the file's name.
+ * The manifest: the doc-block rows of `components/` (sorted by path), then one row per Nuxt UI entry of `catalog/`.
+ * Throws on a doc block `checkDocBlock` rejects, an `@component` that is not the file's name, or a library entry that lacks a required field.
  * @param {string} [root]
- * @returns {Array<{ name: string, path: string, kind: string, category: string, description: string, usage: string, avoid: string, responsibility: string[], usedBy: Record<string, number> }>}
+ * @returns {Array<{ name: string, path: string, source: string, kind: string, category: string, description: string, usage: string, avoid: string, responsibility: string[], variants: string[], states: string[], usedBy: Record<string, number> }>}
  */
 export function buildManifest(root = ROOT) {
   const paths = componentFiles(root)
@@ -118,7 +151,17 @@ export function buildManifest(root = ROOT) {
   // A tag written in a comment (a doc block's `@usage <TaskCard ...>`) is no use.
   const rendered = sources.map(([file, text]) => [file, text.replace(/<!--[\s\S]*?-->/g, '')])
   const source = new Map(sources)
-  return paths.map((path) => {
+  const entries = loadCatalogEntries(root)
+  const entryOf = name => entries.find(({ entry }) => entry.component === name)?.entry
+  /** Names an entry declares: its variants (an app component's, or the theme axes of a library one) and its state labels. */
+  const declared = (entry) => {
+    if (!entry) return { variants: [], states: [] }
+    return {
+      variants: entry.matrix ? [...entry.matrix.axes] : (entry.variants ?? []).map(variant => variant.id),
+      states: [...new Set((entry.states ?? []).map(state => state.state))],
+    }
+  }
+  const appRows = paths.map((path) => {
     const problems = checkDocBlock(source.get(path))
     if (problems.length > 0) throw new Error(`${path}: ${problems.join('; ')}`)
     const tags = /** @type {Record<string, string>} */ (parseDocBlock(source.get(path)))
@@ -127,6 +170,7 @@ export function buildManifest(root = ROOT) {
     return {
       name,
       path,
+      source: 'app',
       kind: tags.kind,
       category: tags.category,
       description: oneLine(tags.description),
@@ -137,9 +181,32 @@ export function buildManifest(root = ROOT) {
         .map(oneLine)
         .filter(Boolean)
         .map(item => item.replace(/^- /, '')),
+      ...declared(entryOf(name)),
       usedBy: usedBy(name, path, rendered),
     }
   })
+  const libraryRows = entries
+    .filter(({ entry }) => entry.source === 'nuxt-ui')
+    .map(({ path, entry }) => {
+      const missing = REQUIRED_TAGS.filter(tag => tag !== 'component' && !entry[tag])
+      if (missing.length > 0) throw new Error(`${path}: a nuxt-ui entry needs ${missing.join(', ')}`)
+      if (!UI_KINDS.includes(entry.kind)) throw new Error(`${path}: kind "${entry.kind}" is not one of ${UI_KINDS.join(', ')}`)
+      if (!UI_CATEGORIES.includes(entry.category)) throw new Error(`${path}: category "${entry.category}" is not one of ${UI_CATEGORIES.join(', ')}`)
+      return {
+        name: entry.component,
+        path,
+        source: 'nuxt-ui',
+        kind: entry.kind,
+        category: entry.category,
+        description: oneLine(entry.description),
+        usage: oneLine(entry.usage),
+        avoid: oneLine(entry.avoid),
+        responsibility: [],
+        ...declared(entry),
+        usedBy: usedBy(entry.component, path, rendered),
+      }
+    })
+  return [...appRows, ...libraryRows]
 }
 
 export function renderManifest(manifest) {

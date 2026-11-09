@@ -37,11 +37,12 @@ test.describe('/ui catalog shell', () => {
     await expect(page.getByText('No z-index tokens are defined')).toBeVisible()
   })
 
-  test('the Components part is a placeholder listing the manifest categories', async ({ page }) => {
+  test('the Components part lists the manifest components by category (the engine, #66)', async ({ page }) => {
     await page.goto('/ui')
     const part = page.locator('#components')
     await expect(part.getByRole('heading', { level: 2, name: 'Components' })).toBeVisible()
-    await expect(part.locator('code', { hasText: /^form-structure$/ })).toBeVisible()
+    await expect(part.getByRole('heading', { level: 3, name: 'Formularstruktur' })).toBeVisible()
+    await expect(page.locator('[data-kd-catalog-ready]')).toBeAttached()
   })
 
   test('the part links work from the keyboard and move focus to the part', async ({ page }) => {
@@ -67,7 +68,8 @@ test.describe('/ui catalog shell', () => {
       await expect(page.getByText('Semantic colour roles')).toBeVisible()
       // resolved colours are read after mount: wait for the first role ramp to paint
       await expect(page.locator('#tokens-roles ~ ul li ul li').first()).toBeVisible()
-      const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze()
+      // The Components part's samples are the app's own components (judged by a11y.spec.ts); ui-catalog.spec.ts holds the rest of the page to AA
+      const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).exclude('[data-kd-sample]').analyze()
       const blocking = results.violations.filter(v => v.impact === 'serious' || v.impact === 'critical')
       expect(blocking.map(v => `${v.id}: ${v.nodes.slice(0, 3).map(n => n.target.join(' ')).join(' | ')}`)).toEqual([])
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)

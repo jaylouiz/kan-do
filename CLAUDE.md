@@ -67,6 +67,7 @@ Path-scoped rules in `.claude/rules/` load when you read or edit a matching file
 - `e2e.md`: seeding detail, Notion stub, drag simulation, cold-server warm-up, fixtures
 - `e2e-gate.md`: tier rules of the pre-merge E2E gate (docs/style-only skip, smoke + mapped specs, `E2E_GATE=full`)
 - `ui-patterns.md`: the Pattern check before creating or changing a UI element (#586), record line format
+- `ui-catalog.md`: the `/ui` Components engine: catalog entries, the manifest rows of Nuxt UI components, the style fingerprint (#66)
 - `desktop.md`: desktop E2E stub, desktop CSP (ADR 012), in-app feedback (ADR 010/014)
 
 ### Component Conventions

@@ -15,11 +15,13 @@ const outputDir = resolve(process.env.UI_CATALOG_BUILD_DIR ?? resolve(__dirname,
 // Opt-in: a build the caller named, or a step that requires one. Never an `.output` found by chance.
 const requested = Boolean(process.env.UI_CATALOG_REQUIRE_BUILD || process.env.UI_CATALOG_BUILD_DIR)
 
-// Strings only the catalog page and its Tokens part contain; each survives minification because it is a string literal.
+// Strings only the catalog page and its parts contain; each survives minification because it is a string literal.
 const MARKERS = [
   'data-kd-ui-catalog', // the page's marker attribute
   'Semantic colour roles', // a Tokens-part heading
   'Component defaults from app.config', // a Tokens-part heading
+  'data-kd-sample', // the Components part's sample wrapper (#66): the engine and, through it, catalog/ and the manifest import
+  'Sample language', // a Components-part control label
 ]
 
 function files(dir: string): string[] {

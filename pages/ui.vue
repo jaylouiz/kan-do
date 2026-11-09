@@ -1,6 +1,6 @@
 <!--
 @page UiCatalog
-@description Dev-only catalog of the UI kit (#65, epic #58): Tokens, generated from the real stylesheets and app config, and Components (placeholder until the engine).
+@description Dev-only catalog of the UI kit (#65, epic #58): Tokens, generated from the real stylesheets and app config, and Components, generated from the manifest and the entries under `catalog/` (#66).
 @usage /ui in `npm run dev` and in the E2E build. Every other build removes the route (`pages:extend`, lib/devPages.ts), so nothing of this page ships.
 @responsibility
 - Replaces the hand-written `/styleguide`; chrome is English (epic decision D2), light only
