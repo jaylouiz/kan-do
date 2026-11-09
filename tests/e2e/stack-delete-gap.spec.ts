@@ -135,20 +135,17 @@ test.describe('delete from the palette of a card inside a stack (#433)', () => {
     await expect(stack(page)).toBeVisible()
   })
 
-  test('the gap sits directly below the stack at its height, undo puts the card back into the stack, and again', async ({ page }) => {
-    const stackBox = await stack(page).boundingBox()
-    expect(stackBox).not.toBeNull()
-
+  test('the gap sits directly below the stack compact, undo puts the card back into the stack, and again', async ({ page }) => {
     await paletteDelete(page, 'Farben abstimmen')
 
     await expect(gap(page)).toHaveCount(1)
     await expect.poll(() => itemOrder(page)).toEqual(['u1', 'stack:Design', 'gap', 'c1', 'd1'])
     // the stack still holds the other two cards
     await expect(stack(page)).toHaveAttribute('data-stack-size', '2')
+    // compact (#57): the collapsed Yesterday note's 42px, not the stack's slot (the box glides there in 220 ms)
+    await expect.poll(async () => (await gap(page).boundingBox())!.height).toBeCloseTo(42, 0)
     const gapBox = await gap(page).boundingBox()
     const nextBox = await page.locator(`${LIST} .task-wrapper[data-task-id="c1"]`).boundingBox()
-    // measured, not the default card height: the stack's slot
-    expect(Math.abs(gapBox!.height - stackBox!.height)).toBeLessThan(2)
     expect(nextBox!.y).toBeGreaterThanOrEqual(gapBox!.y + gapBox!.height - 1)
 
     // undo: the card is back in its stack, at its place (a1 a2 a3)

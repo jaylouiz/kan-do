@@ -73,7 +73,7 @@ test.describe('Yesterday note', () => {
       const r = el.getBoundingClientRect()
       return { border: s.borderTopWidth, bg: s.backgroundColor, height: r.height }
     })
-    expect(surface.border).toBe('1px')
+    expect(surface.border).toBe('0px') // no outline (#57)
     expect(surface.bg).not.toBe('rgba(0, 0, 0, 0)')
     expect(surface.height).toBe(42)
   })

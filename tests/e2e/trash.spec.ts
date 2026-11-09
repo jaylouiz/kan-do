@@ -80,7 +80,7 @@ test.describe('delete is confirmed in the card slot (#422)', () => {
     await seedLocalBoard(context, SEED_TASKS, {}, undefined, { once: true })
   })
 
-  test('the card turns into a gap in its own slot, nothing below moves, and there is no toast', async ({ page }) => {
+  test('the card turns into a compact gap in its own slot, the cards below move up, and there is no toast', async ({ page }) => {
     await page.goto('/tasks')
     const next = card(page, SECOND_TITLE)
     const before = await next.boundingBox()
@@ -92,11 +92,12 @@ test.describe('delete is confirmed in the card slot (#422)', () => {
     await expect(gap(page)).toContainText('Im Papierkorb')
     await expect(gap(page).getByRole('button', { name: /Rückgängig/ })).toBeVisible()
     await expect(page.locator('.task-wrapper', { hasText: OPEN_TITLE })).toHaveCount(0)
-    expect(await next.boundingBox()).toEqual(before)
     await expectRedTheme(page)
+    // compact (#57): 42px like the collapsed Yesterday note (the box glides there in 220 ms), the cards below follow it up
+    await expect.poll(async () => (await gap(page).boundingBox())?.height).toBeCloseTo(42, 0)
     const gapBox = await gap(page).boundingBox()
     expect(gapBox?.y).toBeCloseTo(slot!.y, 0)
-    expect(gapBox?.height).toBeCloseTo(slot!.height, 0)
+    await expect.poll(async () => (await next.boundingBox())?.y).toBeCloseTo(before!.y - (slot!.height - 42), 0)
     await expect(page.locator('[data-sonner-toast], [role="status"]', { hasText: 'Rückgängig' })).toHaveCount(0)
     // a polite announcement for screen readers
     await expect(page.getByText('Aufgabe gelöscht: ' + OPEN_TITLE)).toBeAttached()
