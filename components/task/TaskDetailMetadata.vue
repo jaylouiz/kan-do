@@ -21,7 +21,7 @@
         <SectionHeader :text="t('task.detail.metadata')" tag="h3" class="mb-0" />
         <template #trailing>
           <UIcon
-            name="ph:caret-down"
+            name="i-ph-caret-down"
             class="size-4  text-muted transition-transform duration-200"
             :class="{ 'rotate-180': open }"
           />

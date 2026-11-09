@@ -62,7 +62,7 @@
           @focusin="hold(gap.taskId, 'focus', true)"
           @focusout="onFocusOut(gap.taskId, $event)"
         >
-          <UIcon name="i-ph-trash" class="size-4 shrink-0" aria-hidden="true" />
+          <UIcon :name="ICONS.delete" class="size-4 shrink-0" aria-hidden="true" />
           <span class="min-w-0 flex-1 wrap-break-word">{{ t('trash.inTrash') }}</span>
           <UButton
             size="sm"
@@ -84,6 +84,7 @@
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '~/lib/icons'
 import { computed, useId } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useDayCloseData } from '~/composables/useDayClose'

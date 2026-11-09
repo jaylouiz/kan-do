@@ -22,7 +22,7 @@ the chosen key or the Publish review. At 390px the panes stack, the editor below
             <UButton size="xs" color="neutral" :variant="view === 'publish' ? 'solid' : 'ghost'" :aria-pressed="view === 'publish'" data-testid="copy-editor-tab-publish" @click="view = 'publish'">
               Publish<span v-if="pendingEdits.length"> · {{ pendingEdits.length }}</span>
             </UButton>
-            <UButton size="xs" color="neutral" variant="ghost" icon="i-ph-x" aria-label="Close" @click="dialogOpen = false" />
+            <UButton size="xs" color="neutral" variant="ghost" :icon="ICONS.close" aria-label="Close" @click="dialogOpen = false" />
           </div>
         </div>
         <div class="flex min-h-0 flex-1 flex-col md:flex-row">
@@ -44,7 +44,7 @@ the chosen key or the Publish review. At 390px the panes stack, the editor below
           </div>
           <div class="min-h-0 flex-1 overflow-y-auto md:min-h-96">
             <!-- 390px: once a key is chosen the list gives way to the editor; this brings it back -->
-            <UButton v-if="view === 'edit' && selectedKey" type="button" size="xs" color="neutral" variant="link" icon="i-ph-arrow-left" class="mx-4 mt-3 md:hidden" data-testid="copy-editor-all-keys" @click="showList">All keys</UButton>
+            <UButton v-if="view === 'edit' && selectedKey" type="button" size="xs" color="neutral" variant="link" :icon="ICONS.back" class="mx-4 mt-3 md:hidden" data-testid="copy-editor-all-keys" @click="showList">All keys</UButton>
             <CopyEditorPublish v-if="view === 'publish'" />
             <CopyEditorEditor v-else-if="selectedKey" :key-name="selectedKey" />
             <p v-else class="p-4 text-sm text-muted" data-testid="copy-editor-empty">Choose a key on the left, or click outlined text on the page.</p>
@@ -56,6 +56,7 @@ the chosen key or the Publish review. At 390px the panes stack, the editor below
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '~/lib/icons'
 import { computed } from 'vue'
 import type { CommandPaletteGroup, CommandPaletteItem } from '@nuxt/ui'
 import CopyEditorEditor from './CopyEditorEditor.vue'

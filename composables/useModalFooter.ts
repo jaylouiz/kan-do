@@ -9,7 +9,7 @@ export interface ModalFooterAction {
   key: string;
   /** Button label (German UI) */
   label: string;
-  /** Phosphor icon name (e.g., 'i-ph-trash') */
+  /** Phosphor icon name (e.g., 'i-ph-play') */
   icon?: string;
   /** Button color */
   color?: ButtonProps['color'];
