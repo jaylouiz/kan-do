@@ -17,11 +17,11 @@ function vueFiles(dir: string): string[] {
   })
 }
 
-/** Source of the app files that ship UI (the styleguide, prototypes and the error test page are not part of the ladder). */
+/** Source of the app files that ship UI (prototypes and the error test page are not part of the ladder; `/ui` is, it has no buttons). */
 function appFiles(): string[] {
   const files = FOLDERS.flatMap((folder) => vueFiles(join(root, folder)))
   files.push(join(root, 'app.vue'))
-  return files.filter((f) => !/\/(styleguide|prototype)|error-test\.vue$|\/prototype\//.test(f))
+  return files.filter((f) => !/error-test\.vue$|\/prototype\//.test(f))
 }
 
 interface ButtonTag { file: string; line: number; attrs: string }

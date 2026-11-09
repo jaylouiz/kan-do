@@ -165,7 +165,7 @@ export default withNuxt([
       'app.vue'
     ],
     ignores: [
-      'pages/styleguide.vue',
+      'pages/ui.vue',
       'pages/error-test.vue'
     ],
     // Plugin rule typings (meta.fixable: null) are stricter-incompatible with ESLint's types

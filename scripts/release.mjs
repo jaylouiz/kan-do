@@ -315,6 +315,8 @@ function buildAndStage(options, signing, apple, appleState, stageDir) {
   // lifecycle script and every crate's `build.rs` run in the first with a neutral environment; the second
   // only packages, signs and notarizes the finished binary and is the only one with the credentials.
   run('npm', ['run', 'tauri:build', '--', '--no-bundle'], { env: neutralEnv(process.env) })
+  // The compile step ran `nuxt generate` (the build in `.output`): prove it carries no dev-only page before anything is bundled (#65).
+  run('npx', ['vitest', 'run', 'tests/config/ui-catalog-build-output.test.ts'], { env: { ...neutralEnv(process.env), UI_CATALOG_REQUIRE_BUILD: '1' } })
   // The notarization key (CI) is a file only while the bundling child runs, never during the compile above.
   let keyDir = null
   const bundleBase = { ...process.env }
@@ -519,6 +521,7 @@ async function main() {
     let sha = ci ? `<sha of the v${version} tag>` : '<sha of the version bump commit>'
     if (dryRun) {
       console.log('$ npm run tauri:build -- --no-bundle   # frontend + compile, neutral environment: no key, no Apple credential, no token (skipped in dry run)')
+      console.log('$ UI_CATALOG_REQUIRE_BUILD=1 npx vitest run tests/config/ui-catalog-build-output.test.ts   # the generated build has no /ui, /styleguide or /error-test route and no catalog string (skipped in dry run)')
       console.log('$ npm run tauri:bundle   # package, sign with the updater key and notarize; the only child with credentials (skipped in dry run)')
       console.log(`\nApple code signing (${appleState.mode}), performed by tauri bundle:`)
       for (const line of signingPlan(appleState)) console.log(`  $ ${line}`)

@@ -35,6 +35,8 @@ const env = {
   NOTION_STUB_ENABLED: 'true',
   // The live copy editor (#59) is dev-only; the E2E build carries it (the dev routes stay out, specs mock them).
   KANDO_COPY_EDITOR: '1',
+  // `/ui` (#65) is dev-only like it: only this build carries the catalog route (lib/devPages.ts).
+  KANDO_UI_CATALOG: '1',
   E2E_NOTION_STUB: process.env.E2E_NOTION_STUB || '1',
 }
 // The build must not inherit a BASE_URL (it would become `app.baseURL`); the config only uses it for the dev path.

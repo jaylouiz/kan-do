@@ -443,8 +443,10 @@ test.describe('Landmarks, focus and motion', () => {
   })
 
   test('primary button shows a solid offset focus ring', async ({ page }) => {
-    await page.goto('/styleguide')
-    const button = page.getByRole('button', { name: 'Primär', exact: true })
+    // A solid primary button on a real route: the confirmation of the Local setup on /welcome (#65: the styleguide that hosted this check is gone)
+    await page.goto('/welcome')
+    await page.getByTestId('welcome-choice-local').click()
+    const button = page.getByTestId('local-confirm')
     await button.focus()
     await page.keyboard.press('Shift+Tab')
     await page.keyboard.press('Tab')

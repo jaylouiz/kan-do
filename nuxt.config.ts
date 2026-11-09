@@ -2,6 +2,7 @@
 import { defineNuxtConfig } from 'nuxt/config'
 import * as fs from 'fs'
 import { fileURLToPath } from 'node:url'
+import { removeDevPages } from './lib/devPages'
 
 // reading version to make it available in nuxt context for displaying
 const packageJson = fs.readFileSync('./package.json', 'utf8')
@@ -19,6 +20,14 @@ const e2eBuildDir = process.env.KANDO_E2E_BUILD_DIR
 
 export default defineNuxtConfig({
   ...(e2eBuildDir ? { buildDir: `${e2eBuildDir}/nuxt` } : {}),
+
+  // Dev-only pages (#65): `/ui` and `/error-test` exist only in `nuxt dev` and the E2E build (lib/devPages.ts). The
+  // hook runs at build time, so a production build carries neither the routes nor the page code.
+  hooks: {
+    'pages:extend'(pages) {
+      removeDevPages(pages, process.env)
+    },
+  },
 
   // Modules
   modules: [

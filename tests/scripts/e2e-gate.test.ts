@@ -769,8 +769,8 @@ describe('app shell and archive mappings (#493)', () => {
   const smoke = new Set(config.smoke)
   const specsFor = (file: string) => new Set(select({ files: [file, 'tests/store/tasks.test.ts'] }).specs)
   const SHELL_FILES = ['app.vue', 'layouts/sub-page.vue', 'components/nav/AppNav.vue', 'components/nav/MorePanel.vue', 'composables/useNavIndicator.ts', 'lib/navSpring.ts', 'assets/css/app-nav.css']
-  /** Specs that mention a 390px viewport but never assert geometry: `desktop-pages-shots` self-skips without DESKTOP_SHOTS_DIR. */
-  const NO_PHONE_ASSERTIONS = new Set(['desktop-pages-shots'])
+  /** Specs that mention a 390px viewport but never assert shell geometry: `desktop-pages-shots` self-skips without DESKTOP_SHOTS_DIR; `ui-shell` (#65) drives the dev-only `/ui` page, which has no app bar. */
+  const NO_PHONE_ASSERTIONS = new Set(['desktop-pages-shots', 'ui-shell'])
   const phoneSpecs = existingSpecs.filter(name => /\b390\b/.test(e2eSources[`tests/e2e/${name}.spec.ts`] ?? '') && !NO_PHONE_ASSERTIONS.has(name))
   const dndSpecs = config.map.find(rule => rule.paths.includes('composables/useBoardDndKit.ts'))?.specs ?? []
 

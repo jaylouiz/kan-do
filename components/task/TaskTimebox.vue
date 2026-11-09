@@ -1,7 +1,7 @@
 <!--
 @component TaskTimebox
 @description Static timebox display component showing total allocated time
-@usage Styleguide entry only: the cards show the timebox as TaskProgressChip (#388)
+@usage Unused since `/styleguide` went (#65): the cards show the timebox as TaskProgressChip (#388)
 @responsibility
 - Format timebox duration from seconds
 - Display with clock icon

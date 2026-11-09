@@ -340,7 +340,7 @@ const props = withDefaults(defineProps<{
   taskId: string | null;
   /**
    * If true, disables synchronization with external integrations.
-   * Useful for styleguides and previews.
+   * Useful for previews.
    */
   isPreview?: boolean;
   /**
