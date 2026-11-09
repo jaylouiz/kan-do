@@ -308,6 +308,21 @@ Statistik answers its questions in order (Arbeite ich gut? Wie entwickle ich mic
 - **Earned celebration.** Everyday actions confirm quietly; completing a task is an achievement and earns a short celebration around or behind the card: once per completion on every path into Erledigt, at most about 1 s, design-system colours, no sound and no praise text, never blocking the next action; `prefers-reduced-motion` leaves the plain completion. Deliberate exception (user, 2026-11-06, #692): rewarding achievements supports motivation and continuous productivity. Challenge was: conflicts: a reward on every completion wears off and drifts towards gamified clutter, hence small, contained and quiet otherwise.
 - **Keyboard.** Everything is keyboard-reachable: cards are focusable and move with the keyboard drag, click-to-edit fields are buttons, `⌘K` opens the command palette for global and card commands. Announcements name the task and the column, never ids.
 
+## Usage guidelines
+
+One checklist for recurring UI decisions. Each line: the job, the rule, an example, the guard. A collected rule names its home section and is not repeated; the semantic icon map is `lib/icons.ts` (`ICONS`, #67), guarded by `tests/config/icon-map.test.ts`.
+
+- **Which icon.** Bind `ICONS.<meaning>`, never a literal glyph; icon sizes are the four spacing steps in `lib/icons.ts`. Stepping back or forward and "go on" are the component's job (`ICONS.back`, `ICONS.forward`, `ICONS.goOn`; the step recipe lives in `/ui`), not a rule here. Guard: icon-map test.
+- **Which button.** Primary, soft, ghost and the size ladder: Components, Buttons. Guard: `tests/config/button-ladder.test.ts`.
+- **Dialog actions.** Neutral cancel first, primary last, one `lg` per surface: Components, Buttons; one overlay at a time: Behaviour, "No modal on modal". Convention.
+- **Destructive action.** Act at once and offer undo, no "Are you sure?": Behaviour, "Undo instead of confirm" (example `TaskDeletedGap`). Convention.
+- **Open outside vs inside (adopted, D1 on #68).** `ICONS.external` (`arrow-square-out`) means "opens outside the app" and is bound to `ExternalLink` (example `GithubTokenRow.vue`); opening details inside the app uses `ICONS.openDetail`. Named exceptions: the feedback dialog's own buttons (`FeedbackDialog.vue`, `useFeedback` `openExternal`), toast actions and the task sheet menu's "open in source", which carry the icon without `ExternalLink`. Convention.
+- **Notice, toast or inline (adopted, D1 on #68).** A toast is a reversible action done (undo) or news; a `UAlert` subtle is a state inside a flow; a field problem is the `UFormField` error; a state the user cannot fix now is the quiet system notice (all under Components, Notices and toasts). A plain coloured line is not a notice. Guard: `tests/config/warning-notices.test.ts` for the warning step, the rest convention.
+- **Empty state (adopted, D1 on #68).** On the task board one muted sentence at most, and empty columns stay blank. On every other surface a calm graphic plus a subline; no CTA unless a next step exists. The graphic's look is designed in kd#106 and this rule says what, not how; until then those surfaces keep one muted sentence (`pages/trash.vue`). Wording: Voice and copy, "Empty states". Convention.
+- **Wording of Save, Cancel and Close.** Collected from Voice and copy ("Buttons are verbs": "Speichern" / "Save", a dismiss is "Abbrechen" / "Cancel" or "Schließen" / "Close"), terms in `docs/copy/terms.json`; no new term. Convention.
+
+Not yet a rule: choice chip vs a property-value trigger (decision D2 on #68).
+
 ## Voice and copy
 
 The registry `docs/copy/terms.json` is the vocabulary; the `copy-writer` skill applies both. The terms for address, Timebox, Löschen/Entfernen/Trennen, Verbindung and Notiz are decided; the answers of #473 and #485 are decided in the registry once the user approves them with `npm run terms:approve`.
