@@ -150,6 +150,21 @@
       ]
     },
     {
+      "area": "live copy editor (#59): dev-only tool, command palette entry, i18n live edits, dev routes (mocked in E2E)",
+      "risk": true,
+      "paths": [
+        "dev-tools/**",
+        "lib/copy-editor/**",
+        "lib/paletteExtensions.ts",
+        "server/copy-editor/**",
+        "plugins/copy-editor-recorder.client.ts"
+      ],
+      "specs": [
+        "copy-editor",
+        "command-palette"
+      ]
+    },
+    {
       "area": "task sources: integrations, server routes (Notion stub, Todoist), source types",
       "risk": true,
       "paths": [
@@ -814,6 +829,7 @@
         "board-wide-layout",
         "card-click-open",
         "carry-over",
+        "copy-editor",
         "data-safety",
         "day-close",
         "dnd-double-placeholder",

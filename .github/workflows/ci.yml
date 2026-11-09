@@ -32,6 +32,9 @@ jobs:
       - run: npm run lint:ci
       - run: npm run typecheck
       - run: npx vitest run
+      # The live copy editor (#59) is dev-only: a build without KANDO_COPY_EDITOR must contain none of it.
+      - run: npm run generate
+      - run: npx vitest run tests/config/copy-editor-build-output.test.ts
       # Advisory design anti-pattern scan (regex mode on .vue); findings never fail the job.
       - name: Impeccable detector (advisory)
         run: |

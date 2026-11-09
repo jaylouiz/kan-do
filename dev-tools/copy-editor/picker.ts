@@ -41,14 +41,18 @@ const isOwnUi = (target: EventTarget | null) => target instanceof Element && !!t
 
 export function startPicker(onPick: (keys: string[]) => void, isPaused: () => boolean): () => void {
   let frame = 0
+  let lastTarget: EventTarget | null = null
 
   const onMove = (event: PointerEvent) => {
     if (isPaused() || isOwnUi(event.target) || !(event.target instanceof Element)) { hoverRect.value = null; return }
     const target = event.target
+    // Clear the "No UI copy here" line when the pointer moves to another element, not in the frame callback: that
+    // one can run after a click on the same element and would wipe the message the click just set.
+    if (target !== lastTarget) pickMessage.value = ''
+    lastTarget = target
     cancelAnimationFrame(frame)
     frame = requestAnimationFrame(() => {
       const found = keysForElement(target)
-      pickMessage.value = ''
       if (!found) { hoverRect.value = null; return }
       const rect = found.element.getBoundingClientRect()
       hoverRect.value = { top: rect.top, left: rect.left, width: rect.width, height: rect.height }

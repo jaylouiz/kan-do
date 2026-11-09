@@ -8,9 +8,12 @@
 
 const MAX_ENTRIES = 20000
 // On globalThis under a registered symbol, so a hot-reloaded module keeps what the page already rendered.
-const STORE = Symbol.for('kando.copyEditor.recorder')
-const holder = globalThis as unknown as Record<symbol, Map<string, Set<string>> | undefined>
-const byText = (): Map<string, Set<string>> => (holder[STORE] ??= new Map())
+// (Created inside the function, not at module level: a top-level call would keep this module in a build that does not use it.)
+const byText = (): Map<string, Set<string>> => {
+  const store = Symbol.for('kando.copyEditor.recorder')
+  const holder = globalThis as unknown as Record<symbol, Map<string, Set<string>> | undefined>
+  return (holder[store] ??= new Map())
+}
 
 /** Collapses whitespace the way the browser renders it, so DOM text and message text compare equal. */
 export const normalizeText = (text: string) => text.replace(/\s+/g, ' ').trim()

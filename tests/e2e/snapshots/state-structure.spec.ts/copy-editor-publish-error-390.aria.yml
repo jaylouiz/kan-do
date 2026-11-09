@@ -1,0 +1,16 @@
+- paragraph: 1 edit in 2 files (de.json, en.json)
+- list:
+  - listitem:
+    - paragraph: common.back
+    - paragraph:
+      - text: DE ·
+      - deletion: Zurück
+      - text: →
+      - insertion: Zurück zur Liste
+    - paragraph: EN · not translated yet (agent)
+    - button "Edit"
+- text: Not published, your edits are kept
+- paragraph: /the agent did not answer within \d+ s/
+- button "Translate 1 with the agent"
+- button "Push PR" [disabled]
+- paragraph: "Translate first: you review the drafts before anything is pushed."

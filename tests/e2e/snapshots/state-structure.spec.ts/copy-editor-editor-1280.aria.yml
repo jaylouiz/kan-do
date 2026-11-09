@@ -1,0 +1,11 @@
+- paragraph: board.columns.open
+- group "Language you write":
+  - text: You write
+  - button "DE" [pressed]
+  - button "EN"
+- text: "DE Was: Offen"
+- textbox "DE": Offen
+- paragraph: EN · agent translates at Publish
+- paragraph: "Now: Open"
+- button "Write EN myself"
+- button "Save edit"

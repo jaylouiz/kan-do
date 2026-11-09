@@ -6,13 +6,14 @@
  */
 import { API_HEADER } from './constants'
 
+export interface Failure { ok: false, step?: string, errors: string[] }
 export interface DraftResult { text: string | null, problems: string[], warnings: string[] }
-export type TranslateResponse = { ok: true, drafts: Record<string, DraftResult> } | { ok: false, errors: string[] }
+export type TranslateResponse = { ok: true, drafts: Record<string, DraftResult> } | Failure
 export type PublishResponse =
   | { ok: true, branch: string, prUrl: string | null, note: string | null, edits: number, files: number, warnings: string[] }
-  | { ok: false, step?: string, errors: string[] }
+  | Failure
 
-async function post<T extends { ok: boolean }>(route: string, body: unknown): Promise<T | { ok: false, errors: string[] }> {
+async function post<T extends { ok: boolean }>(route: string, body: unknown): Promise<T | Failure> {
   try {
     const response = await fetch(`/api/dev/copy/${route}`, {
       method: 'POST',

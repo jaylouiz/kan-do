@@ -1,0 +1,5 @@
+- region "UI copy editor":
+  - status: Text selection mode · click any outlined text
+  - button "Copy ⌥ K"
+  - button "Publish as PR"
+  - button "Leave Esc"
