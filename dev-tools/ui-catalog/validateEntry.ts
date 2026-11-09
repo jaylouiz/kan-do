@@ -2,11 +2,11 @@
  * Validation of a catalog entry (#66) against the manifest, used by tests/devtools/ui-catalog/entries.test.ts. Pure: it
  * returns the problems as text, so the test can also prove that a bad entry is caught.
  */
-import { CATALOG_STATES, type CatalogEntry } from '~/catalog/types'
+import { CATALOG_DEMO_TASKS, CATALOG_STATES, type CatalogEntry } from '~/catalog/types'
 import { isI18nRef, type ManifestRow } from './catalogModel'
 
-/** Categories whose slice has landed: every manifest component of such a category needs an entry. The category slices (#71 to #77) add theirs (Aktion: #71, Darstellung: #76, Rückmeldung: #74, Overlay: #75, Navigation and keyboard: #73, Eingabe and form structure: #72). */
-export const LANDED_CATEGORIES: string[] = ['action', 'display', 'feedback', 'overlay', 'navigation', 'keyboard', 'input', 'form-structure']
+/** Categories whose slice has landed: every manifest component of such a category needs an entry. The category slices (#71 to #77) add theirs (Aktion: #71, Darstellung: #76, Rückmeldung: #74, Overlay: #75, Navigation and keyboard: #73, Eingabe and form structure: #72, Layout and blocks: #77). */
+export const LANDED_CATEGORIES: string[] = ['action', 'display', 'feedback', 'overlay', 'navigation', 'keyboard', 'input', 'form-structure', 'layout']
 
 /** Every i18n key an entry refers to (slots and props, nested). */
 export function referencedKeys(entry: CatalogEntry): string[] {
@@ -30,7 +30,7 @@ export function entryProblems(path: string, entry: CatalogEntry, manifest: Manif
   if (file !== `${entry.component}.catalog.ts`) problems.push(`the file must be named ${entry.component}.catalog.ts`)
   if (row && folder !== row.category) problems.push(`the folder must be catalog/${row.category}/ (the category of its manifest row), not ${folder}`)
   if (row && row.source !== entry.source) problems.push(`source "${entry.source}" differs from the manifest row's "${row.source}"`)
-  if (entry.source === 'nuxt-ui' && !entry.theme) problems.push('a nuxt-ui entry names its theme')
+  if (entry.source === 'nuxt-ui' && !entry.theme && !entry.sampleNote) problems.push('a nuxt-ui entry names its theme (only a provider without a theme, such as UApp, says why it has none in `sampleNote`)')
   if (entry.matrix && !entry.theme) problems.push('a matrix needs the theme it reads its axes from')
   if (entry.matrix && entry.matrix.axes.length === 0) problems.push('a matrix needs at least one axis')
   if (entry.source === 'app' && (entry.description || entry.usage || entry.avoid || entry.kind || entry.category)) {
@@ -41,6 +41,11 @@ export function entryProblems(path: string, entry: CatalogEntry, manifest: Manif
   if (hasSamples && entry.sampleNote) problems.push('`sampleNote` is set but the entry has samples')
   for (const example of [...(entry.variants ?? []), ...entry.states]) {
     if (example.trigger && example.slot === undefined) problems.push(`example "${example.id}" is a trigger but has no slot (nothing would render)`)
+  }
+  if (entry.host && entry.source !== 'app') problems.push('`host` is for an app component; a Nuxt UI component renders bare')
+  for (const example of [...(entry.variants ?? []), ...entry.states]) {
+    if (example.demoTasks && !entry.host) problems.push(`example "${example.id}" sets demoTasks but the entry has no host`)
+    if (example.demoTasks && !(CATALOG_DEMO_TASKS as readonly string[]).includes(example.demoTasks)) problems.push(`example "${example.id}": unknown demoTasks "${example.demoTasks}"`)
   }
   for (const name of entry.alternatives) {
     if (!manifest.some(r => r.name === name)) problems.push(`alternative ${name} has no manifest row`)

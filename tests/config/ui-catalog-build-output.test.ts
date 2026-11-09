@@ -22,6 +22,7 @@ const MARKERS = [
   'Component defaults from app.config', // a Tokens-part heading
   'data-kd-sample', // the Components part's sample wrapper (#66): the engine and, through it, catalog/ and the manifest import
   'Sample language', // a Components-part control label
+  'data-kd-board-host', // the sample host of the store-bound board blocks (#77): a throwaway Pinia with the demo board
 ]
 
 function files(dir: string): string[] {

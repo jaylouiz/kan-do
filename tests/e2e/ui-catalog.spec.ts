@@ -88,10 +88,10 @@ test.describe('/ui Components part: sections and texts', () => {
     await expect(link.getByText('Alternatives')).toHaveCount(0) // ExternalLink names none
     await expect(button(page).getByText('Alternatives')).toBeVisible()
     await expect(button(page).getByRole('link', { name: 'ExternalLink' })).toBeVisible()
-    // A component of a category that has not landed has no entry yet: it still shows its doc block and says its samples are pending
-    const entryless = page.locator('#component-Board')
-    await expect(entryless).toContainText('No catalog entry yet')
-    await expect(entryless.locator('[data-kd-sample]')).toHaveCount(0)
+    // Every category has landed (#77), so every component has an entry; a whole page such as Board says why it has no live sample
+    const noSample = page.locator('#component-Board')
+    await expect(noSample.getByTestId('catalog-sample-note')).toContainText('No live sample')
+    await expect(noSample.locator('[data-kd-sample]')).toHaveCount(0)
   })
 
   test('an alternative links to its component', async ({ page }) => {
