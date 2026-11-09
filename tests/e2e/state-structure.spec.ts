@@ -258,6 +258,10 @@ test.describe('new-day recap (#44)', () => {
 
 // Live copy editor (#59): a dev-only tool that the E2E build carries (KANDO_COPY_EDITOR=1). Its dev routes are mocked.
 test.describe('live copy editor (#59)', () => {
+  // The shortcut hints are platform glyphs (Nuxt UI's UKbd reads `Macintosh;` from the user agent: "⌥" there, "Alt" elsewhere);
+  // the snapshots record the macOS spelling, so the editor specs pin a macOS user agent and read the same on a Linux runner (#100).
+  test.use({ userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36' })
+
   async function openEditor(context: Parameters<typeof seedLocalBoard>[0], page: Page) {
     await seedLocalBoard(context)
     await page.goto('/tasks')
