@@ -1,0 +1,114 @@
+{
+  "components/CommandPalette.vue": {
+    "count": 2,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/board/ColumnSortingControl.vue": {
+    "count": 1,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/board/NewCardFlow.vue": {
+    "count": 1,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/feedback/FeedbackDialog.vue": {
+    "count": 1,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/nav/AppNav.vue": {
+    "count": 1,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/notion/setup/NotionSetupModal.vue": {
+    "count": 1,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/settings/DataConflictModal.vue": {
+    "count": 1,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/settings/DataFolderChangeModal.vue": {
+    "count": 2,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/settings/DataRestoreModal.vue": {
+    "count": 1,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/settings/DataStorageNotice.vue": {
+    "count": 1,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/settings/DisconnectSourceDialog.vue": {
+    "count": 1,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/settings/GithubTokenRow.vue": {
+    "count": 3,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/statistics/TasksTable.vue": {
+    "count": 1,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/sync/SyncWarningModal.vue": {
+    "count": 1,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/task/TaskCard.vue": {
+    "count": 1,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/task/TaskCardContextMenu.vue": {
+    "count": 2,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/task/TaskCarryOverTriage.vue": {
+    "count": 1,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/task/TaskDetailModal.vue": {
+    "count": 1,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/task/TaskForm.vue": {
+    "count": 6,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/task/TaskPropertySelect.vue": {
+    "count": 1,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/topic/TopicEditor.vue": {
+    "count": 1,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/topic/TopicEditorHost.vue": {
+    "count": 1,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/ui/ResponsiveOverlay.vue": {
+    "count": 3,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/updates/UpdateDialog.vue": {
+    "count": 1,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "components/updates/WhatsNewDialog.vue": {
+    "count": 1,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "pages/settings/index.vue": {
+    "count": 2,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "pages/settings/notion.vue": {
+    "count": 1,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  },
+  "pages/settings/topics.vue": {
+    "count": 1,
+    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
+  }
+}
