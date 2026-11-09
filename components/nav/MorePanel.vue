@@ -79,7 +79,7 @@
     <UButton
       v-if="thirdItem?.to !== '/trash'"
       to="/trash"
-      icon="i-ph-trash"
+      :icon="ICONS.delete"
       color="neutral"
       variant="ghost"
       block
@@ -162,6 +162,7 @@
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '~/lib/icons'
 import { computed, ref, useId } from 'vue'
 import { useMediaQuery } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'

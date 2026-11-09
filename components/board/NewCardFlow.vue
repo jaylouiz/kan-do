@@ -90,7 +90,7 @@
               :aria-label="t('board.quickAdd.back')"
               @click="goBack"
             >
-              <UIcon name="i-ph-caret-left" class="size-4" aria-hidden="true" />
+              <UIcon :name="ICONS.back" class="size-4" aria-hidden="true" />
               <kbd class="ncf__key" :data-key="KEY_ESCAPE" aria-hidden="true" />
             </button>
             <p :id="questionId" class="ncf__question">{{ question }}</p>
@@ -104,7 +104,7 @@
               @click="skip"
             >
               <kbd class="ncf__key" :data-key="KEY_ENTER" aria-hidden="true" />
-              <UIcon name="i-ph-arrow-right" class="size-4" aria-hidden="true" />
+              <UIcon :name="ICONS.forward" class="size-4" aria-hidden="true" />
             </button>
           </div>
 
@@ -213,6 +213,7 @@
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '~/lib/icons'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useToast } from '#imports';

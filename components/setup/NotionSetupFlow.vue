@@ -34,7 +34,7 @@
         data-testid="setup-back"
         @click="goBack"
       >
-        <UIcon name="i-ph-arrow-left" class="size-4" aria-hidden="true" />
+        <UIcon :name="ICONS.back" class="size-4" aria-hidden="true" />
         {{ isFirst ? t('onboarding.flow.backToChoice') : t('common.back') }}
       </button>
 
@@ -87,6 +87,7 @@
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '~/lib/icons'
 import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue';
 import { useI18n } from 'vue-i18n';
 import SetupRail from '~/components/setup/SetupRail.vue';

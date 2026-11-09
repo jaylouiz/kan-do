@@ -77,7 +77,7 @@
           <UButton
             color="neutral"
             variant="ghost"
-            icon="ph:dots-three-vertical"
+            icon="i-ph-dots-three-vertical"
             class="shrink-0 max-md:size-11"
             :aria-label="t('task.detail.moreActions')"
             data-testid="task-actions-menu"
@@ -289,6 +289,7 @@
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '~/lib/icons'
 import { toRef, computed, ref, watch, nextTick, useId, onMounted } from 'vue';
 import { useOverlayIsDesktop } from '~/composables/useIsDesktop';
 import { useTaskDetail, formatTaskDuration, applyCustomValue } from '~/composables/useTaskDetail';
@@ -394,9 +395,9 @@ const statusItems = computed(() => Object.entries(TASK_STATUS_CONFIG)
   .map(([status, config]) => ({ label: getStatusLabel(Number(status) as TaskStatus), value: Number(status) as TaskStatus, icon: config.icon })));
 
 const priorityItems = computed(() => [
-  { label: getPriorityLabel(1), value: 1, icon: 'ph:flag' },
-  { label: getPriorityLabel(2), value: 2, icon: 'ph:flag' },
-  { label: getPriorityLabel(3), value: 3, icon: 'ph:exclamation-mark' },
+  { label: getPriorityLabel(1), value: 1, icon: 'i-ph-flag' },
+  { label: getPriorityLabel(2), value: 2, icon: 'i-ph-flag' },
+  { label: getPriorityLabel(3), value: 3, icon: 'i-ph-exclamation-mark' },
 ]);
 
 // Priority display computed properties
@@ -705,7 +706,7 @@ const utilityMenuItems = computed(() => {
   // Copy ID
   items.push({
     label: idCopied.value ? t('task.detail.copied') : t('task.detail.copyId'),
-    icon: idCopied.value ? 'ph:check' : 'ph:copy',
+    icon: idCopied.value ? 'i-ph-check' : 'i-ph-copy',
     iconClass: idCopied.value ? 'text-success' : '',
     onSelect: copyTaskId
   });
@@ -714,7 +715,7 @@ const utilityMenuItems = computed(() => {
   if (sourceUrl.value && taskSource.value) {
     items.push({
       label: t('task.detail.openIn', { source: taskSource.value }),
-      icon: 'ph:arrow-square-out',
+      icon: ICONS.openDetail,
       onSelect: () => window.open(sourceUrl.value!, '_blank')
     });
   }
@@ -723,7 +724,7 @@ const utilityMenuItems = computed(() => {
   if (moveTargets.value.length > 0) {
     items.push({
       label: t('task.contextMenu.moveToSource'),
-      icon: 'ph:swap',
+      icon: 'i-ph-swap',
       children: moveTargets.value.map((target): UtilityMenuEntry => ({
         label: target.name,
         icon: target.icon,
@@ -740,7 +741,7 @@ const utilityMenuItems = computed(() => {
   // Delete
   items.push({
     label: t(deleteLabelKey(task.value?.source ?? 'local')),
-    icon: 'ph:trash',
+    icon: ICONS.delete,
     iconClass: 'text-error',
     onSelect: () => emit('delete')
   });

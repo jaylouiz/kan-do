@@ -106,7 +106,7 @@
         :style="edgeIndicatorStyle"
         aria-hidden="true"
       >
-        <UIcon name="ph:caret-left-bold" class="size-6" />
+        <UIcon :name="ICONS.back" class="size-6" />
       </div>
       <div
         v-if="activeMobileTab < 2"
@@ -115,7 +115,7 @@
         :style="edgeIndicatorStyle"
         aria-hidden="true"
       >
-        <UIcon name="ph:caret-right-bold" class="size-6" />
+        <UIcon :name="ICONS.forward" class="size-6" />
       </div>
     </template>
   </div>
@@ -148,6 +148,7 @@
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '~/lib/icons'
 import { computed, ref, onMounted, onBeforeUnmount } from "vue";
 import { useI18n } from "vue-i18n";
 import { useBoardStore } from "~/store/board";

@@ -237,7 +237,7 @@ v-if="logTail" v-model="draft.include.log" :label="t('feedback.review.itemLog')"
         </UButton>
         <UButton
           size="lg"
-          v-else color="primary" icon="i-ph-arrow-square-out" :disabled="tokenState === 'unknown'" :loading="tokenState === 'unknown'"
+          v-else color="primary" :icon="ICONS.external" :disabled="tokenState === 'unknown'" :loading="tokenState === 'unknown'"
           data-testid="feedback-open-browser" @click="openInBrowser">
           {{ t('feedback.review.openOnGithub') }}
         </UButton>
@@ -247,6 +247,7 @@ v-if="logTail" v-model="draft.include.log" :label="t('feedback.review.itemLog')"
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '~/lib/icons'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { MODAL_WIDTH } from '~/utils/modalSizes'

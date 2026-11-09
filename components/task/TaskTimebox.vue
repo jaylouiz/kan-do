@@ -12,7 +12,7 @@
     size="sm"
     variant="soft"
     color="neutral"
-    icon="ph:clock"
+    icon="i-ph-clock"
   >
     {{ timeBoxString }}
   </UBadge>

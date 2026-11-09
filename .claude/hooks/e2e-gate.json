@@ -813,6 +813,7 @@
         "composables/useAppNav.ts",
         "composables/useNavIndicator.ts",
         "lib/navSpring.ts",
+        "lib/icons.ts",
         "composables/useManualSync.ts",
         "assets/css/app-nav.css",
         "layouts/**",

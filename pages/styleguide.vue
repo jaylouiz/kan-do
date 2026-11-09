@@ -492,8 +492,8 @@
             <h3 class="font-display mb-1 text-xl">TaskDetailModal</h3>
             <p class="mb-3 text-sm text-muted">Bettet TaskDetailContent in einen UModal ein.</p>
             <div class="rounded-lg border border-default bg-elevated p-4 flex gap-3 flex-wrap">
-              <UButton icon="i-ph-arrow-square-out" variant="soft" @click="() => { showTaskDetailModal = true; }">Detail öffnen</UButton>
-              <UButton icon="i-ph-arrow-square-out" variant="soft" color="neutral" @click="() => { showTaskSheet = true; }">Als Sheet öffnen</UButton>
+              <UButton :icon="ICONS.openDetail" variant="soft" @click="() => { showTaskDetailModal = true; }">Detail öffnen</UButton>
+              <UButton :icon="ICONS.openDetail" variant="soft" color="neutral" @click="() => { showTaskSheet = true; }">Als Sheet öffnen</UButton>
             </div>
           </div>
 
@@ -648,6 +648,7 @@
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '~/lib/icons'
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { DragDropProvider } from '@dnd-kit/vue'
 import BoardColumn from '~/components/board/BoardColumn.vue'

@@ -80,7 +80,7 @@ Hosted by ResponsiveOverlay (modal at >=768px with both decks side by side, bott
           <UButton
             size="lg"
             color="primary"
-            trailing-icon="i-ph-arrow-right"
+            :trailing-icon="ICONS.goOn"
             class="w-full justify-center @md:w-auto"
             data-recap-primary
             data-testid="recap-continue"
@@ -95,6 +95,7 @@ Hosted by ResponsiveOverlay (modal at >=768px with both decks side by side, bott
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '~/lib/icons'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import RecapDeck from '~/components/recap/RecapDeck.vue'

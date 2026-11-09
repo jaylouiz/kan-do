@@ -38,7 +38,7 @@ SortableTaskWrapper (a gap is no dnd-kit sortable: not draggable, not droppable,
         <TaskCard :task="gap.task" preview readonly class="task-gap__picture" aria-hidden="true" inert />
         <div class="task-gap__answer">
           <p class="task-gap__label">
-            <UIcon name="i-ph-trash" class="size-5 shrink-0" aria-hidden="true" />
+            <UIcon :name="ICONS.delete" class="size-5 shrink-0" aria-hidden="true" />
             {{ t('trash.inTrash') }}
           </p>
           <UButton
@@ -65,6 +65,7 @@ SortableTaskWrapper (a gap is no dnd-kit sortable: not draggable, not droppable,
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '~/lib/icons'
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import TaskCard from '~/components/task/TaskCard.vue'

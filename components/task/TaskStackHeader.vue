@@ -35,7 +35,7 @@
       variant="ghost"
       size="xs"
       square
-      icon="i-ph-x"
+      :icon="ICONS.close"
       :aria-label="t('board.stack.closeLabel', { group: label })"
       @click="(event: MouseEvent) => emit('close', event.detail === 0 ? 'keyboard' : 'pointer')"
     />
@@ -43,6 +43,7 @@
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '~/lib/icons'
 import { useI18n } from "vue-i18n";
 import TaskStackPill from "~/components/task/TaskStackPill.vue";
 import { useStackCaption } from "~/composables/useStackCaption";

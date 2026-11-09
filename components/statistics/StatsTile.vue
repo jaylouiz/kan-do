@@ -30,7 +30,7 @@
       >
         <span class="font-display tracking-display block text-headline leading-(--lh-tight) text-highlighted">{{ question }}</span>
         <span class="mt-1 flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-toned group-hover:text-highlighted" aria-hidden="true">
-          <UIcon :name="open ? 'i-ph-x' : 'i-ph-arrows-out-simple'" class="size-4" />
+          <UIcon :name="open ? ICONS.close : 'i-ph-arrows-out-simple'" class="size-4" />
         </span>
       </button>
       <span v-else class="font-display tracking-display block text-headline leading-(--lh-tight) text-highlighted">{{ question }}</span>
@@ -53,6 +53,7 @@
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '~/lib/icons'
 import { ref, useId } from 'vue'
 
 defineOptions({ name: 'StatsTile' })

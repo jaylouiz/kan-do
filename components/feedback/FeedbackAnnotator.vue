@@ -42,7 +42,7 @@ three tools (Rechteck, Pfeil, Schwärzen), undo last, clear all, and the toggle 
         </UTooltip>
         <UTooltip :text="t('feedback.annotate.clear')">
           <UButton
-            icon="i-ph-trash"
+            :icon="ICONS.delete"
             variant="ghost"
             color="neutral"
             :disabled="!annotations.length"
@@ -85,6 +85,7 @@ three tools (Rechteck, Pfeil, Schwärzen), undo last, clear all, and the toggle 
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '~/lib/icons'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFeedback } from '~/composables/useFeedback'
@@ -98,7 +99,7 @@ const { rawShot, annotations, maskPrivate, captureFailure, addAnnotation, undoAn
 const tool = ref<AnnotationTool>('rect')
 const tools = computed(() => [
   { tool: 'rect' as const, icon: 'i-ph-rectangle', label: t('feedback.annotate.rect') },
-  { tool: 'arrow' as const, icon: 'i-ph-arrow-up-right', label: t('feedback.annotate.arrow') },
+  { tool: 'arrow' as const, icon: ICONS.arrowTool, label: t('feedback.annotate.arrow') },
   { tool: 'redact' as const, icon: 'i-ph-eye-slash', label: t('feedback.annotate.redact') },
 ])
 

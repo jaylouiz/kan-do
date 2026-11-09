@@ -6,7 +6,7 @@
 - Left segment names the grouping property the way a card shows it: topic = TopicMark + neutral name (hue only on
   the mark); priority 1-3 = the real TaskPriorityBadge as the segment itself (no hairline after it); activity,
   custom/Notion value and the empty group = the plain name
-- Right segment is the stack icon (`ph:stack`) and the count; it never shrinks, a large count widens it only
+- Right segment is the stack icon (`i-ph-stack`) and the count; it never shrinks, a large count widens it only
 - The property segment is capped at 10rem and truncates with an ellipsis (look decision, tune here); the full
   name stays in the stack control's accessible name, so there is no tooltip. The pill is decorative: the
   visible word "Aufgaben" is gone, the control still says it

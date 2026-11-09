@@ -8,7 +8,7 @@
 -->
 <template>
   <span class="inline-flex items-center gap-1 text-sm">
-    <UIcon name="i-ph:clock-countdown" class="size-4" aria-hidden="true" />
+    <UIcon name="i-ph-clock-countdown" class="size-4" aria-hidden="true" />
     <span v-if="showRemaining">
       <template v-if="showFullTimeString"
         >{{ t('duration.remainingOfTotal', { remaining: remainingTimeString, total: timeBoxString }) }}</template

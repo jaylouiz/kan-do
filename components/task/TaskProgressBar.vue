@@ -21,7 +21,7 @@
       class="task-progress-label flex items-center justify-center gap-1.5 text-xs"
       :class="labelColorClass"
     >
-      <UIcon name="i-ph:clock-countdown" class="size-3.5" aria-hidden="true" />
+      <UIcon name="i-ph-clock-countdown" class="size-3.5" aria-hidden="true" />
       {{ t("duration.remaining", { time: remainingTimeString }) }}
     </span>
   </div>

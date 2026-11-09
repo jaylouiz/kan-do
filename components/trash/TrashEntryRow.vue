@@ -48,7 +48,7 @@
         <UButton
           v-else-if="forever"
           ref="removeBtn"
-          icon="i-ph-x"
+          :icon="ICONS.close"
           color="neutral"
           variant="ghost"
           :aria-label="t('trash.removeForeverNamed', { title: entry.task.title })"
@@ -61,6 +61,7 @@
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '~/lib/icons'
 import { computed, nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import TaskCard from '~/components/task/TaskCard.vue'
