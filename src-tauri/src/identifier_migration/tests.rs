@@ -409,11 +409,72 @@ fn a_debug_build_with_the_production_identifier_keeps_using_the_legacy_folder_an
     t.seed_default_install();
     let before = snapshot(&t.old);
     let dirs = run_gated(true, PRODUCTION_IDENTIFIER, &t.new, &t.new, || panic!("a debug build must not open the Keychain"));
-    // `tauri dev` behaves as before the rename: the legacy folder is the data folder, so nothing it writes can make a
-    // later release see a populated new folder and skip the migration.
+    // Before a release has migrated, `tauri dev` behaves as before the rename: the legacy folder is the data folder, so
+    // nothing it writes can make a later release see a populated new folder and skip the migration.
     assert_eq!(dirs, Dirs { config_dir: t.old.clone(), default_folder: t.old.clone() });
     assert!(!t.new.exists(), "no state file, no copied data, no new folder");
     assert_eq!(snapshot(&t.old), before, "resolving the folder writes nothing");
+    assert!(!secrets_settled(&t.new));
+}
+
+/// Writes the marker the release leaves behind (states only) into the new config dir.
+fn put_marker(t: &Support, state: State) {
+    write_state(&t.new, &state).unwrap();
+}
+
+fn marker(data: Option<&str>, secrets: Option<&str>, attempts: u32) -> State {
+    State { data: data.map(Into::into), secrets: secrets.map(Into::into), secrets_attempts: attempts }
+}
+
+#[test]
+fn a_debug_build_follows_a_finished_data_step_and_uses_the_new_folder_without_writing_anything() {
+    for data in [DONE, SKIPPED] {
+        let t = Support::new();
+        t.seed_default_install();
+        fs::create_dir_all(&t.new).unwrap();
+        fs::write(t.new.join(FILE_NAME), b"{\"installed\":true}").unwrap();
+        put_marker(&t, marker(Some(data), None, 0));
+        let (old_before, new_before) = (snapshot(&t.old), snapshot(&t.new));
+        let dirs = run_gated(true, PRODUCTION_IDENTIFIER, &t.new, &t.new, || panic!("a debug build must not open the Keychain"));
+        assert_eq!(dirs, Dirs { config_dir: t.new.clone(), default_folder: t.new.clone() }, "data marker {data}");
+        assert_eq!((snapshot(&t.old), snapshot(&t.new)), (old_before, new_before), "the marker is read, nothing is written");
+    }
+}
+
+#[test]
+fn a_debug_build_stays_on_the_legacy_folder_while_the_release_has_not_finished_or_the_marker_is_unreadable() {
+    let t = Support::new();
+    t.seed_default_install();
+    put_marker(&t, marker(Some(IN_PROGRESS), None, 0));
+    let dirs = run_gated(true, PRODUCTION_IDENTIFIER, &t.new, &t.new, || panic!("no Keychain in a debug build"));
+    assert_eq!(dirs.default_folder, t.old, "in-progress: the copy is not authoritative yet");
+    // A marker with only the Keychain half (data not recorded) is not a finished data step either.
+    put_marker(&t, marker(None, Some(DONE), 0));
+    assert_eq!(run_gated(true, PRODUCTION_IDENTIFIER, &t.new, &t.new, || None).default_folder, t.old);
+    fs::write(t.new.join(STATE_FILE), b"not json").unwrap();
+    let before = snapshot(&t.new);
+    assert_eq!(run_gated(true, PRODUCTION_IDENTIFIER, &t.new, &t.new, || None).default_folder, t.old, "unreadable marker");
+    assert_eq!(snapshot(&t.new), before, "an unreadable marker is not repaired by a dev run");
+}
+
+#[test]
+fn the_keychain_follows_the_marker_per_step_and_a_dev_run_never_changes_it() {
+    let t = Support::new();
+    assert!(!secrets_settled(&t.new), "no marker");
+    for (state, settled) in [
+        (marker(Some(DONE), None, 0), false),
+        (marker(Some(DONE), None, MAX_SECRET_ATTEMPTS - 1), false),
+        (marker(Some(DONE), None, MAX_SECRET_ATTEMPTS), true),
+        (marker(Some(DONE), Some(DONE), 0), true),
+        (marker(None, Some(DONE), 0), true),
+    ] {
+        put_marker(&t, state.clone());
+        let before = snapshot(&t.new);
+        assert_eq!(secrets_settled(&t.new), settled, "{state:?}");
+        assert_eq!(snapshot(&t.new), before);
+    }
+    fs::write(t.new.join(STATE_FILE), b"{").unwrap();
+    assert!(!secrets_settled(&t.new), "unreadable marker");
 }
 
 #[test]
