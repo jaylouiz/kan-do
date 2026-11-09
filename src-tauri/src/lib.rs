@@ -24,7 +24,7 @@ fn sandbox_background() -> bool {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
   let builder = tauri::Builder::default();
-  // The Keychain service follows the identifier the app runs under (a sandbox gets its own, #54), so it is read from the
+  // The Keychain service follows the identifier the app runs under (a sandbox gets its own, kd#54), so it is read from the
   // context before the builder manages `Secrets`.
   let context = tauri::generate_context!();
   let keychain_service = secrets::service_for(cfg!(debug_assertions), &context.config().identifier);
