@@ -79,10 +79,10 @@ describe('catalog entries (#66)', () => {
   })
 
   it('a landed category needs an entry for each of its manifest components; a category that has not landed does not', () => {
-    expect(LANDED_CATEGORIES).toEqual(['action', 'display', 'feedback', 'overlay']) // the category slices (#71 to #77) add theirs here
+    expect(LANDED_CATEGORIES).toEqual(['action', 'display', 'feedback', 'overlay', 'navigation', 'keyboard']) // the category slices (#71 to #77) add theirs here
     expect(missingEntries(manifest, loaded.map(l => l.entry))).toEqual([])
-    const missing = missingEntries(manifest, loaded.map(l => l.entry), ['navigation'])
-    expect(missing).toContain('AppNav')
+    const missing = missingEntries(manifest, loaded.map(l => l.entry), ['layout'])
+    expect(missing).toContain('PageHeader')
     expect(missing.length).toBeGreaterThan(0)
   })
 

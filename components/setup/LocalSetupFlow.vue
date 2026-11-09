@@ -14,15 +14,16 @@
 -->
 <template>
   <section class="flex flex-col gap-6" data-testid="local-setup-flow" :aria-label="t('onboarding.flow.local.label')">
-    <button
-      type="button"
-      class="focus-ring -ml-1 inline-flex min-h-11 items-center gap-1.5 self-start rounded-lg px-1 text-sm text-toned hover:text-highlighted"
+    <UButton
+      color="neutral"
+      variant="ghost"
+      :icon="ICONS.back"
+      class="-ml-2 min-h-11 self-start"
       data-testid="setup-back"
       @click="emit('back')"
     >
-      <UIcon :name="ICONS.back" class="size-4" aria-hidden="true" />
       {{ t('onboarding.flow.backToChoice') }}
-    </button>
+    </UButton>
     <div>
       <h2 ref="headingRef" tabindex="-1" class="font-display tracking-display text-3xl leading-(--lh-tight) text-balance text-highlighted outline-none sm:text-4xl">
         {{ t('onboarding.flow.local.title') }}

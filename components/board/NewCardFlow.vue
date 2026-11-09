@@ -88,21 +88,26 @@
       <Transition :name="direction === 'back' ? 'ncf-back' : 'ncf-fwd'" mode="out-in" @after-enter="focusStep">
         <div :key="step" class="ncf__step">
           <div class="ncf__head">
-            <button
-              type="button"
+            <UButton
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              :icon="ICONS.back"
               class="ncf__nav ncf__nav--start"
               aria-keyshortcuts="Escape"
               :disabled="saving"
               :aria-label="t('board.quickAdd.back')"
               @click="goBack"
             >
-              <UIcon :name="ICONS.back" class="size-4" aria-hidden="true" />
               <kbd class="ncf__key" :data-key="KEY_ESCAPE" aria-hidden="true" />
-            </button>
+            </UButton>
             <p :id="questionId" class="ncf__question">{{ question }}</p>
-            <button
+            <UButton
               v-if="step !== 'notes'"
-              type="button"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              :trailing-icon="ICONS.forward"
               class="ncf__nav ncf__nav--end"
               aria-keyshortcuts="Enter"
               :disabled="saving"
@@ -110,8 +115,7 @@
               @click="skip"
             >
               <kbd class="ncf__key" :data-key="KEY_ENTER" aria-hidden="true" />
-              <UIcon :name="ICONS.forward" class="size-4" aria-hidden="true" />
-            </button>
+            </UButton>
           </div>
 
           <form v-if="step === 'notes'" class="ncf__row" novalidate @submit.prevent="submitNotes">
@@ -875,6 +879,8 @@ onBeforeUnmount(() => {
   gap: 0.25rem;
   min-width: 1.75rem;
   height: 1.75rem;
+  /* beats the button theme's phone floor, like .ncf__action: the head stays 32 px high */
+  min-height: 1.75rem;
   padding: 0 0.375rem;
   border-radius: 9999px;
   /* The top-left of the face is where the topic mark shows through the wash: a soft card-coloured surface keeps the two apart */
@@ -1120,6 +1126,7 @@ onBeforeUnmount(() => {
   /* 32 px (above the 24 px target floor): the head ends 12 px above the answer row of a 128 px card */
   .ncf__nav {
     height: 2rem;
+    min-height: 2rem;
     min-width: 2rem;
   }
 }
