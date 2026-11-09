@@ -182,7 +182,7 @@ function onPointerDown(event: PointerEvent) {
   text-align: left;
   user-select: none;
   -webkit-user-select: none;
-  border-radius: 1rem;
+  border-radius: var(--radius-lg);
 }
 .recap-deck:focus-visible {
   outline: 2px solid var(--ui-primary);

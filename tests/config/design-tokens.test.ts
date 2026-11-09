@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { checkCssVars, NON_UTILITY_CLASS, projectCssClasses } from '../../scripts/lint/design-tokens.mjs'
+import { checkCssVars, checkTokenLiterals, NON_UTILITY_CLASS, projectCssClasses } from '../../scripts/lint/design-tokens.mjs'
 
 // Token use (scripts/lint/design-tokens.mjs): a `var(--x)` the project, Tailwind and Nuxt UI do not define renders
 // nothing (or only its fallback), and no other check notices. The per-edit hook checks the edited file; this test
@@ -13,6 +13,11 @@ const root = resolve(__dirname, '../..')
 describe('design tokens', () => {
   it('every var() in the styling sources resolves to a defined custom property', () => {
     const findings = checkCssVars(root) as { file: string, line: number, message: string }[]
+    expect(findings.map(f => `${f.file.replace(`${root}/`, '')}:${f.line} ${f.message}`)).toEqual([])
+  })
+
+  it('has no colour, shadow-colour or radius literal outside the allowlist (#69)', () => {
+    const findings = checkTokenLiterals(root) as { file: string, line: number, message: string }[]
     expect(findings.map(f => `${f.file.replace(`${root}/`, '')}:${f.line} ${f.message}`)).toEqual([])
   })
 
