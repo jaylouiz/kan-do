@@ -297,6 +297,7 @@
       ],
       "specs": [
         "settings-github-link",
+        "github-settings",
         "task-detail"
       ]
     },

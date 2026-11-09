@@ -2,7 +2,7 @@ import type { CatalogEntry } from '../types'
 
 /**
  * Nuxt UI dropdown menu (#71). No samples: a sample can only pass a text slot, and the menu anchors to its trigger
- * element, so an open menu has nothing to hang on (an attempt rendered the bare text and no content); The entry says so in `noSamples`. The menus
+ * element, so an open menu has nothing to hang on (an attempt rendered the bare text and no content); The entry says so in `sampleNote`. The menus
  * themselves are covered by `sorting.spec.ts` and `task-detail.spec.ts`; the ColumnSortingControl entry shows the
  * trigger of the choice menu.
  */
@@ -16,7 +16,7 @@ export default {
   avoid: 'Not for navigation between places (AppNav, tabs), not for right-click or long-press on a card (TaskCardContextMenu) and not for one action (a `UButton`). Not inside a drawer that has no menu primitive (NewCardFlow keeps plain buttons).',
   alternatives: ['UButton', 'TaskCardContextMenu', 'ColumnSortingControl'],
   theme: 'dropdown-menu',
-  noSamples:
+  sampleNote:
     'a sample can only pass a text slot and the menu anchors to its trigger element, so a sample renders nothing; the menus are covered by sorting.spec.ts and task-detail.spec.ts and the ColumnSortingControl entry shows the choice menu\'s trigger.',
   states: [],
 } satisfies CatalogEntry

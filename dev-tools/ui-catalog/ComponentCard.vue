@@ -44,7 +44,7 @@
     </dl>
 
     <p v-if="!entry" class="max-w-lg text-sm text-muted">No catalog entry yet: its samples arrive with its category slice.</p>
-    <p v-else-if="entry.noSamples" class="max-w-lg text-sm text-muted">No live sample: {{ entry.noSamples }}</p>
+    <p v-else-if="entry.sampleNote" class="max-w-lg text-sm text-muted" data-testid="catalog-sample-note">No live sample: {{ entry.sampleNote }}</p>
     <p v-else-if="error" role="alert" class="text-sm text-error">Could not render the samples: {{ error }}</p>
     <template v-else-if="component">
       <div class="space-y-2">
@@ -103,7 +103,7 @@
         <section v-if="shownVariants.length" :aria-label="`${row.name} variants`" class="space-y-2">
           <h5 class="text-xs text-muted">Variants</h5>
           <ul class="flex flex-wrap items-end gap-x-6 gap-y-3">
-            <li v-for="example in shownVariants" :key="example.id" class="min-w-0 space-y-1">
+            <li v-for="example in shownVariants" :key="example.id" class="max-w-full min-w-0 space-y-1">
               <p class="text-xs text-muted">{{ example.label ?? example.id }}</p>
               <UiCatalogSample :component="component" :sample-key="`${row.name}:variant:${example.id}`" :props="example.props" :slot-text="example.slot" :open="example.open" />
             </li>
@@ -113,7 +113,7 @@
         <section v-if="shownStates.length" :aria-label="`${row.name} states`" class="space-y-2">
           <h5 class="text-xs text-muted">States</h5>
           <ul class="flex flex-wrap items-end gap-x-6 gap-y-3">
-            <li v-for="example in shownStates" :key="example.id" class="min-w-0 space-y-1">
+            <li v-for="example in shownStates" :key="example.id" class="max-w-full min-w-0 space-y-1">
               <p class="text-xs text-muted">{{ example.label ?? example.state }}</p>
               <UiCatalogSample :component="component" :sample-key="`${row.name}:state:${example.id}`" :state="example.state" :props="example.props" :slot-text="example.slot" :open="example.open" />
             </li>

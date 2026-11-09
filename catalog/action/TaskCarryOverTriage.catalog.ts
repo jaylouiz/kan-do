@@ -9,7 +9,7 @@ export default {
   component: 'TaskCarryOverTriage',
   source: 'app',
   alternatives: ['UButton'],
-  noSamples:
+  sampleNote:
     'it renders nothing unless its task is in the tasks store and carried over several days; /ui has no board state. Its three buttons are the UButton ghost neutral sm of the UButton entry.',
   states: [],
 } satisfies CatalogEntry

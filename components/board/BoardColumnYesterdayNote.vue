@@ -249,7 +249,7 @@ function openTask(taskId: string) {
   color: var(--ui-color-success-800);
 }
 
-/* 44px hit areas on the phone (D4): the line grows to 44px, the surface drops its vertical padding (46px); the 44 px floor is restated for the two controls because their own min-height (2rem) outranks the theme's */
+/* 44px hit areas on the phone (D4): the line grows to 44px, the surface drops its vertical padding (46px); the 44 px floor is restated for the controls because their own min-height (2rem) outranks the theme's */
 @media (--phone) {
   .yesterday-note__surface {
     padding-block: 0;
@@ -286,6 +286,14 @@ function openTask(taskId: string) {
   font-size: var(--text-sm);
   font-weight: 400;
   line-height: 1.5rem;
+}
+
+/* after the base rule on purpose: same specificity, the later one wins; the open title rows are touch targets too */
+@media (--phone) {
+  .yesterday-note__title {
+    min-height: 2.75rem;
+    align-items: center;
+  }
 }
 
 .yesterday-note__time {

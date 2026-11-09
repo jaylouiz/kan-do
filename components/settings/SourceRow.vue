@@ -16,8 +16,9 @@
 - Every button name contains the source ("Notion als Standard festlegen") so rows are told apart
 -->
 <template>
-  <li
-    class="flex flex-wrap items-center gap-x-4 gap-y-3 py-4"
+  <ListRow
+    density="roomy"
+    class="gap-y-3"
     :data-testid="`source-row-${row.id}`"
   >
     <UIcon :name="row.icon" class="size-5 shrink-0 text-muted" aria-hidden="true" />
@@ -88,11 +89,12 @@
         {{ t('sources.row.disconnect') }}
       </UButton>
     </div>
-  </li>
+  </ListRow>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import ListRow from '~/components/ui/ListRow.vue'
 import { useI18n } from 'vue-i18n'
 import type { ConnectedSourceRow } from '~/composables/useSourceList'
 import type { SourceId } from '~/types/taskSource'

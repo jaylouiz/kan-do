@@ -64,14 +64,14 @@ describe('docs/design/ui-manifest.json', () => {
   })
 
   it('adds one row per Nuxt UI entry of catalog/ after the app rows, with the entry text and the names it declares (#66)', () => {
-    const noSamples = new Set((loadCatalogEntries() as { entry: { component: string, noSamples?: string } }[]).filter(l => l.entry.noSamples).map(l => l.entry.component))
+    const sampleNote = new Set((loadCatalogEntries() as { entry: { component: string, sampleNote?: string } }[]).filter(l => l.entry.sampleNote).map(l => l.entry.component))
     const library = manifest.filter((entry: { source: string }) => entry.source === 'nuxt-ui')
     expect(library.map((entry: { path: string }) => entry.path)).toEqual(catalogFiles().filter(path => library.some((entry: { path: string }) => entry.path === path)))
     expect(manifest.slice(-library.length)).toEqual(library)
     for (const entry of library) {
       expect(entry.description, entry.name).not.toBe('')
       expect(UI_CATEGORIES, entry.name).toContain(entry.category)
-      if (!noSamples.has(entry.name)) expect(entry.variants.length, entry.name).toBeGreaterThan(0)
+      if (!sampleNote.has(entry.name)) expect(entry.variants.length, entry.name).toBeGreaterThan(0)
     }
   })
 
