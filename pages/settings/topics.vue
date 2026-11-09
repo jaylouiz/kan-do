@@ -31,6 +31,7 @@ shared TopicEditor: an inline panel under the row at >=768px, a bottom drawer at
                   :key="name"
                   :ref="(el) => setRowRef(name, el)"
                   action
+                  hover="surface"
                   :expanded="open === name"
                   :label="t('settings.topics.editRow', { name })"
                   button-testid="topics-row-button"

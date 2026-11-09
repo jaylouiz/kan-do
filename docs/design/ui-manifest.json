@@ -2466,6 +2466,7 @@
     "avoid": "Not a card (TaskCard, UCard) and not a table row (UTable); a row that is only text with no trailing part is a plain `<li>`.",
     "responsibility": [
       "Render the `<li>`; the surrounding `<ul class=\"divide-y divide-default\">` draws the hairlines",
+      "`hover` (action rows): `text` (default) or `surface` for rows whose children set their own colours",
       "`density` sets the vertical rhythm: roomy (sources), cozy (action rows), compact (backups)",
       "`action`: the slot (use a `<span class=\"flex …\">` for its layout) sits inside one `<button>` with `focus-ring`, `min-h-11`, `aria-expanded` from `expanded`, `aria-label` from `label`; `focus()` is exposed for hosts that return focus to the row",
       "Attributes (`data-testid`, …) land on the `<li>`; `buttonTestid` names the action button"
