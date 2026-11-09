@@ -291,6 +291,17 @@
       ]
     },
     {
+      "area": "open a page outside the app: ExternalLink and the task sheet menu's open-in-source (#71)",
+      "paths": [
+        "utils/openExternal.ts"
+      ],
+      "specs": [
+        "settings-github-link",
+        "github-settings",
+        "task-detail"
+      ]
+    },
+    {
       "area": "E2E seed plugin: one spec per seed mode (local is smoke)",
       "paths": [
         "plugins/e2e-seed*"

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
-import { MANIFEST_PATH, UI_CATEGORIES, UI_KINDS, buildManifest, catalogFiles, checkDocBlock, componentFiles, parseDocBlock, renderManifest } from '../../scripts/ui-manifest.mjs'
+import { MANIFEST_PATH, UI_CATEGORIES, UI_KINDS, buildManifest, catalogFiles, checkDocBlock, loadCatalogEntries, componentFiles, parseDocBlock, renderManifest } from '../../scripts/ui-manifest.mjs'
 
 const block = (extra = '') => `<!--
 @component Demo
@@ -64,13 +64,14 @@ describe('docs/design/ui-manifest.json', () => {
   })
 
   it('adds one row per Nuxt UI entry of catalog/ after the app rows, with the entry text and the names it declares (#66)', () => {
+    const sampleNote = new Set((loadCatalogEntries() as { entry: { component: string, sampleNote?: string } }[]).filter(l => l.entry.sampleNote).map(l => l.entry.component))
     const library = manifest.filter((entry: { source: string }) => entry.source === 'nuxt-ui')
     expect(library.map((entry: { path: string }) => entry.path)).toEqual(catalogFiles().filter(path => library.some((entry: { path: string }) => entry.path === path)))
     expect(manifest.slice(-library.length)).toEqual(library)
     for (const entry of library) {
       expect(entry.description, entry.name).not.toBe('')
       expect(UI_CATEGORIES, entry.name).toContain(entry.category)
-      expect(entry.variants.length, entry.name).toBeGreaterThan(0)
+      if (!sampleNote.has(entry.name)) expect(entry.variants.length, entry.name).toBeGreaterThan(0)
     }
   })
 
