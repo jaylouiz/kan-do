@@ -6,7 +6,7 @@ import { UI_CATEGORIES, UI_KINDS, checkDocBlock } from '../../scripts/ui-manifes
 // CLAUDE.md "Component Conventions": every component under components/ names itself with `defineOptions({ name })`
 // and carries an `@component` doc block. Pages and app.vue are exempt (Nuxt names a page by its route; pages use `@page`).
 // The doc block also carries `@kind`, `@category`, `@description`, `@usage` and `@avoid` (#64; the manifest
-// `docs/design/ui-manifest.json` is generated from them, tests/scripts/ui-manifest.test.ts).
+// is derived from them, never committed: scripts/ui-manifest.mjs, tests/scripts/ui-manifest.test.ts).
 // `components/prototype/` holds throwaway proto-branch code and is skipped.
 
 const root = resolve(__dirname, '../..')

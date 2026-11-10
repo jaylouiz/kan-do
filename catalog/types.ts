@@ -6,7 +6,7 @@
  *
  * Entries are plain data (`export default { ... } satisfies CatalogEntry`, only a type import from here), so Node can
  * read them without a bundler: `scripts/ui-manifest.mjs` loads them to put the library components and the variant and
- * state names into `docs/design/ui-manifest.json`.
+ * state names into the manifest.
  *
  * Description, usage and avoid of a custom component come from its doc block (the manifest); a Nuxt UI component has no
  * doc block, so its entry carries them (`source: 'nuxt-ui'`). Each text lives in exactly one place.

@@ -2,7 +2,8 @@
 import { defineNuxtConfig } from 'nuxt/config'
 import * as fs from 'fs'
 import { fileURLToPath } from 'node:url'
-import { removeDevPages } from './lib/devPages'
+import { removeDevPages, shouldShipDevPages } from './lib/devPages'
+import { buildManifest } from './scripts/ui-manifest.mjs'
 import postcssBreakpoints, { viteBreakpointDefinitions } from './scripts/postcss-breakpoints.mjs'
 
 // reading version to make it available in nuxt context for displaying
@@ -18,6 +19,18 @@ const copyEditor = isDev || process.env.KANDO_COPY_EDITOR === '1'
 // E2E build (#541): `scripts/e2e-server.mjs` sets this to a directory of its own, so the Playwright build never writes
 // `.nuxt` (a dev server or typecheck may be using it) or `.output` (`npm run generate` for Tauri). Unset for every other command.
 const e2eBuildDir = process.env.KANDO_E2E_BUILD_DIR
+
+// The /ui manifest (#117): derived from the doc blocks and catalog/, never committed. Only the builds that ship /ui compute it
+// (`nuxi prepare`, typecheck and every production build get `[]`). A broken doc block must not stop `nuxt dev`: the unit tests report it.
+function uiManifest() {
+  if (!shouldShipDevPages(process.env)) return []
+  try {
+    return buildManifest()
+  } catch (error) {
+    console.warn(`[ui-manifest] /ui shows no components: ${error instanceof Error ? error.message : error}`)
+    return []
+  }
+}
 
 export default defineNuxtConfig({
   ...(e2eBuildDir ? { buildDir: `${e2eBuildDir}/nuxt` } : {}),
@@ -234,6 +247,7 @@ export default defineNuxtConfig({
     },
     define: {
       '__COPY_EDITOR__': copyEditor,
+      '__UI_MANIFEST__': JSON.stringify(uiManifest()),
       // Allow Notion sentinel token (notion_test_stub) in dev and Vercel preview deployments.
       // Tree-shaken to `false` in production.
       '__NOTION_STUB_ALLOWED__': process.env.VERCEL_ENV === 'preview'

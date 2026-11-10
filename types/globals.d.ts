@@ -13,3 +13,9 @@ declare const __NOTION_STUB_ALLOWED__: boolean;
  * build, which drops the live copy editor (#59, `dev-tools/copy-editor/`) from the bundle.
  */
 declare const __COPY_EDITOR__: boolean;
+
+/**
+ * The /ui manifest rows (`buildManifest()`, scripts/ui-manifest.mjs), computed by nuxt.config.ts when the dev-only pages
+ * ship (#65, lib/devPages.ts) and `[]` otherwise (#117: the manifest is derived, never committed).
+ */
+declare const __UI_MANIFEST__: import('~/dev-tools/ui-catalog/catalogModel').ManifestRow[];
