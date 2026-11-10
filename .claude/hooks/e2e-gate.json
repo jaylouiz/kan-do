@@ -405,7 +405,9 @@
       "paths": [
         "composables/useFocusOverlay.ts",
         "composables/useInCardAdding.ts",
-        "composables/useOpenLayer.ts"
+        "composables/useOpenLayer.ts",
+        "lib/routeArrival.ts",
+        "plugins/route-arrival.client.ts"
       ],
       "specs": [
         "focus-overlay",

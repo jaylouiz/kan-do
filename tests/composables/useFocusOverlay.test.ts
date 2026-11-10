@@ -11,16 +11,17 @@ import {
   SWALLOW_MS,
   TOUCH_IDLE_MS,
   useFocusOverlay,
+  type FocusOverlayOptions,
 } from '~/composables/useFocusOverlay'
 
 let wrapper: VueWrapper | null = null
 
-function setup(initial = true) {
+function setup(initial = true, options: FocusOverlayOptions = {}) {
   const enabled = ref(initial)
   let api!: ReturnType<typeof useFocusOverlay>
   wrapper = mount(defineComponent({
     setup() {
-      api = useFocusOverlay(enabled as Ref<boolean>)
+      api = useFocusOverlay(enabled as Ref<boolean>, options)
       return () => h('div', [
         h('div', { id: 'column-progress' }, [h('button', { id: 'now-card' })]),
         h('button', { id: 'other-card' }),
@@ -62,6 +63,43 @@ describe('useFocusOverlay', () => {
     enabled.value = false
     await nextTick()
     expect(api.shown.value).toBe(false)
+  })
+
+  it('reached from another page it waits the return delay before it first shows (kd#133)', async () => {
+    const { api } = setup(true, { arrived: true })
+    expect(api.shown.value).toBe(false)
+    await advance(RETURN_DELAY_MS - 1)
+    expect(api.shown.value).toBe(false)
+    await advance(1)
+    expect(api.shown.value).toBe(true)
+  })
+
+  it('reached from another page: a mouse move during the wait turns it into the mouse idle; later returns are unchanged', async () => {
+    const { enabled, api } = setup(true, { arrived: true })
+    await advance(RETURN_DELAY_MS - 100)
+    pointer('pointermove', { x: 10, y: 10 })
+    await advance(MOUSE_IDLE_MS - 1)
+    expect(api.shown.value).toBe(false)
+    await advance(1)
+    expect(api.shown.value).toBe(true)
+    // off and on again (a sheet closed): the same beat as ever
+    enabled.value = false
+    await nextTick()
+    enabled.value = true
+    await nextTick()
+    expect(api.shown.value).toBe(false)
+    await advance(RETURN_DELAY_MS)
+    expect(api.shown.value).toBe(true)
+  })
+
+  it('reached from another page with no card in Jetzt, nothing shows until one arrives', async () => {
+    const { enabled, api } = setup(false, { arrived: true })
+    await advance(RETURN_DELAY_MS * 2)
+    expect(api.shown.value).toBe(false)
+    enabled.value = true
+    await nextTick()
+    await advance(RETURN_DELAY_MS)
+    expect(api.shown.value).toBe(true)
   })
 
   it('stays hidden while disabled, whatever happens', async () => {

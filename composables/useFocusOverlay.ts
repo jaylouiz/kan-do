@@ -10,6 +10,8 @@
  *   card). Any later tap restarts the TOUCH_IDLE_MS timer; the overlay returns after it.
  * - `enabled` (setting on, a card in Jetzt, no drag, no sheet, no open layer, on the Jetzt page) gates everything:
  *   off means hidden and no timers; on again means it warms up after RETURN_DELAY_MS.
+ * - First appearance: at once on a cold load; with `arrived` (the board was reached from another page, kd#133) it
+ *   waits the same RETURN_DELAY_MS, so the whole board is seen first.
  * - All time is `setTimeout`, so tests drive it with fake timers.
  */
 import { onBeforeUnmount, onMounted, ref, watch, type Ref } from 'vue'
@@ -31,7 +33,13 @@ export const FOCUS_LEAVE_MS = 800
  */
 export const FOCUS_SAFE_SELECTOR = '#column-progress, [data-app-nav]'
 
-export function useFocusOverlay(enabled: Ref<boolean>) {
+export interface FocusOverlayOptions {
+  /** The board was reached from another page of the app (not a cold load): the first appearance warms up too */
+  arrived?: boolean
+}
+
+export function useFocusOverlay(enabled: Ref<boolean>, options: FocusOverlayOptions = {}) {
+  const showsAtOnce = !options.arrived
   const shown = ref(false)
   const pointerKind = ref<'mouse' | 'touch'>('mouse')
   /** True for a moment after a touch hid the overlay, so the tap that did it is not also a click on a card */
@@ -117,8 +125,9 @@ export function useFocusOverlay(enabled: Ref<boolean>) {
         shown.value = false
         return
       }
-      // First appearance on load shows at once; coming back (drag ended, sheet closed, page returned) after a beat
-      if (was === undefined) shown.value = document.hasFocus()
+      // First appearance on a cold load shows at once; coming back (drag ended, sheet closed, phone page returned,
+      // the board reached from another page) after a beat
+      if (was === undefined && showsAtOnce) shown.value = document.hasFocus()
       else showLater(RETURN_DELAY_MS)
     },
     { immediate: true },
@@ -132,7 +141,7 @@ export function useFocusOverlay(enabled: Ref<boolean>) {
     window.addEventListener('blur', onBlur)
     window.addEventListener('focus', onFocus)
     document.addEventListener('visibilitychange', onVisibility)
-    if (enabled.value && document.hasFocus()) shown.value = true
+    if (showsAtOnce && enabled.value && document.hasFocus()) shown.value = true
   })
   onBeforeUnmount(() => {
     clearTimer()

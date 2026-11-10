@@ -6,7 +6,7 @@
  * `elapse` instead of waiting, and the clock is never paused (touch specs; a frozen `Date.now()` is the #488 trap).
  */
 import { test, expect, type Page } from '@playwright/test'
-import { elapse, FOCUS_KEY_IDLE_MS, FOCUS_MOUSE_IDLE_MS, FOCUS_TOUCH_IDLE_MS, installClock } from './helpers/clock'
+import { elapse, FOCUS_KEY_IDLE_MS, FOCUS_MOUSE_IDLE_MS, FOCUS_RETURN_DELAY_MS, FOCUS_TOUCH_IDLE_MS, installClock } from './helpers/clock'
 import { SEED_TASKS, fillerTasks, seedLocalBoard, seedMixedBoard } from './helpers/seed'
 import { hover, pickUp, showColumnPage } from './helpers/dnd'
 import { callTasksStore } from './helpers/store'
@@ -152,6 +152,47 @@ test.describe('desktop, mouse', () => {
     await expectOn(page)
     await expect(board(page)).toHaveAttribute('data-focus-lit', '')
     await expect.poll(shadow).toContain('38px')
+  })
+
+  test('back from another page it waits the return delay, a cold load shows it at once (kd#133)', async ({ context, page }) => {
+    // Recorded on the page clock, so nothing races the 900 ms timer: when the overlay element arrived and when it lit
+    await context.addInitScript(() => {
+      const log: { kind: 'mounted' | 'on'; t: number }[] = []
+      ;(window as unknown as { __focusLog: typeof log }).__focusLog = log
+      let had = false
+      let lit = false
+      new MutationObserver(() => {
+        const el = document.querySelector('[data-testid="focus-overlay"]')
+        if (!!el !== had) {
+          had = !!el
+          lit = false
+          if (had) log.push({ kind: 'mounted', t: Date.now() })
+        }
+        const on = !!el?.classList.contains('is-on')
+        if (on && !lit) log.push({ kind: 'on', t: Date.now() })
+        lit = on
+      }).observe(document, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] })
+    })
+    /** Page-clock time between the overlay's last mount and its first lighting after it */
+    const mountToLit = () => page.evaluate(() => {
+      const log = (window as unknown as { __focusLog: { kind: string; t: number }[] }).__focusLog
+      const mounted = log.findLastIndex(e => e.kind === 'mounted')
+      const on = log.findIndex((e, i) => i > mounted && e.kind === 'on')
+      return mounted === -1 || on === -1 ? null : log[on]!.t - log[mounted]!.t
+    })
+
+    await openBoard(page)
+    await expectOn(page)
+    expect(await mountToLit()).toBeLessThan(FOCUS_RETURN_DELAY_MS / 2)
+
+    await goToPlace(page, 'Statistik')
+    await expectAbsent(page)
+    // The pointer rests on the bar after the click, so no mouse move hides the overlay: only the delay holds it back
+    await goToPlace(page, 'Heute')
+    await expect(page.locator('#column-progress .task[data-current]')).toBeVisible()
+    await expectOn(page, FOCUS_RETURN_DELAY_MS)
+    // The timer starts in the board's setup, a moment before the element is in the DOM
+    expect(await mountToLit()).toBeGreaterThan(FOCUS_RETURN_DELAY_MS - 250)
   })
 
   test('a mouse move hides it, rest brings it back, and it can go again (A -> B -> A -> B)', async ({ page }) => {
