@@ -1,21 +1,21 @@
 import { test, expect, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { seedLocalBoard, type SeedTask } from './helpers/seed'
-import { FINGERPRINT_PROPERTIES, diffFingerprint, serializeFingerprint, type Fingerprint } from './helpers/fingerprint'
+import { FINGERPRINT_PROPERTIES, diffFingerprint, readFingerprintDir, writeFingerprintDir } from './helpers/fingerprint'
 
 /**
  * The `/ui` Components part (#66, epic #58 D2/D3), served by the E2E build (KANDO_UI_CATALOG, scripts/e2e-server.mjs) and by `nuxt dev`.
  * Proof entries: UButton (Nuxt UI, matrix from the merged theme) and ExternalLink (an app component).
  *
- * The style fingerprint records the computed styles of every sample into `snapshots/ui-catalog.styles.json` and diffs
- * against it; it does not depend on the OS, so it runs in CI. A deliberate change of a theme token, of `app.config.ts`
+ * The style fingerprint records the computed styles of every sample into `snapshots/ui-catalog/<Component>.json` (one file per
+ * component, #117: parallel PRs on different components never conflict) and diffs against them; it does not depend on the OS, so it runs in CI. A deliberate change of a theme token, of `app.config.ts`
  * or of a component's style moves it: re-record with `PORT=<free> npm run test:e2e -- tests/e2e/ui-catalog.spec.ts --update-snapshots`
- * and commit the JSON. (Pixel baselines stay macOS-local, `visual-regression.spec.ts`.)
+ * and commit the JSON files. (Pixel baselines stay macOS-local, `visual-regression.spec.ts`.)
  */
 
-const FINGERPRINT_FILE = resolve(__dirname, 'snapshots/ui-catalog.styles.json')
+const FINGERPRINT_DIR = resolve(__dirname, 'snapshots/ui-catalog')
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']
 
 async function openCatalog(page: Page, viewport = { width: 1280, height: 800 }) {
@@ -160,7 +160,7 @@ test.describe('/ui Components part: dev-tool acceptance', () => {
 })
 
 test.describe('/ui style fingerprint', () => {
-  test('the computed styles of every sample match tests/e2e/snapshots/ui-catalog.styles.json', async ({ page }, testInfo) => {
+  test('the computed styles of every sample match tests/e2e/snapshots/ui-catalog/', async ({ page }, testInfo) => {
     await openCatalog(page)
     // Transitions would move a sample mid-way to its resting style
     await page.addStyleTag({ content: '*, *::before, *::after { transition: none !important; animation: none !important; }' })
@@ -195,11 +195,11 @@ test.describe('/ui style fingerprint', () => {
     expect(actual['UButton:state:disabled']!['opacity']).not.toBe('1')
 
     if (testInfo.config.updateSnapshots === 'all' || testInfo.config.updateSnapshots === 'changed') {
-      writeFileSync(FINGERPRINT_FILE, serializeFingerprint(actual))
+      writeFingerprintDir(FINGERPRINT_DIR, actual)
       return
     }
-    expect(existsSync(FINGERPRINT_FILE), 'no recorded fingerprint: run this spec with --update-snapshots and commit tests/e2e/snapshots/ui-catalog.styles.json').toBe(true)
-    const expected = JSON.parse(readFileSync(FINGERPRINT_FILE, 'utf8')) as Fingerprint
+    expect(existsSync(FINGERPRINT_DIR), 'no recorded fingerprint: run this spec with --update-snapshots and commit tests/e2e/snapshots/ui-catalog/').toBe(true)
+    const expected = readFingerprintDir(FINGERPRINT_DIR)
     const problems = diffFingerprint(expected, actual)
     expect(problems.slice(0, 40), `${problems.length} differences (--update-snapshots records an intended change)`).toEqual([])
   })

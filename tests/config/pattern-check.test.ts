@@ -33,7 +33,7 @@ describe('Pattern check rule (#586)', () => {
     expect(find).toBeGreaterThan(-1)
     expect(find).toBeLessThan(ui)
     expect(ui).toBeLessThan(old)
-    expect(step).toContain('docs/design/ui-manifest.json')
+    expect(step).toContain('the manifest')
     expect(JSON.parse(read('package.json')).scripts['ui:find']).toBe('node scripts/ui-find.mjs')
     expect(read('.claude/issue-workflow.md')).toContain('npm run ui:find')
     expect(read('CLAUDE.md')).toContain('npm run ui:find')
@@ -169,9 +169,10 @@ describe('ui:find (#79)', () => {
     expect(names('zzzxqq')).toEqual([])
   })
 
-  it('searches the committed manifest without throwing', async () => {
+  it('searches the derived manifest without throwing', async () => {
     const { findEntries, queryWords } = await import('../../scripts/ui-find.mjs')
-    const live = JSON.parse(read('docs/design/ui-manifest.json'))
+    const { buildManifest } = await import('../../scripts/ui-manifest.mjs')
+    const live = buildManifest()
     expect(findEntries(live, queryWords('dialog')).length).toBeGreaterThan(0)
   })
 })

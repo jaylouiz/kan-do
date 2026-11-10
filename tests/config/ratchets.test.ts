@@ -4,11 +4,11 @@ import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { checkRatchet, countRatchet, lowerRatchets, RATCHETS, readRatchetBaseline } from '../../scripts/lint/ratchets.mjs'
 import { buildManifest, loadCatalogEntries, UI_CATEGORIES } from '../../scripts/ui-manifest.mjs'
-import { LANDED_CATEGORIES, missingEntries } from '~/dev-tools/ui-catalog/validateEntry'
+import { missingEntries } from '~/dev-tools/ui-catalog/validateEntry'
 import type { ManifestRow } from '~/dev-tools/ui-catalog/catalogModel'
 
 // Count ratchets of the UI kit (#78, epic #58): raw `<button>` and `:ui` bindings per file, against committed baselines
-// that may only fall (`npm run ratchet:lower`), and the `/ui` landed list. Counts, not a frozen file list, so the category
+// that may only fall (`npm run ratchet:lower`), and the `/ui` entries check. Counts, not a frozen file list, so the category
 // slices that remove buttons and bindings in parallel only lower their own file's number.
 
 const root = resolve(__dirname, '../..')
@@ -95,17 +95,16 @@ describe('seeded violations (#78)', () => {
   })
 })
 
-describe('/ui landed list (#78, #66)', () => {
+describe('/ui entries (#78, #66, #117)', () => {
   const manifest = buildManifest() as ManifestRow[]
 
-  it('names only known categories, each with a catalog folder', () => {
-    for (const category of LANDED_CATEGORIES) {
-      expect(UI_CATEGORIES, `"${category}" is not a category in scripts/ui-manifest.mjs`).toContain(category)
-      expect(existsSync(join(root, 'catalog', category)), `catalog/${category}/ is missing: a landed category ships its /ui entries there (.claude/rules/ui-catalog.md)`).toBe(true)
+  it('has a catalog folder for every category', () => {
+    for (const category of UI_CATEGORIES) {
+      expect(existsSync(join(root, 'catalog', category)), `catalog/${category}/ is missing: a category ships its /ui entries there (.claude/rules/ui-catalog.md)`).toBe(true)
     }
   })
 
-  it('has no manifest component of a landed category without an entry; the check fails on a seeded gap', () => {
+  it('has no manifest component without an entry; the check fails on a seeded gap', () => {
     const entries = (loadCatalogEntries() as { entry: unknown }[]).map(l => l.entry) as Parameters<typeof missingEntries>[1]
     expect(missingEntries(manifest, entries)).toEqual([])
     expect(missingEntries(manifest, entries.slice(1))).not.toEqual([])
