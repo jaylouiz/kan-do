@@ -2,17 +2,16 @@
 /**
  * Search the UI kit manifest by job words (#79, epic #58): `npm run ui:find -- <words>`.
  *
- * First step of the Pattern check (`.claude/rules/ui-patterns.md`). Reads `docs/design/ui-manifest.json` (generated, grows
- * with the category slices; nothing is hard-coded here), scores every entry by how many query words start a word of its
+ * First step of the Pattern check (`.claude/rules/ui-patterns.md`). Reads the manifest (`buildManifest()` in
+ * scripts/ui-manifest.mjs, derived from the doc blocks on every run, no committed file; nothing is hard-coded here), scores every entry by how many query words start a word of its
  * `name`, `description`, `usage` or `avoid`, and prints the best matches: name, kind, category, source, `@usage`,
  * `@avoid` and the declared variants. `usage` and `description` weigh more than `avoid` (an `avoid` hit often says what
  * the component is NOT for, it is shown so you see the neighbour).
  */
-import { readFileSync, realpathSync } from 'node:fs'
-import { join, dirname } from 'node:path'
+import { realpathSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
+import { buildManifest } from './ui-manifest.mjs'
 
-const MANIFEST_PATH = join(dirname(fileURLToPath(import.meta.url)), '../docs/design/ui-manifest.json')
 const WEIGHTS = { name: 4, description: 3, usage: 3, avoid: 1 }
 const STOP = new Set(['a', 'an', 'the', 'of', 'to', 'for', 'and', 'or', 'in', 'on', 'with', 'is', 'it'])
 
@@ -70,9 +69,9 @@ if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.me
   }
   let manifest
   try {
-    manifest = JSON.parse(readFileSync(MANIFEST_PATH, 'utf8'))
-  } catch {
-    console.error('docs/design/ui-manifest.json is missing or unreadable: run `npm run ui:manifest`')
+    manifest = buildManifest()
+  } catch (error) {
+    console.error(`the manifest could not be built: ${error instanceof Error ? error.message : error}`)
     process.exit(1)
   }
   const found = findEntries(manifest, words)

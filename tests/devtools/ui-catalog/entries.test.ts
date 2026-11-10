@@ -3,7 +3,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
 import { buildManifest, catalogFiles, loadCatalogEntries } from '../../../scripts/ui-manifest.mjs'
 import type { CatalogEntry } from '~/catalog/types'
-import { entryProblems, LANDED_CATEGORIES, missingEntries } from '~/dev-tools/ui-catalog/validateEntry'
+import { entryProblems, missingEntries } from '~/dev-tools/ui-catalog/validateEntry'
 import type { ManifestRow } from '~/dev-tools/ui-catalog/catalogModel'
 import de from '~/i18n/locales/de.json'
 import en from '~/i18n/locales/en.json'
@@ -90,12 +90,10 @@ describe('catalog entries (#66)', () => {
     expect(entryProblems('catalog/layout/USeparator.catalog.ts', library, manifest)).toEqual(expect.arrayContaining([expect.stringContaining('`host` is for an app component')]))
   })
 
-  it('a landed category needs an entry for each of its manifest components; a category that has not landed does not', () => {
-    expect(LANDED_CATEGORIES).toEqual(['action', 'display', 'feedback', 'overlay', 'navigation', 'keyboard', 'input', 'form-structure', 'layout']) // the category slices (#71 to #77) add theirs here
+  it('every manifest component needs an entry (#117: no per-category landed list)', () => {
     expect(missingEntries(manifest, loaded.map(l => l.entry))).toEqual([])
-    const missing = missingEntries(manifest, loaded.map(l => l.entry).filter(entry => entry.component !== 'PageHeader'), ['layout'])
+    const missing = missingEntries(manifest, loaded.map(l => l.entry).filter(entry => entry.component !== 'PageHeader'))
     expect(missing).toContain('PageHeader')
-    expect(missing.length).toBeGreaterThan(0)
   })
 
   it('app entries leave their text to the doc block, so no description string is typed twice', () => {

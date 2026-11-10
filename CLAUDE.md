@@ -73,7 +73,7 @@ Path-scoped rules in `.claude/rules/` load when you read or edit a matching file
 ### Component Conventions
 
 - `defineOptions({ name: 'ComponentName' })` on every component
-- Include `@component` / `@kind` (primitive, component, compound, block) / `@category` (one of the nine in `scripts/ui-manifest.mjs`) / `@description` / `@usage` / `@avoid` / `@responsibility` header doc block; after editing one run `npm run ui:manifest` (`docs/design/ui-manifest.json` is generated, a test fails when stale); terms in `GLOSSARY.md`
+- Include `@component` / `@kind` (primitive, component, compound, block) / `@category` (one of the nine in `scripts/ui-manifest.mjs`) / `@description` / `@usage` / `@avoid` / `@responsibility` header doc block; the manifest behind `npm run ui:find` and `/ui` is derived from them on every run, nothing to regenerate or commit (`npm run ui:manifest` prints it); terms in `GLOSSARY.md`
 - Props via `defineProps<Props>()`, emits via `defineEmits<{...}>()`, v-model via `defineModel<T>()`
 - Never mutate Pinia state directly in templates; route through store actions
 - Gate browser APIs with `if (import.meta.client)`; guard dev logs with `if (import.meta.dev)`
@@ -87,7 +87,7 @@ Rules live in `DESIGN.md` (direction, tokens, named rules, recurring patterns; p
 
 - Before UI work read `PRODUCT.md` (users, principles) and `DESIGN.md` (visual system, patterns) — the design source of truth. Open design debt lives in `docs/design/backlog.md`.
 - Look up every Nuxt UI component via the Nuxt UI MCP (`get-component-metadata`, `search-components`) or `.nuxt/ui/<component>.ts` — never guess props or slot names.
-- **Pattern check** (`.claude/rules/ui-patterns.md`, loads with any UI file): before creating or changing a UI element, find the existing Pattern for its user job (`npm run ui:find -- <job words>` over `docs/design/ui-manifest.json` first, then `/ui`) and decide reuse, align or diverge yourself; leave one `Pattern:` line per decision (PR body, or the final report for ad-hoc work).
+- **Pattern check** (`.claude/rules/ui-patterns.md`, loads with any UI file): before creating or changing a UI element, find the existing Pattern for its user job (`npm run ui:find -- <job words>` over the manifest first, then `/ui`) and decide reuse, align or diverge yourself; leave one `Pattern:` line per decision (PR body, or the final report for ad-hoc work).
 - **Design reasons** ("because…", "so that…") from the user, in any channel, or a `diverged from` reason: skill `design-rule` challenges it and proposes a rule. Never write a rule before the user says yes.
 - Process: open direction → `/design-gh-issue` (brief, variants, throwaway prototype or canvas sketch, UX decision) → `/specify-gh-issue` → `/build-gh-issue` (screenshots at desktop + 390px, light only; Impeccable gate). Which Impeccable verb runs where: `.claude/issue-workflow.md` "Design quality".
 
@@ -138,7 +138,7 @@ Issue and PR numbers: in code, comments, test names and docs a bare `#n` always 
 
 ## CI
 
-`.github/workflows/ci.yml` runs on PRs, pushes to `main` and by hand (`quality` = lint, typecheck, Vitest, then full E2E, always in full: standard runners are free for this public repo; docs-only changes skip; read-only, no secrets; actions pinned by SHA). The local gate stays: `npm run verify` before opening a PR, `npm run build` when the PR touches `nuxt.config.ts`, `package.json`, `app.config.ts`, `server/` or `vercel.json`, the relevant E2E specs (`E2E-specs: a b c` in the PR body), and the pre-merge hook's tiered E2E run on `gh pr merge` (`scripts/e2e-gate.mjs`, `.claude/rules/e2e-gate.md`). Vercel deploys only `main` and `proto/*`. `git config core.hooksPath .githooks` (set in the maintainer's checkout) checks every push at the testing mode (`.githooks/pre-push`). `visual-regression.spec.ts` self-skips when `CI` is set (macOS baselines).
+`.github/workflows/ci.yml` runs on PRs, pushes to `main` and by hand (`quality` = lint, typecheck, Vitest, then full E2E in four parallel shards, always in full: standard runners are free for this public repo; docs-only changes skip; read-only, no secrets; actions pinned by SHA). The local gate stays: `npm run verify` before opening a PR, `npm run build` when the PR touches `nuxt.config.ts`, `package.json`, `app.config.ts`, `server/` or `vercel.json`, the relevant E2E specs (`E2E-specs: a b c` in the PR body), and the pre-merge hook's tiered E2E run on `gh pr merge` (`scripts/e2e-gate.mjs`, `.claude/rules/e2e-gate.md`). Vercel deploys only `main` and `proto/*`. `git config core.hooksPath .githooks` (set in the maintainer's checkout) checks every push at the testing mode (`.githooks/pre-push`). `visual-regression.spec.ts` self-skips when `CI` is set (macOS baselines).
 
 ## Cloud sessions
 

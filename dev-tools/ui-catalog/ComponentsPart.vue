@@ -3,7 +3,7 @@
 @description The Components part of `/ui` (#66): every component of the manifest by category, with description, usage, avoid, alternatives, a variant and state switcher, a viewport switch and a de/en toggle for the sample copy.
 @usage <UiCatalogComponentsPart /> inside `pages/ui.vue`.
 @responsibility
-- Build the sections from `docs/design/ui-manifest.json` (display titles Eingabe, Aktion, Navigation, Feedback, Overlay, Darstellung, Layout, Formularstruktur, Tastatur; blocks last) and the entries under `catalog/` (`import.meta.glob`); a component without an entry still shows its texts
+- Build the sections from the manifest (`__UI_MANIFEST__`, derived from the doc blocks and `catalog/`) (display titles Eingabe, Aktion, Navigation, Feedback, Overlay, Darstellung, Layout, Formularstruktur, Tastatur; blocks last) and the entries under `catalog/` (`import.meta.glob`); a component without an entry still shows its texts
 - Resolve each entry's component (app component by its manifest path, Nuxt UI component from the library) and, for a Nuxt UI entry, the variant axes from the merged theme (`.nuxt/ui/<theme>.ts` plus `app.config.ts`), so nothing is retyped
 - The language toggle sets the app locale (`kando-locale`, like `?lang=`): the sample copy changes, the chrome stays English (epic #58 D2)
 - Sets `data-kd-catalog-ready` once every entry has loaded; the fingerprint spec waits for it
@@ -57,7 +57,6 @@
 import { computed, markRaw, onMounted, ref, shallowReactive, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAppConfig } from '#imports'
-import manifestJson from '~/docs/design/ui-manifest.json'
 import type { CatalogEntry } from '~/catalog/types'
 import { LOCALE_STORAGE_KEY } from '~/utils/localeResolution'
 import UiCatalogComponentCard from './ComponentCard.vue'
@@ -73,7 +72,8 @@ interface Resolved {
   error?: string
 }
 
-const manifest = manifestJson as ManifestRow[]
+// Computed by nuxt.config.ts from the doc blocks and catalog/ (build time, #117); no committed file.
+const manifest: ManifestRow[] = __UI_MANIFEST__
 const sections = computed(() => groupByCategory(manifest))
 
 // Lazy globs: nothing loads until `onMounted`, and only the files an entry names are fetched.

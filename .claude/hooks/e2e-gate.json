@@ -167,10 +167,12 @@
       ]
     },
     {
-      "area": "dev-only pages (#65, #66): /ui catalog (Tokens part, scanner, Components engine and its entries, style fingerprint) and the build-time route removal; the E2E build carries them (KANDO_UI_CATALOG)",
+      "area": "dev-only pages (#65, #66): /ui catalog (Tokens part, scanner, Components engine and its entries, style fingerprint, the manifest built at config load by scripts/ui-manifest.mjs, #117) and the build-time route removal; the E2E build carries them (KANDO_UI_CATALOG)",
       "risk": true,
       "paths": [
         "pages/ui.vue",
+        "scripts/ui-manifest.mjs",
+        "scripts/ui-find.mjs",
         "dev-tools/ui-catalog/**",
         "catalog/**",
         "lib/devPages.ts"
