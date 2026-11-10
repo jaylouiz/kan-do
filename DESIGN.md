@@ -321,7 +321,7 @@ One checklist for recurring UI decisions. Each line: the job, the rule, an examp
 - **Empty state (adopted, D1 on kd#68).** On the task board one muted sentence at most, and empty columns stay blank. On every other surface a calm graphic plus a subline; no CTA unless a next step exists. The graphic's look is designed in kd#106 and this rule says what, not how; until then those surfaces keep one muted sentence (`pages/trash.vue`). Wording: Voice and copy, "Empty states". Convention.
 - **Wording of Save, Cancel and Close.** Collected from Voice and copy ("Buttons are verbs": "Speichern" / "Save", a dismiss is "Abbrechen" / "Cancel" or "Schließen" / "Close"), terms in `docs/copy/terms.json`; no new term (example `DisconnectSourceDialog.vue`: `common.cancel`). Convention.
 
-Not yet a rule: choice chip vs a property-value trigger (decision D2 on kd#68).
+- **Choice chip or property value (adopted, D2 on kd#68).** A pick-one-of-few answer to a question (the new-card flow's answers, the timebox nudge's presets) is one `ChoiceChip`; a value in the task sheet's label/value rows is a `PropertyValueTrigger`, plain text that is the control, never a pill. They look alike and drift, so each job keeps its one primitive (`components/ui/ChoiceChip.vue`, `components/ui/PropertyValueTrigger.vue`; example `TaskTimeboxNudge.vue` for chips, `DatePickerField.vue` for the trigger). A toggle that stays on beside others is a `UButton` with `aria-pressed`. Convention.
 
 ## Voice and copy
 
