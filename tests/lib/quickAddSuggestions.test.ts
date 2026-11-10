@@ -43,12 +43,12 @@ describe('quickAddSuggestions (#649)', () => {
   })
 
   it('timebox: history first, presets after; full list behind the third pill', () => {
-    expect(timeboxStep(null).suggestions).toEqual(['15', '30'])
-    expect(timeboxStep(45).suggestions).toEqual(['45', '15'])
-    expect(timeboxStep(30).suggestions).toEqual(['30', '15'])
+    expect(timeboxStep(null).suggestions).toEqual(['15', '30', '60'])
+    expect(timeboxStep(45).suggestions).toEqual(['45', '15', '30'])
+    expect(timeboxStep(30).suggestions).toEqual(['30', '15', '60'])
     expect(timeboxStep(null).rest).toEqual(['15', '30', '45', '60', '90', '120'])
     expect(timeboxStep(50).rest).toEqual(['15', '30', '45', '50', '60', '90', '120'])
-    expect(timeboxStep(0).suggestions).toEqual(['15', '30'])
+    expect(timeboxStep(0).suggestions).toEqual(['15', '30', '60'])
   })
 
   describe('new values (kd#16)', () => {

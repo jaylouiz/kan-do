@@ -93,10 +93,12 @@ for (const [viewportLabel, viewport] of [
     const front = (await stack.locator('.stacked-task--top').boundingBox())!
     const rem = await page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).fontSize))
 
-    // Property segment capped at 10rem, name truncated with an ellipsis
+    // Property segment capped at 10rem, name cut in the middle (kd#119): the head is shortened, the last characters show whole
     expect(prop.width).toBeLessThanOrEqual(10 * rem + 1)
     const text = pill.locator('.task-stack-pill__text')
-    expect(await text.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true)
+    await expect(text).toHaveText('Kundenprojekt Hausverwaltung Süd')
+    expect(await text.locator('.middle-ellipsis__head').evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true)
+    expect(await text.locator('.middle-ellipsis__tail').evaluate((el) => el.scrollWidth <= el.clientWidth && getComputedStyle(el, '::before').content)).toBe('"Süd"')
     // Count segment: icon and number, no word, never squeezed
     await expect(pill.locator('.task-stack-pill__count')).toHaveText('3')
     expect(count.width).toBeLessThan(60)

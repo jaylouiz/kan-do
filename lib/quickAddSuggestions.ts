@@ -1,33 +1,35 @@
 /**
  * @module quickAddSuggestions
  * @description Pure suggestion logic of the guided new-card flow (#649, kd#16): which values a step offers as pills and
- * which stay behind "all options" (Thema and Aktivität: three pills and the Mehr cell with a search and "Neu", Timebox: two pills and "···"). No Pinia here, so the rules are testable on their own; `NewCardFlow` feeds
+ * which stay behind "all options" (three pills and a fourth cell on every step: Mehr with a search and "Neu" on Thema and Aktivität, "···" on Timebox, kd#119). No Pinia here, so the rules are testable on their own; `NewCardFlow` feeds
  * it the tasks and the option pools.
  *
  * Rule: a value is ranked by how often tasks use it (ties keep the pool's order), values that no task uses follow
  * from the pool. Activities rank within the chosen topic first. Timebox: the history-based suggestion first (when
- * there is one), then the presets 15, 30 and 60 min; the full list is the presets 15, 30, 45, 60, 90, 120.
+ * there is one), then the presets 15, 30 and 60 min, three pills in all (kd#119: 15, 30, 60 without history, e.g. 45, 15, 30 with it); the full list is the presets 15, 30, 45, 60, 90, 120.
  */
 
-/** Pills shown on the Timebox step; everything else sits behind "all options" */
+/** Pills of the generic `toStep` split; everything else sits behind "all options" */
 export const SUGGESTION_COUNT = 2
 
 /** Pills shown on Thema and Aktivität (kd#16): the fourth grid cell is Mehr, which opens the rest with a search */
 export const ENTRY_PILL_COUNT = 3
 
+/** Pills shown on Timebox (kd#119): as many as Thema and Aktivität, the fourth grid cell is "···" */
+export const TIMEBOX_PILL_COUNT = ENTRY_PILL_COUNT
+
 /** The full timebox list behind "all options", in minutes */
 export const TIMEBOX_MINUTES = [15, 30, 45, 60, 90, 120] as const
-/** Presets offered when there is no history-based suggestion */
+/** The pills when there is no history-based suggestion; with one, it leads and the last preset drops out */
 const TIMEBOX_PRESETS = [15, 30, 60] as const
 
 export interface SuggestionStep {
   /** All values of the step in ranked order */
   all: string[]
-  /** The pills (first `SUGGESTION_COUNT` values) */
+  /** The pills (the step's first values) */
   suggestions: string[]
   /**
-   * What the list behind the pills holds. Timebox ("···"): all values, the picked pills stay in it, empty when no third
-   * pill is needed. Thema and Aktivität (Mehr, kd#16): only the values that are not pills.
+   * What the list behind the pills holds. Timebox ("···"): all values, the pills stay in it. Thema and Aktivität (Mehr, kd#16): only the values that are not pills.
    */
   rest: string[]
 }
@@ -74,7 +76,7 @@ export function activityStep(tasks: readonly TaskLike[], pool: readonly string[]
 export function timeboxStep(suggested: number | null): SuggestionStep {
   const lead = suggested && suggested > 0 ? [suggested] : []
   const all = [...new Set([...lead, ...TIMEBOX_PRESETS, ...TIMEBOX_MINUTES])].map(String)
-  const pills = [...new Set([...lead, ...TIMEBOX_PRESETS])].slice(0, SUGGESTION_COUNT).map(String)
+  const pills = [...new Set([...lead, ...TIMEBOX_PRESETS])].slice(0, TIMEBOX_PILL_COUNT).map(String)
   // Behind "···": the full list in ascending order, with a history value in its place
   const list = [...new Set([...TIMEBOX_MINUTES, ...lead])].sort((a, b) => a - b).map(String)
   return { all, suggestions: pills, rest: list }

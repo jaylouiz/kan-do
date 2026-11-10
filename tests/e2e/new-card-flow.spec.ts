@@ -530,7 +530,7 @@ test.describe('guided new card, keyboard and steps (desktop)', () => {
     await settleAnimations(page)
     await page.mouse.move(2, 2)
     await expectContrast(page, page.getByTestId('new-card-more').locator('.truncate'), 4.5)
-    await expectContrast(page, page.getByTestId('new-card-options').locator('button.ncf__pill:not(.ncf__pill--more) .truncate').first(), 4.5)
+    await expectContrast(page, page.getByTestId('new-card-options').locator('button.ncf__pill:not(.ncf__pill--more) .middle-ellipsis').first(), 4.5)
   })
 
   test('kd#16: no match shows a status line, an exact name picks the existing value and offers no "Neu"', async ({ page }) => {
@@ -585,13 +585,13 @@ test.describe('guided new card, keyboard and steps (desktop)', () => {
 })
 
 test.describe('guided new card, steps without values', () => {
-  test('a board without topics and activities starts at Timebox and offers no third pill', async ({ context, page }) => {
+  test('a board without topics and activities starts at Timebox with three values and "···" (kd#119)', async ({ context, page }) => {
     await seedLocalBoard(context, [])
     await page.goto('/tasks')
     await openCard(page)
     await confirmTitle(page, 'Erste Aufgabe')
     await expect(step(page)).toHaveAttribute('data-step', 'timebox')
-    await expect(page.getByTestId('new-card-options').getByRole('button')).toHaveCount(3)
+    await expect(page.getByTestId('new-card-options').getByRole('button')).toHaveCount(4)
     await page.keyboard.press('1')
     await expect(page.getByTestId('new-card-notes')).toBeFocused()
     await page.keyboard.press('Enter')

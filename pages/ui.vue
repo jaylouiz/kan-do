@@ -11,6 +11,7 @@
 - `data-kd-ui-catalog` marks the page; the build-output test (tests/config/ui-catalog-build-output.test.ts) searches a production build for it
 - `data-kd-catalog-ready` is set once every entry has loaded; the specs wait for it
 - Every link of the chrome is at least 24 px high (WCAG 2.2 target size), so the rule holds whatever sits next to it; `ui-shell.spec.ts` measures it
+- A sample or tile preview never scrolls the page (`sampleScrollGuard`, kd#152): the page stays where it was loaded, so the sticky header covers no link by accident; `ui-shell.spec.ts` checks both
 - Hides the app bar (`appNav: false`): a tool page, not a destination of the app
 -->
 <template>
@@ -98,7 +99,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from '#imports'
 import { LOCALE_STORAGE_KEY } from '~/utils/localeResolution'
@@ -109,6 +110,7 @@ import UiCatalogComponentsPart from '~/dev-tools/ui-catalog/ComponentsPart.vue'
 import UiCatalogSegmentedChoice from '~/dev-tools/ui-catalog/SegmentedChoice.vue'
 import UiCatalogTokensPart from '~/dev-tools/ui-catalog/TokensPart.vue'
 import { filterGroups, groupOfRow, kitGroups, neighbours, parseView, partGroups, searchWords } from '~/dev-tools/ui-catalog/catalogNav'
+import { installSampleScrollGuard } from '~/dev-tools/ui-catalog/sampleScrollGuard'
 import { useCatalog } from '~/dev-tools/ui-catalog/useCatalog'
 
 definePageMeta({ appNav: false })
@@ -166,6 +168,10 @@ watch(() => [route.query.v, route.query.c], async () => {
   window.scrollTo({ top: 0 })
   document.querySelector<HTMLElement>('[data-kd-view-title]')?.focus({ preventScroll: true })
 })
+
+// Before any sample mounts: a sample never scrolls the page (kd#152)
+const removeScrollGuard = import.meta.client ? installSampleScrollGuard() : undefined
+onBeforeUnmount(() => removeScrollGuard?.())
 
 onMounted(load)
 </script>

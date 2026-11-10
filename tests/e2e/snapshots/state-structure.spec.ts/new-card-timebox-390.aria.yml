@@ -5,4 +5,5 @@
     - button "Überspringen"
     - button /\d+ min/
     - button /\d+ min/
+    - button /\d+ min/
     - button "Alle Optionen"

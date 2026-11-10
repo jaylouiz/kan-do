@@ -159,6 +159,40 @@ test.describe('/ui catalog shell', () => {
         .map(({ link, box }) => `${link.getAttribute('href')} ${Math.round(box.width)}x${Math.round(box.height)}`))
       expect(small).toEqual([])
     })
+
+    test(`${view}: the page stays where it was loaded and the sticky header covers no link of the chrome (kd#152)`, async ({ page }) => {
+      // A sample that brings itself into view on mount (TaskDraftCard, the add slot's draft) slid the overview ~2860 px down;
+      // the header then lay over the link that stood there, and axe's target-size saw it or not depending on when it ran
+      await page.setViewportSize({ width: 1280, height: 800 })
+      await page.goto(url)
+      await expect(page.locator('[data-kd-catalog-ready]')).toBeAttached()
+      // 60 frames: a smooth scroll that a sample starts on mount shows within the first few
+      const farthest = await page.evaluate(() => new Promise<number>((resolve) => {
+        let max = window.scrollY
+        let frames = 0
+        const tick = () => {
+          max = Math.max(max, window.scrollY)
+          frames += 1
+          if (frames < 60) requestAnimationFrame(tick)
+          else resolve(max)
+        }
+        requestAnimationFrame(tick)
+      }))
+      expect(farthest, 'a sample scrolled the page').toBe(0)
+      // Platform-independent form of axe's "obscured" (target-size): what is hit at the centre of every visible chrome link is that link
+      const covered = await page.evaluate(() => Array.from(document.querySelectorAll<HTMLElement>('[data-kd-ui-catalog] a'))
+        .filter(link => !link.closest('[data-kd-sample], [data-kd-preview], [data-kd-launch]'))
+        .flatMap((link) => {
+          const box = link.getBoundingClientRect()
+          const x = box.x + box.width / 2
+          const y = box.y + box.height / 2
+          if (box.width === 0 || x < 0 || y < 0 || x >= window.innerWidth || y >= window.innerHeight) return []
+          const hit = document.elementFromPoint(x, y)
+          if (!hit || link.contains(hit) || hit.contains(link)) return []
+          return [`${link.getAttribute('href')} at ${Math.round(x)},${Math.round(y)} is under <${hit.tagName.toLowerCase()} ${hit.getAttribute('placeholder') ?? hit.textContent?.trim().slice(0, 30) ?? ''}>`]
+        }))
+      expect(covered).toEqual([])
+    })
   }
 
   test('/styleguide is gone: no old page renders', async ({ page }) => {
