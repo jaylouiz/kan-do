@@ -5,6 +5,7 @@ export default {
   component: 'DataConflictCopies',
   source: 'app',
   alternatives: ['ListRow'],
+  screen: '/settings/data',
   sampleNote: 'reads the data-folder composable (conflict copies) of /settings/data and renders nothing without copies; its rows are ListRow, shown there.',
   states: [],
 } satisfies CatalogEntry

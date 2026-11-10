@@ -5,7 +5,10 @@ export default {
   component: 'PriorityMappingStep',
   source: 'app',
   alternatives: ['USelectMenu'],
-  sampleNote:
-    'a wizard step fed by the controller\'s priority options; notion-setup-stepper.spec.ts exercises it.',
+  screen: '/settings/notion',
+  variants: [
+    { id: 'empty', fixture: 'notionSchema', props: { priorityPropertyName: 'Priority' } },
+    { id: 'mapped', label: 'mapped', fixture: 'notionSchema', props: { priorityPropertyName: 'Priority', defaultMapping: { high: ['Urgent', 'High'], regular: ['Medium'], low: ['Low'] } } },
+  ],
   states: [],
 } satisfies CatalogEntry

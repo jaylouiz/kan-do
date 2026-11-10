@@ -5,6 +5,8 @@ export default {
   component: 'DayCloseBody',
   source: 'app',
   alternatives: ['DayCloseTaskRow'],
-  sampleNote: 'reads the board stores of the end-of-day dialog; its rows are DayCloseTaskRow.',
+  host: 'board',
+  screen: '/tasks',
+  variants: [{ id: 'demo', label: 'end of the day on the demo board' }],
   states: [],
 } satisfies CatalogEntry

@@ -5,7 +5,11 @@ export default {
   component: 'TaskForm',
   source: 'app',
   alternatives: ['TaskDetailContent', 'TaskPropertyRow'],
-  sampleNote:
-    'the add form: it needs the add-sheet composables, the sources and the stores; task-form-structure.spec.ts exercises it.',
+  host: 'board',
+  screen: '/tasks',
+  variants: [
+    { id: 'add', label: 'add form', props: { isPreview: true, source: 'local' } },
+    { id: 'edit', label: 'edit form of a demo task', fixture: 'firstOpenTaskObject', props: { isPreview: true } },
+  ],
   states: [],
 } satisfies CatalogEntry

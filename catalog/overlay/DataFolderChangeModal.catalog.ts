@@ -5,6 +5,7 @@ export default {
   component: 'DataFolderChangeModal',
   source: 'app',
   alternatives: ['DataRestoreModal', 'UModal'],
+  screen: '/settings/data',
   sampleNote: 'is an overlay: opened, it covers the page it is shown in, so it has no inline sample. It opens from its trigger in the app; it needs the folder the native picker returned.',
   states: [],
 } satisfies CatalogEntry

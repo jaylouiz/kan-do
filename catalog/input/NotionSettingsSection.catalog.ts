@@ -5,7 +5,10 @@ export default {
   component: 'NotionSettingsSection',
   source: 'app',
   alternatives: ['PropertyMapper'],
-  sampleNote:
-    'it reads the connected Notion source and its mapping from stores; sources-settings.spec.ts exercises it.',
-  states: [],
+  screen: '/settings/notion',
+  variants: [
+    { id: 'saved', label: 'nothing to save', props: { title: 'Statuszuordnung', description: 'Welche Notion-Status zu Offen, Jetzt, Wartet und Erledigt gehören.' }, slot: 'Inhalt des Abschnitts' },
+    { id: 'changed', label: 'unsaved changes', props: { title: 'Statuszuordnung', hasChanges: true }, slot: 'Inhalt des Abschnitts' },
+  ],
+  states: [{ id: 'saving', state: 'loading', props: { title: 'Statuszuordnung', hasChanges: true, isSaving: true }, slot: 'Inhalt des Abschnitts' }],
 } satisfies CatalogEntry

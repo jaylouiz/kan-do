@@ -5,6 +5,11 @@ export default {
   component: 'SyncWarningModal',
   source: 'app',
   alternatives: ['UModal'],
-  sampleNote: 'is an overlay: opened, it covers the page it is shown in, so it has no inline sample. It opens from its trigger in the app; it is raised by the sync validation.',
+  launch: 'open',
+  screen: '/tasks',
+  variants: [
+    { id: 'drop', label: 'task count dropped', fixture: 'syncWarning', props: { source: 'notion', reason: 'significant_task_count_drop', currentTaskCount: 42, fetchedCount: 6 } },
+    { id: 'empty', label: 'empty result', fixture: 'syncWarning', props: { source: 'todoist', reason: 'empty_result', currentTaskCount: 12, fetchedCount: 0 } },
+  ],
   states: [],
 } satisfies CatalogEntry

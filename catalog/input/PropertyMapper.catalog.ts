@@ -5,7 +5,7 @@ export default {
   component: 'PropertyMapper',
   source: 'app',
   alternatives: ['USelect', 'UFormField'],
-  sampleNote:
-    'it maps the properties of a real Notion database (a store-fed list of fields); notion-setup-stepper.spec.ts exercises it.',
+  screen: '/settings/notion',
+  variants: [{ id: 'demo', label: 'schema of a typical task database', fixture: 'notionSchema', props: { defaultMapping: { title: 'Name', status: 'Status', priority: 'Priority', dueDate: 'Due', topic: 'Topic' } } }],
   states: [],
 } satisfies CatalogEntry

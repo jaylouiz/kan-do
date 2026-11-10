@@ -5,6 +5,7 @@ export default {
   component: 'StatsRhythmGrid',
   source: 'app',
   alternatives: ['StatsRhythmBars'],
-  sampleNote: 'takes a WorkRhythm with a 7x24 grid of dates and counts; shown on /statistics.',
+  screen: '/statistics',
+  variants: [{ id: 'demo', label: 'work rhythm of the demo board', fixture: 'statsRhythmGrid' }],
   states: [],
 } satisfies CatalogEntry

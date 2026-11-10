@@ -5,6 +5,7 @@ export default {
   component: 'DataBackupList',
   source: 'app',
   alternatives: ['ListRow'],
+  screen: '/settings/data',
   sampleNote: 'reads the data-folder composable (backups, restore state) of /settings/data; its rows are ListRow, shown there.',
   states: [],
 } satisfies CatalogEntry

@@ -5,6 +5,8 @@ export default {
   component: 'BoardColumnYesterdayNote',
   source: 'app',
   alternatives: ['UCollapsible'],
-  sampleNote: 'reads the board day and the archive actions; needs done tasks from earlier days of the task store.',
+  host: 'board',
+  screen: '/tasks',
+  variants: [{ id: 'yesterday', label: 'three tasks done yesterday', fixture: 'yesterdayNote' }],
   states: [],
 } satisfies CatalogEntry

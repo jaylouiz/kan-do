@@ -5,6 +5,8 @@ export default {
   component: 'TaskDraftCard',
   source: 'app',
   alternatives: ['TaskCard'],
-  sampleNote: 'mounts the add-task flow against the task store and the board drag context; the card look is TaskCard with draft.',
+  host: 'board',
+  screen: '/tasks',
+  variants: [{ id: 'draft', label: 'draft while the add sheet is open', fixture: 'draftTask' }],
   states: [],
 } satisfies CatalogEntry

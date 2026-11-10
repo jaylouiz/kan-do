@@ -5,6 +5,9 @@ export default {
   component: 'TaskDetailModal',
   source: 'app',
   alternatives: ['TaskSheet', 'UModal'],
-  sampleNote: 'is an overlay: opened, it covers the page it is shown in, so it has no inline sample. It opens from its trigger in the app; it needs a task from the store.',
+  host: 'board',
+  launch: 'modelValue',
+  screen: '/statistics',
+  variants: [{ id: 'open-task', label: 'first Offen task of the demo board', fixture: 'firstOpenTask' }],
   states: [],
 } satisfies CatalogEntry

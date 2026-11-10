@@ -5,7 +5,10 @@ export default {
   component: 'StatusMappingStep',
   source: 'app',
   alternatives: ['USelect'],
-  sampleNote:
-    'a wizard step fed by the controller\'s status options; notion-setup-stepper.spec.ts exercises it.',
+  screen: '/settings/notion',
+  variants: [
+    { id: 'empty', fixture: 'notionSchema', props: { statusPropertyName: 'Status' } },
+    { id: 'mapped', label: 'mapped', fixture: 'notionSchema', props: { statusPropertyName: 'Status', defaultMapping: { today: 'Today', doing: 'Doing', done: 'Done', waiting: 'Waiting', archive: 'Archived' } } },
+  ],
   states: [],
 } satisfies CatalogEntry

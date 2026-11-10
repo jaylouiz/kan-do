@@ -5,7 +5,10 @@ export default {
   component: 'TokenStep',
   source: 'app',
   alternatives: ['UInput', 'UFormField'],
-  sampleNote:
-    'a wizard step that validates the token against the Notion API; notion-setup-stepper.spec.ts exercises it.',
+  screen: '/settings/notion',
+  variants: [
+    { id: 'empty', props: { modelValue: '' } },
+    { id: 'broken', label: 'connection broken: info banner', props: { modelValue: '', infoMessage: 'Die Verbindung zu Notion ist abgelaufen. Gib dein Token neu ein.' } },
+  ],
   states: [],
 } satisfies CatalogEntry

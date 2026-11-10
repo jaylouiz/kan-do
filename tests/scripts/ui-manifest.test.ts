@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
-import { KIT_MIN_CONSUMERS, UI_CATEGORIES, UI_KINDS, areaOf, buildManifest, catalogFiles, checkDocBlock, loadCatalogEntries, componentFiles, parseDocBlock, tierOf } from '../../scripts/ui-manifest.mjs'
+import { KIT_MIN_CONSUMERS, UI_CATEGORIES, UI_KINDS, areaOf, buildManifest, catalogFiles, checkDocBlock, loadCatalogEntries, componentFiles, parseDocBlock, tierOf, usedValues } from '../../scripts/ui-manifest.mjs'
 
 const block = (extra = '') => `<!--
 @component Demo
@@ -81,6 +81,28 @@ describe('tier and area (derived, never tagged)', () => {
     expect(kit).toEqual(expect.arrayContaining(['UButton', 'ListRow', 'TaskCard', 'TopicMark']))
     expect(kit).not.toContain('NewCardFlow')
     expect(kit.length).toBeLessThan(manifest.length / 2)
+  })
+})
+
+describe('usedValues (kd#127: /ui shows what the app uses first)', () => {
+  const sources: [string, string][] = [
+    ['a.vue', '<UButton size="sm" color="neutral" :variant="quiet" class="x">A</UButton>\n<UButton\n  size="lg"\n  icon="i-ph-x"\n/>'],
+    ['b.vue', '<LazyUButton size="sm" variant="ghost" /><UButtonGroup size="xl" />'],
+  ]
+
+  it('collects the static values of the asked props across tags, multi-line and Lazy included', () => {
+    expect(usedValues('UButton', sources, ['color', 'variant', 'size'])).toEqual({ color: ['neutral'], size: ['lg', 'sm'], variant: ['ghost'] })
+  })
+
+  it('leaves out bound props, other props and other components', () => {
+    expect(usedValues('UButton', sources, ['size'])).toEqual({ size: ['lg', 'sm'] })
+    expect(usedValues('UBadge', sources, ['size'])).toEqual({})
+  })
+
+  it('the manifest carries it on library rows only', () => {
+    const manifest = buildManifest() as { name: string, source: string, usedValues?: Record<string, string[]> }[]
+    expect(manifest.find(row => row.name === 'UButton')!.usedValues!.size).toEqual(expect.arrayContaining(['sm', 'lg']))
+    expect(manifest.filter(row => row.source === 'app').every(row => row.usedValues === undefined)).toBe(true)
   })
 })
 

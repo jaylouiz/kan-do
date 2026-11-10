@@ -10,6 +10,7 @@ export default {
   component: 'TaskCompletionBurst',
   source: 'app',
   alternatives: [],
+  screen: '/tasks',
   sampleNote: 'the pieces fly out of a card and the board clips them; the one-shot animation has no resting look to fingerprint',
   states: [],
 } satisfies CatalogEntry

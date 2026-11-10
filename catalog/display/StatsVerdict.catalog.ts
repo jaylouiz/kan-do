@@ -5,6 +5,7 @@ export default {
   component: 'StatsVerdict',
   source: 'app',
   alternatives: ['StatsTile'],
-  sampleNote: 'takes the whole Review object of the Statistik page (dates, baselines); shown on /statistics.',
-  states: [],
+  screen: '/statistics',
+  variants: [{ id: 'demo', label: 'verdict of the demo board', fixture: 'statsReview' }],
+  states: [{ id: 'empty', state: 'empty', label: 'no completed task yet', fixture: 'statsReviewEmpty' }],
 } satisfies CatalogEntry

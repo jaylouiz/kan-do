@@ -5,6 +5,8 @@ export default {
   component: 'TaskStack',
   source: 'app',
   alternatives: ['TaskCard', 'TaskStackHeader', 'TaskStackPill'],
-  sampleNote: 'is a drag-and-drop sortable that needs the board drag context; its parts are TaskCard, TaskStackHeader and TaskStackPill.',
+  host: 'board',
+  screen: '/tasks',
+  variants: [{ id: 'topic', label: 'three tasks of one topic', fixture: 'topicStack', props: { stackKey: 'Baustelle Müller', label: 'Baustelle Müller', taskStatus: 0, sortableIndex: 0 } }],
   states: [],
 } satisfies CatalogEntry

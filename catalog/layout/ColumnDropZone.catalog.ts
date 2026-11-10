@@ -5,6 +5,7 @@ export default {
   component: 'ColumnDropZone',
   source: 'app',
   alternatives: ['BoardColumn', 'SortableTaskWrapper'],
+  screen: '/tasks',
   sampleNote: 'is invisible by design (a droppable sentinel); its only visible state, the drop ghost of an empty column, appears while a card is dragged over a column and is shown in context by the drag-and-drop specs.',
   states: [],
 } satisfies CatalogEntry
