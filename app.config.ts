@@ -1,5 +1,44 @@
 import { ICONS } from './lib/icons'
 
+// Button colour roles below AA (#97). `primary` and `error` soft are fixed one by one (#152, #594); the roles the app
+// has no button for (`secondary`, `success`, `info`, `warning`) and the text variants of `error` are fixed here, the
+// whole matrix is guarded by tests/config/button-contrast.test.ts. The class names are literals on purpose: Tailwind
+// only generates what it can read in the source. Steps are the lightest that reach 4.5:1: white on the solid fill, the
+// role text on the page, the sheet and the role's 10% wash. Teal needs 800 for text (700 is 4.0:1 on its wash), but
+// 700 as a fill; the press step is one deeper, like the primary's Deep Ink.
+const BUTTON_ROLE_TEXT = {
+  secondary: 'text-secondary-700',
+  success: 'text-success-800',
+  info: 'text-info-700',
+  warning: 'text-warning-700',
+  error: 'text-error-700'
+} as const
+const BUTTON_ROLE_LINK = {
+  secondary: 'text-secondary-700 hover:text-secondary-800 active:text-secondary-800',
+  success: 'text-success-800 hover:text-success-800 active:text-success-800',
+  info: 'text-info-700 hover:text-info-800 active:text-info-800',
+  warning: 'text-warning-700 hover:text-warning-800 active:text-warning-800',
+  error: 'text-error-700 hover:text-error-800 active:text-error-800'
+} as const
+const BUTTON_ROLE_SOLID = {
+  secondary: 'bg-secondary-700 enabled:hover:bg-secondary-800 enabled:active:bg-secondary-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary-700',
+  success: 'bg-success-700 enabled:hover:bg-success-800 enabled:active:bg-success-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-success-700',
+  info: 'bg-info-700 enabled:hover:bg-info-800 enabled:active:bg-info-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-info-700',
+  warning: 'bg-warning-700 enabled:hover:bg-warning-800 enabled:active:bg-warning-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-warning-700'
+} as const
+const BUTTON_ROLES = ['secondary', 'success', 'info', 'warning'] as const
+const BUTTON_TEXT_VARIANTS = ['outline', 'soft', 'subtle', 'ghost'] as const
+const buttonRoleCompounds = [
+  ...BUTTON_ROLES.flatMap((color) => [
+    { color, variant: 'solid' as const, class: BUTTON_ROLE_SOLID[color] },
+    ...BUTTON_TEXT_VARIANTS.map((variant) => ({ color, variant, class: BUTTON_ROLE_TEXT[color] })),
+    { color, variant: 'link' as const, class: BUTTON_ROLE_LINK[color] }
+  ]),
+  // `error` keeps its own soft (above) and solid; the other text variants step to the same 700 as soft
+  ...(['outline', 'subtle', 'ghost'] as const).map((variant) => ({ color: 'error' as const, variant, class: BUTTON_ROLE_TEXT.error })),
+  { color: 'error' as const, variant: 'link' as const, class: BUTTON_ROLE_LINK.error }
+]
+
 export default defineAppConfig({
   ui: {
     // tailwind-merge does not know our `--text-*` type roles (main.css `@theme`, #70): without this `text-label/3` reads as
@@ -252,7 +291,25 @@ export default defineAppConfig({
           color: 'error',
           variant: 'soft',
           class: 'text-error-700'
-        }
+        },
+        // Subtle primary: ink-500 on the page measures 4.44:1 (#97), the same 600 step as soft
+        {
+          color: 'primary',
+          variant: 'subtle',
+          class: 'text-primary-600'
+        },
+        // The base error and neutral solid fades to 75% on hover (3.3:1 and 3.9:1 with white text, #97): deepen it like the primary instead
+        {
+          color: 'error',
+          variant: 'solid',
+          class: 'enabled:hover:bg-error-600 enabled:active:bg-error-600'
+        },
+        {
+          color: 'neutral',
+          variant: 'solid',
+          class: 'enabled:hover:bg-neutral-600 enabled:active:bg-neutral-600'
+        },
+        ...buttonRoleCompounds
       ]
     },
     // One in-page tab look (#557): the app bar's neutral pill (DESIGN.md "Tabs"): grey track, the active tab a raised
