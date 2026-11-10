@@ -5,7 +5,7 @@
 @responsibility
 - Show one sample of the entry (`tilePreview`: the default cell of a library matrix, else the first variant or state), scaled down, clipped and inert: a tile is a picture of the component, its page is where it is used
 - A component without a sample shows its kind in the preview area instead, so every tile has the same shape
-- The name is the link; it stretches over the whole tile, so the tile is one target and reads as one link in a screen reader
+- The name is the link; it stretches over the whole tile, so the tile is one target and reads as one link in a screen reader. The link's own box is 24 px high: axe measures that box, not the stretched area (WCAG 2.2 target size)
 - Chrome of the dev tool: English, light only, semantic tokens
 -->
 <template>
@@ -20,7 +20,7 @@
       <span v-else class="font-display text-lg text-dimmed">{{ resolved?.entry.launch ? 'overlay' : row.kind }}</span>
     </div>
     <div class="min-w-0 space-y-0.5 p-3">
-      <NuxtLink :to="{ path: '/ui', query: { c: row.name } }" class="block truncate font-mono text-sm text-highlighted after:absolute after:inset-0 focus-visible:outline-none">
+      <NuxtLink :to="{ path: '/ui', query: { c: row.name } }" class="block min-h-6 truncate font-mono text-sm/6 text-highlighted after:absolute after:inset-0 focus-visible:outline-none">
         {{ row.name }}
       </NuxtLink>
       <p class="line-clamp-2 text-xs text-muted">{{ row.description }}</p>
