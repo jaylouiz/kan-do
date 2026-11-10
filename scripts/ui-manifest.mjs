@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 /**
- * UI kit manifest (#64, epic #58): `docs/design/ui-manifest.json`, generated from the component doc blocks.
+ * UI kit manifest (#64, epic #58): one row per component, derived from the component doc blocks and `catalog/` (#117:
+ * never committed, so parallel UI PRs have nothing to conflict on and a clean merge cannot leave it stale).
+ * `buildManifest()` is the only source; `npm run ui:find` and the `/ui` page (`__UI_MANIFEST__`, nuxt.config.ts) call it,
+ * `npm run ui:manifest` prints it as JSON.
  *
  * Every `components/**\/*.vue` (except `components/prototype/`) opens with an HTML comment whose lines start with a tag:
  * `@component` (name), `@kind`, `@category`, `@description`, `@usage`, `@avoid`, `@responsibility` (a `- ` list) and
  * optional `@accessibility`. A tag's value runs until the next known tag line or the closing `-->`. The doc block is
- * the only source: the manifest has no hand-written field (`npm run ui:manifest` rewrites it, a vitest test fails when
- * the committed file is stale).
+ * the only source: the manifest has no hand-written field.
  *
  * Row: `{ name, path, source, kind, category, description, usage, avoid, responsibility, variants, states, usedBy }`.
  * `source` is `app` (a component of this repo, text from its doc block) or `nuxt-ui` (a library component the catalog
@@ -20,13 +22,12 @@
  *
  * `checkDocBlock` is pure: the missing or unknown tags of one doc block, used by `tests/config/component-conventions.test.ts`.
  */
-import { readdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs'
+import { readdirSync, readFileSync, realpathSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { basename, dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
-export const MANIFEST_PATH = join(ROOT, 'docs/design/ui-manifest.json')
 
 export const UI_KINDS = ['primitive', 'component', 'compound', 'block']
 export const UI_CATEGORIES = ['input', 'form-structure', 'action', 'navigation', 'keyboard', 'feedback', 'overlay', 'display', 'layout']
@@ -209,12 +210,6 @@ export function buildManifest(root = ROOT) {
   return [...appRows, ...libraryRows]
 }
 
-export function renderManifest(manifest) {
-  return `${JSON.stringify(manifest, null, 2)}\n`
-}
-
 if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const text = renderManifest(buildManifest())
-  writeFileSync(MANIFEST_PATH, text)
-  console.log(`docs/design/ui-manifest.json: ${JSON.parse(text).length} components`)
+  process.stdout.write(`${JSON.stringify(buildManifest(), null, 2)}\n`)
 }

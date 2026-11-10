@@ -5,7 +5,7 @@
  */
 import type { CatalogCategory, CatalogEntry, CatalogExample, CatalogProps, CatalogValue, I18nRef } from '~/catalog/types'
 
-/** One row of `docs/design/ui-manifest.json` (written by scripts/ui-manifest.mjs). */
+/** One row of the manifest (`buildManifest()` in scripts/ui-manifest.mjs). */
 export interface ManifestRow {
   name: string
   path: string
