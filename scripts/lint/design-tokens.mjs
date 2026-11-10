@@ -49,9 +49,31 @@ export function styleSources(root) {
   return files.sort()
 }
 
-/** Comments blanked out with their newlines kept, so offsets still map to the right line. */
-/** @param {string} text */
-const stripComments = (text) => text.replace(/\/\*[\s\S]*?\*\//g, (/** @type {string} */ m) => m.replace(/[^\n]/g, ' '))
+/**
+ * `/* … *\/` comments blanked out with their newlines kept, so offsets still map to the right line. A `/*` inside a
+ * quoted string on its line (a glob such as `'components/**\/*.vue'`) opens no comment and hides nothing (#110).
+ * @param {string} text
+ */
+export function stripBlockComments(text) {
+  let out = ''
+  let quote = ''
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i] ?? ''
+    if (quote === '' && c === '/' && text[i + 1] === '*') {
+      const end = text.indexOf('*/', i + 2)
+      const stop = end === -1 ? text.length : end + 2
+      out += text.slice(i, stop).replace(/[^\n]/g, ' ')
+      i = stop - 1
+      continue
+    }
+    if (c === '\n') quote = ''
+    else if (c === '\\') { out += c + (text[i + 1] ?? ''); i++; continue }
+    else if (c === '"' || c === "'" || c === '`') quote = quote === '' ? c : quote === c ? '' : quote
+    out += c
+  }
+  return out
+}
+const stripComments = stripBlockComments
 /**
  * The CSS of a source file: a `.vue` file's <style> blocks, a `.css` file whole.
  * @param {string} file
@@ -179,6 +201,8 @@ export function checkCssVars(root, files = styleSources(root)) {
  *   `white`/`black` utilities. A semantic role with a step (`text-error-700`, `var(--ui-color-success-700)`) is the
  *   status-text rule of DESIGN.md and stays allowed;
  * - a radius off the scale: only `0`, `50%`, `9999px` (the pill), `inherit` and `var(--…)`/`calc()` over a token pass.
+ * A literal behind a token counts: `var(--radius-md, 4px)` is off the scale, `scrollbar-color` is a colour property, and a
+ * `/*` inside a quoted string (a glob) opens no comment (#110).
  * Compositions of tokens (`color-mix(… var(--ui-primary) …)`, `inset 0 0 0 1px var(--ui-border-accented)`) carry no
  * literal and pass. The allowlist names what is a token source or data; an entry for a file that is gone is ignored.
  */
@@ -193,7 +217,7 @@ const HEX_RE = /#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b/
 const COLOR_FNS = 'rgba?|hsla?|hwb|oklch|oklab|lab|lch'
 const COLOR_FN_RE = new RegExp(`(?<![\\w-])(?:${COLOR_FNS}|color|device-cmyk)\\(`)
 /** Properties whose value holds names and keywords, never a colour (`animation-name: lime`, `content`, `font-family`): a named colour is flagged everywhere else, also inside `filter: drop-shadow(… red)`. */
-const NON_COLOR_PROP_RE = /^(?:animation|transition|content|font|grid|counter|will-change|cursor|quotes|src|view-transition|anchor|container|list-style|scroll|appearance|mask-image)|-name$|-timeline$/
+const NON_COLOR_PROP_RE = /^(?:animation|transition|content|font|grid|counter|will-change|cursor|quotes|src|view-transition|anchor|container|list-style|scroll(?!bar-color)|appearance|mask-image)|-name$|-timeline$/
 const NAMED_COLOR_RE = new RegExp(`(?<![\\w-])(?:${NAMED_COLORS})(?![\\w-])`, 'i')
 const HUES = 'slate|gray|zinc|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose'
 const PALETTE_CLASS_RE = new RegExp(`(?<![\\w-])(?:[\\w-]+:)*!?(?:bg|text|border|ring|fill|stroke|from|via|to|outline|shadow|divide|decoration|accent|caret)-(?:(?:${HUES})(?:-\\d{2,3})?|white|black|custom-[a-z]+(?:-\\d{2,3})?)(?:/\\d+)?(?![\\w-])`, 'g')
@@ -234,7 +258,8 @@ export function checkTokenLiterals(root, files = styleSources(root)) {
         let prev
         do {
           prev = v
-          v = v.replace(/var\([^()]*\)/g, 'VAR').replace(/calc\(([^()]*)\)/g, (m, inner) => (/VAR/.test(inner) ? 'CALCVAR' : m))
+          // a var() fallback is a value too: `var(--radius-md, 4px)` is a literal behind a token (#110)
+          v = v.replace(/var\(\s*--[\w-]+\s*(?:,([^()]*))?\)/g, (m, fb) => ((fb ?? '').split(/[\s/]+/).filter(Boolean).every((/** @type {string} */ t) => RADIUS_VALUE_OK.test(t)) ? 'VAR' : 'FALLBACK')).replace(/calc\(([^()]*)\)/g, (m, inner) => (/VAR/.test(inner) ? 'CALCVAR' : m))
         } while (v !== prev)
         const bad = v.split(/[\s/]+/).filter(Boolean).filter(t => !RADIUS_VALUE_OK.test(t))
         if (bad.length > 0) add(css, at, `${prop}: ${value} is off the radius scale; use var(--radius-*) (xs, sm, md, lg …), 0, 50% or 9999px`)
@@ -243,9 +268,7 @@ export function checkTokenLiterals(root, files = styleSources(root)) {
 
     // Class strings, bindings and script text of .vue and app.config.ts
     if (file.endsWith('.vue') || file.endsWith('.ts')) {
-      const text = readFileSync(file, 'utf8')
-        .replace(/<!--[\s\S]*?-->/g, blank)
-        .replace(/\/\*[\s\S]*?\*\//g, blank)
+      const text = stripBlockComments(readFileSync(file, 'utf8').replace(/<!--[\s\S]*?-->/g, blank))
         .replace(/(^|[;,{(])\/\/.*$|(\s)\/\/(?:\s.*)?$/gm, (m, a, b) => (a ?? b ?? '') + blank(m.slice((a ?? b ?? '').length))) // a `//` after `;`, `,`, `{`, `(` or the line start, or `// note` after a space: not a `//cdn` in a string
       const body = file.endsWith('.vue') ? text.replace(/<style[^>]*>[\s\S]*?<\/style>/g, blank) : text
       for (const m of body.matchAll(PALETTE_CLASS_RE)) add(body, m.index ?? 0, `${m[0]} is a raw palette class; use a semantic token (text-default, text-muted, bg-elevated …) or a role step (text-error-700)`)
@@ -400,9 +423,7 @@ export function checkScaleLiterals(root, files = scaleSources(root)) {
     for (const media of css.matchAll(/@(?:media|container)[^{]*\(\s*(?:min|max)-width\s*:\s*[\d.]+(?:px|rem|em)/g)) add(css, media.index ?? 0, `${media[0].trim()} writes a breakpoint as a number; use @media (--phone), (--desktop) or (--sm) (lib/breakpoints.ts)`)
 
     if (file.endsWith('.vue') || file.endsWith('.ts')) {
-      const text = readFileSync(file, 'utf8')
-        .replace(/<!--[\s\S]*?-->/g, blank)
-        .replace(/\/\*[\s\S]*?\*\//g, blank)
+      const text = stripBlockComments(readFileSync(file, 'utf8').replace(/<!--[\s\S]*?-->/g, blank))
         .replace(/(^|[;,{(])\/\/.*$|(\s)\/\/(?:\s.*)?$/gm, (m, a, b) => (a ?? b ?? '') + blank(m.slice((a ?? b ?? '').length)))
       const body = file.endsWith('.vue') ? text.replace(/<style[^>]*>[\s\S]*?<\/style>/g, blank) : text
       for (const m of body.matchAll(/(?<![\w-])(?:[\w-]+:)*z-(?:\[(-?\d+)\]|(\d+))(?![\w-])/g)) {
