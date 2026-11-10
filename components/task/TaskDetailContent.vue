@@ -175,22 +175,17 @@
               <span v-else class="text-muted not-italic">{{ t('task.property.setValue') }}</span>
             </template>
             <template #edit="{ finishEdit, commitEdit, cancelEdit }">
-              <div class="flex min-h-8 items-center gap-1.5 max-md:min-h-11">
-                <input
-                  v-model.number="editTimeboxValue"
-                  type="number"
-                  min="0"
-                  data-testid="timebox-edit-input"
-                  :aria-label="t('task.timebox')"
-                  :aria-describedby="timeboxHintId"
-                  class="min-h-8 w-14 [appearance:textfield] border-0 border-b border-dotted border-muted bg-transparent py-0.5 text-sm focus-ring max-md:min-h-11 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                  @focus="(event: FocusEvent) => (event.target as HTMLInputElement).select()"
-                  @keydown.enter="() => { saveTimeboxEdit(); commitEdit(); }"
-                  @keydown.esc.stop="() => { abandonTimeboxEdit(); cancelEdit(); }"
-                  @blur="() => { saveTimeboxEdit(); finishEdit(); }"
-                >
-                <span class="text-sm text-muted">{{ t('duration.unitMinute') }}</span>
-              </div>
+              <MinutesField
+                v-model.number="editTimeboxValue"
+                min="0"
+                data-testid="timebox-edit-input"
+                :aria-label="t('task.timebox')"
+                :aria-describedby="timeboxHintId"
+                @focus="(event: FocusEvent) => (event.target as HTMLInputElement).select()"
+                @keydown.enter="() => { saveTimeboxEdit(); commitEdit(); }"
+                @keydown.esc.stop="() => { abandonTimeboxEdit(); cancelEdit(); }"
+                @blur="() => { saveTimeboxEdit(); finishEdit(); }"
+              />
             </template>
           </InlineEditable>
           <span :id="timeboxHintId" class="sr-only">{{ t('task.form.durationHint') }}</span>
@@ -221,25 +216,20 @@
               <span v-else class="text-muted not-italic">{{ t('task.property.setValue') }}</span>
             </template>
             <template #edit="{ finishEdit, commitEdit, cancelEdit }">
-              <div class="flex min-h-8 items-center gap-1.5 max-md:min-h-11">
-                <input
-                  v-model.number="editTimeSpentValue"
-                  type="number"
-                  min="0"
-                  :max="MAX_TIME_SPENT_MINUTES"
-                  step="1"
-                  inputmode="numeric"
-                  data-testid="time-spent-edit-input"
-                  :aria-label="t('task.field.timeSpentInMinutes')"
-                  class="min-h-8 w-14 [appearance:textfield] border-0 border-b border-dotted border-muted bg-transparent py-0.5 text-sm focus-ring max-md:min-h-11 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                  @vue:mounted="beginTimeSpentEdit"
-                  @focus="(event: FocusEvent) => (event.target as HTMLInputElement).select()"
-                  @keydown.enter="() => { saveTimeSpentEdit(); commitEdit(); }"
-                  @keydown.esc.stop="() => { abandonTimeSpentEdit(); cancelEdit(); }"
-                  @blur="(event: FocusEvent) => onTimeSpentBlur(event, finishEdit)"
-                >
-                <span class="text-sm text-muted">{{ t('duration.unitMinute') }}</span>
-              </div>
+              <MinutesField
+                v-model.number="editTimeSpentValue"
+                min="0"
+                :max="MAX_TIME_SPENT_MINUTES"
+                step="1"
+                inputmode="numeric"
+                data-testid="time-spent-edit-input"
+                :aria-label="t('task.field.timeSpentInMinutes')"
+                @vue:mounted="beginTimeSpentEdit"
+                @focus="(event: FocusEvent) => (event.target as HTMLInputElement).select()"
+                @keydown.enter="() => { saveTimeSpentEdit(); commitEdit(); }"
+                @keydown.esc.stop="() => { abandonTimeSpentEdit(); cancelEdit(); }"
+                @blur="(event: FocusEvent) => onTimeSpentBlur(event, finishEdit)"
+              />
             </template>
           </InlineEditable>
           <span
@@ -291,6 +281,7 @@
 </template>
 
 <script setup lang="ts">
+import MinutesField from '~/components/ui/MinutesField.vue';
 import { ICONS } from '~/lib/icons'
 import { openExternal } from '~/utils/openExternal';
 import { toRef, computed, ref, watch, nextTick, useId, onMounted } from 'vue';

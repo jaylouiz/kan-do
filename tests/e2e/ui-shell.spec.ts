@@ -139,11 +139,26 @@ test.describe('/ui catalog shell', () => {
         // The samples and tile previews are the app's own components (judged by a11y.spec.ts); the chrome of the page is held to AA
         const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).exclude('[data-kd-sample]').exclude('[data-kd-preview]').analyze()
         const blocking = results.violations.filter(v => v.impact === 'serious' || v.impact === 'critical')
-        expect(blocking.map(v => `${v.id}: ${v.nodes.slice(0, 3).map(n => n.target.join(' ')).join(' | ')}`)).toEqual([])
+        expect(blocking.map(v => `${v.id}: ${v.nodes.slice(0, 3).map(n => `${n.target.join(' ')} (${[...n.any, ...n.all, ...n.none].flatMap(c => c.relatedNodes ?? []).slice(0, 2).map(r => r.html.slice(0, 120)).join(' ; ')})`).join(' | ')}`)).toEqual([])
         const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
         expect(overflow).toBeLessThanOrEqual(0)
       })
     }
+  }
+
+  for (const [view, url] of [['overview', '/ui'], ['tokens', '/ui?v=tokens'], ['a component', '/ui?c=StatsTrendBars'], ['one page', '/ui?v=all']] as const) {
+    test(`${view}: every link of the chrome is at least 24 px high and wide (target size, whatever sits next to it)`, async ({ page }) => {
+      // axe's target-size passes a smaller link when nothing is near it, which made the rule depend on layout timing and font rendering
+      await page.setViewportSize({ width: 1280, height: 800 })
+      await page.goto(url)
+      await expect(page.locator('[data-kd-catalog-ready]')).toBeAttached()
+      const small = await page.evaluate(() => Array.from(document.querySelectorAll<HTMLElement>('[data-kd-ui-catalog] a'))
+        .filter(link => !link.closest('[data-kd-sample], [data-kd-preview], [data-kd-launch]'))
+        .map(link => ({ link, box: link.getBoundingClientRect() }))
+        .filter(({ box }) => box.width > 0 && (box.height < 24 || box.width < 24))
+        .map(({ link, box }) => `${link.getAttribute('href')} ${Math.round(box.width)}x${Math.round(box.height)}`))
+      expect(small).toEqual([])
+    })
   }
 
   test('/styleguide is gone: no old page renders', async ({ page }) => {

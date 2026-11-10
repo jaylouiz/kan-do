@@ -150,7 +150,7 @@ test.describe('/ui one-page view: dev-tool acceptance', () => {
       // a matrix shows every colour role on purpose. The catalog's chrome is held to AA here.
       const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).exclude('[data-kd-sample]').analyze()
       const blocking = results.violations.filter(v => v.impact === 'serious' || v.impact === 'critical')
-      expect(blocking.map(v => `${v.id}: ${v.nodes.slice(0, 3).map(n => n.target.join(' ')).join(' | ')}`)).toEqual([])
+      expect(blocking.map(v => `${v.id}: ${v.nodes.slice(0, 3).map(n => `${n.target.join(' ')} (${[...n.any, ...n.all, ...n.none].flatMap(c => c.relatedNodes ?? []).slice(0, 2).map(r => r.html.slice(0, 120)).join(' ; ')})`).join(' | ')}`)).toEqual([])
       expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0)
     })
   }

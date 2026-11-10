@@ -10,13 +10,14 @@
 - Mounts the parts from `dev-tools/ui-catalog/`: nothing of the catalog sits in a folder shipped code imports from
 - `data-kd-ui-catalog` marks the page; the build-output test (tests/config/ui-catalog-build-output.test.ts) searches a production build for it
 - `data-kd-catalog-ready` is set once every entry has loaded; the specs wait for it
+- Every link of the chrome is at least 24 px high (WCAG 2.2 target size), so the rule holds whatever sits next to it; `ui-shell.spec.ts` measures it
 - Hides the app bar (`appNav: false`): a tool page, not a destination of the app
 -->
 <template>
   <div data-kd-ui-catalog class="px-safe min-h-dvh bg-page" :data-kd-catalog-ready="ready || undefined">
     <header class="pt-safe sticky top-0 z-20 border-b border-default bg-page">
       <div class="flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-2 lg:px-6">
-        <NuxtLink :to="{ path: '/ui' }" class="font-display text-lg text-highlighted">UI catalog</NuxtLink>
+        <NuxtLink :to="{ path: '/ui' }" class="inline-flex min-h-6 items-center font-display text-lg text-highlighted">UI catalog</NuxtLink>
         <label class="flex min-w-40 flex-1 items-center gap-2 sm:max-w-xs">
           <span class="sr-only">Search components</span>
           <input
@@ -49,15 +50,15 @@
         </template>
         <template v-else-if="view.kind === 'component' && currentRow">
           <nav aria-label="Breadcrumb" class="mb-4 flex flex-wrap items-center gap-x-2 text-sm text-muted">
-            <NuxtLink :to="{ path: '/ui', query: { v: crumb.tier } }" class="hover:underline hover:underline-offset-2">{{ crumb.tier === 'kit' ? 'Kit' : 'Feature parts' }}</NuxtLink>
+            <NuxtLink :to="{ path: '/ui', query: { v: crumb.tier } }" class="inline-flex min-h-6 items-center hover:underline hover:underline-offset-2">{{ crumb.tier === 'kit' ? 'Kit' : 'Feature parts' }}</NuxtLink>
             <span aria-hidden="true">/</span>
-            <NuxtLink :to="{ path: '/ui', query: { v: crumb.id } }" class="hover:underline hover:underline-offset-2">{{ crumb.title }}</NuxtLink>
+            <NuxtLink :to="{ path: '/ui', query: { v: crumb.id } }" class="inline-flex min-h-6 items-center hover:underline hover:underline-offset-2">{{ crumb.title }}</NuxtLink>
           </nav>
           <UiCatalogComponentCard :key="currentRow.name" :row="currentRow" :resolved="resolved[currentRow.name]" :viewport="viewport" />
           <nav aria-label="Neighbours" class="mt-12 flex justify-between gap-4 border-t border-default pt-4 text-sm">
-            <NuxtLink v-if="around.previous" :to="{ path: '/ui', query: { c: around.previous.name } }" class="text-default hover:underline hover:underline-offset-2">← {{ around.previous.name }}</NuxtLink>
+            <NuxtLink v-if="around.previous" :to="{ path: '/ui', query: { c: around.previous.name } }" class="inline-flex min-h-6 items-center text-default hover:underline hover:underline-offset-2">← {{ around.previous.name }}</NuxtLink>
             <span v-else />
-            <NuxtLink v-if="around.next" :to="{ path: '/ui', query: { c: around.next.name } }" class="text-default hover:underline hover:underline-offset-2">{{ around.next.name }} →</NuxtLink>
+            <NuxtLink v-if="around.next" :to="{ path: '/ui', query: { c: around.next.name } }" class="inline-flex min-h-6 items-center text-default hover:underline hover:underline-offset-2">{{ around.next.name }} →</NuxtLink>
           </nav>
         </template>
         <UiCatalogTokensPart v-else-if="view.kind === 'tokens'" :group="view.group" />

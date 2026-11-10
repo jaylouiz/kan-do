@@ -16,7 +16,7 @@
     <p v-if="groups.length === 0" class="text-sm text-default">Nothing matches.</p>
     <section v-for="group in groups" :key="group.id" :aria-labelledby="`group-${group.id}`" class="space-y-3">
       <component :is="`h${headingLevel + 1}`" :id="`group-${group.id}`" class="flex items-baseline gap-2 font-display text-lg text-highlighted">
-        <NuxtLink v-if="linkGroups" :to="{ path: '/ui', query: { v: group.id } }" class="hover:underline hover:underline-offset-2">{{ group.title }}</NuxtLink>
+        <NuxtLink v-if="linkGroups" :to="{ path: '/ui', query: { v: group.id } }" class="inline-flex min-h-6 items-center hover:underline hover:underline-offset-2">{{ group.title }}</NuxtLink>
         <template v-else>{{ group.title }}</template>
         <span class="font-sans text-xs text-muted">{{ group.rows.length }}</span>
       </component>
