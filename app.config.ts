@@ -21,10 +21,10 @@ const BUTTON_ROLE_LINK = {
   error: 'text-error-700 hover:text-error-800 active:text-error-800'
 } as const
 const BUTTON_ROLE_SOLID = {
-  secondary: 'bg-secondary-700 enabled:hover:bg-secondary-800 enabled:active:bg-secondary-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary',
-  success: 'bg-success-700 enabled:hover:bg-success-800 enabled:active:bg-success-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-success',
-  info: 'bg-info-700 enabled:hover:bg-info-800 enabled:active:bg-info-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-info',
-  warning: 'bg-warning-700 enabled:hover:bg-warning-800 enabled:active:bg-warning-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-warning'
+  secondary: 'bg-secondary-700 enabled:hover:bg-secondary-800 enabled:active:bg-secondary-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary-700',
+  success: 'bg-success-700 enabled:hover:bg-success-800 enabled:active:bg-success-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-success-700',
+  info: 'bg-info-700 enabled:hover:bg-info-800 enabled:active:bg-info-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-info-700',
+  warning: 'bg-warning-700 enabled:hover:bg-warning-800 enabled:active:bg-warning-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-warning-700'
 } as const
 const BUTTON_ROLES = ['secondary', 'success', 'info', 'warning'] as const
 const BUTTON_TEXT_VARIANTS = ['outline', 'soft', 'subtle', 'ghost'] as const
