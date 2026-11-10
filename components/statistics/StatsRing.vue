@@ -7,12 +7,21 @@
 @avoid A ring in the ink ramp only; not a chart library, and topic hues never go into charts.
 @responsibility
 - Draw up to six segments (percent of the circle, ramp step) separated by a small gap
+- `placeholder`: only the track, one step darker (`--ui-border-accented`, so it reads on the Ink Wash surface too) and hidden from assistive tech: the empty outline of a chart that has no data yet (kd#106, StatsVerdict)
 - Carry the numbers as a text alternative (`role="img"` + `aria-label`); the centre slot is decoration and hidden from assistive tech
 -->
 <template>
   <div class="relative shrink-0" :style="{ width: `${size}px`, height: `${size}px` }">
-    <svg :viewBox="`0 0 ${size} ${size}`" :width="size" :height="size" role="img" :aria-label="label" class="-rotate-90">
-      <circle :cx="center" :cy="center" :r="radius" fill="none" :stroke-width="thickness" stroke="var(--ui-bg-accented)" />
+    <svg
+      :viewBox="`0 0 ${size} ${size}`"
+      :width="size"
+      :height="size"
+      :role="placeholder ? undefined : 'img'"
+      :aria-label="placeholder ? undefined : label"
+      :aria-hidden="placeholder ? 'true' : undefined"
+      class="-rotate-90"
+    >
+      <circle :cx="center" :cy="center" :r="radius" fill="none" :stroke-width="thickness" :stroke="placeholder ? 'var(--ui-border-accented)' : 'var(--ui-bg-accented)'" />
       <circle
         v-for="arc in arcs"
         :key="arc.step"
@@ -58,14 +67,16 @@ export interface RingSegment {
 }
 
 const props = withDefaults(defineProps<{
-  segments: RingSegment[]
-  /** Text alternative that states the numbers. */
-  label: string
+  segments?: RingSegment[]
+  /** Text alternative that states the numbers; not needed for a `placeholder`. */
+  label?: string
+  /** The chart's empty outline (kd#106): the bare track one step darker, decorative, no text alternative. */
+  placeholder?: boolean
   size?: number
   thickness?: number
   /** Position of the user's usual value on the circle, percent; `null` = no tick. */
   tick?: number | null
-}>(), { size: 120, thickness: 14, tick: null })
+}>(), { segments: () => [], label: undefined, placeholder: false, size: 120, thickness: 14, tick: null })
 
 const center = computed(() => props.size / 2)
 const radius = computed(() => (props.size - props.thickness) / 2 - (props.tick !== null ? 4 : 0))

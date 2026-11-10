@@ -102,11 +102,17 @@ describe('StatsVerdict', () => {
     expect(w.text()).not.toMatch(/Aufgabe|erledigt|sonst/)
   })
 
-  it('empty: only a sentence and what fills the page, no ring', () => {
+  it('empty: a sentence, what fills the page and the ring\'s bare outline as a decorative placeholder (kd#106)', () => {
     const w = mountIt(StatsVerdict, { review: deriveReview([], NOW) })
     expect(w.get('h2').text()).toBe('Noch nichts zu vergleichen.')
     expect(w.text()).toContain('Erledigte Aufgaben mit Timebox füllen diese Seite.')
-    expect(w.find('svg').exists()).toBe(false)
+    const svg = w.get('[data-testid="stats-verdict-placeholder"] svg')
+    expect(w.get('[data-testid="stats-verdict-placeholder"]').classes()).toContain('max-md:hidden')
+    expect(svg.attributes('aria-hidden')).toBe('true')
+    expect(svg.attributes('role')).toBeUndefined()
+    // only the track: no segment, no tick, no number
+    expect(svg.findAll('circle')).toHaveLength(1)
+    expect(w.text()).not.toContain('%')
   })
 
   it('thin: says so with the baseline count, no ring (#687)', () => {

@@ -4,7 +4,7 @@ import type { CatalogEntry } from '../types'
 export default {
   component: 'EmptyNote',
   source: 'app',
-  alternatives: ['UAlert'],
+  alternatives: ['EmptyState', 'UAlert'],
   variants: [
     { id: 'default', slot: { $t: 'trash.empty' } },
   ],

@@ -140,7 +140,10 @@ test.describe('Statistics Page', () => {
       await expect(page.getByText('Erledigte Aufgaben mit Timebox füllen diese Seite.')).toBeVisible();
       await expect(page.getByRole('heading', { level: 2 })).toHaveCount(2); // the verdict and tile 5 (#600)
       await expect(page.getByTestId('stats-tile-2')).toHaveCount(0);
-      await expect(page.getByTestId('stats-verdict').locator('svg')).toHaveCount(0);
+      // only the ring's bare outline, decorative (kd#106): one track circle, no segment, no text alternative
+      await expect(page.getByTestId('stats-verdict').locator('svg')).toHaveCount(1);
+      await expect(page.getByTestId('stats-verdict-placeholder').locator('svg')).toHaveAttribute('aria-hidden', 'true');
+      await expect(page.getByTestId('stats-verdict-placeholder').locator('circle')).toHaveCount(1);
       await expect(page.getByTestId('stats-all-tasks')).toHaveCount(0);
     });
 
