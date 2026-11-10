@@ -1,7 +1,7 @@
 <!--
 @component CustomPropertiesStep
 @kind component
-@category form-structure
+@category input
 @description Dedicated step to select additional (read-only) Notion properties to import
 @usage Part of the Notion setup wizard after core property mapping
 @avoid Only a step of the Notion setup wizard; not for editing mappings later outside the wizard.

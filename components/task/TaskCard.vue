@@ -374,7 +374,6 @@ const openDetails = (event: MouseEvent) => {
   line-height: var(--lh-snug);
   overflow: visible;
   z-index: var(--z-card);
-  --task-transform-delay: 0ms;
   transition:
     background-color 160ms var(--ease-emphasized),
     color 160ms var(--ease-emphasized),

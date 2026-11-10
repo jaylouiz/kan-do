@@ -1,7 +1,7 @@
 <!--
 @component NotionSetupFlow
 @kind block
-@category form-structure
+@category input
 @description The Notion setup as page content inside the welcome sheet (#43): guide rail (md and up) or progress bar (below md)
   next to the existing wizard steps, Back and the proceed button. No dialog.
 @usage <NotionSetupFlow @back="flow = null" @complete="onConnected" /> inside pages/welcome.vue

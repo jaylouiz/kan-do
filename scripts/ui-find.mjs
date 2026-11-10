@@ -53,7 +53,7 @@ export function findEntries(manifest, words) {
 export function formatResult({ entry, score }) {
   const variants = entry.variants?.length ? entry.variants.join(', ') : '-'
   return [
-    `${entry.name}  [${entry.kind} · ${entry.category} · ${entry.source}]  score ${score}`,
+    `${entry.name}  [${entry.tier} · ${entry.kind} · ${entry.category} · ${entry.source}]  score ${score}`,
     `  path:     ${entry.path}`,
     `  usage:    ${String(entry.usage).replace(/\s+/g, ' ')}`,
     `  avoid:    ${String(entry.avoid).replace(/\s+/g, ' ')}`,

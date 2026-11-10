@@ -1,7 +1,7 @@
 <!--
 @component LocalSetupFlow
 @kind block
-@category form-structure
+@category input
 @description The local setup as page content inside the welcome sheet (#43): pick an empty or a sample board, then confirm
 @usage <LocalSetupFlow @back="flow = null" @complete="onLocalDone" /> inside pages/welcome.vue
 @avoid Only the local setup on the welcome page; Notion is NotionSetupFlow.

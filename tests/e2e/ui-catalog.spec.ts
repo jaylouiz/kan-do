@@ -75,13 +75,13 @@ test.describe('/ui Components part: sections and texts', () => {
   test('sections carry their display titles; each component shows description, usage, avoid and alternatives from the manifest', async ({ page }) => {
     await openCatalog(page)
     const part = page.locator('#components')
-    for (const title of ['Eingabe', 'Aktion', 'Navigation', 'Feedback', 'Overlay', 'Darstellung', 'Layout', 'Formularstruktur', 'Tastatur']) {
+    for (const title of ['Eingabe', 'Aktion', 'Navigation', 'Feedback', 'Overlay', 'Darstellung', 'Layout']) {
       await expect(part.getByRole('heading', { level: 3, name: title, exact: true }), title).toBeVisible()
     }
     // Aktion lists the components before its blocks; the sections arrive in the order of the issue
     // section titles only: a live sample may carry its own h3 (StatsOutliers, TaskDetailMetadata)
     const titles = await part.locator('h3').evaluateAll(els => els.filter(el => !el.closest('[data-kd-sample]')).map(el => el.textContent?.trim()))
-    expect(titles).toEqual(['Eingabe', 'Aktion', 'Navigation', 'Feedback', 'Overlay', 'Darstellung', 'Layout', 'Formularstruktur', 'Tastatur'])
+    expect(titles).toEqual(['Eingabe', 'Aktion', 'Navigation', 'Feedback', 'Overlay', 'Darstellung', 'Layout'])
 
     const link = page.locator('#component-ExternalLink')
     await expect(link).toContainText('Link to an external page')

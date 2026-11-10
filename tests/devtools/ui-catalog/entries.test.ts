@@ -90,10 +90,12 @@ describe('catalog entries (#66)', () => {
     expect(entryProblems('catalog/layout/USeparator.catalog.ts', library, manifest)).toEqual(expect.arrayContaining([expect.stringContaining('`host` is for an app component')]))
   })
 
-  it('every manifest component needs an entry (#117: no per-category landed list)', () => {
-    expect(missingEntries(manifest, loaded.map(l => l.entry))).toEqual([])
-    const missing = missingEntries(manifest, loaded.map(l => l.entry).filter(entry => entry.component !== 'PageHeader'))
-    expect(missing).toContain('PageHeader')
+  it('every kit component needs an entry; a feature part may go without', () => {
+    const entries = loaded.map(l => l.entry)
+    expect(missingEntries(manifest, entries)).toEqual([])
+    expect(missingEntries(manifest, entries.filter(entry => entry.component !== 'PageHeader'))).toEqual(['PageHeader'])
+    const featurePart = manifest.find(row => row.tier === 'feature')!
+    expect(missingEntries(manifest, entries.filter(entry => entry.component !== featurePart.name))).toEqual([])
   })
 
   it('app entries leave their text to the doc block, so no description string is typed twice', () => {

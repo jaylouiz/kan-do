@@ -104,9 +104,10 @@ describe('/ui entries (#78, #66, #117)', () => {
     }
   })
 
-  it('has no manifest component without an entry; the check fails on a seeded gap', () => {
+  it('has no kit component without an entry; the check fails on a seeded gap', () => {
     const entries = (loadCatalogEntries() as { entry: unknown }[]).map(l => l.entry) as Parameters<typeof missingEntries>[1]
     expect(missingEntries(manifest, entries)).toEqual([])
-    expect(missingEntries(manifest, entries.slice(1))).not.toEqual([])
+    // the seeded gap is a kit component: a feature part may go without an entry
+    expect(missingEntries(manifest, entries.filter(entry => (entry as { component: string }).component !== 'UButton'))).toEqual(['UButton'])
   })
 })

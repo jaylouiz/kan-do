@@ -1,7 +1,7 @@
 <!--
 @component StatusMappingStep
 @kind component
-@category form-structure
+@category input
 @description Maps kan-do status values to Notion select option names
 @usage Part of the Notion setup wizard that configures how status values correspond to Notion select options
 @avoid Only a step of the Notion setup wizard.

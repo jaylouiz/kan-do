@@ -1,7 +1,7 @@
 <!--
 @component DatabaseSelectionStep
 @kind component
-@category form-structure
+@category input
 @description Step for selecting a Notion database during setup
 @usage Used in the Notion setup wizard
 @avoid Only a step of the Notion setup wizard.

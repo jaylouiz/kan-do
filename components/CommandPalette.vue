@@ -1,7 +1,7 @@
 <!--
 @component CommandPalette
 @kind component
-@category keyboard
+@category navigation
 @description Cmd/Ctrl+K command palette: board-wide commands plus actions for the card that held
 keyboard focus when the palette opened (issue #101, Direction B).
 @usage Mounted once in pages/tasks.vue; open with Cmd/Ctrl+K. Desktop/keyboard only (no entry point on mobile).

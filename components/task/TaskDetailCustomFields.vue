@@ -1,7 +1,7 @@
 <!--
 @component TaskDetailCustomFields
 @kind component
-@category form-structure
+@category input
 @description Custom (Notion) properties of a task as flat label/value rows with inline editing
 @usage Used in TaskDetailContent under the "Eigenschaften" heading
 @avoid Only the Notion custom properties in the task detail; core properties use TaskPropertyRow.

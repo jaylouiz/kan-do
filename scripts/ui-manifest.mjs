@@ -10,7 +10,8 @@
  * optional `@accessibility`. A tag's value runs until the next known tag line or the closing `-->`. The doc block is
  * the only source: the manifest has no hand-written field.
  *
- * Row: `{ name, path, source, kind, category, description, usage, avoid, responsibility, variants, states, usedBy }`.
+ * Row: `{ name, path, source, kind, category, tier, area, description, usage, avoid, responsibility, variants, states, usedBy }`.
+ * `tier` (`kit` or `feature`) and `area` are derived (`tierOf`, `areaOf`), never written in a doc block.
  * `source` is `app` (a component of this repo, text from its doc block) or `nuxt-ui` (a library component the catalog
  * (#66) shows; its row comes from `catalog/<category>/<Name>.catalog.ts`, which carries the text). `variants` and
  * `states` are the names an entry declares (`[]` for a component without an entry): the variant names of an app
@@ -30,7 +31,34 @@ import { fileURLToPath } from 'node:url'
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 
 export const UI_KINDS = ['primitive', 'component', 'compound', 'block']
-export const UI_CATEGORIES = ['input', 'form-structure', 'action', 'navigation', 'keyboard', 'feedback', 'overlay', 'display', 'layout']
+export const UI_CATEGORIES = ['input', 'action', 'navigation', 'feedback', 'overlay', 'display', 'layout']
+/** A component is kit from this many consumers on (the wrapper rule of DESIGN.md: a shared element earns its place at three call sites). */
+export const KIT_MIN_CONSUMERS = 3
+
+const consumers = counts => Object.values(counts).reduce((sum, n) => sum + n, 0)
+
+/**
+ * `kit` = what a new screen is built from: every Nuxt UI component, everything under `components/ui/`, and an app
+ * component with `KIT_MIN_CONSUMERS` or more consumers. Everything else is a `feature` part: a composition that serves
+ * one screen. Derived, never tagged, so a part that gains consumers moves into the kit by itself.
+ * @param {{ source: string, path: string, usedBy: Record<string, number> }} row
+ * @returns {'kit' | 'feature'}
+ */
+export function tierOf(row) {
+  if (row.source === 'nuxt-ui' || row.path.startsWith('components/ui/')) return 'kit'
+  return consumers(row.usedBy) >= KIT_MIN_CONSUMERS ? 'kit' : 'feature'
+}
+
+/**
+ * The feature area of an app component: its folder under `components/` (`board`, `task`, `settings`, ...), `app` for a
+ * file directly in `components/`, `nuxt-ui` for a library component.
+ * @param {{ source: string, path: string }} row
+ */
+export function areaOf(row) {
+  if (row.source === 'nuxt-ui') return 'nuxt-ui'
+  const parts = row.path.split('/')
+  return parts.length > 2 ? parts[1] : 'app'
+}
 export const REQUIRED_TAGS = ['component', 'kind', 'category', 'description', 'usage', 'avoid']
 const TAGS = [...REQUIRED_TAGS, 'responsibility', 'accessibility']
 const CATALOG_DIR = 'catalog'
@@ -139,7 +167,7 @@ const oneLine = text => text.replace(/\s+/g, ' ').trim()
  * The manifest: the doc-block rows of `components/` (sorted by path), then one row per Nuxt UI entry of `catalog/`.
  * Throws on a doc block `checkDocBlock` rejects, an `@component` that is not the file's name, or a library entry that lacks a required field.
  * @param {string} [root]
- * @returns {Array<{ name: string, path: string, source: string, kind: string, category: string, description: string, usage: string, avoid: string, responsibility: string[], variants: string[], states: string[], usedBy: Record<string, number> }>}
+ * @returns {Array<{ name: string, path: string, source: string, kind: string, category: string, tier: string, area: string, description: string, usage: string, avoid: string, responsibility: string[], variants: string[], states: string[], usedBy: Record<string, number> }>}
  */
 export function buildManifest(root = ROOT) {
   const paths = componentFiles(root)
@@ -207,7 +235,7 @@ export function buildManifest(root = ROOT) {
         usedBy: usedBy(entry.component, path, rendered),
       }
     })
-  return [...appRows, ...libraryRows]
+  return [...appRows, ...libraryRows].map(row => ({ ...row, tier: tierOf(row), area: areaOf(row) }))
 }
 
 if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {

@@ -5,7 +5,7 @@ export default {
   component: 'UCommandPalette',
   source: 'nuxt-ui',
   kind: 'compound',
-  category: 'keyboard',
+  category: 'navigation',
   description: 'A searchable list of grouped commands with a search field, keyboard navigation and an empty and a loading state.',
   usage: 'The body of the Cmd/Ctrl+K palette: `groups` of items with an icon, a label and `kbds`, `loading` while the tasks load, an `#empty` slot with EmptyNote, `:back="false"`. `:ui` only places (padding, height).',
   avoid: 'Not for navigation by pointer (AppNav, MorePanel) and not a select (USelectMenu); the palette is desktop and keyboard only.',

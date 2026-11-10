@@ -16,6 +16,6 @@ Read before running the design gate of a UI PR (`.claude/issue-workflow.md` "Des
 ## Detector notes
 
 - `.vue` files get regex rules only. `detector.extensions: [{ext: ".vue", engine: "html"}]` was tried and rejected (it reads raw templates without CSS and reports every text node as `rgb(0,0,0)`: 42 false positives), so element rules come from the rendered-URL scan (`tests/e2e/design-detect.spec.ts`, the Stop hook's `scripts/design-scan.mjs`).
-- `docs/design/baseline.json` is the accepted source-scan state (currently empty); the Todoist label palette in `integrations.css` is ignored file-scoped (`design-system-color "*"`) via `.impeccable/config.json`.
+- `docs/design/baseline.json` is the accepted source-scan state (currently empty).
 - Since 4.8.0 audit's touch-target and contrast checks follow WCAG 2.2 AA (24px target, SC 2.5.8), so a target under 44px that meets 24px (or the spacing exception) is not an AA failure and not a P1.
 - Upgrading: bump the devDependency, run `npx impeccable --list-rules` and `npm run design:detect`.
