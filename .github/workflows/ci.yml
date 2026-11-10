@@ -60,12 +60,18 @@ jobs:
           path: impeccable-report.json
           retention-days: 7
 
-  # Full suite after `quality` on every run; the pre-merge hook runs its tiered selection locally and
-  # `npm run release` the full suite again.
+  # Full suite after `quality` on every run, split over four runners (#129): one 2-vCPU runner needed ~25 min for the
+  # ~1350 tests and sat just under a 30 min cap. The shards together run every spec exactly once; the pre-merge hook
+  # runs its tiered selection locally and `npm run release` the full suite again.
   e2e:
+    name: e2e (${{ matrix.shard }}/4)
     needs: quality
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -79,10 +85,10 @@ jobs:
           key: pw-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - run: npx playwright install --with-deps chromium
       # visual-regression.spec.ts self-skips when CI is set (baselines are macOS-rendered).
-      - run: npm run test:e2e
+      - run: npm run test:e2e -- --shard=${{ matrix.shard }}/4
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.shard }}
           path: tests/e2e/playwright-report
           retention-days: 7
