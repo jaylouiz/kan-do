@@ -83,6 +83,12 @@ interface Task {
   custom?: Record<string, TaskCustomEntry>;
   /** When task was marked as done */
   completedAt?: Date | null;
+  /**
+   * The user set `completedAt` by hand (the done day of a task marked done late, kd#131). While the task stays
+   * done, a fetch or a write echo of its source does not replace the time (`mergeTasks`, `applySyncedTask`).
+   * Cleared by any other write of `completedAt` (reopening, completing again). Absent on older stored tasks.
+   */
+  completedAtCorrected?: boolean;
   /** When task was created */
   createdAt?: Date | null;
   /** When task was last updated */

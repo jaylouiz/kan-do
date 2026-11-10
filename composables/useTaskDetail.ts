@@ -12,6 +12,7 @@ import type { Task, TaskCustomEntry, TaskCustomValue } from '~/types/task';
 import type { CustomPropertyType } from '~/types/notion';
 import { getActiveLocale, translate } from '~/lib/i18n';
 import { normalizePriority } from '~/lib/priority';
+import { sourceStoresCompletedDate } from '~/utils/moveFields';
 import {
   compareText,
   formatDateTime as formatDateTimeFor,
@@ -44,6 +45,8 @@ export interface UseTaskDetailReturn {
   priorityLabel: ComputedRef<string>;
   /** Task source (Notion/Todoist/null) */
   taskSource: ComputedRef<string | null>;
+  /** A done day set here stays in Kan-Do: the task's source holds no completion date (kd#131) */
+  doneDayLocalOnly: ComputedRef<boolean>;
   /** Time spent summary (e.g., "45 min von 1 h") */
   timeSpentSummary: ComputedRef<string>;
   /** Time spent text (e.g., "45 min") */
@@ -211,6 +214,9 @@ export function useTaskDetail(taskIdRef: Ref<string | null>): UseTaskDetailRetur
     return SOURCE_DISPLAY_MAP[value] ?? value;
   });
 
+  const doneDayLocalOnly = computed(() =>
+    !!task.value && !sourceStoresCompletedDate(task.value.source, notionConfigStore.config?.propertyMapping));
+
   // Time formatting
   const timeSpentSummary = computed(() => {
     if (!task.value) return '—';
@@ -292,6 +298,7 @@ export function useTaskDetail(taskIdRef: Ref<string | null>): UseTaskDetailRetur
     statusBadgeColor,
     priorityLabel,
     taskSource,
+    doneDayLocalOnly,
     timeSpentSummary,
     timeSpentText,
     timeBoxText,

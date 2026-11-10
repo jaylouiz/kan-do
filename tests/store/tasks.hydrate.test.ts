@@ -137,6 +137,21 @@ describe.each(['web', 'desktop'] as const)('hydrating stored dates (#376, %s)', 
     expect(tasks.tasksDoneToday.map(task => task.id)).toEqual(['page-1'])
   })
 
+  it('loads a task stored before the done-day marker without one, and keeps a stored marker (kd#131)', async () => {
+    const { tasks } = await freshPinia(mode, {
+      'board-store': BOARD,
+      'tasks-store': storedTasksStore({
+        tasks: [storedTask(), storedTask({ id: 'page-3', externalId: 'page-3', completedAtCorrected: true })],
+        pendingDeletes: {},
+      }),
+    })
+    const [old, corrected] = tasks.tasks as Task[]
+    expect(old && 'completedAtCorrected' in old).toBe(false)
+    expect(old?.completedAt?.getTime()).toBe(COMPLETED.getTime())
+    expect(corrected?.completedAtCorrected).toBe(true)
+    expect(corrected?.completedAt?.getTime()).toBe(COMPLETED.getTime())
+  })
+
   it('revives the completion records of the statistics store', async () => {
     const records = [{ taskId: 'page-1', title: 'A', completedAt: COMPLETED, timeBoxSeconds: null, actualTimeSpentSeconds: 5, estimationAccuracy: null, topic: null, topicColorCode: null, activity: null, isUnplanned: false }]
     const { statistics } = await freshPinia(mode, {

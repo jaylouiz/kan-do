@@ -220,10 +220,14 @@
       "status": "Status",
       "priority": "Priorität",
       "timeSpent": "Aufgewendete Zeit",
-      "timeSpentInMinutes": "Aufgewendete Zeit in Minuten"
+      "timeSpentInMinutes": "Aufgewendete Zeit in Minuten",
+      "doneDay": "Erledigt am"
     },
     "datePicker": {
       "set": "+ Datum setzen"
+    },
+    "doneDay": {
+      "localOnly": "Gilt nur in Kan-Do."
     },
     "detail": {
       "moreActions": "Mehr Aktionen",

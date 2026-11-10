@@ -349,6 +349,9 @@ export const useTasksStore = defineStore("tasks", () => {
     if (task) {
       const wasInDone = task.status === TaskStatus.Done;
       Object.assign(task, updates);
+      // A completion time written by anything but the user's correction (reopening, completing again, an undo)
+      // is no longer the corrected one (kd#131)
+      if ('completedAt' in updates && !('completedAtCorrected' in updates)) delete task.completedAtCorrected;
       // A change inside a move's undo window (starting or stopping the timer excepted) is not on the origin
       // copy: Undo has to push it there (#322)
       if (heldMoves.has(taskId) && Object.keys(updates).some((key) => key !== 'timerId')) heldChanged.add(taskId);
@@ -616,6 +619,22 @@ export const useTasksStore = defineStore("tasks", () => {
   }
 
   /**
+   * The user's correction of a done task's completion time (kd#131, the done day of a task marked done late).
+   * Sets `completedAt` and the `completedAtCorrected` marker, which keeps the time over what the task's source
+   * returns while the task stays done (`mergeTasks`). The caller (`useTaskSync.setCompletedDay`) checks the
+   * limits, moves the completion record and pushes to the source; work sessions and time spent are not touched.
+   * @returns false for an unknown task, a task that is not done or an invalid date
+   */
+  function setCompletedAt(taskId: string, completedAt: Date): boolean {
+    const task = tasks.value.find((el) => el.id === taskId);
+    if (!task || task.status !== TaskStatus.Done || Number.isNaN(completedAt.getTime())) return false;
+    updateTask(taskId, { completedAt, completedAtCorrected: true });
+    // A new revision, so a push already in flight does not mark this edit as pushed
+    markPendingSync(taskId);
+    return true;
+  }
+
+  /**
    * Clear pending time updates for a specific task
    */
   function clearPendingTimeUpdate(taskId: string) {
@@ -822,6 +841,13 @@ export const useTasksStore = defineStore("tasks", () => {
         if (statusLock) {
           mergedTask.status = statusLock.status;
           mergedTask.completedAt = statusLock.completedAt;
+        }
+
+        // A done day the user corrected (kd#131) outlives the fetch while both sides hold the task as done: a
+        // source without a completion date would report "now", one with a date may still hold the old day
+        if (existingTask.completedAtCorrected && existingTask.completedAt && existingTask.status === TaskStatus.Done && mergedTask.status === TaskStatus.Done) {
+          mergedTask.completedAt = existingTask.completedAt;
+          mergedTask.completedAtCorrected = true;
         }
 
         // If effective local (local or pending) is greater than external, ensure pending reflects the highest local value
@@ -1081,10 +1107,12 @@ export const useTasksStore = defineStore("tasks", () => {
         // Track completion timestamp when moved to Done
         if (status === TaskStatus.Done && currentTask.status !== TaskStatus.Done) {
           task.completedAt = new Date();
+          delete task.completedAtCorrected;
         }
         // Clear completion timestamp if moved out of Done
         if (status !== TaskStatus.Done && currentTask.status === TaskStatus.Done) {
           task.completedAt = null;
+          delete task.completedAtCorrected;
         }
         
         newTasks[i] = task;
@@ -1280,6 +1308,7 @@ export const useTasksStore = defineStore("tasks", () => {
     replaceTasksWith,
     updateTaskTimespent,
     setTimeSpent,
+    setCompletedAt,
     clearPendingTimeUpdate,
     clearAllPendingTimeUpdates,
     setTasks,

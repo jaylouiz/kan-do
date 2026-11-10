@@ -16,6 +16,7 @@ import type { SourceId } from '~/types/taskSource';
 import { notifyTaskMoveRejected } from '~/lib/taskMoveEvents';
 import { useTrashStore } from '~/store/trash';
 import type { TrashEntry } from '~/types/trash';
+import { completedAtForDay } from '~/lib/doneDay';
 
 /** Where a source's setup problems are reported (the context picks the localized message). */
 const setupContextOf = (source: SourceId) => (source === 'todoist' ? 'todoist_setup' : 'notion_setup') as 'todoist_setup' | 'notion_setup';
@@ -210,6 +211,33 @@ export const useTaskSync = () => {
       if (statusWritesInFlight.get(payload.taskId) === entry) statusWritesInFlight.delete(payload.taskId);
       tasksStore.unlockTaskStatus(payload.taskId, lock);
     }
+  };
+
+  /**
+   * Sets the done day of a done task (kd#131: it was marked done a day or more late). `day` is a local
+   * `YYYY-MM-DD`; the limits and the stored time of day are `lib/doneDay` (not in the future, not before the
+   * task was created, the completion's own time of day kept). The task, its completion record and so every
+   * reader (statistics, done today / before today, the yesterday note, the recap, the Erledigt order) move at
+   * once; time spent and work sessions stay as recorded. The task is then pushed like any edit: a source that
+   * stores a completion date receives it through its adapter, and the `completedAtCorrected` marker keeps the
+   * day locally over whatever a source returns.
+   * @returns the stored completion time, or null when nothing changed (unknown or not done task, a day outside the limits)
+   */
+  const setCompletedDay = (taskId: string, day: string, now: Date = new Date()): Date | null => {
+    const task = tasksStore.task(taskId);
+    if (!task || task.status !== TaskStatus.Done) return null;
+    const completedAt = completedAtForDay(task, day, now);
+    if (!completedAt) return null;
+
+    const operationVersion = tasksStore.incrementTaskOperationVersion(taskId);
+    if (!tasksStore.setCompletedAt(taskId, completedAt)) return null;
+    const updated = tasksStore.task(taskId)!;
+    // An existing record moves, archived or not; a done task without one gets it by the backfill rules
+    if (!statisticsStore.setCompletionDate(taskId, completedAt)) {
+      statisticsStore.syncExistingDoneTasks([updated], tasksStore.archivedTaskIds);
+    }
+    void runSync(updated, undefined, operationVersion);
+    return completedAt;
   };
 
   /**
@@ -433,6 +461,10 @@ export const useTaskSync = () => {
 
     // A total the user set after this write started (kd#4) is not yet in the source: keep it over the echo
     const timeKept = tasksStore.pendingTimeUpdates[taskId]?.absolute === true;
+    // A done day the user corrected (kd#131) stays while the source still holds the task as done: a source
+    // without a completion date echoes "now"
+    const live = tasksStore.task(taskId);
+    const doneDayKept = live?.completedAtCorrected === true && live.status === TaskStatus.Done && synced.status === TaskStatus.Done;
     tasksStore.updateTask(taskId, {
       isUnplanned: synced.isUnplanned,
       ...(timeKept ? {} : { timeSpentSeconds: synced.timeSpentSeconds }),
@@ -442,7 +474,7 @@ export const useTaskSync = () => {
       topic: synced.topic,
       topicColorCode: synced.topicColorCode,
       activity: synced.activity,
-      completedAt: synced.completedAt,
+      ...(doneDayKept ? {} : { completedAt: synced.completedAt }),
       custom: synced.custom,
     });
 
@@ -822,6 +854,7 @@ export const useTaskSync = () => {
     createTask,
     updateTaskStatus,
     updateTaskStatuses,
+    setCompletedDay,
     syncTaskToIntegration,
     syncPendingChanges,
     syncArchiveStatusForTasks,

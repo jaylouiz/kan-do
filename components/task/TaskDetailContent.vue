@@ -20,6 +20,12 @@
   Aufgewendete Zeit),
   no per-row icons, no dividers; more always-visible rows must revisit the layout. The one hairline is the pin line
   above the desktop metadata footer, a boundary of the scroll region, not a row divider
+- Done day (kd#131, agent-decided): a done task gets one more row, "Erledigt am", last in the list so no other row moves
+  when a task is completed. It is the correction of a task marked done late, not part of completing: a DatePickerField
+  without Löschen, limited to the days from the task's creation to today; picking a day goes through
+  `useTaskSync.setCompletedDay` (statistics and the board's today / before-today split follow at once). The row is
+  conditional, so the six-row guard above still counts the always-visible rows. A task whose connection holds no
+  completion date says "Gilt nur in Kan-Do." beside the value
 -->
 
 <template>
@@ -239,6 +245,20 @@
             data-testid="time-remaining"
           >{{ t('task.timeStats.remaining', { time: remainingTimeText }) }}</span>
         </TaskPropertyRow>
+
+        <!-- Done day (kd#131): only on a done task; corrects the day of a task marked done late -->
+        <TaskPropertyRow v-if="doneDay" :label="t('task.field.doneDay')" data-done-day-row>
+          <DatePickerField
+            :model-value="{ start: doneDay }"
+            :label="t('task.field.doneDay')"
+            :min-day="doneDayLimits.min"
+            :max-day="doneDayLimits.max"
+            :clearable="false"
+            :disabled="isPreview"
+            @update:model-value="(val) => updateDoneDay(val?.start)"
+          />
+          <span v-if="doneDayLocalOnly" class="text-sm text-muted" data-testid="done-day-local-only">{{ t('task.doneDay.localOnly') }}</span>
+        </TaskPropertyRow>
       </div>
 
       <!-- 2. Notes: directly after the main fields on every sheet variant (#386) -->
@@ -306,6 +326,10 @@ import TaskPropertyRow from '~/components/task/TaskPropertyRow.vue';
 import TaskDetailNotes from '~/components/task/TaskDetailNotes.vue';
 import TaskDetailMetadata from '~/components/task/TaskDetailMetadata.vue';
 import TaskPropertySelect from '~/components/task/TaskPropertySelect.vue';
+import DatePickerField from '~/components/task/DatePickerField.vue';
+import { doneDayBounds } from '~/lib/doneDay';
+import { dayKey } from '~/utils/recapDay';
+import { useToday } from '~/composables/useToday';
 import TopicPropertyPicker from '~/components/task/TopicPropertyPicker.vue';
 import TopicEditorHost from '~/components/topic/TopicEditorHost.vue';
 import TaskCarryOverTriage from '~/components/task/TaskCarryOverTriage.vue';
@@ -351,7 +375,7 @@ const props = withDefaults(defineProps<{
 const tasksStore = useTasksStore();
 const propertyOptionsStore = usePropertyOptionsStore();
 const { calculateSuggestion } = useTimeboxSuggestion();
-const { syncTaskToIntegration } = useTaskSync();
+const { syncTaskToIntegration, setCompletedDay } = useTaskSync();
 const { ensureOptionsAvailable } = usePropertyOptionsSync();
 
 const isMetadataOpen = ref(false);
@@ -370,6 +394,7 @@ const {
   task,
   isError,
   taskSource,
+  doneDayLocalOnly,
   hasCustom,
   customList,
   timeSpentText,
@@ -427,6 +452,21 @@ function setTimeSpentAndSync(seconds: number) {
     const updatedTask = tasksStore.task(task.value.id);
     if (updatedTask) syncTaskToIntegration(updatedTask, undefined, operationVersion);
   }
+}
+
+// Done day (kd#131): the local calendar day of a done task's completion, and the days it may be moved to
+const { today } = useToday();
+const doneDay = computed(() => {
+  const current = task.value;
+  if (!current || current.status !== TaskStatus.Done || !current.completedAt) return null;
+  const at = new Date(current.completedAt);
+  return Number.isNaN(at.getTime()) ? null : dayKey(at);
+});
+const doneDayLimits = computed(() => doneDayBounds(task.value ?? {}, today.value));
+
+function updateDoneDay(day: string | undefined) {
+  if (!task.value || props.isPreview || !day || day === doneDay.value) return;
+  setCompletedDay(task.value.id, day);
 }
 
 // Carried-over cue (#99): the line under the title (day 2+) and the triage block's title actions
