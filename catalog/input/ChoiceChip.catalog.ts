@@ -5,7 +5,7 @@ import type { CatalogEntry } from '../types'
 export default {
   component: 'ChoiceChip',
   source: 'app',
-  alternatives: ['UButton', 'PropertyValueTrigger', 'SwatchRadioGroup'],
+  alternatives: ['UButton', 'TaskPropertySelect', 'PropertyValueTrigger', 'SwatchRadioGroup'],
   variants: [
     { id: 'pill', props: { shape: 'pill' }, slot: { $t: 'topic.hue.red' } },
     { id: 'pill-field', label: 'pill as field (Mehr)', props: { shape: 'pill', field: true }, slot: { $t: 'board.quickAdd.more' } },

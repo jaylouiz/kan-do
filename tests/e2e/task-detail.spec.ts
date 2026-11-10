@@ -357,8 +357,13 @@ test.describe('Task Detail View', () => {
     await page.getByTestId('task-priority-select').click();
     await expect.soft(page.getByRole('option'), 'priority picker: Niedrig, Normal, Hoch').toHaveText(['Niedrig', 'Normal', 'Hoch']);
     await page.keyboard.press('Escape');
-    // Plain text values: no icons, chips or badges inside the list
-    await expect.soft(list.locator('svg, [class*="badge"], .iconify'), 'properties render as labelled rows: no icons, chips or badges').toHaveCount(0);
+    // A list value is a soft select with a chevron (#114); no row icons, chips or badges beside the values
+    await expect.soft(list.locator('[class*="badge"]'), 'properties render as labelled rows: no chips or badges').toHaveCount(0);
+    expect.soft(
+      await list.locator('svg, .iconify').evaluateAll((icons) => icons.filter((icon) => !icon.closest('[aria-haspopup="listbox"]')).length),
+      'properties render as labelled rows: no icons outside the selects',
+    ).toBe(0);
+    await expect.soft(page.getByTestId('task-status-select').locator('[data-slot="trailingIcon"]'), 'a list value shows its chevron at rest').toBeVisible();
 
     // navigates to task detail page via direct URL: key elements of TaskDetailContent
     const hasNotes = await page.getByRole('heading', { name: 'Notiz' }).isVisible().catch(() => false);
@@ -384,6 +389,45 @@ test.describe('Task Detail View', () => {
       page.getByTestId('task-detail-header').getByTestId('task-actions-menu'),
       'action buttons are visible in the header without hovering',
     ).toBeVisible();
+  });
+
+  // #114: a value shows at rest what it is (no hover): a list value is a soft select with a chevron, a free value an editable label with a dotted rule
+  test('property values show their affordance at rest: soft selects for list values, a dotted rule for free values, the topic mark inside its select, a gap between rows', async ({ page, baseURL }) => {
+    await page.goto(`${baseURL}/tasks/test-task-1`);
+    const list = page.getByTestId('task-property-list');
+    await expect(list).toBeVisible();
+
+    for (const testId of ['task-status-select', 'task-priority-select', 'task-topic-select', 'task-activity-select']) {
+      const select = page.getByTestId(testId);
+      await expect.soft(select, `${testId}: filled at rest`).toHaveCSS('background-color', /^(?!rgba\(0, 0, 0, 0\)|transparent).+/);
+      await expect.soft(select.locator('[data-slot="trailingIcon"]'), `${testId}: chevron`).toBeVisible();
+      expect.soft((await select.boundingBox())?.height, `${testId}: 36 px high`).toBeCloseTo(36, 0);
+    }
+    // the topic mark is inside the select, not beside it
+    await expect.soft(page.getByTestId('task-topic-select').getByTestId('topic-mark'), 'topic mark inside the select').toHaveCount(1);
+    await expect.soft(list.getByTestId('topic-mark'), 'no second topic mark beside the select').toHaveCount(1);
+
+    // hover and focus change the fill; a click keeps it filled (no blank-out); keyboard focus draws the solid ink ring
+    const status = page.getByTestId('task-status-select');
+    const rest = await status.evaluate((el) => getComputedStyle(el).backgroundColor);
+    await status.hover();
+    await expect.poll(() => status.evaluate((el) => getComputedStyle(el).backgroundColor), 'status select: hover changes the fill').not.toBe(rest);
+    await page.mouse.move(0, 0);
+    await status.focus();
+    await page.keyboard.press('Shift+Tab');
+    await page.keyboard.press('Tab');
+    await expect.soft(status, 'status select: keyboard focus ring is solid 2px').toHaveCSS('outline-style', 'solid');
+    await expect.soft(status, 'status select: keyboard focus ring width').toHaveCSS('outline-width', '2px');
+    await expect.soft(status, 'status select: focus keeps a fill').toHaveCSS('background-color', /^(?!rgba\(0, 0, 0, 0\)|transparent).+/);
+
+    // a free value: dotted rule at rest, no fill
+    const timebox = page.getByRole('button', { name: /^Timebox: / });
+    await expect.soft(timebox, 'timebox: dotted rule at rest').toHaveCSS('text-decoration-style', 'dotted');
+    await expect.soft(timebox, 'timebox: the rule is visible, not transparent').not.toHaveCSS('text-decoration-color', 'rgba(0, 0, 0, 0)');
+
+    // rows keep a visible gap
+    const rows = await list.getByTestId('task-property-row').evaluateAll((els) => els.map((el) => el.getBoundingClientRect()));
+    for (let i = 1; i < rows.length; i++) expect.soft(rows[i].top - rows[i - 1].bottom, `rows ${i - 1} and ${i} keep a gap`).toBeGreaterThanOrEqual(4);
   });
 
   test('task sheet of an unplanned task without notes, timebox or time: empty notes, unplanned, no time block, the timebox row is the one way in', async ({ page, baseURL }) => {

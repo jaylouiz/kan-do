@@ -39,6 +39,7 @@ const SelectStub = defineComponent({
     // `data-has-extra` tells whether the wrapper passes a footer slot at all (TaskPropertySelect renders its band for it)
     return () => h('div', { 'data-stub': 'select', 'data-has-extra': String(Boolean(slots['content-extra'])) }, [
       h('button', { 'data-testid': 'trigger', onClick: () => emit('update:open', !props.open) }),
+      slots['value-leading'] ? h('span', { 'data-testid': 'value-leading' }, slots['value-leading']()) : null,
       props.open ? h('div', { 'data-testid': 'content' }, [slots['content-top']?.(), slots['content-extra']?.({})]) : null,
     ])
   },
@@ -57,6 +58,7 @@ function mountPicker(props: Record<string, unknown> = {}) {
     global: { stubs: { TaskPropertySelect: SelectStub, UButton: ButtonStub, UIcon: true, TopicMark: true } },
   })
 }
+const mountedMark = (w: ReturnType<typeof mountPicker>) => w.find('[data-testid="value-leading"]')
 const open = (w: ReturnType<typeof mountPicker>) => w.get('[data-testid="trigger"]').trigger('click')
 const toggle = (w: ReturnType<typeof mountPicker>) => w.get('[data-testid="topic-edit-toggle"]')
 
@@ -197,5 +199,15 @@ describe('TopicPropertyPicker edit mode (#443)', () => {
     await toggle(w).trigger('click')
     expect(w.findAll('[data-picker-edit-row]')).toHaveLength(2)
     expect(countOfCalls.n).toBe(2)
+  })
+
+  it('the topic mark sits inside the select through the value-leading slot, only for a set topic with a mark (#114)', () => {
+    useTasksStore().setTasks([{ ...task('a', 'Wrk'), topicColorCode: 'blue' }, task('c', 'Home')])
+    expect(mountedMark(mountPicker()).exists()).toBe(true)
+    // An unstyled topic has no mark: no leading slot, so the select keeps no empty gap
+    expect(mountedMark(mountPicker({ modelValue: 'Home' })).exists()).toBe(false)
+    expect(mountedMark(mountPicker({ modelValue: null })).exists()).toBe(false)
+    expect(mountedMark(mountPicker({ modelValue: undefined })).exists()).toBe(false)
+    expect(mountedMark(mountPicker({ kind: 'activity', label: 'Aktivität' })).exists()).toBe(false)
   })
 })

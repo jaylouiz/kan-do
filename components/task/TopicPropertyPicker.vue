@@ -6,7 +6,7 @@
 @usage Value slot of the Thema and Aktivität rows in TaskDetailContent
 @avoid Only the Thema / Aktivität rows of the task sheet; other properties use TaskPropertySelect.
 @responsibility
-- Picking mode is the plain picker (topic mark per option); options carry no control, so the open picker has no
+- The topic's mark sits inside the select, before the value (`value-leading`, #114); picking mode is the plain picker (topic mark per option); options carry no control, so the open picker has no
   button inside a `role="option"` item (axe `nested-interactive`, #430 D6)
 - "Bearbeiten" (footer) switches the same popover to edit mode: heading plus one real button per option (mark, name,
   usage count, pencil) replace search, options, "Themen verwalten" and the clear action; the footer then holds only "Fertig"
@@ -38,6 +38,9 @@
     @clear="emit('clear')"
     @create="(value) => emit('create', value)"
   >
+    <template v-if="kind === 'topic' && modelValue && hasMark" #value-leading>
+      <TopicMark :topic="modelValue" :task="task" />
+    </template>
     <template v-if="kind === 'topic'" #item-leading="{ item }">
       <TopicMark :topic="String(item)" />
     </template>
@@ -100,7 +103,9 @@ import { computed, nextTick, ref, useId, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TaskPropertySelect from '~/components/task/TaskPropertySelect.vue';
 import TopicMark from '~/components/topic/TopicMark.vue';
+import { useTopicColor } from '~/composables/useTopicColor';
 import { useTopicManagement } from '~/composables/useTopicManagement';
+import type { Task } from '~/types/task';
 
 defineOptions({ name: 'TopicPropertyPicker' });
 
@@ -116,6 +121,8 @@ const props = withDefaults(defineProps<{
   createItem?: boolean;
   /** False in the add dialog preview: the plain picker, no edit mode, no "Themen verwalten" */
   editable?: boolean;
+  /** The task the topic belongs to: its source colour marks the value inside the select */
+  task?: Pick<Task, 'source' | 'topic' | 'topicColorCode'> | null;
 }>(), {
   modelValue: undefined,
   placeholder: undefined,
@@ -123,6 +130,7 @@ const props = withDefaults(defineProps<{
   clearLabel: undefined,
   createItem: false,
   editable: true,
+  task: undefined,
 });
 
 const emit = defineEmits<{
@@ -135,6 +143,12 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const { countOf } = useTopicManagement();
+const { markOf } = useTopicColor();
+/** A topic without hue or symbol has no mark: no leading slot, so the select keeps no empty gap (#114) */
+const hasMark = computed(() => {
+  const mark = markOf(props.modelValue, props.task);
+  return !!(mark.hue || mark.symbol);
+});
 
 const isOpen = ref(false);
 const editMode = ref(false);

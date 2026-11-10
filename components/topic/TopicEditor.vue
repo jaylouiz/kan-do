@@ -250,10 +250,18 @@ function onSave() {
 }
 
 .topic-symbol-empty {
-  width: 0.5rem;
-  height: 0.5rem;
-  border: 1px dashed var(--ui-border-accented);
+  /* "none": a slashed circle, a mark in its own right (a dashed ring read as a disabled placeholder, #114) */
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid var(--ui-border-accented);
   border-radius: 50%;
+  background: linear-gradient(
+    to top right,
+    transparent calc(50% - 0.5px),
+    var(--ui-text-muted) calc(50% - 0.5px),
+    var(--ui-text-muted) calc(50% + 0.5px),
+    transparent calc(50% + 0.5px)
+  );
 }
 
 .topic-symbol-grid {
