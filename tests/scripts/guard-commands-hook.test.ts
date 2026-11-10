@@ -2,12 +2,16 @@ import { spawnSync } from 'node:child_process'
 import { chmodSync, copyFileSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 // The command guard (#387) with fake payloads: each blocked command exits 2 with a reason naming the
 // allowed alternative; everything else, including the sanctioned variants, exits 0 untouched.
 
 const root = resolve(__dirname, '../..')
+
+// Every test spawns bash, perl and sometimes jq (the jq-less ones up to eight times in a row, #126): ~0.5 s each on a
+// quiet machine, but past Vitest's 5 s default on a loaded CI runner. Sized for a runner several times slower.
+vi.setConfig({ testTimeout: 30_000 })
 
 const hook = (command: string) => spawnSync('bash', [resolve(root, '.claude/hooks/guard-commands.sh')], {
   input: JSON.stringify({ tool_input: { command } }),

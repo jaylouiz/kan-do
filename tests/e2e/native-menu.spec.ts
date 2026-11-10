@@ -138,12 +138,9 @@ test.describe('Desktop shell marker (#614)', () => {
     await expect(dialog).toBeVisible()
     const drags = async () => (await stubState(page)).calls.filter(c => c.cmd === 'plugin:window|start_dragging').length
 
-    // Inside the dialog, then below the bar row on the scrim: no drag
+    // Inside the dialog: no drag
     const box = (await dialog.boundingBox())!
     await page.mouse.move(box.x + box.width / 2, box.y + 40)
-    await page.mouse.down()
-    await page.mouse.up()
-    await page.mouse.move(2, 300)
     await page.mouse.down()
     await page.mouse.up()
     expect(await drags()).toBe(0)
@@ -154,6 +151,14 @@ test.describe('Desktop shell marker (#614)', () => {
     await page.mouse.up()
     await expect.poll(drags).toBe(1)
     await expect(dialog).toBeVisible()
+
+    // Below the bar row the scrim is an ordinary dismissal, no drag. It goes last: the dialog fades out and is gone
+    // after it, so an assertion on the dialog after it races the fade-out under load
+    await page.mouse.move(2, 300)
+    await page.mouse.down()
+    await page.mouse.up()
+    await expect(dialog).toBeHidden()
+    expect(await drags()).toBe(1)
   })
 
   test('desktop: the new-day recap, a custom full-screen layer, hands its bar row to the window drag too', async ({ context, page }) => {
@@ -164,12 +169,6 @@ test.describe('Desktop shell marker (#614)', () => {
     await expect(recap).toBeVisible()
     const drags = async () => (await stubState(page)).calls.filter(c => c.cmd === 'plugin:window|start_dragging').length
 
-    // Below the bar row: no drag
-    await page.mouse.move(2, 300)
-    await page.mouse.down()
-    await page.mouse.up()
-    expect(await drags()).toBe(0)
-
     // In the bar row, also in the middle where the recap's content wrapper sits: drag starts, recap stays
     for (const x of [2, 400]) {
       await page.mouse.move(x, 10)
@@ -178,6 +177,14 @@ test.describe('Desktop shell marker (#614)', () => {
     }
     await expect.poll(drags).toBe(2)
     await expect(recap).toBeVisible()
+
+    // Below the bar row the scrim is an ordinary dismissal (`leave()`), no drag. It goes last: the recap fades out
+    // and is gone after it, so a press (or an assertion on the recap) after it races the fade-out under load
+    await page.mouse.move(2, 300)
+    await page.mouse.down()
+    await page.mouse.up()
+    await expect(recap).toBeHidden()
+    expect(await drags()).toBe(2)
   })
 
   test('web: no drag region', async ({ context, page }) => {
