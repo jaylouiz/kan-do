@@ -8,7 +8,8 @@
 @responsibility
 - Read mode renders the notes as sanitized Markdown (utils/renderMarkdown); edit mode stays the textarea
 - Written notes use `interactive-display` so links sit beside the edit trigger, not inside role=button (#208); empty notes have no links and keep the plain trigger. The trigger element is replaced when notes flip empty/written; InlineEditable restores keyboard focus to the new one
-- Empty notes keep the muted placeholder trigger with the dotted rule; written notes use the soft hover fill (a dotted rule under every rendered line would be noise)
+- Edit affordance (kd#134, agent-decided): empty notes show the at-rest signal of a free value, the muted placeholder with the faint dotted rule (every pointer type, touch too). A written note carries no at-rest mark; hover and keyboard focus show the soft fill, a click or tap anywhere on the text edits. The reason: title and notes are the sheet's content, read far more often than edited, and text you click to edit is the convention for both; the property rows are values, and those look like controls (kd#114). Rejected for a written note: a dotted rule (under every rendered line it is noise, as one line under the block it reads as a row divider), a pencil or "Bearbeiten" at the block's edge (a new glyph grammar beside select and rule on every sheet, and the title would need the same), the fill at rest on touch (a tinted box around body text). Accepted trade-off: on touch a written note and the title show nothing until tapped; revisit both together, never the notes alone
+- The edit mode is a bordered textarea, as the topic editor's Name and the add form's fields are bordered inputs: a field of an open form is always editable and looks like an input, a value edited in place looks like its text (InlineEditable `@avoid`). Two situations, not two grammars for one
 - Save with Cmd+Enter (macOS) or Ctrl+Enter, the hint names the key of the current platform
 -->
 <template>
