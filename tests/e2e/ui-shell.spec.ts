@@ -139,7 +139,7 @@ test.describe('/ui catalog shell', () => {
         // The samples and tile previews are the app's own components (judged by a11y.spec.ts); the chrome of the page is held to AA
         const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).exclude('[data-kd-sample]').exclude('[data-kd-preview]').analyze()
         const blocking = results.violations.filter(v => v.impact === 'serious' || v.impact === 'critical')
-        expect(blocking.map(v => `${v.id}: ${v.nodes.slice(0, 3).map(n => n.target.join(' ')).join(' | ')}`)).toEqual([])
+        expect(blocking.map(v => `${v.id}: ${v.nodes.slice(0, 3).map(n => `${n.target.join(' ')} (${[...n.any, ...n.all, ...n.none].flatMap(c => c.relatedNodes ?? []).slice(0, 2).map(r => r.html.slice(0, 120)).join(' ; ')})`).join(' | ')}`)).toEqual([])
         const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
         expect(overflow).toBeLessThanOrEqual(0)
       })

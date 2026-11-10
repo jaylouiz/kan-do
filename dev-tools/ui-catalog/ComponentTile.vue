@@ -4,13 +4,14 @@
 @usage <UiCatalogComponentTile :row="row" :resolved="resolved[row.name]" /> inside a list (it renders an `li`)
 @responsibility
 - Show one sample of the entry (`tilePreview`: the default cell of a library matrix, else the first variant or state), scaled down, clipped and inert: a tile is a picture of the component, its page is where it is used
+- Nothing in the preview takes pointer events, whatever a component sets on its own parts: a clipped control still has a box outside the tile, and axe (and a pointer) would find it over the links around it
 - A component without a sample shows its kind in the preview area instead, so every tile has the same shape
 - The name is the link; it stretches over the whole tile, so the tile is one target and reads as one link in a screen reader. The link's own box is 24 px high: axe measures that box, not the stretched area (WCAG 2.2 target size)
 - Chrome of the dev tool: English, light only, semantic tokens
 -->
 <template>
   <li class="relative flex min-w-0 flex-col overflow-hidden rounded-lg border border-default bg-default focus-within:border-inverted hover:border-accented" :data-kd-tile="row.name">
-    <div class="flex h-28 items-center justify-center overflow-hidden border-b border-default bg-page p-3" aria-hidden="true" inert>
+    <div class="tile-preview flex h-28 items-center justify-center overflow-hidden border-b border-default bg-page p-3" aria-hidden="true" inert>
       <div v-if="preview && component" class="pointer-events-none flex max-h-full max-w-full scale-75 items-center justify-center">
         <UiCatalogSample
           :component="component" :sample-key="`${row.name}:${preview.group}:${preview.example.id}`" :props="preview.example.props" :slot-text="preview.example.slot" :open="preview.example.open"
@@ -45,3 +46,10 @@ const props = defineProps<{
 const component = computed(() => props.resolved?.component)
 const preview = computed(() => (props.resolved?.error ? undefined : tilePreview(props.resolved?.entry, props.resolved?.axes ?? [])))
 </script>
+
+<style scoped>
+/* A picture, not a control: a component that re-enables pointer events on a part (a card, a chip) must not win here */
+.tile-preview :deep(*) {
+  pointer-events: none !important;
+}
+</style>
