@@ -14,10 +14,9 @@ stays), a folder that already holds data offers "use the data already there" (th
 - Keeps one dialog: replace asks for confirmation inside the same modal (no modal on modal)
 -->
 <template>
-  <UModal
+  <AppDialog
     v-model:open="isOpen"
     :title="t('settings.data.modal.title')"
-    :ui="{ content: MODAL_WIDTH.md }"
     @after:leave="emit('after:leave')"
   >
     <template #body>
@@ -93,15 +92,15 @@ stays), a folder that already holds data offers "use the data already there" (th
         </UButton>
       </div>
     </template>
-  </UModal>
+  </AppDialog>
 </template>
 
 <script setup lang="ts">
+import AppDialog from '~/components/ui/AppDialog.vue';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useDataFolder, type FolderChoice } from '~/composables/useDataFolder';
 import { useLocaleFormat } from '~/composables/useLocaleFormat';
-import { MODAL_WIDTH } from '~/utils/modalSizes';
 import type { LocationMode } from '~/types/dataFile';
 
 defineOptions({ name: 'DataFolderChangeModal' });

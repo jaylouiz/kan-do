@@ -15,11 +15,11 @@ for the comparison (source vs. now), not as an "are you sure?"; the replace is r
 - Shows a failure inline and changes nothing; Cancel or Escape changes nothing
 -->
 <template>
-  <UModal
+  <AppDialog
     v-model:open="isOpen"
     :title="request?.title ?? ''"
     :dismissible="!working"
-    :ui="{ content: MODAL_WIDTH.sm }"
+    size="sm"
     @after:leave="emit('after:leave')"
   >
     <template #body>
@@ -59,10 +59,11 @@ for the comparison (source vs. now), not as an "are you sure?"; the replace is r
         </UButton>
       </div>
     </template>
-  </UModal>
+  </AppDialog>
 </template>
 
 <script setup lang="ts">
+import AppDialog from '~/components/ui/AppDialog.vue';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useDataFolder } from '~/composables/useDataFolder';
@@ -70,7 +71,6 @@ import { readWebStores } from '~/composables/useWebDataTransfer';
 import { snapshotMirror } from '~/lib/dataStorage';
 import { WebTransferError } from '~/utils/dataFile/webReplace';
 import { isTauri } from '~/utils/isTauri';
-import { MODAL_WIDTH } from '~/utils/modalSizes';
 
 defineOptions({ name: 'DataRestoreModal' });
 

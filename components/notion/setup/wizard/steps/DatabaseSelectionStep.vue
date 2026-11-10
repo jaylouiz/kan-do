@@ -34,10 +34,7 @@
       </div>
       
       <!-- Show error state -->
-      <div v-else-if="error" class="text-error-600">
-        <p class="text-sm">{{ error }}</p>
-        <p class="mt-1 text-xs text-toned">{{ t('notion.database.errorHint') }}</p>
-      </div>
+      <UAlert v-else-if="error" color="error" variant="subtle" icon="i-ph-warning-circle" :title="error" :description="t('notion.database.errorHint')" />
       
       <!-- Show empty state -->
       <div v-else class="text-toned">

@@ -14,7 +14,7 @@
 <template>
   <section :aria-labelledby="headingId" class="space-y-3">
     <div class="space-y-1">
-      <h2 :id="headingId" class="font-display text-lg font-semibold tracking-tight text-highlighted">
+      <h2 :id="headingId" class="section-heading">
         {{ t(`settings.github.${key}.title`) }}
       </h2>
       <p class="text-sm text-muted">{{ t(`settings.github.${key}.purpose`) }}</p>

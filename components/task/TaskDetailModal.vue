@@ -12,23 +12,20 @@
 -->
 
 <template>
-  <UModal
+  <AppDialog
     v-model:open="isOpen"
     :close="{ color: 'neutral', variant: 'ghost', size: 'sm' }"
-    :ui="{
-      content: MODAL_WIDTH.lg,
-      header: 'flex justify-end px-4 pt-3 pb-0 border-0',
-      body: 'p-0 overflow-y-auto max-h-[80vh]'
-    }"
+    size="lg"
+    :ui="{ header: 'flex justify-end px-4 pt-3 pb-0 border-0', body: 'p-0 overflow-y-auto max-h-[80vh]' }"
   >
     <template #body>
       <TaskDetailContent :task-id="taskId" @delete="handleDelete" />
     </template>
-  </UModal>
+  </AppDialog>
 </template>
 
 <script setup lang="ts">
-import { MODAL_WIDTH } from '~/utils/modalSizes'
+import AppDialog from '~/components/ui/AppDialog.vue';
 import { toRef, computed } from 'vue';
 import { useTaskDetail } from '~/composables/useTaskDetail';
 import { useTaskDeletion } from '~/composables/useTaskDeletion';

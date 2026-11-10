@@ -25,7 +25,7 @@ name and closes the host on `close` (the editor emits `saved` before `close`)
     :nested="nested"
     :title="t(kind === 'topic' ? 'topic.editor.titleTopic' : 'topic.editor.titleActivity')"
     :description="topic"
-    :ui="{ overlay: 'bg-inverted/40', content: 'topic-editor-drawer', header: 'px-4 pb-1', description: 'sr-only' }"
+    :ui="{ content: 'topic-editor-drawer', header: 'px-4 pb-1', description: 'sr-only' }"
     @update:open="(open: boolean) => !open && emit('close')"
   >
     <template #body>

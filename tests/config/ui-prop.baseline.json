@@ -31,23 +31,11 @@
     "count": 2,
     "reason": "forwarding *-ui props into a :ui; moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
   },
-  "components/settings/DataConflictModal.vue": {
-    "count": 1,
-    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
-  },
   "components/settings/DataFolderChangeModal.vue": {
-    "count": 2,
-    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
-  },
-  "components/settings/DataRestoreModal.vue": {
     "count": 1,
     "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
   },
   "components/settings/DataStorageNotice.vue": {
-    "count": 1,
-    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
-  },
-  "components/settings/DisconnectSourceDialog.vue": {
     "count": 1,
     "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
   },
@@ -56,10 +44,6 @@
     "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
   },
   "components/statistics/TasksTable.vue": {
-    "count": 1,
-    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
-  },
-  "components/sync/SyncWarningModal.vue": {
     "count": 1,
     "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
   },
@@ -72,7 +56,7 @@
     "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
   },
   "components/task/TaskCardContextMenu.vue": {
-    "count": 2,
+    "count": 1,
     "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
   },
   "components/task/TaskCarryOverTriage.vue": {
@@ -107,20 +91,16 @@
     "count": 1,
     "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
   },
+  "components/ui/AppDialog.vue": {
+    "count": 1,
+    "reason": "keep: the dialog wrapper hands UModal the named width and the call site's placement in one `ui`"
+  },
   "components/ui/ResponsiveOverlay.vue": {
     "count": 3,
     "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
   },
-  "components/updates/UpdateDialog.vue": {
-    "count": 1,
-    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
-  },
-  "components/updates/WhatsNewDialog.vue": {
-    "count": 1,
-    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
-  },
   "pages/settings/index.vue": {
-    "count": 2,
+    "count": 1,
     "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
   },
   "pages/settings/notion.vue": {

@@ -17,7 +17,7 @@ shared TopicEditor: an inline panel under the row at >=768px, a bottom drawer at
         <UTabs
           v-model="kind"
           :items="tabs"
-          :ui="{ trigger: 'touch-target', content: 'pt-6' }"
+          :ui="{ content: 'pt-6' }"
           @update:model-value="open = null"
         >
           <template #trailing="{ item }"><span class="text-muted">{{ item.count }}</span></template>

@@ -15,11 +15,11 @@ Notion settings page now and from the "Verbindungen" page (#324).
 - Stays open and says why when the disconnect did not happen (changes left unsynced, Keychain refused)
 -->
 <template>
-  <UModal
+  <AppDialog
     v-model:open="isOpen"
     :title="t('sources.disconnect.title', { source: sourceName })"
     :dismissible="!isBusy"
-    :ui="{ content: MODAL_WIDTH.sm }"
+    size="sm"
   >
     <template #body>
       <div class="space-y-4" data-testid="disconnect-dialog">
@@ -100,13 +100,13 @@ Notion settings page now and from the "Verbindungen" page (#324).
         />
       </div>
     </template>
-  </UModal>
+  </AppDialog>
 </template>
 
 <script setup lang="ts">
+import AppDialog from '~/components/ui/AppDialog.vue'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { MODAL_WIDTH } from '~/utils/modalSizes'
 import { integrationLabel } from '~/lib/taskSources'
 import { useSourceConnections, type DisconnectResult } from '~/composables/useSourceConnections'
 import { useTasksStore } from '~/store/tasks'

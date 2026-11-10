@@ -20,11 +20,12 @@ optional element, optional screenshot, automatic context line), the annotate ste
 - Escape/X close and keep the draft; focus returns to the board (the palette is gone)
 -->
 <template>
-  <UModal
+  <AppDialog
     :open="isOpen"
     :title="stepTitle"
     :content="contentProps"
-    :ui="{ content: step === 'annotate' ? MODAL_WIDTH.lg : MODAL_WIDTH.md, body: 'min-h-0 overflow-y-auto overscroll-contain' }"
+    :size="step === 'annotate' ? 'lg' : 'md'"
+    :ui="{ body: 'min-h-0 overflow-y-auto overscroll-contain' }"
     @update:open="handleOpenChange"
     @after:leave="onDialogLeft"
   >
@@ -269,14 +270,14 @@ v-if="logTail" v-model="draft.include.log" :label="t('feedback.review.itemLog')"
         </UButton>
       </template>
     </template>
-  </UModal>
+  </AppDialog>
 </template>
 
 <script setup lang="ts">
+import AppDialog from '~/components/ui/AppDialog.vue'
 import { ICONS } from '~/lib/icons'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { MODAL_WIDTH } from '~/utils/modalSizes'
 import { useFeedback } from '~/composables/useFeedback'
 import FeedbackAnnotator from '~/components/feedback/FeedbackAnnotator.vue'
 import FeedbackImage from '~/components/feedback/FeedbackImage.vue'

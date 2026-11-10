@@ -10,7 +10,7 @@
 - Emit `action` ('confirm' | 'cancel'); the caller applies or drops the fetched tasks. Closing the dialog is a cancel (`update:open`)
 -->
 <script setup lang="ts">
-import { MODAL_WIDTH } from '~/utils/modalSizes'
+import AppDialog from '~/components/ui/AppDialog.vue'
 import { useI18n } from 'vue-i18n'
 import { useLocaleFormat } from '~/composables/useLocaleFormat'
 import { integrationLabel } from '~/lib/taskSources'
@@ -66,11 +66,11 @@ const formatDate = (date: Date | null): string => {
 </script>
 
 <template>
-  <UModal
+  <AppDialog
     v-model:open="localOpen"
     :title="t('sync.warning.title')"
     :dismissible="false"
-    :ui="{ content: MODAL_WIDTH.sm }"
+    size="sm"
   >
     <template #body>
       <div class="space-y-4">
@@ -145,5 +145,5 @@ const formatDate = (date: Date | null): string => {
         @click="handleConfirm"
       />
     </template>
-  </UModal>
+  </AppDialog>
 </template>

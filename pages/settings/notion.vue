@@ -308,7 +308,7 @@ const tabsRef = ref<{ $el?: HTMLElement } | null>(null);
 // Desktop: the vertical list sticks below the bar and veil. Phone: a horizontal row that scrolls inside itself, full width
 const tabsUi = computed(() => isDesktopWidth.value
   ? { list: 'w-56 shrink-0 sticky sticky-below-page-header', trigger: 'justify-start', content: 'flex-1 min-w-0' }
-  : { list: 'w-full overflow-x-auto', trigger: 'grow-0 shrink-0 whitespace-nowrap touch-target', content: 'w-full min-w-0 pt-6' });
+  : { list: 'w-full overflow-x-auto', trigger: 'grow-0 shrink-0 whitespace-nowrap', content: 'w-full min-w-0 pt-6' });
 
 // Phone: the list scrolls sideways, so keep the chosen tab in view (also after a resize into phone width). Scrolls the
 // list itself, never the page.

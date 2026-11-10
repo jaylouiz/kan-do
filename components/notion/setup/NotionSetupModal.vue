@@ -12,11 +12,12 @@
 - Provides configuration options (disconnecting is the dialog of #320, opened from the "Verbindungen" page)
 -->
 <template>
-  <UModal
+  <AppDialog
     v-model:open="isOpen"
     :dismissible="false"
     :title="modalTitle"
-    :ui="{ content: MODAL_WIDTH.lg, body: 'p-0' }"
+    size="lg"
+    :ui="{ body: 'p-0' }"
   >
     <template #body>
       <div class="p-6">
@@ -105,11 +106,11 @@
         </div>
       </div>
     </template>
-  </UModal>
+  </AppDialog>
 </template>
 
 <script setup lang="ts">
-import { MODAL_WIDTH } from '~/utils/modalSizes'
+import AppDialog from '~/components/ui/AppDialog.vue';
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import WizardController from "./wizard/WizardController.vue";
