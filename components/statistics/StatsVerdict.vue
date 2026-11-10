@@ -7,7 +7,8 @@
 @avoid Only the always-open Q1 of the Statistik page; the other questions are StatsTile.
 @responsibility
 - Pick the sentence from `review.state` / `review.verdict` (empty, thin, quiet, three verdict branches); never red, never praise
-- Show the ring only in the `verdict` state (#687: with too little history a full ring read as an achievement against the headline); its `aria-label` and the line carry the same numbers
+- Empty state (kd#106, the Statistik form of the page empty state): where the ring will appear, its bare neutral track stands as a decorative placeholder (`aria-hidden`, no segment, no number), like the grey bars of the rhythm tile; hidden below `md`, where it would drop under the text and read as a spinner (the rhythm tile's bars right below are the graphic there); headline and line are the sentence and the subline
+- Show the filled ring only in the `verdict` state (#687: with too little history a full ring read as an achievement against the headline); its `aria-label` and the line carry the same numbers
 - Drop clauses that have no data (no timeboxed task now, no usual value) instead of showing zeros
 -->
 <template>
@@ -32,6 +33,7 @@
         <span class="font-display text-3xl leading-(--lh-tight) text-highlighted tabular-nums">{{ inTimeboxNow === null ? '–' : `${pct(inTimeboxNow)} %` }}</span>
         <span class="text-xs text-toned">{{ t('statistics.verdict.ring.center') }}</span>
       </StatsRing>
+      <StatsRing v-else-if="review.state === 'empty'" placeholder :size="132" :thickness="14" class="max-md:hidden" data-testid="stats-verdict-placeholder" />
     </div>
   </section>
 </template>

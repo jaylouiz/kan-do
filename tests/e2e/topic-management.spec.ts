@@ -613,6 +613,6 @@ test.describe('empty list', () => {
   test('a board without topics says where they come from', async ({ context, page }) => {
     await seedLocalBoard(context, [base({ id: 'e-1', title: 'Nur Titel', status: 0 })])
     await page.goto('/settings/topics')
-    await expect(page.getByTestId('topics-empty')).toContainText('Noch keine Themen. Sie entstehen, wenn du sie an einer Aufgabe wählst.')
+    await expect(page.getByTestId('topics-empty')).toHaveText('Noch keine Themen.Themen entstehen, wenn du sie an einer Aufgabe wählst.')
   })
 })

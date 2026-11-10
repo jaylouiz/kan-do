@@ -1085,8 +1085,10 @@
       "taskCount": "{n} task | {n} tasks",
       "fromNotion": "from Notion",
       "unused": "unused",
-      "emptyTopics": "No topics yet. They appear when you pick one on a task.",
-      "emptyActivities": "No activities yet. They appear when you pick one on a task.",
+      "emptyTopics": "No topics yet.",
+      "emptyTopicsHint": "Topics appear when you pick one on a task.",
+      "emptyActivities": "No activities yet.",
+      "emptyActivitiesHint": "Activities appear when you pick one on a task.",
       "editRow": "Edit {name}"
     }
   },
@@ -1457,6 +1459,7 @@
     "removeForeverNamed": "Delete forever: {title}",
     "removeForeverConfirm": "Delete “{title}” for good?",
     "empty": "No deleted tasks yet.",
+    "emptyHint": "Deleted tasks can be restored here.",
     "emptyTrash": "Empty trash",
     "emptyConfirm": "Delete {n} task for good? | Delete {n} tasks for good?",
     "emptyConfirmYes": "Delete for good",

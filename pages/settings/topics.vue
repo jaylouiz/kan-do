@@ -8,7 +8,7 @@ shared TopicEditor: an inline panel under the row at >=768px, a bottom drawer at
 - List `useTopicManagement().topics` / `.activities` with task counts and the source/unused note
 - Open one editor at a time (a rename re-keys it by the new name); Escape and Abbrechen close it and return focus to its row
 - Web and desktop; same sub-page pattern as /settings/updates: one flat column, no cards
-- Empty list: one calm sentence that says where topics come from
+- Empty list: the page empty state (EmptyState, kd#106): the tag icon, "Noch keine Themen." and a subline that says where topics come from; the intro line about renaming shows only with rows
 -->
 <template>
   <div>
@@ -23,7 +23,7 @@ shared TopicEditor: an inline panel under the row at >=768px, a bottom drawer at
           <template #trailing="{ item }"><span class="text-muted">{{ item.count }}</span></template>
           <template #content>
             <div class="space-y-6" data-testid="topics-panel">
-              <p class="text-sm text-muted">{{ t(kind === 'topic' ? 'settings.topics.introTopics' : 'settings.topics.introActivities') }}</p>
+              <p v-if="list.length" class="text-sm text-muted">{{ t(kind === 'topic' ? 'settings.topics.introTopics' : 'settings.topics.introActivities') }}</p>
 
               <ul v-if="list.length" class="divide-y divide-default" data-testid="topics-list">
                 <ListRow
@@ -53,9 +53,14 @@ shared TopicEditor: an inline panel under the row at >=768px, a bottom drawer at
                   </template>
                 </ListRow>
               </ul>
-              <p v-else class="text-sm text-muted" data-testid="topics-empty">
+              <EmptyState
+                v-else
+                icon="i-ph-tag-light"
+                :subline="t(kind === 'topic' ? 'settings.topics.emptyTopicsHint' : 'settings.topics.emptyActivitiesHint')"
+                data-testid="topics-empty"
+              >
                 {{ t(kind === 'topic' ? 'settings.topics.emptyTopics' : 'settings.topics.emptyActivities') }}
-              </p>
+              </EmptyState>
             </div>
           </template>
         </UTabs>
@@ -68,6 +73,7 @@ shared TopicEditor: an inline panel under the row at >=768px, a bottom drawer at
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import TopicMark from '~/components/topic/TopicMark.vue'
+import EmptyState from '~/components/ui/EmptyState.vue'
 import ListRow from '~/components/ui/ListRow.vue'
 import TopicEditorHost from '~/components/topic/TopicEditorHost.vue'
 import { useTopicManagement } from '~/composables/useTopicManagement'

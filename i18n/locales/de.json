@@ -1085,8 +1085,10 @@
       "taskCount": "{n} Aufgabe | {n} Aufgaben",
       "fromNotion": "aus Notion",
       "unused": "ungenutzt",
-      "emptyTopics": "Noch keine Themen. Sie entstehen, wenn du sie an einer Aufgabe wählst.",
-      "emptyActivities": "Noch keine Aktivitäten. Sie entstehen, wenn du sie an einer Aufgabe wählst.",
+      "emptyTopics": "Noch keine Themen.",
+      "emptyTopicsHint": "Themen entstehen, wenn du sie an einer Aufgabe wählst.",
+      "emptyActivities": "Noch keine Aktivitäten.",
+      "emptyActivitiesHint": "Aktivitäten entstehen, wenn du sie an einer Aufgabe wählst.",
       "editRow": "{name} bearbeiten"
     }
   },
@@ -1457,6 +1459,7 @@
     "removeForeverNamed": "Endgültig löschen: {title}",
     "removeForeverConfirm": "„{title}“ endgültig löschen?",
     "empty": "Noch keine gelöschten Aufgaben.",
+    "emptyHint": "Gelöschte Aufgaben lassen sich hier wiederherstellen.",
     "emptyTrash": "Papierkorb leeren",
     "emptyConfirm": "{n} Aufgabe endgültig löschen? | {n} Aufgaben endgültig löschen?",
     "emptyConfirmYes": "Endgültig löschen",
