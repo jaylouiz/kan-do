@@ -361,7 +361,7 @@ describe('NewCardFlow (#649)', () => {
     expect(sync.createTask.mock.calls[0]![0]).toMatchObject({ topic: 'Design', topicColorCode: null })
   })
 
-  it('kd#16: Thema and Aktivität show up to three pills and the Mehr cell (key 4); Timebox keeps two pills and "···" (key 3)', async () => {
+  it('kd#16: Thema and Aktivität show up to three pills and the Mehr cell (key 4); Timebox shows three pills and "···" (key 4, kd#119)', async () => {
     mountFlow()
     await confirmTitle()
     const pills = () => w.get('[data-testid="new-card-options"]').findAll('button.ncf__pill:not(.ncf__pill--more)')
@@ -375,8 +375,8 @@ describe('NewCardFlow (#649)', () => {
     expect(w.get('[data-testid="new-card-more"]').attributes('aria-keyshortcuts')).toBe('4')
     await pressOnPanel('Enter')
     expect(stepKey()).toBe('timebox')
-    expect(pills()).toHaveLength(2)
-    expect(w.get('[data-testid="new-card-more"]').attributes('aria-keyshortcuts')).toBe('3')
+    expect(pills().map((pill) => pill.text())).toEqual(['15 min', '30 min', '60 min'].map((v) => expect.stringContaining(v)))
+    expect(w.get('[data-testid="new-card-more"]').attributes('aria-keyshortcuts')).toBe('4')
     expect(w.get('[data-testid="new-card-more"]').classes()).not.toContain('choice-chip--field')
   })
 

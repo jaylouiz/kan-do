@@ -41,7 +41,7 @@ shared TopicEditor: an inline panel under the row at >=768px, a bottom drawer at
                   <span class="flex items-center gap-3">
                     <span class="grid size-6 shrink-0 place-items-center"><TopicMark v-if="kind === 'topic'" :topic="name" /></span>
                     <span class="min-w-0 flex-1">
-                      <span class="block truncate text-default" data-private>{{ name }}</span>
+                      <MiddleEllipsis class="text-default" :text="name" data-private />
                       <span class="block text-sm text-muted" data-testid="topics-row-meta">{{ metaOf(name) }}</span>
                     </span>
                     <UIcon :name="open === name ? 'i-ph-caret-up' : 'i-ph-pencil-simple'" class="size-4 shrink-0 text-muted" aria-hidden="true" />
@@ -69,6 +69,7 @@ import { computed, nextTick, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import TopicMark from '~/components/topic/TopicMark.vue'
 import ListRow from '~/components/ui/ListRow.vue'
+import MiddleEllipsis from '~/components/ui/MiddleEllipsis.vue'
 import TopicEditorHost from '~/components/topic/TopicEditorHost.vue'
 import { useTopicManagement } from '~/composables/useTopicManagement'
 import type { NameKind } from '~/lib/topicNames'

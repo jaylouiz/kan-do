@@ -9,6 +9,7 @@
 - Search (Thema, Aktivität): the text filters every value of the step, pills included; a "Neu" row shows when no value has that name (any case) and the source allows free values (`newValues`, the source's rules clean the text: Notion turns commas into spaces and cuts at 100 characters, so the row shows what would be created); without free values the field only searches
 - Enter in the field: a value named exactly as typed (any case) is picked, else the first match, else the text is created (a partial match never creates by accident: the "Neu" row is the first stop of ArrowDown, or a tap); no match shows "Keine Treffer gefunden." (a status line)
 - Keys: ↑/↓ (wrapping) walk field, "Neu" row and options; Home/End jump between options only while focus is not in the field (there they move the caret); handled keys stop here so no surrounding handler sees them (kd#15). Digits typed in the field never reach the step's 1-4 keys (the parent ignores keys while the list is open)
+- A long value is cut in the middle (`MiddleEllipsis`, kd#119), so values with the same beginning stay apart; the "Neu" row shows the typed text cut at the end (it is in the field above in full)
 - Options are `ChoiceChip` rows (native buttons) with one shared handler (not UDropdownMenu: the drawer has no menu primitive, kd#15)
 -->
 <template>
@@ -55,7 +56,7 @@
       @click="emit('pick', value)"
     >
       <TopicMark v-if="showMark" :topic="value" />
-      <span class="truncate" :data-private="searchable ? '' : undefined">{{ optionLabel(value) }}</span>
+      <MiddleEllipsis :text="optionLabel(value)" :data-private="searchable ? '' : undefined" />
     </ChoiceChip>
     <p v-if="searchable && query.trim() && !creatable && !shown.length && !existing" class="px-3 py-2 text-sm text-muted" role="status" data-testid="new-card-no-match">
       {{ t('board.quickAdd.noMatch') }}
@@ -68,6 +69,7 @@ import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TopicMark from '~/components/topic/TopicMark.vue';
 import ChoiceChip from '~/components/ui/ChoiceChip.vue';
+import MiddleEllipsis from '~/components/ui/MiddleEllipsis.vue';
 import { existingValueFor, filterRest, newValueFor, type NewValueRules } from '~/lib/quickAddSuggestions';
 
 defineOptions({ name: 'NewCardOptionList' });

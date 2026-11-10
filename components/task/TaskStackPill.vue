@@ -10,7 +10,8 @@
   the mark); priority 1-3 = the real TaskPriorityBadge as the segment itself (no hairline after it); activity,
   custom/Notion value and the empty group = the plain name
 - Right segment is the stack icon (`i-ph-stack`) and the count; it never shrinks, a large count widens it only
-- The property segment is capped at 10rem and truncates with an ellipsis (look decision, tune here); the full
+- The property segment is capped at 10rem and is cut in the middle (`MiddleEllipsis`, kd#119: stacks of "Karriere: Bewerbung" and
+  "Karriere: Weiterbildung" stay apart; the cap is a look decision, tune here); the full
   name stays in the stack control's accessible name, so there is no tooltip. The pill is decorative: the
   visible word "Aufgaben" is gone, the control still says it
 - Soft neutral like the former text pill (`bg-muted`, label role 500 / 0.6875rem, 0.75rem on touch), 1.5rem
@@ -23,7 +24,7 @@
       <task-priority-badge v-if="kind === 'priority'" :priority="Number(groupKey)" size="sm" />
       <template v-else>
         <topic-mark v-if="kind === 'topic'" :topic="firstTask?.topic" :task="firstTask" />
-        <span class="task-stack-pill__text" data-private>{{ label }}</span>
+        <MiddleEllipsis class="task-stack-pill__text" :text="label" data-private />
       </template>
     </span>
     <span class="task-stack-pill__count">
@@ -36,6 +37,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import TopicMark from "~/components/topic/TopicMark.vue";
+import MiddleEllipsis from "~/components/ui/MiddleEllipsis.vue";
 import TaskPriorityBadge from "~/components/task/TaskPriorityBadge.vue";
 import { useBoardGrouping } from "~/composables/useBoardGrouping";
 import { PRIORITY_LABEL_KEYS } from "~/utils/taskStatusMappings";
@@ -98,7 +100,7 @@ const kind = computed<"topic" | "priority" | "plain">(() => {
   white-space: nowrap;
 }
 
-/* Property: shrinks first, capped at 10rem (160px), truncates with an ellipsis */
+/* Property: shrinks first, capped at 10rem (160px); MiddleEllipsis cuts the name */
 .task-stack-pill__prop {
   min-width: 0;
   max-width: 10rem;
@@ -107,8 +109,6 @@ const kind = computed<"topic" | "priority" | "plain">(() => {
 
 .task-stack-pill__text {
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* Count: never shrinks; the hairline separates it from the property */

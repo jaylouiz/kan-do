@@ -59,7 +59,7 @@
               @click="onRow($event, name)"
             >
               <TopicMark v-if="kind === 'topic'" :topic="name" />
-              <span class="flex-1 truncate" data-private>{{ name }}</span>
+              <MiddleEllipsis class="flex-1" :text="name" data-private />
               <!-- The leading spaces keep the accessible name "<Name> <N Aufgaben> bearbeiten" spaced in every engine; layout drops them -->
               <span class="shrink-0 text-xs text-muted">{{ ` ${t('settings.topics.taskCount', { n: count }, count)}` }}</span>
               <span class="sr-only">{{ ` ${t('topic.picker.rowEdit')}` }}</span>
@@ -103,6 +103,7 @@ import { computed, nextTick, ref, useId, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TaskPropertySelect from '~/components/task/TaskPropertySelect.vue';
 import TopicMark from '~/components/topic/TopicMark.vue';
+import MiddleEllipsis from '~/components/ui/MiddleEllipsis.vue';
 import { useTopicColor } from '~/composables/useTopicColor';
 import { useTopicManagement } from '~/composables/useTopicManagement';
 import type { Task } from '~/types/task';
