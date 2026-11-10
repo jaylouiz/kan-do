@@ -117,6 +117,37 @@ describe('radius', () => {
   })
 })
 
+describe('gaps closed by #110', () => {
+  it('flags a literal radius behind a var() fallback, passes a token or scale fallback', () => {
+    expect(scan('RadiusFallback.vue', style(
+      'border-radius: var(--radius-md, 4px);',
+      'border-radius: var(--radius-md, var(--radius-sm));',
+      'border-radius: var(--radius-md, 0);',
+      'border-radius: var(--a, 2px) var(--b);',
+    ))).toEqual(['3: border-radius:', '6: border-radius:'])
+  })
+
+  it('flags a colour literal in scrollbar-color, passes tokens and keywords', () => {
+    expect(scan('Scrollbar.vue', style(
+      'scrollbar-color: #888 transparent;',
+      'scrollbar-color: white transparent;',
+      'scrollbar-color: color-mix(in oklab, var(--focus-dusk) 35%, transparent) transparent;',
+      'scrollbar-color: auto;',
+      'scroll-snap-type: x mandatory;',
+    ))).toEqual(['3: scrollbar-color:', '4: scrollbar-color:'])
+  })
+
+  it('does not let a glob string open a fake comment that hides what follows', () => {
+    const source = '<script setup lang="ts">\nconst glob = \'components/*.vue\'\nconst bad = \'#b8256f\'\nconst other = \'a/*b*/\'\n</script>\n<template><div class="bg-red-500" /></template>\n<style scoped>\n.a { color: #fff; }\n</style>'
+    expect(scan('Glob.vue', source)).toEqual(['3: \'#b8256f\'', '6: bg-red-500', '8: color:'])
+  })
+
+  it('still ignores a real comment, also one after a closed string', () => {
+    const source = '<script setup lang="ts">\nconst a = \'x\' /* \'#fff\' */ + \'y\'\n/* "#000" */\n</script>\n<template><div /></template>'
+    expect(scan('Real.vue', source)).toEqual([])
+  })
+})
+
 describe('allowlist', () => {
   it('names a reason for every entry and skips those files', () => {
     for (const reason of Object.values(LITERAL_ALLOWLIST)) expect(reason.length).toBeGreaterThan(10)
