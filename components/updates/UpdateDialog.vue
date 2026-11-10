@@ -14,13 +14,14 @@ current version, says that data is backed up first and the app restarts, and ins
 - Highlights of the new version come from getUpdateNotes() (#226): with them, the line "Neu seit deiner Version (x):" labels the list (#390); without (null), "Du nutzt x." stays and no list renders
 -->
 <template>
-  <UModal
+  <AppDialog
     v-model:open="isOpen"
     :title="update ? t('updates.dialog.title', { version: update.version }) : t('updates.dialog.titleFallback')"
     :description="t('updates.dialog.description')"
     :dismissible="!state.installing"
     :close="!state.installing"
-    :ui="{ content: MODAL_WIDTH.sm, description: 'sr-only' }"
+    size="sm"
+    hide-description
   >
     <template #body>
       <div v-if="update" class="space-y-3">
@@ -79,15 +80,15 @@ current version, says that data is backed up first and the app restarts, and ins
         </UButton>
       </div>
     </template>
-  </UModal>
+  </AppDialog>
 </template>
 
 <script setup lang="ts">
+import AppDialog from '~/components/ui/AppDialog.vue';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAppUpdater } from '~/composables/useAppUpdater';
 import { getUpdateNotes } from '~/lib/updateNotes';
-import { MODAL_WIDTH } from '~/utils/modalSizes';
 import type { UpdateInstallFailure } from '~/types/updater';
 
 defineOptions({ name: 'UpdateDialog' });

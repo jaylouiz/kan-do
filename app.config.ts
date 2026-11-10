@@ -39,6 +39,43 @@ const buttonRoleCompounds = [
   { color: 'error' as const, variant: 'link' as const, class: BUTTON_ROLE_LINK.error }
 ]
 
+// Badge and alert colour roles below AA (kd#123), same steps as the buttons above: the role text on the page, the
+// sheet and the role's own 10% wash, white on the solid fill. No call site uses most of them today; the `/ui` matrix
+// showed them and tests/config/role-contrast.test.ts guards the whole matrix. Literal class names, like above.
+const ROLE_TEXT = {
+  primary: 'text-primary-600',
+  secondary: 'text-secondary-700',
+  success: 'text-success-800',
+  info: 'text-info-700',
+  warning: 'text-warning-700',
+  error: 'text-error-700'
+} as const
+// A notice is read, not scanned: its text takes the deeper 800 step the subtle alerts already use (#353, #368, #74)
+const ALERT_ROLE_TEXT = {
+  primary: 'text-primary-700',
+  secondary: 'text-secondary-800',
+  success: 'text-success-800',
+  info: 'text-info-800',
+  warning: 'text-warning-800',
+  error: 'text-error-800'
+} as const
+const ROLE_FILL = {
+  secondary: 'bg-secondary-700',
+  success: 'bg-success-700',
+  info: 'bg-info-700',
+  warning: 'bg-warning-700'
+} as const
+const ROLE_NAMES = ['primary', 'secondary', 'success', 'info', 'warning', 'error'] as const
+const ROLE_TEXT_VARIANTS = ['outline', 'soft', 'subtle'] as const
+const badgeRoleCompounds = [
+  ...ROLE_NAMES.flatMap((color) => ROLE_TEXT_VARIANTS.map((variant) => ({ color, variant, class: ROLE_TEXT[color] }))),
+  ...(['secondary', 'success', 'info', 'warning'] as const).map((color) => ({ color, variant: 'solid' as const, class: ROLE_FILL[color] }))
+]
+const alertRoleCompounds = [
+  ...ROLE_NAMES.flatMap((color) => ROLE_TEXT_VARIANTS.map((variant) => ({ color, variant, class: { root: ALERT_ROLE_TEXT[color] } }))),
+  ...(['secondary', 'success', 'info', 'warning'] as const).map((color) => ({ color, variant: 'solid' as const, class: { root: ROLE_FILL[color] } }))
+]
+
 export default defineAppConfig({
   ui: {
     // tailwind-merge does not know our `--text-*` type roles (main.css `@theme`, #70): without this `text-label/3` reads as
@@ -311,6 +348,13 @@ export default defineAppConfig({
           variant: 'subtle',
           class: 'text-primary-600'
         },
+        // Hover and press of the primary text variants (kd#124): ink-500 on its own 10% hover wash measures 4.44:1 on the
+        // page, and the link fades to 75% (3.1:1). Deep Ink on hover and press, the rest state stays.
+        ...(['outline', 'ghost', 'link'] as const).map((variant) => ({
+          color: 'primary' as const,
+          variant,
+          class: 'hover:text-primary-600 active:text-primary-600'
+        })),
         // The base error and neutral solid fades to 75% on hover (3.3:1 and 3.9:1 with white text, #97): deepen it like the primary instead
         {
           color: 'error',
@@ -329,6 +373,10 @@ export default defineAppConfig({
     // white chip, no ink fill. Nuxt UI's neutral pill fills the active tab with `bg-inverted`; the second class on the
     // `before:` selector covers a list without an indicator. Unselected text stays `text-muted` from the base slot.
     tabs: {
+      slots: {
+        // Phone: every tab is a 44px target (DESIGN.md "Touch targets"), like the button floor above; no call site sets it
+        trigger: 'max-md:min-h-11 max-md:min-w-11'
+      },
       compoundVariants: [
         // Solid offset ring, not Nuxt UI's 25% halo (~1.9:1 on the grey track): DESIGN.md "Focus", WCAG 2.4.11.
         // A compound variant, because Nuxt UI's own neutral compounds carry `focus-visible:outline-3`.
@@ -356,44 +404,12 @@ export default defineAppConfig({
       }
     },
     alert: {
-      compoundVariants: [
-        // Subtle warning/info: the default orange text on the warning/10 wash measures ~2.6:1 (#353); warning-800 meets AA, and the description keeps full opacity
-        {
-          color: 'warning',
-          variant: 'subtle',
-          class: {
-            root: 'text-warning-800',
-            description: 'opacity-100'
-          }
-        },
-        // Same for subtle error (the plain error lines became UAlert, #74): error-500 on the error/10 wash is below AA
-        {
-          color: 'error',
-          variant: 'subtle',
-          class: {
-            root: 'text-error-800',
-            description: 'opacity-100'
-          }
-        },
-        // Same for subtle success (the upload probe's "allowed", #74): teal-500 on the success/10 wash is below AA
-        {
-          color: 'success',
-          variant: 'subtle',
-          class: {
-            root: 'text-success-800',
-            description: 'opacity-100'
-          }
-        },
-        // Same for subtle info: sky-500 on the info/10 wash is below AA (#368)
-        {
-          color: 'info',
-          variant: 'subtle',
-          class: {
-            root: 'text-info-800',
-            description: 'opacity-100'
-          }
-        }
-      ]
+      slots: {
+        // Full-strength description: Nuxt UI's `opacity-90` takes every role's text below AA on its own wash (#353, kd#123)
+        description: 'opacity-100'
+      },
+      // Role text on the role's wash: the default 500 step measures 1.8 to 4.1:1 (#353, #368, #74, kd#123)
+      compoundVariants: alertRoleCompounds
     },
     badge: {
       variants: {
@@ -408,7 +424,8 @@ export default defineAppConfig({
           color: 'neutral',
           variant: 'soft',
           class: 'text-default bg-accented'
-        }
+        },
+        ...badgeRoleCompounds
       ]
     },
     // Off state of a switch (#683): the stock soft-grey track (neutral-200) is 1.1:1 on the page wash, under the 3:1 of WCAG 1.4.11.

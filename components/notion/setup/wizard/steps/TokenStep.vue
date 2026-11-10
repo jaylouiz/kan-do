@@ -13,11 +13,11 @@
 -->
 <template>
   <div>
-    <h2 class="mb-4 text-2xl">{{ t('notion.token.heading') }}</h2>
+    <h2 class="mb-4 section-heading">{{ t('notion.token.heading') }}</h2>
     <div v-if="infoMessage" class="mb-4">
       <UAlert
         color="warning"
-        variant="soft"
+        variant="subtle"
         icon="i-ph-warning"
         :title="t('notion.token.hintTitle')"
         :description="infoMessage"

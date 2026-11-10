@@ -14,11 +14,12 @@ version since the last one seen, newest first. Opened by the "Was ist neu" butto
 - No version with highlights (re-open only): one muted line
 -->
 <template>
-  <UModal
+  <AppDialog
     v-model:open="isOpen"
     :title="t('whatsNew.title')"
     :description="t('whatsNew.description')"
-    :ui="{ content: MODAL_WIDTH.sm, description: 'sr-only' }"
+    size="sm"
+    hide-description
   >
     <template #body>
       <div class="max-h-96 space-y-6 overflow-y-auto" tabindex="0" data-testid="whats-new-body">
@@ -43,15 +44,15 @@ version since the last one seen, newest first. Opened by the "Was ist neu" butto
         </UButton>
       </div>
     </template>
-  </UModal>
+  </AppDialog>
 </template>
 
 <script setup lang="ts">
+import AppDialog from '~/components/ui/AppDialog.vue';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import EmptyNote from '~/components/ui/EmptyNote.vue';
 import { useWhatsNew } from '~/composables/useWhatsNew';
-import { MODAL_WIDTH } from '~/utils/modalSizes';
 
 defineOptions({ name: 'WhatsNewDialog' });
 

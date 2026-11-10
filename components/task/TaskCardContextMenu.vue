@@ -40,10 +40,10 @@
   </UContextMenu>
 
   <!-- Custom timebox modal -->
-  <UModal
+  <AppDialog
     v-model:open="showTimeboxModal"
     :title="t('task.contextMenu.setTimebox')"
-    :ui="{ content: MODAL_WIDTH.sm }"
+    size="sm"
   >
     <template #body>
       <div class="space-y-4">
@@ -83,11 +83,11 @@
         {{ t('common.apply') }}
       </UButton>
     </template>
-  </UModal>
+  </AppDialog>
 </template>
 
 <script setup lang="ts">
-import { MODAL_WIDTH } from '~/utils/modalSizes'
+import AppDialog from '~/components/ui/AppDialog.vue';
 import { ref, computed, toRef, watch, nextTick, onMounted, onBeforeUnmount } from "vue";
 import { useI18n } from "vue-i18n";
 import type { Task } from "~/types/task";

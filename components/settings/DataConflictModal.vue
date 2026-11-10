@@ -16,11 +16,10 @@ it collapses to one action, "Neu laden".
 - Disables the choice that would be unsafe: keeping mine over a newer-schema file, loading an unreadable one
 -->
 <template>
-  <UModal
+  <AppDialog
     v-model:open="isOpen"
     :title="t('settings.data.conflict.title')"
     :dismissible="!working"
-    :ui="{ content: MODAL_WIDTH.md }"
   >
     <template #body>
       <div v-if="conflict" class="space-y-4" data-testid="data-conflict-modal">
@@ -91,17 +90,17 @@ it collapses to one action, "Neu laden".
         </UButton>
       </div>
     </template>
-  </UModal>
+  </AppDialog>
 </template>
 
 <script setup lang="ts">
+import AppDialog from '~/components/ui/AppDialog.vue';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useDataFolder } from '~/composables/useDataFolder';
 import { useLocaleFormat } from '~/composables/useLocaleFormat';
 import { dataState } from '~/lib/dataStorage';
 import { CURRENT_SCHEMA_VERSION } from '~/utils/dataFile/envelope';
-import { MODAL_WIDTH } from '~/utils/modalSizes';
 import type { ConflictChoice } from '~/types/dataFile';
 
 defineOptions({ name: 'DataConflictModal' });

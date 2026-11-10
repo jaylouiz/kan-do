@@ -170,11 +170,8 @@ describe('button colour contrast (#97)', () => {
     expect(failing).toEqual([])
   })
 
-  it('every solid role, and every variant of the four roles without a call site, keeps 4.5:1 on hover and press', () => {
-    // The hover of the text variants of `primary`, `error` and `neutral` (a link fades to 75%) is outside this issue: see the PR.
-    const failing = COLORS.flatMap((role) => VARIANTS
-      .filter((variant) => variant === 'solid' || (['secondary', 'success', 'info', 'warning'] as const).some((r) => r === role))
-      .flatMap((variant) => ratios(role, variant, 'hover')))
+  it('every role x variant keeps 4.5:1 on hover and press (WCAG 1.4.3 applies to the hover state of text, kd#124)', () => {
+    const failing = COLORS.flatMap((role) => VARIANTS.flatMap((variant) => ratios(role, variant, 'hover')))
       .filter(([, ratio]) => ratio < 4.5)
       .map(([label, ratio]) => `${label}: ${ratio.toFixed(2)}`)
     expect(failing).toEqual([])

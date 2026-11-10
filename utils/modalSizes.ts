@@ -1,9 +1,9 @@
 /**
  * Shared modal width scale.
  *
- * Nuxt UI v4's UModal has no `size` prop, so the named widths are applied via
- * `:ui="{ content: MODAL_WIDTH.<size> }"`. Every `UModal` declares one of
- * these; do not add ad-hoc max-width classes (see DESIGN.md, Dialogs).
+ * Nuxt UI v4's UModal has no `size` prop, so `AppDialog` (`components/ui/AppDialog.vue`) applies the named
+ * width from its own `size` prop; `ResponsiveOverlay` call sites pass one through `desktopUi`. Do not add
+ * ad-hoc max-width classes (see DESIGN.md, Dialogs).
  *
  * - sm: confirmations and one-field prompts (reset, sync warning, timebox)
  * - md: settings and simple forms (mode settings, local setup)

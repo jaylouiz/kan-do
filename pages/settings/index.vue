@@ -32,7 +32,6 @@ Speicher, and on desktop Updates and GitHub-Zugriff).
           :items="tabItems"
           :content="false"
           class="w-full"
-          :ui="{ trigger: 'touch-target' }"
           data-testid="settings-tabs"
           @update:model-value="onTabChange"
         />
