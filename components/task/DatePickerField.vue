@@ -39,7 +39,7 @@
           data-testid="date-picker-calendar"
           @update:model-value="onSelectDate"
         />
-        <div class="mt-2 flex items-center border-t pt-2" :class="clearable ? 'justify-between' : 'justify-end'">
+        <div class="mt-2 flex items-center border-t border-default pt-2" :class="clearable ? 'justify-between' : 'justify-end'">
           <UButton
             v-if="clearable"
             size="sm"
