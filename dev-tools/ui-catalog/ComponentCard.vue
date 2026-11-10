@@ -36,9 +36,12 @@
       <div v-if="entry?.alternatives.length" class="lg:col-span-3">
         <dt class="text-xs text-muted">Alternatives</dt>
         <dd class="text-default">
-          <template v-for="(name, index) in entry.alternatives" :key="name">
-            <NuxtLink :to="{ path: '/ui', query: { c: name } }" class="underline underline-offset-2">{{ name }}</NuxtLink><template v-if="index < entry.alternatives.length - 1">, </template>
-          </template>
+          <!-- a wrapping list with a gap, each link at least 24 px high: comma-run inline links fall below the WCAG 2.2 target size when they wrap -->
+          <ul class="flex flex-wrap gap-x-4 gap-y-1">
+            <li v-for="name in entry.alternatives" :key="name">
+              <NuxtLink :to="{ path: '/ui', query: { c: name } }" class="inline-flex min-h-6 items-center underline underline-offset-2">{{ name }}</NuxtLink>
+            </li>
+          </ul>
         </dd>
       </div>
     </dl>
