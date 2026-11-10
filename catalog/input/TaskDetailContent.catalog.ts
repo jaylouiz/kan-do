@@ -5,7 +5,8 @@ export default {
   component: 'TaskDetailContent',
   source: 'app',
   alternatives: ['TaskForm', 'TaskPropertyRow'],
-  sampleNote:
-    'the task sheet\'s body: it edits the open task through useTaskDetail and the stores; task-detail.spec.ts exercises it.',
+  host: 'board',
+  screen: '/tasks',
+  variants: [{ id: 'open', label: 'first Offen task of the demo board', fixture: 'firstOpenTask', props: { isPreview: true } }],
   states: [],
 } satisfies CatalogEntry

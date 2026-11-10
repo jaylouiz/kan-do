@@ -5,6 +5,8 @@ export default {
   component: 'TaskSheet',
   source: 'app',
   alternatives: ['ResponsiveOverlay', 'TaskDetailModal'],
-  sampleNote: 'is an overlay: opened, it covers the page it is shown in, so it has no inline sample. It opens from its trigger in the app; it hosts the nested task routes.',
+  launch: 'open',
+  screen: '/tasks',
+  variants: [{ id: 'add', label: 'add-task sheet with a title', props: { title: 'Neue Aufgabe' }, slot: 'Inhalt des Blatts' }],
   states: [],
 } satisfies CatalogEntry

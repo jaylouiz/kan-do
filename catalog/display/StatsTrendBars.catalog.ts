@@ -4,7 +4,11 @@ import type { CatalogEntry } from '../types'
 export default {
   component: 'StatsTrendBars',
   source: 'app',
-  alternatives: [],
-  sampleNote: 'takes WeekPoint records with Date objects, which an entry (plain data) cannot hold; shown on /statistics.',
+  alternatives: ['StatsWeekTable'],
+  screen: '/statistics',
+  variants: [
+    { id: 'weeks', label: 'eight weeks of the demo board', fixture: 'statsWeeks' },
+    { id: 'labelled', label: 'labelled', fixture: 'statsWeeks', props: { labelled: true } },
+  ],
   states: [],
 } satisfies CatalogEntry

@@ -1,10 +1,12 @@
 import type { CatalogEntry } from '../types'
 
-/** Description, usage and avoid come from the doc block of the component (the manifest). */
+/** Description, usage and avoid come from the doc block of the component (the manifest). The request's `run` of the sample replaces nothing. */
 export default {
   component: 'DataRestoreModal',
   source: 'app',
   alternatives: ['DataConflictModal', 'UModal'],
-  sampleNote: 'is an overlay: opened, it covers the page it is shown in, so it has no inline sample. It opens from its trigger in the app; it needs a restore request.',
+  launch: 'open',
+  screen: '/settings/data',
+  variants: [{ id: 'backup', label: 'restore a backup', fixture: 'restoreRequest' }],
   states: [],
 } satisfies CatalogEntry

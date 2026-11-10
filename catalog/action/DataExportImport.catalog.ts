@@ -9,6 +9,7 @@ export default {
   component: 'DataExportImport',
   source: 'app',
   alternatives: ['UButton'],
+  screen: '/settings/data',
   sampleNote:
     'a block is registered, not refactored (epic #58): it reads the desktop data status and the stores of /settings/data, which /ui does not provide.',
   states: [],

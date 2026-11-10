@@ -11,6 +11,7 @@
  * the only source: the manifest has no hand-written field.
  *
  * Row: `{ name, path, source, kind, category, tier, area, description, usage, avoid, responsibility, variants, states, usedBy }`.
+ * A library row also has `usedValues` (the static values the app's templates pass for its matrix axes, `usedValues()`).
  * `tier` (`kit` or `feature`) and `area` are derived (`tierOf`, `areaOf`), never written in a doc block.
  * `source` is `app` (a component of this repo, text from its doc block) or `nuxt-ui` (a library component the catalog
  * (#66) shows; its row comes from `catalog/<category>/<Name>.catalog.ts`, which carries the text). `variants` and
@@ -137,6 +138,27 @@ function usedBy(name, path, sources) {
 }
 
 /**
+ * The static values the app's templates pass for the given props (`<UButton size="sm">` gives `{ size: ['sm'] }`),
+ * sorted; a prop nothing sets is left out. Bound props (`:size="x"`) are not seen, so this is the floor of what is in use, not the ceiling; `/ui` uses it
+ * to show the values the app really uses before the whole theme.
+ * @param {string} name
+ * @param {Array<[string, string]>} sources
+ * @param {string[]} props
+ * @returns {Record<string, string[]>}
+ */
+export function usedValues(name, sources, props) {
+  const tag = new RegExp(`<(?:Lazy)?(?:${escapeRegExp(name)}|${escapeRegExp(kebab(name))})(?![A-Za-z0-9-])([^>]*)`, 'g')
+  /** @type {Record<string, Set<string>>} */
+  const values = {}
+  for (const [, source] of sources) {
+    for (const match of source.matchAll(tag)) {
+      for (const attr of match[1].matchAll(/(?:^|\s)([a-z][a-zA-Z-]*)="([a-z0-9-]+)"/g)) if (props.includes(attr[1])) (values[attr[1]] ??= new Set()).add(attr[2])
+    }
+  }
+  return Object.fromEntries(Object.entries(values).sort(([a], [b]) => a.localeCompare(b)).map(([key, set]) => [key, [...set].sort()]))
+}
+
+/**
  * Every catalog entry file (`catalog/<category>/<Name>.catalog.ts`), relative to the repo root, sorted.
  * @param {string} [root]
  * @returns {string[]}
@@ -233,6 +255,7 @@ export function buildManifest(root = ROOT) {
         responsibility: [],
         ...declared(entry),
         usedBy: usedBy(entry.component, path, rendered),
+        usedValues: usedValues(entry.component, rendered, entry.matrix?.axes ?? []),
       }
     })
   return [...appRows, ...libraryRows].map(row => ({ ...row, tier: tierOf(row), area: areaOf(row) }))

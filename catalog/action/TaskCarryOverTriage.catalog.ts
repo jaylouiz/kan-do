@@ -1,15 +1,15 @@
 import type { CatalogEntry } from '../types'
 
-/**
- * Description, usage and avoid come from the doc block of `components/task/TaskCarryOverTriage.vue` (the manifest).
- * No samples: the block renders nothing unless the task of its `taskId` is in the tasks store and carried over several
- * days, and `/ui` has no board state. Its three buttons are the `UButton` ghost neutral `sm` of the UButton entry.
- */
+/** Description, usage and avoid come from the doc block of `components/task/TaskCarryOverTriage.vue` (the manifest). Its three buttons are the `UButton` ghost neutral `sm` of the UButton entry. */
 export default {
   component: 'TaskCarryOverTriage',
   source: 'app',
   alternatives: ['UButton'],
-  sampleNote:
-    'it renders nothing unless its task is in the tasks store and carried over several days; /ui has no board state. Its three buttons are the UButton ghost neutral sm of the UButton entry.',
+  host: 'board',
+  screen: '/tasks',
+  variants: [
+    { id: 'nudge', label: 'the card carried over longest', fixture: 'carriedOverTask' },
+    { id: 'compact', label: 'compact, inside a closing-step row', fixture: 'carriedOverTask', props: { compact: true } },
+  ],
   states: [],
 } satisfies CatalogEntry

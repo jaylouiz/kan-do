@@ -5,6 +5,7 @@ export default {
   component: 'FeedbackAnnotator',
   source: 'app',
   alternatives: ['UButton'],
+  screen: '/tasks',
   sampleNote:
     'it draws on a captured screenshot the feedback dialog hands it; feedback.spec.ts exercises it.',
   states: [],

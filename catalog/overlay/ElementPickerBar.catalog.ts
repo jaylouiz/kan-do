@@ -5,6 +5,7 @@ export default {
   component: 'ElementPickerBar',
   source: 'app',
   alternatives: ['UTooltip', 'FeedbackDialog'],
+  screen: '/tasks',
   sampleNote: 'is the chrome of the feedback element picker: it follows the pointer over the live page (needs the picker state), so it has no inline sample.',
   states: [],
 } satisfies CatalogEntry

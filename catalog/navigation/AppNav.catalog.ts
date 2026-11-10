@@ -9,6 +9,7 @@ export default {
   component: 'AppNav',
   source: 'app',
   alternatives: ['MorePanel', 'UTabs'],
+  screen: '/tasks',
   sampleNote:
     'the block reads the route, useAppNav, the sync and settings stores and opens the more panel in a popover; /ui has none of them (app-nav.spec.ts exercises selected, open and the problem dot).',
   states: [],

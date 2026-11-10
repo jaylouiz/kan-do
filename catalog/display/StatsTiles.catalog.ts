@@ -5,6 +5,7 @@ export default {
   component: 'StatsTiles',
   source: 'app',
   alternatives: ['StatsTile'],
-  sampleNote: 'takes the whole Review and rhythm objects of the Statistik page; its tile is StatsTile.',
+  screen: '/statistics',
+  variants: [{ id: 'demo', label: 'question tiles of the demo board', fixture: 'statsTiles' }],
   states: [],
 } satisfies CatalogEntry

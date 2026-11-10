@@ -17,6 +17,7 @@ function keysOf(messages: Record<string, unknown>, prefix = ''): string[] {
     value && typeof value === 'object' ? keysOf(value as Record<string, unknown>, `${prefix}${key}.`) : [`${prefix}${key}`])
 }
 const locales = { de: new Set(keysOf(de)), en: new Set(keysOf(en)) }
+const fixtureNames = readdirSync(join(ROOT, 'dev-tools/ui-catalog/fixtures')).filter(name => name.endsWith('.ts')).map(name => name.replace(/\.ts$/, ''))
 
 function files(dir: string, accept: (name: string) => boolean): string[] {
   return readdirSync(dir).flatMap((name) => {
@@ -36,7 +37,7 @@ describe('catalog entries (#66)', () => {
   })
 
   it.each(loaded.map(l => [l.path, l.entry] as const))('%s validates against the manifest', (path, entry) => {
-    expect(entryProblems(path, entry, manifest, locales)).toEqual([])
+    expect(entryProblems(path, entry, manifest, locales, fixtureNames)).toEqual([])
   })
 
   it('the manifest rows of the entries carry their variant and state names', () => {
@@ -88,6 +89,21 @@ describe('catalog entries (#66)', () => {
     expect(entryProblems(path, badTasks, manifest)).toEqual(expect.arrayContaining([expect.stringContaining('unknown demoTasks')]))
     const library = { component: 'USeparator', source: 'nuxt-ui', theme: 'separator', alternatives: [], host: 'board', states: [{ id: 'x', state: 'focus' }] } as CatalogEntry
     expect(entryProblems('catalog/layout/USeparator.catalog.ts', library, manifest)).toEqual(expect.arrayContaining([expect.stringContaining('`host` is for an app component')]))
+  })
+
+  it('a fixture must exist, launch belongs to an app overlay and a screen is a route (kd#127)', () => {
+    const path = 'catalog/display/StatsTrendBars.catalog.ts'
+    const base = { component: 'StatsTrendBars', source: 'app', alternatives: [], states: [], variants: [{ id: 'weeks', fixture: 'statsWeeks' }] } as CatalogEntry
+    expect(entryProblems(path, base, manifest, {}, fixtureNames)).toEqual([])
+    expect(entryProblems(path, { ...base, variants: [{ id: 'weeks', fixture: 'nope' }] }, manifest, {}, fixtureNames)).toEqual([expect.stringContaining('no fixture "nope"')])
+    expect(entryProblems(path, { ...base, screen: 'statistics' }, manifest, {}, fixtureNames)).toEqual([expect.stringContaining('starts with "/"')])
+    const library = { component: 'UModal', source: 'nuxt-ui', theme: 'modal', alternatives: [], states: [], launch: 'open', variants: [{ id: 'a', trigger: true, slot: 'Open' }] } as CatalogEntry
+    expect(entryProblems('catalog/overlay/UModal.catalog.ts', library, manifest)).toEqual(expect.arrayContaining([expect.stringContaining('`launch` is for an app overlay')]))
+  })
+
+  it('every fixture file is used by an entry', () => {
+    const used = new Set(loaded.flatMap(l => [...(l.entry.variants ?? []), ...l.entry.states].map(example => example.fixture).filter(Boolean)))
+    expect(fixtureNames.filter(name => !used.has(name))).toEqual([])
   })
 
   it('every kit component needs an entry; a feature part may go without', () => {

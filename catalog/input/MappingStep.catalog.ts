@@ -5,7 +5,7 @@ export default {
   component: 'MappingStep',
   source: 'app',
   alternatives: ['PropertyMapper'],
-  sampleNote:
-    'a wizard step fed by the controller\'s database properties; notion-setup-stepper.spec.ts exercises it.',
+  screen: '/settings/notion',
+  variants: [{ id: 'demo', label: 'schema of a typical task database', fixture: 'notionSchema', props: { defaultMapping: { title: 'Name', status: 'Status', priority: 'Priority', dueDate: 'Due', topic: 'Topic' } } }],
   states: [],
 } satisfies CatalogEntry

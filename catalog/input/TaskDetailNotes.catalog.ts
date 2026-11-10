@@ -5,7 +5,9 @@ export default {
   component: 'TaskDetailNotes',
   source: 'app',
   alternatives: ['UTextarea', 'InlineEditable'],
-  sampleNote:
-    'it edits the notes of the open task through the sheet\'s composables; task-detail.spec.ts exercises it.',
-  states: [],
+  screen: '/tasks',
+  variants: [
+    { id: 'markdown', label: 'notes as Markdown', props: { notes: 'Hainbuchenhecke an der Südgrenze, Staudenbeet am Sitzplatz.\n\n- Frau Müller möchte **mehr Blühfarbe im Frühjahr**\n- Pflanzliste an die Baumschule weitergeben' } },
+  ],
+  states: [{ id: 'empty', state: 'empty', label: 'no notes: placeholder', props: { notes: null } }],
 } satisfies CatalogEntry

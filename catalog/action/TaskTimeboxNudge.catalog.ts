@@ -10,6 +10,7 @@ export default {
   component: 'TaskTimeboxNudge',
   source: 'app',
   alternatives: ['UButton'],
+  screen: '/tasks',
   sampleNote:
     'the layer shows only while the board store\'s timeboxNudgeTaskId names its task and sits over a TaskCard; /ui has neither (timebox-nudge.spec.ts exercises it).',
   states: [],

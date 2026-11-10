@@ -5,6 +5,7 @@ export default {
   component: 'StatsWeekTable',
   source: 'app',
   alternatives: ['UTable', 'TasksTable'],
-  sampleNote: 'takes WeekPoint records with Date objects, which an entry (plain data) cannot hold; shown on /statistics.',
+  screen: '/statistics',
+  variants: [{ id: 'weeks', label: 'eight weeks of the demo board', fixture: 'statsWeeks' }],
   states: [],
 } satisfies CatalogEntry

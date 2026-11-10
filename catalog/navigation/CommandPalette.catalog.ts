@@ -9,6 +9,7 @@ export default {
   component: 'CommandPalette',
   source: 'app',
   alternatives: ['UCommandPalette', 'UKbd'],
+  screen: '/tasks',
   sampleNote:
     'it opens from Cmd/Ctrl+K over the board and reads the task store and the focused card; /ui has neither (command-palette.spec.ts exercises empty, loading and the hints).',
   states: [],

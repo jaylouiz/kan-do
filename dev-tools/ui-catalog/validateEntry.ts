@@ -19,7 +19,7 @@ export function referencedKeys(entry: CatalogEntry): string[] {
 }
 
 /** What is wrong with the entry stored at `path` (`catalog/<category>/<Name>.catalog.ts`): `[]` when it is fine. */
-export function entryProblems(path: string, entry: CatalogEntry, manifest: ManifestRow[], locales: Record<string, Set<string>> = {}): string[] {
+export function entryProblems(path: string, entry: CatalogEntry, manifest: ManifestRow[], locales: Record<string, Set<string>> = {}, fixtureNames?: string[]): string[] {
   const problems: string[] = []
   const row = manifest.find(r => r.name === entry.component)
   const [, folder, file] = /^catalog\/([^/]+)\/([^/]+)$/.exec(path) ?? []
@@ -44,6 +44,12 @@ export function entryProblems(path: string, entry: CatalogEntry, manifest: Manif
     if (example.demoTasks && !entry.host) problems.push(`example "${example.id}" sets demoTasks but the entry has no host`)
     if (example.demoTasks && !(CATALOG_DEMO_TASKS as readonly string[]).includes(example.demoTasks)) problems.push(`example "${example.id}": unknown demoTasks "${example.demoTasks}"`)
   }
+  for (const example of [...(entry.variants ?? []), ...entry.states]) {
+    if (example.fixture && fixtureNames && !fixtureNames.includes(example.fixture)) problems.push(`example "${example.id}": no fixture "${example.fixture}" (dev-tools/ui-catalog/fixtures/${example.fixture}.ts)`)
+  }
+  if (entry.launch && entry.source !== 'app') problems.push('`launch` is for an app overlay; a Nuxt UI overlay shows its trigger (`trigger: true`)')
+  if (entry.launch && entry.matrix) problems.push('`launch` opens named examples; it cannot be combined with a matrix')
+  if (entry.screen && !entry.screen.startsWith('/')) problems.push('`screen` is a route of the app and starts with "/"')
   for (const name of entry.alternatives) {
     if (!manifest.some(r => r.name === name)) problems.push(`alternative ${name} has no manifest row`)
   }

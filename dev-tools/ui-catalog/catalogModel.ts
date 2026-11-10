@@ -23,6 +23,8 @@ export interface ManifestRow {
   variants: string[]
   states: string[]
   usedBy: Record<string, number>
+  /** Library rows only: the static prop values the app's templates pass (`size: ['lg', 'sm']`). */
+  usedValues?: Record<string, string[]>
 }
 
 /** Display titles of the sections, in page order (epic #58 D2; the page chrome is English, these are the app's own names for the groups). */
@@ -106,6 +108,18 @@ export function themeAxes(theme: ThemeLike, config: ThemeLike | undefined, axes:
   })
 }
 
+/**
+ * The axes narrowed to what the app uses: the values its templates pass plus the theme default. An axis nothing sets
+ * keeps only its default; one whose used values the theme does not know keeps all (a bound prop, not a static one).
+ */
+export function axesInUse(axes: ThemeAxis[], used: Record<string, string[]> | undefined): ThemeAxis[] {
+  return axes.map((axis) => {
+    const wanted = new Set(used?.[axis.axis] ?? [])
+    const values = axis.values.filter(v => v.isDefault || wanted.has(v.value))
+    return { axis: axis.axis, values: values.length ? values : axis.values }
+  })
+}
+
 /** `''` shows every value of an axis. */
 export type AxisFilter = Record<string, string>
 
@@ -157,6 +171,39 @@ export function buildMatrix(axes: ThemeAxis[], base: CatalogProps | undefined, f
       }),
     })),
   }))
+}
+
+/**
+ * The matrix as the app uses it, small enough to take in at once: one grid of the first two axes with every further
+ * axis at its default, then one strip per further axis that walks its other values with the rest at their defaults.
+ * Every cell id also exists in `buildMatrix`, and none repeats, so the samples keep their fingerprint keys.
+ */
+export function buildCompactMatrix(axes: ThemeAxis[], base: CatalogProps | undefined): MatrixSection[] {
+  const fallback = (axis: ThemeAxis) => (axis.values.find(v => v.isDefault) ?? axis.values[0])?.value ?? ''
+  const defaults: Record<string, string> = Object.fromEntries(axes.map(axis => [axis.axis, fallback(axis)]))
+  const cell = (chosen: Record<string, string>, col: string): MatrixCell => ({ id: axes.map(axis => chosen[axis.axis]).join('/'), col, props: { ...base, ...chosen } })
+  const [rowAxis, colAxis, ...rest] = axes
+  if (!rowAxis) return []
+  const cols = colAxis ? colAxis.values.map(v => v.value) : ['']
+  const main: MatrixSection = {
+    title: rest.map(axis => `${axis.axis} ${defaults[axis.axis]}`).join(' · '),
+    cols,
+    rows: rowAxis.values.map(row => ({
+      value: row.value,
+      cells: cols.map(col => cell({ ...defaults, [rowAxis.axis]: row.value, ...(colAxis ? { [colAxis.axis]: col } : {}) }, col)),
+    })),
+  }
+  const strips = rest
+    .map((axis) => {
+      const others = axis.values.map(v => v.value).filter(value => value !== defaults[axis.axis])
+      return {
+        title: `${axis.axis}, other values`,
+        cols: others,
+        rows: [{ value: [defaults[rowAxis.axis], colAxis ? defaults[colAxis.axis] : ''].filter(Boolean).join(' '), cells: others.map(value => cell({ ...defaults, [axis.axis]: value }, value)) }],
+      }
+    })
+    .filter(strip => strip.cols.length > 0)
+  return [main, ...strips]
 }
 
 /** Every sample id an entry produces for a theme (matrix, variants, states), as `<component>:<group>:<id>`; the fingerprint spec and the vitest test both key on it. */

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildMatrix, exampleProps, groupByCategory, resolveSlot, resolveValue, sampleKeys, themeAxes, type ManifestRow } from '~/dev-tools/ui-catalog/catalogModel'
+import { axesInUse, buildCompactMatrix, buildMatrix, exampleProps, groupByCategory, resolveSlot, resolveValue, sampleKeys, themeAxes, type ManifestRow } from '~/dev-tools/ui-catalog/catalogModel'
 import type { CatalogEntry } from '~/catalog/types'
 
 const theme = {
@@ -106,5 +106,43 @@ describe('sampleKeys', () => {
     expect(keys).toHaveLength(2 * 3 + 2)
     expect(keys).toContain('UDemo:matrix:primary/sm')
     expect(keys.slice(-2)).toEqual(['UDemo:variant:plain', 'UDemo:state:disabled'])
+  })
+})
+
+describe('the matrix as the app uses it (kd#127)', () => {
+  const axes = themeAxes(theme, undefined, ['color', 'variant', 'size'])
+
+  it('axesInUse keeps the values the templates pass plus the default; an axis nothing sets keeps its default', () => {
+    const used = axesInUse(axes, { color: ['error'], size: ['lg'] })
+    expect(used.map(axis => [axis.axis, axis.values.map(v => v.value)])).toEqual([
+      ['color', ['primary', 'error']],
+      ['variant', ['solid']],
+      ['size', ['sm', 'lg']],
+    ])
+    expect(axesInUse(axes, undefined).map(axis => axis.values.length)).toEqual([1, 1, 1])
+  })
+
+  it('buildCompactMatrix is one grid at the default of the further axes and a strip of their other values', () => {
+    const sections = buildCompactMatrix(axes, { block: false })
+    expect(sections.map(section => section.title)).toEqual(['size sm', 'size, other values'])
+    expect(sections[0]!.rows.map(row => row.cells.map(cell => cell.id))).toEqual([
+      ['primary/solid/sm', 'primary/ghost/sm'],
+      ['error/solid/sm', 'error/ghost/sm'],
+    ])
+    expect(sections[1]!.rows).toEqual([{ value: 'primary solid', cells: [
+      { id: 'primary/solid/md', col: 'md', props: { block: false, color: 'primary', variant: 'solid', size: 'md' } },
+      { id: 'primary/solid/lg', col: 'lg', props: { block: false, color: 'primary', variant: 'solid', size: 'lg' } },
+    ] }])
+  })
+
+  it('every compact cell is a cell of the whole matrix and none repeats, so the fingerprint keys hold', () => {
+    const whole = new Set(buildMatrix(axes, undefined).flatMap(section => section.rows.flatMap(row => row.cells.map(cell => cell.id))))
+    const compact = buildCompactMatrix(axes, undefined).flatMap(section => section.rows.flatMap(row => row.cells.map(cell => cell.id)))
+    expect(compact.every(id => whole.has(id))).toBe(true)
+    expect(new Set(compact).size).toBe(compact.length)
+  })
+
+  it('two axes give one grid without a strip', () => {
+    expect(buildCompactMatrix(themeAxes(theme, undefined, ['color', 'variant']), undefined).map(section => section.title)).toEqual([''])
   })
 })

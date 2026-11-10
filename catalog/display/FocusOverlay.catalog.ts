@@ -5,6 +5,7 @@ export default {
   component: 'FocusOverlay',
   source: 'app',
   alternatives: [],
+  screen: '/tasks',
   sampleNote: 'is a full-screen layer that follows the card in Jetzt (needs the board and its pointer state).',
   states: [],
 } satisfies CatalogEntry

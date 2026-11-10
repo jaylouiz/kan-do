@@ -49,6 +49,11 @@ export interface CatalogExample {
   slot?: string | I18nRef
   /** Entries with `host: 'board'`: the column of the demo board whose tasks are passed as the `tasks` prop (`none`: an empty list). */
   demoTasks?: CatalogDemoTasks
+  /**
+   * Name of a fixture (`dev-tools/ui-catalog/fixtures/<name>.ts`): props an entry cannot hold as plain data (Dates, a
+   * bitmap, a whole review object) or stores to seed inside the sample host. Its result is merged over `props`.
+   */
+  fixture?: string
   /** Overlays: the sample renders open (`open: true` is passed as a prop); they need a trigger or `open` to show at all. */
   open?: boolean
   /** Overlays: the default slot text is the trigger of the overlay, shown as a button (a bare text node renders nothing as a trigger). */
@@ -88,6 +93,13 @@ export interface CatalogEntry {
   states: CatalogStateExample[]
   /** Store-bound blocks only: render the samples inside this host instead of bare (see `CatalogHost`). */
   host?: CatalogHost
+  /**
+   * App overlays (dialog, sheet, drawer): each sample is an "Open" button that sets this prop of the component to true
+   * (`open` or `modelValue`) and takes it back on `update:<prop>`, so the real overlay opens over the page from fixture data.
+   */
+  launch?: string
+  /** A feature part: the route of the screen it lives on (`/statistics`), linked from its page on `/ui`. */
+  screen?: string
   /** Why the entry has no live sample (a block that reads a store, a composable or a page's data): shown instead of the samples; variants and states then stay empty. */
   sampleNote?: string
 }

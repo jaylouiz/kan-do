@@ -5,6 +5,9 @@ export default {
   component: 'NotionSetupModal',
   source: 'app',
   alternatives: ['UModal'],
-  sampleNote: 'is an overlay: opened, it covers the page it is shown in, so it has no inline sample. It opens from its trigger in the app; it reads the Notion setup state.',
+  host: 'board',
+  launch: 'open',
+  screen: '/settings/notion',
+  variants: [{ id: 'setup', label: 'first connection (token step)', props: { forceSetup: true } }],
   states: [],
 } satisfies CatalogEntry

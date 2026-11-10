@@ -5,6 +5,7 @@ export default {
   component: 'GithubTokenRow',
   source: 'app',
   alternatives: ['UFormField', 'UInput'],
+  screen: '/settings/github',
   sampleNote:
     'desktop only: it reads the Keychain-backed token entry; github-settings.spec.ts and desktop-pages-shots.spec.ts exercise it.',
   states: [],
