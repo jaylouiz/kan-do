@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
-import { UI_CATEGORIES, UI_KINDS, buildManifest, catalogFiles, checkDocBlock, loadCatalogEntries, componentFiles, parseDocBlock } from '../../scripts/ui-manifest.mjs'
+import { KIT_MIN_CONSUMERS, UI_CATEGORIES, UI_KINDS, areaOf, buildManifest, catalogFiles, checkDocBlock, loadCatalogEntries, componentFiles, parseDocBlock, tierOf } from '../../scripts/ui-manifest.mjs'
 
 const block = (extra = '') => `<!--
 @component Demo
@@ -50,6 +50,37 @@ describe('checkDocBlock', () => {
       expect.stringContaining('@kind "widget"'),
       expect.stringContaining('@category "looks"'),
     ])
+  })
+})
+
+describe('tier and area (derived, never tagged)', () => {
+  const usedBy = (components: number) => ({ components, pages: 0, layouts: 0, app: 0 })
+
+  it('a Nuxt UI component and everything under components/ui/ is kit', () => {
+    expect(tierOf({ source: 'nuxt-ui', path: 'catalog/action/UButton.catalog.ts', usedBy: usedBy(0) })).toBe('kit')
+    expect(tierOf({ source: 'app', path: 'components/ui/inline/InlineEditable.vue', usedBy: usedBy(1) })).toBe('kit')
+  })
+
+  it('another app component is kit from three consumers on, a feature part below', () => {
+    const row = (count: number) => ({ source: 'app', path: 'components/task/TaskCard.vue', usedBy: usedBy(count) })
+    expect(KIT_MIN_CONSUMERS).toBe(3)
+    expect(tierOf(row(3))).toBe('kit')
+    expect(tierOf(row(2))).toBe('feature')
+  })
+
+  it('the area is the folder under components/', () => {
+    expect(areaOf({ source: 'app', path: 'components/notion/setup/wizard/steps/TokenStep.vue' })).toBe('notion')
+    expect(areaOf({ source: 'app', path: 'components/CommandPalette.vue' })).toBe('app')
+    expect(areaOf({ source: 'nuxt-ui', path: 'catalog/action/UButton.catalog.ts' })).toBe('nuxt-ui')
+  })
+
+  it('the manifest carries both on every row, and the kit stays the small part', () => {
+    const manifest = buildManifest() as { tier: string, area: string, name: string }[]
+    expect(manifest.every(row => ['kit', 'feature'].includes(row.tier) && row.area)).toBe(true)
+    const kit = manifest.filter(row => row.tier === 'kit').map(row => row.name)
+    expect(kit).toEqual(expect.arrayContaining(['UButton', 'ListRow', 'TaskCard', 'TopicMark']))
+    expect(kit).not.toContain('NewCardFlow')
+    expect(kit.length).toBeLessThan(manifest.length / 2)
   })
 })
 

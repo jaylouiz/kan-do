@@ -1,7 +1,7 @@
 <!--
 @component TaskForm
 @kind block
-@category form-structure
+@category input
 @description Form component for creating and editing tasks with integration support
 @usage Used in task creation and editing modals, with buttons handled by parent modal
 @avoid Only creating and editing a task in the sheet; the in-card flow is NewCardFlow.

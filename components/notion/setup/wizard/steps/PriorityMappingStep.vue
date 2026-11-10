@@ -1,7 +1,7 @@
 <!--
 @component PriorityMappingStep
 @kind component
-@category form-structure
+@category input
 @description Maps kan-do's three priority levels to Notion select options (#617): several options may share a level
 @usage Part of the Notion setup wizard and the priority tab of the Notion settings
 @avoid Only the Notion setup wizard and the priority tab of the Notion settings.

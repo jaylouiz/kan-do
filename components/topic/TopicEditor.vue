@@ -1,7 +1,7 @@
 <!--
 @component TopicEditor
 @kind component
-@category form-structure
+@category input
 @description The one editor every entry point opens (#430, #431): Name, Farbe (nine hues plus none, radio swatches) and
 Symbol (a button showing the current mark; a popover with 24 glyphs plus none). An activity has the Name only. A name a
 source owns (Notion schema or any non-Local task) is disabled with the reason; Farbe and Symbol stay editable and say they

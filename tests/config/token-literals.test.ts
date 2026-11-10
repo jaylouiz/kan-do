@@ -152,7 +152,7 @@ describe('allowlist', () => {
   it('names a reason for every entry and skips those files', () => {
     for (const reason of Object.values(LITERAL_ALLOWLIST)) expect(reason.length).toBeGreaterThan(10)
     mkdirSync(join(dir, 'assets/css'), { recursive: true })
-    const file = join(dir, 'assets/css/integrations.css')
+    const file = join(dir, 'assets/css/main.css')
     writeFileSync(file, '.x { color: #db4035; }')
     expect(checkTokenLiterals(dir, [file])).toEqual([])
   })

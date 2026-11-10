@@ -21,7 +21,7 @@ describe('groupOf', () => {
     ['--task-list-gap', '0.75rem', 'spacing'],
     ['--task-card-width', '100%', 'spacing'],
     ['--stack-front-content-opacity', '0.4', 'other'],
-    ['--task-card-border', '2px solid var(--color-white)', 'other'],
+    ['--stack-rest-opacity', '0.9', 'other'],
   ])('%s -> %s', (name, value, group) => {
     expect(groupOf(name, value)).toBe(group)
   })

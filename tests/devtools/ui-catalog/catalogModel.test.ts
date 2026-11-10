@@ -13,19 +13,19 @@ const theme = {
 }
 
 const row = (name: string, category: ManifestRow['category'], kind: ManifestRow['kind']): ManifestRow => ({
-  name, path: `components/${name}.vue`, source: 'app', kind, category, description: '', usage: '', avoid: '', responsibility: [], variants: [], states: [], usedBy: {},
+  name, path: `components/${name}.vue`, source: 'app', kind, category, tier: 'feature', area: 'app', description: '', usage: '', avoid: '', responsibility: [], variants: [], states: [], usedBy: {},
 })
 
 describe('groupByCategory', () => {
   it('orders the sections as the issue lists them, leaves empty ones out and puts blocks last', () => {
     const sections = groupByCategory([
-      row('Zeta', 'keyboard', 'component'),
+      row('Zeta', 'layout', 'component'),
       row('Block', 'action', 'block'),
       row('Beta', 'action', 'primitive'),
       row('Alpha', 'action', 'component'),
       row('Field', 'input', 'primitive'),
     ])
-    expect(sections.map(s => s.title)).toEqual(['Eingabe', 'Aktion', 'Tastatur'])
+    expect(sections.map(s => s.title)).toEqual(['Eingabe', 'Aktion', 'Layout'])
     expect(sections[1]!.rows.map(r => r.name)).toEqual(['Beta', 'Alpha', 'Block'])
   })
 })

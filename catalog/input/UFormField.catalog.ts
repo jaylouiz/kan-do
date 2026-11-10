@@ -8,7 +8,7 @@ export default {
   component: 'UFormField',
   source: 'nuxt-ui',
   kind: 'compound',
-  category: 'form-structure',
+  category: 'input',
   description: 'The one field wrapper: a label, an optional description and hint, help text below the control and an error that replaces it.',
   usage: 'Around every labelled control (UInput, USelect, UTextarea, UCheckbox, USwitch): `label` names it, `help` explains it, `error` shows the failure below the control at one placement (the control gets `color="error"` and `highlight`). A visually hidden label is `:ui="{ label: \'sr-only\' }"`, never a missing one.',
   avoid: 'Not around a control that has no label of its own (a title field in a card keeps its own error line), not around a button and not as a layout grid: spacing between fields belongs to the parent.',

@@ -2,16 +2,6 @@
   "detector": {
     "ignoreRules": [],
     "ignoreFiles": [],
-    "ignoreValues": [
-      {
-        "rule": "design-system-color",
-        "value": "*",
-        "files": [
-          "assets/css/integrations.css"
-        ],
-        "createdAt": "2026-11-05T00:00:00.000Z",
-        "reason": "Todoist label palette: third-party data colours, not UI colour"
-      }
-    ]
+    "ignoreValues": []
   }
 }

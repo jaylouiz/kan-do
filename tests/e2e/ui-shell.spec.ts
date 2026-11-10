@@ -47,7 +47,7 @@ test.describe('/ui catalog shell', () => {
     await page.goto('/ui')
     const part = page.locator('#components')
     await expect(part.getByRole('heading', { level: 2, name: 'Components' })).toBeVisible()
-    await expect(part.getByRole('heading', { level: 3, name: 'Formularstruktur' })).toBeVisible()
+    await expect(part.getByRole('heading', { level: 3, name: 'Layout' })).toBeVisible()
     await expect(page.locator('[data-kd-catalog-ready]')).toBeAttached()
   })
 

@@ -1,7 +1,7 @@
 <!--
 @component TaskDetailContent
 @kind compound
-@category form-structure
+@category input
 @description Shared presentational component for task detail views with inline editing
 @usage Used by both TaskDetailModal and pages/tasks/[id].vue
 @avoid Shared body of the task detail (modal and page); not for the add form, which is TaskForm.

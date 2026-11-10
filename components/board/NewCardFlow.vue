@@ -1,7 +1,7 @@
 <!--
 @component NewCardFlow
 @kind block
-@category form-structure
+@category input
 @description Guided in-card adding of a task in Offen (#649): the add slot's box becomes a card that takes the title, then asks Thema, Aktivität, Timebox and Notiz one after another and saves at the end. No sheet, no route change.
 @usage Mounted by AddTaskSlot (Offen) in place of the sheet; emits `saved` with the new task's id, or `cancel`
 @avoid Only in-card adding to Offen; add-and-start in Jetzt, editing and source fields use the sheet's TaskForm.

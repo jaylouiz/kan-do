@@ -1,7 +1,7 @@
 <!--
 @component WizardController
 @kind compound
-@category form-structure
+@category input
 @description Controller component for the Notion setup wizard
 @usage Used within the Notion setup modal to manage the setup flow
 @avoid Only drives the Notion setup steps; other flows (LocalSetupFlow) have their own sequence.

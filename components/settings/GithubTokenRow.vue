@@ -1,7 +1,7 @@
 <!--
 @component GithubTokenRow
 @kind component
-@category form-structure
+@category input
 @description One GitHub token entry on /settings/github: purpose, required access and the state area
 (empty, checking, saved, rejected, error). Flat section, no card (DESIGN.md sub-page pattern).
 @usage <GithubTokenRow entry="github-updates" />

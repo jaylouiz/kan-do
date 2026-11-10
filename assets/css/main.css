@@ -4,7 +4,6 @@
 /* Component-level styles live in partials next to this file; order matters within a layer, so keep
  * this import order (it mirrors the original single-file source order, #43). */
 @import "./utilities.css";
-@import "./integrations.css";
 @import "./board.css";
 @import "./dnd.css";
 @import "./app-nav.css";
@@ -188,7 +187,6 @@
     --carry-over-dot-gap: 4px;
 
     /* --- Task Card: Visual Styling --- */
-    --task-card-border: 2px solid var(--color-white);
     --task-card-radius: calc(var(--ui-radius) * 2);
 
     /* --- Done (#124): cards keep the regular sheet; teal is the drop wash and the confirmation --- */
@@ -201,7 +199,6 @@
     /* --- Task Card: Progress State Background --- */
     /* Custom token for in-progress task cards - uses elevated background for consistency */
     --task-card-progress-bg: var(--ui-bg-elevated);
-    --task-card-progress-border-color: var(--color-white);
 
     /* --- Task Card: Muted State (Waiting/Inactive) --- */
     /* Filter-based visual state for tasks that are waiting or not actively in focus */
@@ -231,7 +228,6 @@
     /* Synchronized with the DnD layer (useColumnDragAndDrop). */
     /* Note: DnD handles position/transform; CSS transitions handle visual properties only. */
     --dnd-reorder-duration: 220ms;
-    --dnd-reorder-easing: cubic-bezier(0.4, 0, 0.2, 1);
     
     /* Stack-specific transitions (hover effects, expand/collapse) */
     --stack-transition-duration: 220ms;
@@ -239,7 +235,6 @@
     
     /* Task card visual transforms (scale, rotate effects during interaction) */
     --task-transform-duration: 160ms;
-    --task-transform-easing: ease-out;
     /* Add slot (#125): the soft surface (and the Jetzt slot) appears quickly on hover/focus */
     --add-slot-reveal-duration: 120ms;
     /* Offen add slot (#466): the soft surface grows from label-wide into the card shape on hover/focus */
@@ -253,12 +248,10 @@
     --shadow-overlay: 0 12px 32px -4px rgba(15, 23, 42, 0.18), 0 2px 8px rgba(15, 23, 42, 0.1);
     --shadow-task: 1px 2px 4px 2px rgba(15, 23, 42, 0.05), 0 1px 2px 0 rgba(15, 23, 42, 0.04);
     --shadow-task-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --shadow-task-strong: 0 4px 8px rgba(15, 23, 42, 0.12);
     --shadow-task-drag-elevated: 0 25px 50px -12px rgba(15, 23, 42, 0.35);
     --shadow-task-lifted: 0 14px 38px color-mix(in oklab, var(--focus-dusk) 20%, transparent); /* the Jetzt card while the focus overlay is on (#394) */
     --shadow-stack-collapsed: drop-shadow(0 1px 1px rgba(15, 23, 42, 0.06)) drop-shadow(0 2px 3px rgba(15, 23, 42, 0.05));
     --shadow-stack-hover: drop-shadow(0 2px 2px rgba(15, 23, 42, 0.07)) drop-shadow(0 5px 8px rgba(15, 23, 42, 0.06));
-    --shadow-badge: 0 1px 3px rgba(0, 0, 0, 0.1);
 
     /* --- Layers: z-index (#70) ---
      * Every z-index above 20 is one of these (the guard `checkTokenLiterals` fails on a new number); 20 and below is
@@ -280,9 +273,6 @@
     --z-overlay: 2100; /* sheet, dialog, drawer and their scrim; the phone edge indicator */
     --z-popover: 2200; /* popover, dropdown, tooltip: above the sheet they open in */
     --z-toast: 2300; /* the toast viewport: above everything */
-
-    /* --- App-Specific: Surfaces --- */
-    --task-drop-placeholder-bg: color-mix(in srgb, var(--ui-bg-inverted) 10%, transparent); /* Drop placeholder background */
 
     color-scheme: light;
   }

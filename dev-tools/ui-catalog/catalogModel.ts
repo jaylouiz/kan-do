@@ -12,6 +12,10 @@ export interface ManifestRow {
   source: 'app' | 'nuxt-ui'
   kind: 'primitive' | 'component' | 'compound' | 'block'
   category: CatalogCategory
+  /** Derived by the manifest: `kit` (Nuxt UI, `components/ui/`, three or more consumers) or `feature` (serves one screen). */
+  tier: 'kit' | 'feature'
+  /** Folder under `components/`, `app` for the root, `nuxt-ui` for a library component. */
+  area: string
   description: string
   usage: string
   avoid: string
@@ -30,8 +34,6 @@ export const CATEGORY_TITLES: Record<CatalogCategory, string> = {
   'overlay': 'Overlay',
   'display': 'Darstellung',
   'layout': 'Layout',
-  'form-structure': 'Formularstruktur',
-  'keyboard': 'Tastatur',
 }
 
 /** Within a section blocks come last, under the components that contain them. */

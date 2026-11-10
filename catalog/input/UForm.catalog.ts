@@ -5,7 +5,7 @@ export default {
   component: 'UForm',
   source: 'nuxt-ui',
   kind: 'compound',
-  category: 'form-structure',
+  category: 'input',
   description: 'A form element that validates its fields (schema or `validate`) and focuses the first error on submit.',
   usage: 'Around a form whose fields validate together (TaskForm). Fields inside are UFormFields with a `name`; submit goes through `@submit`.',
   avoid: 'Not for one control that saves on change (InlineEditable, USwitch) and not as layout: a plain `<form>` is enough when nothing validates.',

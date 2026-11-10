@@ -21,7 +21,7 @@ export type CatalogState = (typeof CATALOG_STATES)[number]
 
 /** Same list as the `@kind` and `@category` grammar of the doc blocks (scripts/ui-manifest.mjs). */
 export type CatalogKind = 'primitive' | 'component' | 'compound' | 'block'
-export type CatalogCategory = 'input' | 'form-structure' | 'action' | 'navigation' | 'keyboard' | 'feedback' | 'overlay' | 'display' | 'layout'
+export type CatalogCategory = 'input' | 'action' | 'navigation' | 'feedback' | 'overlay' | 'display' | 'layout'
 
 /** Copy by i18n key: the page resolves it with the language toggle's locale, so de/en shows the other translation. */
 export interface I18nRef {

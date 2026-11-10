@@ -58,9 +58,13 @@ export function entryProblems(path: string, entry: CatalogEntry, manifest: Manif
   return problems
 }
 
-/** Manifest components that lack an entry (every category has landed; #117 dropped the per-category list). */
+/**
+ * Kit components that lack an entry: the kit is what a screen is built from, so each of its members shows its variants
+ * and states on `/ui`. A feature part may have an entry (when it renders from fixtures) but does not need one: its
+ * manifest row already carries the texts, and its look is reviewed on the screen it serves.
+ */
 export function missingEntries(manifest: ManifestRow[], entries: CatalogEntry[]): string[] {
   return manifest
-    .filter(row => !entries.some(entry => entry.component === row.name))
+    .filter(row => row.tier === 'kit' && !entries.some(entry => entry.component === row.name))
     .map(row => row.name)
 }

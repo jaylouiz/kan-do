@@ -33,4 +33,8 @@ _Avoid_: component (that's the code unit; one pattern can span several component
 
 **Block**: a feature-sized surface that a page or `app.vue` mounts, feeding itself from stores, composables or the route rather than props, and that orchestrates components. Example: `DayCloseDialog`, `StatsTiles`, `AppNav`. `@kind block`.
 
+**Kit**: what a new screen is built from: every Nuxt UI component in use, everything under `components/ui/`, and an app component with three or more consumers (`TaskCard`, `TopicMark`). The manifest derives it (`tier: kit`, `scripts/ui-manifest.mjs`); it is never tagged by hand, so a part that gains consumers joins the kit by itself.
+
+**Feature part**: a component that serves one screen or flow (a wizard step, a statistics tile, a settings dialog): everything that is not kit (`tier: feature`). It is grouped by its area, the folder under `components/` (`board`, `task`, `settings`). Look in the kit first; a feature part is reused only inside its own feature.
+
 **Layout**: a component or file whose only job is arrangement: where things sit, not what they say or do. Example: `layouts/sub-page.vue`, `SectionHeader`, the board's `BoardColumn` container. As a doc-block `@category`, `layout` marks such components; `layouts/` holds the page layouts Nuxt picks per route.

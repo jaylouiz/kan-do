@@ -1,7 +1,7 @@
 <!--
 @component TokenStep
 @kind component
-@category form-structure
+@category input
 @description Step for entering and validating a Notion API token
 @usage Used in the Notion setup wizard as the initial step
 @avoid Only the first step of the Notion setup wizard; other tokens (GitHub) use GithubTokenRow.
