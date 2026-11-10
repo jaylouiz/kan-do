@@ -50,7 +50,7 @@
     </div>
 
     <!-- Property rows (#161): the same label/value grammar and stable positions as the detail view -->
-    <div class="flex flex-col" data-testid="add-task-context-bar">
+    <div class="flex flex-col gap-1.5" data-testid="add-task-context-bar">
       <TaskPropertyRow
         v-if="showPriority"
         :label="t('task.field.priority')"
@@ -80,6 +80,9 @@
           @clear="formData.topic = ''"
           @create="handleCreateTopic"
         >
+          <template v-if="formData.topic" #value-leading>
+            <TopicMark :topic="formData.topic" />
+          </template>
           <template #item-leading="{ item }">
             <TopicMark :topic="String(item)" />
           </template>

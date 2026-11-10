@@ -8,7 +8,7 @@
 @responsibility
 - Render `role="radiogroup"` with one native `<button role="radio">` per option (`aria-checked`, `aria-label` from the option); roving tabindex: the selected option (else the first) is the one Tab stop
 - Arrow keys move the focus and the selection to the neighbour (wrapping), Home/End to the ends, with `columns` Up/Down by a row (`utils/radioArrowKeys`); no library radio group does a grid, which is why this stays a hand-built role (decision D3 of #72)
-- `swatch` 28 px round (40 px on a phone, the ring marks the selection), `glyph` 40 px cells; the solid ink focus ring
+- `swatch` 28 px round (40 px on a phone, the ring marks the selection), `glyph` 40 px cells (the `none` cell in a hairline); the solid ink focus ring
 - Option content (the dot, the glyph) is the `option` slot; `focusSelected()` is exposed for hosts that move focus in on open
 - `item-testid` names the options `<prefix>-<key|none>`; attributes of the host (the group's `data-testid`) land on the group
 -->
@@ -21,7 +21,7 @@
       type="button"
       role="radio"
       class="swatch-radio"
-      :class="`swatch-radio--${variant}`"
+      :class="[`swatch-radio--${variant}`, option.key === null ? 'swatch-radio--none' : '']"
       :aria-checked="model === option.key"
       :aria-label="option.label"
       :tabindex="tabbable === index ? 0 : -1"
@@ -118,6 +118,11 @@ defineExpose({ focusSelected });
   height: 2.5rem;
   border-radius: var(--ui-radius);
   color: var(--ui-text-muted);
+}
+
+/* The "none" cell sits in a hairline, so it reads as an option beside the glyphs and not as an empty slot (#114) */
+.swatch-radio--glyph.swatch-radio--none {
+  box-shadow: inset 0 0 0 1px var(--ui-border);
 }
 
 .swatch-radio--glyph:hover {

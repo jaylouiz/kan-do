@@ -2,11 +2,12 @@
 @component TaskPropertySelect
 @kind component
 @category input
-@description Value-as-text picker for a property row (status, priority, topic, activity, select fields)
-@usage Value slot of TaskPropertyRow in the detail and add views
-@avoid Only a value picker inside a TaskPropertyRow; topic and activity use TopicPropertyPicker.
+@description Select for a property row's value that opens a list (status, priority, topic, activity, select fields): a soft-filled field with a chevron (#114)
+@usage Value slot of TaskPropertyRow in the detail and add views; `plain` only for a quiet footer line outside a row (AddTargetSwitch)
+@avoid Only a value picker inside a TaskPropertyRow; topic and activity use TopicPropertyPicker; a free value (timebox, text) is an InlineEditable, not a select.
 @responsibility
-- Text-style trigger (USelectMenu `property` variant from app.config.ts), named "<label>: <value>"
+- Soft select trigger (USelectMenu `soft` variant from app.config.ts: muted fill, chevron, 36px, 44px on touch), named "<label>: <value>"; `plain` keeps the old text trigger (`property` variant: body text, dotted rule on hover)
+- Optional `value-leading` slot: a value icon (the topic mark) sits inside the select, before the value
 - Optional help text at the top of the open picker (reachable on touch, replaces tooltips)
 - Clearing lives inside the picker (a "<label> entfernen" action), never as a × on the trigger
 - Menu items use Nuxt UI size `md`, the same text size as the task card context menu (text-sm)
@@ -20,9 +21,9 @@
     :items="items"
     :value-key="valueKey"
     :multiple="multiple"
-    variant="property"
+    :variant="plain ? 'property' : 'soft'"
     size="md"
-    :trailing="false"
+    :trailing="!plain"
     :disabled="disabled"
     :placeholder="placeholder"
     :search-input="searchPlaceholder ? { placeholder: searchPlaceholder, ...(searchAutofocus ? {} : { autofocus: false }) } : false"
@@ -36,6 +37,9 @@
     <template v-if="hint || $slots['content-top']" #content-top>
       <p v-if="hint" class="px-3 pt-2 pb-1 text-xs text-muted">{{ hint }}</p>
       <slot name="content-top" />
+    </template>
+    <template v-if="$slots['value-leading'] && !plain" #leading>
+      <slot name="value-leading" />
     </template>
     <template v-if="$slots['item-leading']" #item-leading="slotProps">
       <slot name="item-leading" v-bind="slotProps" />
@@ -86,6 +90,8 @@ const props = withDefaults(defineProps<{
   hint?: string;
   /** Label of the in-picker clear action; omit when the value cannot be cleared */
   clearLabel?: string;
+  /** The quiet text trigger without fill or chevron, for a footer line outside a property row */
+  plain?: boolean;
   /** Locks the trigger (e.g. while a save runs) */
   disabled?: boolean;
   /** Side of the trigger the picker opens on; the footer switch opens upward */
@@ -104,6 +110,7 @@ const props = withDefaults(defineProps<{
   createItem: false,
   hint: undefined,
   clearLabel: undefined,
+  plain: false,
   disabled: false,
   side: 'bottom',
   align: 'center',

@@ -140,7 +140,7 @@ const props = withDefaults(defineProps<{
   valueText?: string;
   /**
    * Hover/focus affordance of the read-mode trigger: `fill` is the soft background (title, notes),
-   * `rule` the dotted rule under plain text used by the task sheet's property rows (#161).
+   * `rule` the dotted rule under plain text used by the task sheet's property rows (#161), faint at rest and darker on hover (#114).
    */
   affordance?: 'fill' | 'rule';
   /**

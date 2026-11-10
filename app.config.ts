@@ -224,9 +224,13 @@ export default defineAppConfig({
         content: 'z-(--z-popover) min-w-40'
       },
       variants: {
-        // Value-as-text trigger of the task sheet's property rows (#161): body text with the dotted
-        // rule on hover/focus (task-detail.css), no fill, no caret, no icons. 44px hit area on touch.
+        // `soft` is the select of the task sheet's property rows (#114, DESIGN.md "Choice chip or property value"):
+        // a muted fill and a chevron at rest, no border, so a value that opens a list reads as one. 36px high,
+        // 44px on touch. Wrapped by TaskPropertySelect; set it nowhere else.
+        // `property` (#161) is the quiet text trigger, kept for the add sheet's footer line (AddTargetSwitch):
+        // body text with the dotted rule on hover/focus (task-detail.css), no fill, no caret, no icons.
         variant: {
+          soft: 'text-default bg-muted hover:bg-accented focus-visible:bg-accented disabled:bg-muted',
           property: {
             value: 'pointer-events-none',
             placeholder: 'text-muted',
@@ -235,8 +239,16 @@ export default defineAppConfig({
           }
         }
       },
-      // Compound variants merge after the size classes, so the property trigger wins over `size`.
+      // Compound variants merge after the size classes, so these win over `size`.
       compoundVariants: [
+        {
+          variant: 'soft',
+          class: {
+            base: 'min-h-9 w-48 cursor-pointer text-sm max-md:min-h-11 md:text-sm',
+            placeholder: 'text-muted',
+            trailingIcon: 'size-4 text-muted'
+          }
+        },
         {
           variant: 'property',
           class: {

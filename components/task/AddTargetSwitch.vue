@@ -6,7 +6,7 @@
 @usage Registered as the footer `lead` by pages/tasks/add.vue; only shown with 2+ available sources
 @avoid Only the add sheet's footer, and only with 2+ available sources.
 @responsibility
-- Muted label + value-as-text picker (property-select grammar, no box or fill); the label is aria-hidden, the trigger is announced once as "Speichern in: Notion"
+- Muted label + value-as-text picker (`plain` TaskPropertySelect: no box or fill, a footer line and not a sheet row, #114); the label is aria-hidden, the trigger is announced once as "Speichern in: Notion"
 - Lists Lokal and every connected source; the default carries "Standard", a source needing attention stays selectable with a heads-up (not an error)
 - Locked while the save runs, enabled again after a failed save with the chosen target kept
 - Opens upward: the line sits at the bottom of the sheet
@@ -19,6 +19,7 @@
       :model-value="targetSource"
       :items="items"
       value-key="value"
+      plain
       side="top"
       align="start"
       :disabled="isSaving"

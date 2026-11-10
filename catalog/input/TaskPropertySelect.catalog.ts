@@ -5,9 +5,10 @@ import type { CatalogEntry } from '../types'
 export default {
   component: 'TaskPropertySelect',
   source: 'app',
-  alternatives: ['USelectMenu', 'USelect', 'TopicPropertyPicker', 'PropertyValueTrigger'],
+  alternatives: ['USelectMenu', 'USelect', 'TopicPropertyPicker', 'InlineEditable', 'PropertyValueTrigger'],
   variants: [
     { id: 'value', props: { label: { $t: 'task.field.priority' }, modelValue: 'red', valueKey: 'value', items: [{ label: { $t: 'topic.hue.red' }, value: 'red' }, { label: { $t: 'topic.hue.green' }, value: 'green' }] } },
+    { id: 'plain', label: 'plain text trigger (footer line)', props: { label: { $t: 'task.field.priority' }, modelValue: 'red', plain: true, valueKey: 'value', items: [{ label: { $t: 'topic.hue.red' }, value: 'red' }, { label: { $t: 'topic.hue.green' }, value: 'green' }] } },
     { id: 'multiple', props: { label: { $t: 'task.field.priority' }, modelValue: ['red', 'green'], multiple: true, valueKey: 'value', items: [{ label: { $t: 'topic.hue.red' }, value: 'red' }, { label: { $t: 'topic.hue.green' }, value: 'green' }] } },
   ],
   states: [

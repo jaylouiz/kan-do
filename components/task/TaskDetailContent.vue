@@ -93,7 +93,7 @@
     <div class="flex flex-col gap-6 px-6 pb-6">
 
       <!-- 1. Property rows (#161): Status, Priorität, Timebox always; Thema/Aktivität once set -->
-      <div class="flex flex-col" data-testid="task-property-list">
+      <div class="flex flex-col gap-1.5" data-testid="task-property-list">
         <TaskPropertyRow :label="t('task.field.status')">
           <TaskPropertySelect
             :label="t('task.field.status')"
@@ -118,11 +118,11 @@
         </TaskPropertyRow>
 
         <TaskPropertyRow :label="t('task.field.topic')" private>
-          <TopicMark v-if="task.topic" :topic="task.topic" :task="task" class="-me-2 ms-0.5" />
           <TopicPropertyPicker
             kind="topic"
             :editable="!isPreview"
             :label="t('task.field.topic')"
+            :task="task"
             :model-value="task.topic"
             :items="propertyOptionsStore.getTopicOptions"
             :placeholder="t('task.form.choose')"
@@ -316,7 +316,6 @@ import TaskDetailNotes from '~/components/task/TaskDetailNotes.vue';
 import TaskDetailMetadata from '~/components/task/TaskDetailMetadata.vue';
 import TaskPropertySelect from '~/components/task/TaskPropertySelect.vue';
 import TopicPropertyPicker from '~/components/task/TopicPropertyPicker.vue';
-import TopicMark from '~/components/topic/TopicMark.vue';
 import TopicEditorHost from '~/components/topic/TopicEditorHost.vue';
 import TaskCarryOverTriage from '~/components/task/TaskCarryOverTriage.vue';
 import TaskCarryOverDots from '~/components/task/TaskCarryOverDots.vue';

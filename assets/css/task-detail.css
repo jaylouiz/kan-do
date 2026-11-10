@@ -44,12 +44,14 @@
 }
 
 /* ========================================
- * TASK PROPERTY ROWS (#161)
- * Value triggers of the shared label/value rows (TaskPropertyRow): plain body text whose
- * dotted rule appears on hover and focus, the same grammar as the inline editables.
+ * TASK PROPERTY ROWS (#161, #114)
+ * Free values of the shared label/value rows (editable labels: Timebox, Aufgewendete Zeit, text and number
+ * fields, the date trigger): body text with a faint dotted rule at rest on every pointer type, so a value you
+ * can type reads as editable without hovering; hover and focus darken the rule, the same grammar as the inline
+ * editables. A value that opens a list is a soft select instead (app.config.ts `selectMenu`), never this rule.
  * ======================================== */
 .task-property-value {
-  text-decoration: underline dotted transparent 1px;
+  text-decoration: underline dotted var(--ui-border-accented) 1px;
   text-underline-offset: 0.3em;
   transition: text-decoration-color var(--duration-fast) ease;
 }
@@ -64,9 +66,19 @@
   outline-offset: 2px;
 }
 
-/* Touch has no hover: keep a faint rule at rest so values read as editable */
+/* The plain select trigger of a footer line (`property` variant) keeps the old grammar: the rule only on hover and focus,
+   and on touch where there is no hover */
+button[data-slot='base'].task-property-value[aria-haspopup='listbox'] {
+  text-decoration-color: transparent;
+}
+
+button[data-slot='base'].task-property-value[aria-haspopup='listbox']:hover,
+button[data-slot='base'].task-property-value[aria-haspopup='listbox']:focus-visible {
+  text-decoration-color: var(--ui-text-muted);
+}
+
 @media (hover: none) {
-  .task-property-value {
+  button[data-slot='base'].task-property-value[aria-haspopup='listbox'] {
     text-decoration-color: var(--ui-border-accented);
   }
 }
