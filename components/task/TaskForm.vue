@@ -107,22 +107,18 @@
 
       <TaskPropertyRow v-if="showTimebox" v-slot="{ labelId }" :label="t('task.timebox')" data-testid="add-task-timebox">
         <div class="flex min-w-0 flex-col">
-          <div class="flex min-h-8 items-center gap-1.5 max-md:min-h-11">
-            <input
-              :value="timeboxInMinutes ?? ''"
-              type="number"
-              data-testid="add-task-timebox-input"
-              min="0"
-              step="5"
-              placeholder="—"
-              :aria-labelledby="labelId"
-              :aria-describedby="timeboxHintId"
-              class="min-h-8 w-14 [appearance:textfield] border-0 border-b border-dotted border-muted bg-transparent py-0.5 text-sm placeholder:text-muted focus-ring max-md:min-h-11 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-              @input="onTimeboxInput"
-            >
-            <span class="text-sm text-muted">{{ t('duration.unitMinute') }}</span>
+          <MinutesField
+            :value="timeboxInMinutes ?? ''"
+            data-testid="add-task-timebox-input"
+            min="0"
+            step="5"
+            placeholder="—"
+            :aria-labelledby="labelId"
+            :aria-describedby="timeboxHintId"
+            @input="onTimeboxInput"
+          >
             <span :id="timeboxHintId" class="sr-only">{{ t('task.form.durationHint') }}</span>
-          </div>
+          </MinutesField>
 
           <!-- Presets and the suggestion are plain text actions (One Lamp: no second filled control) -->
           <div class="-ms-2 flex flex-wrap items-center">
@@ -299,6 +295,7 @@
 </template>
 
 <script setup lang="ts">
+import MinutesField from '~/components/ui/MinutesField.vue';
 import { ref, computed, watch, onMounted, nextTick, useId } from "vue";
 import { useI18n } from "vue-i18n";
 import { getPriorityLabel } from "~/utils/taskStatusMappings";
