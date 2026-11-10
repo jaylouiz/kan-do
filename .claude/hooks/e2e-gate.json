@@ -43,6 +43,7 @@
         "types/pendingTimeUpdate.ts",
         "types/store/**",
         "lib/taskDates.ts",
+        "lib/doneDay.ts",
         "lib/priority.ts",
         "lib/taskSources.ts",
         "utils/mapHelpers.ts",

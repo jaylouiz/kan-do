@@ -29,6 +29,11 @@ function extraFieldsFor(source: SourceId, mapping: NotionPropertyMapping | null 
   }
 }
 
+/** Whether `source` holds a task's completion date itself (kd#131: a corrected done day is otherwise kept in Kan-Do only). */
+export function sourceStoresCompletedDate(source: SourceId, mapping: NotionPropertyMapping | null | undefined): boolean {
+  return extraFieldsFor(source, mapping).completedDate
+}
+
 /** Whether a custom property carries a value worth keeping (an empty text, a cleared select, an unchecked box do not). */
 export function customEntryHasValue(entry: TaskCustomEntry): boolean {
   const field = entry.value

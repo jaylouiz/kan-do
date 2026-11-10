@@ -2,15 +2,17 @@
 @component DatePickerField
 @kind component
 @category input
-@description Popover calendar picker for task custom date properties.
+@description Popover calendar picker for a date value of a task-sheet row: custom date properties and the done day.
              Wraps UPopover + UCalendar. Replaces <input type="date">.
-@usage <DatePickerField v-model="field.value" />
-@avoid Only custom date properties; other values use TaskPropertySelect or InlineEditable.
+@usage <DatePickerField v-model="field.value" />; a date that must exist and has limits (the done day, kd#131):
+       <DatePickerField :model-value="{ start: day }" :min-day="min" :max-day="max" :clearable="false" />
+@avoid Only a date inside a TaskPropertyRow; other values use TaskPropertySelect or InlineEditable.
 @responsibility
 - Show the formatted date as plain text in read mode (or the muted empty CTA when value is null), no icon
 - Open a UCalendar popover on click
 - Emit update:modelValue with { start: string } on date select
-- Provide Löschen and Heute shortcuts in the popover footer
+- Provide Löschen and Heute shortcuts in the popover footer; `clearable: false` drops Löschen (a value that cannot be empty)
+- `minDay` / `maxDay` (`YYYY-MM-DD`) disable the days outside in the calendar; Heute is disabled when today is outside
 -->
 <template>
   <UPopover v-model:open="isOpen" :disabled="disabled">
@@ -32,11 +34,14 @@
       <div class="min-w-[260px] p-2">
         <UCalendar
           :model-value="calendarDate"
+          :min-value="minValue"
+          :max-value="maxValue"
           data-testid="date-picker-calendar"
           @update:model-value="onSelectDate"
         />
-        <div class="mt-2 flex items-center justify-between border-t pt-2">
+        <div class="mt-2 flex items-center border-t border-default pt-2" :class="clearable ? 'justify-between' : 'justify-end'">
           <UButton
+            v-if="clearable"
             size="sm"
             variant="ghost"
             color="neutral"
@@ -49,6 +54,7 @@
             variant="ghost"
             color="primary"
             :label="t('common.today')"
+            :disabled="!isTodayAllowed"
             data-testid="date-picker-today"
             @click="onToday"
           />
@@ -75,11 +81,20 @@ interface Props {
   disabled?: boolean;
   /** Property name; names the trigger "<label>: <value>" */
   label?: string;
+  /** Earliest selectable day (`YYYY-MM-DD`); none when absent or null */
+  minDay?: string | null;
+  /** Latest selectable day (`YYYY-MM-DD`); none when absent or null */
+  maxDay?: string | null;
+  /** Whether the value can be removed (the Löschen shortcut) */
+  clearable?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   label: undefined,
+  minDay: null,
+  maxDay: null,
+  clearable: true,
 });
 
 const triggerText = computed(() => (props.modelValue ? formatDateRange(props.modelValue) : t('task.datePicker.set')));
@@ -98,6 +113,21 @@ const calendarDate = computed<CalendarDate | undefined>(() => {
   } catch {
     return undefined;
   }
+});
+
+const toCalendarDate = (day: string | null): CalendarDate | undefined => {
+  if (!day) return undefined;
+  try {
+    return parseDate(day);
+  } catch {
+    return undefined;
+  }
+};
+const minValue = computed(() => toCalendarDate(props.minDay));
+const maxValue = computed(() => toCalendarDate(props.maxDay));
+const isTodayAllowed = computed(() => {
+  const now = today(getLocalTimeZone());
+  return !(minValue.value && now.compare(minValue.value) < 0) && !(maxValue.value && now.compare(maxValue.value) > 0);
 });
 
 function onSelectDate(value: DateValue | DateRange | DateValue[] | null | undefined) {

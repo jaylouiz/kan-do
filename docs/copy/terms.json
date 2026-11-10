@@ -707,5 +707,15 @@
     "avoidEn": [],
     "status": "proposed",
     "note": "Named by the maintainer in the kd#16 design round (the cell looks like an input and says \"Mehr\"). The settings tab \"Verwaltung\" avoids \"Mehr\" as a catch-all name; this cell is the opposite, an action that shows more values of one list."
+  },
+  {
+    "id": "done-day",
+    "concept": "The calendar day a task counts as done on: shown as a row of a done task's sheet, where a task marked done late is moved to the day the work was finished (kd#131)",
+    "de": "Erledigt am",
+    "en": "Done on",
+    "avoidDe": ["Fertig am"],
+    "avoidEn": ["Finished on"],
+    "status": "proposed",
+    "note": "Same wording as the Statistik table column (statistics.table.completedAt). Follows the decided task state erledigt / done (column-done). The Notion setup names Notion's own property and is not this row."
   }
 ]

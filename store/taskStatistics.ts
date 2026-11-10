@@ -221,6 +221,19 @@ export const useTaskStatisticsStore = defineStore("taskStatistics", () => {
   }
 
   /**
+   * Move a task's completion record to another time (kd#131: the user corrected the done day), so every
+   * statistic counts the task and its time on that day. Archived tasks keep their record, so they follow too.
+   * @returns false when the task has no record
+   */
+  function setCompletionDate(taskId: string, completedAt: Date): boolean {
+    const index = completionRecords.value.findIndex(r => r.taskId === taskId);
+    const existing = completionRecords.value[index];
+    if (!existing || Number.isNaN(completedAt.getTime())) return false;
+    completionRecords.value[index] = { ...existing, completedAt };
+    return true;
+  }
+
+  /**
    * Remove a task completion record
    */
   function removeTaskRecord(taskId: string): void {
@@ -384,6 +397,7 @@ export const useTaskStatisticsStore = defineStore("taskStatistics", () => {
     recordTaskCompletion,
     addMockData,
     updateTaskRecord,
+    setCompletionDate,
     renameValue,
     removeTaskRecord,
     clearAllRecords,
