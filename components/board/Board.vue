@@ -171,6 +171,7 @@ import TaskStack from "~/components/task/TaskStack.vue";
 import BoardPageDots from "~/components/board/BoardPageDots.vue";
 import FocusOverlay from "~/components/board/FocusOverlay.vue";
 import { FOCUS_LEAVE_MS, useFocusOverlay } from "~/composables/useFocusOverlay";
+import { arrivedFromAnotherPage } from "~/lib/routeArrival";
 import { inCardAdding } from "~/composables/useInCardAdding";
 import { useOpenLayer } from "~/composables/useOpenLayer";
 import { useNewDayRecap } from "~/composables/useNewDayRecap";
@@ -291,7 +292,10 @@ const focusEnabledNow = computed(
     !inCardAdding.value &&
     (!isMobile.value || activeMobileTab.value === 1),
 );
-const { shown: focusShown, pointerKind: focusPointerKind, swallowTap: focusSwallowTap } = useFocusOverlay(focusEnabledNow);
+/** Reached from another page (statistics, settings): the overlay waits its return delay, so the whole board is seen first (kd#133) */
+const { shown: focusShown, pointerKind: focusPointerKind, swallowTap: focusSwallowTap } = useFocusOverlay(focusEnabledNow, {
+  arrived: arrivedFromAnotherPage(),
+});
 
 /** The card left Jetzt (done, waiting, synced away) while the overlay was up: it stays mounted to fade out (#394).
  *  A drag, an open sheet or layer still remove it at once. `data-focus` follows `focusEnabledNow`, so the layer rules go now. */
