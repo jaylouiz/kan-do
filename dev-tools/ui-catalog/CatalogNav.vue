@@ -15,7 +15,7 @@
       <li><NuxtLink :to="{ path: '/ui' }" :class="linkClass(current === '')" :aria-current="current === '' ? 'page' : undefined">Overview</NuxtLink></li>
     </ul>
     <div v-for="section in sections" :key="section.id" class="space-y-1">
-      <NuxtLink :to="{ path: '/ui', query: { v: section.id } }" class="block px-2 text-xs font-medium text-muted hover:text-default" :aria-current="current === section.id ? 'page' : undefined">
+      <NuxtLink :to="{ path: '/ui', query: { v: section.id } }" class="flex min-h-6 items-center px-2 text-xs font-medium text-muted hover:text-default" :aria-current="current === section.id ? 'page' : undefined">
         {{ section.title }}
       </NuxtLink>
       <ul v-if="section.open" class="space-y-0.5">
@@ -62,7 +62,7 @@ const sections = computed(() => [
 ])
 
 const linkClass = (active: boolean) => [
-  'flex items-center justify-between gap-2 rounded-md px-2 py-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary',
+  'flex min-h-7 items-center justify-between gap-2 rounded-md px-2 py-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary',
   active ? 'bg-inverted text-inverted' : 'text-default hover:bg-elevated',
 ]
 </script>

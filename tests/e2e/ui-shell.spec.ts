@@ -146,6 +146,21 @@ test.describe('/ui catalog shell', () => {
     }
   }
 
+  for (const [view, url] of [['overview', '/ui'], ['tokens', '/ui?v=tokens'], ['a component', '/ui?c=StatsTrendBars'], ['one page', '/ui?v=all']] as const) {
+    test(`${view}: every link of the chrome is at least 24 px high and wide (target size, whatever sits next to it)`, async ({ page }) => {
+      // axe's target-size passes a smaller link when nothing is near it, which made the rule depend on layout timing and font rendering
+      await page.setViewportSize({ width: 1280, height: 800 })
+      await page.goto(url)
+      await expect(page.locator('[data-kd-catalog-ready]')).toBeAttached()
+      const small = await page.evaluate(() => Array.from(document.querySelectorAll<HTMLElement>('[data-kd-ui-catalog] a'))
+        .filter(link => !link.closest('[data-kd-sample], [data-kd-preview], [data-kd-launch]'))
+        .map(link => ({ link, box: link.getBoundingClientRect() }))
+        .filter(({ box }) => box.width > 0 && (box.height < 24 || box.width < 24))
+        .map(({ link, box }) => `${link.getAttribute('href')} ${Math.round(box.width)}x${Math.round(box.height)}`))
+      expect(small).toEqual([])
+    })
+  }
+
   test('/styleguide is gone: no old page renders', async ({ page }) => {
     await page.goto('/styleguide')
     await expect(page.locator('[data-kd-ui-catalog]')).toHaveCount(0)

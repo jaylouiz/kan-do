@@ -22,7 +22,7 @@
 
     <ul v-if="!group" class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3" aria-label="Token groups">
       <li v-for="section in sections" :key="section.id" class="relative rounded-lg border border-default bg-default p-4">
-        <NuxtLink :to="{ path: '/ui', query: { v: `tokens.${section.id}` } }" class="font-display text-lg text-highlighted after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:rounded-lg focus-visible:after:outline-2 focus-visible:after:outline-primary">
+        <NuxtLink :to="{ path: '/ui', query: { v: `tokens.${section.id}` } }" class="inline-flex min-h-6 items-center font-display text-lg text-highlighted after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:rounded-lg focus-visible:after:outline-2 focus-visible:after:outline-primary">
           {{ section.title }}
         </NuxtLink>
         <p class="mt-1 text-sm text-muted">{{ section.hint }}</p>

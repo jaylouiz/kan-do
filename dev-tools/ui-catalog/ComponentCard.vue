@@ -47,7 +47,7 @@
     </dl>
 
     <p v-if="entry?.screen" class="text-sm text-default">
-      Lives on <NuxtLink :to="entry.screen" class="font-mono underline underline-offset-2">{{ entry.screen }}</NuxtLink>
+      Lives on <NuxtLink :to="entry.screen" class="inline-flex min-h-6 items-center font-mono underline underline-offset-2">{{ entry.screen }}</NuxtLink>
     </p>
 
     <p v-if="!entry" class="max-w-2xl text-sm text-muted" data-testid="catalog-no-entry">No isolated preview: a feature part is reviewed on the screen it serves.</p>
