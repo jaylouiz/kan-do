@@ -3,7 +3,7 @@
 @kind component
 @category input
 @description The one editor every entry point opens (#430, #431): Name, Farbe (nine hues plus none, radio swatches) and
-Symbol (a button showing the current mark; a popover with 24 glyphs plus none). An activity has the Name only. A name a
+Symbol (a button showing the current mark; it opens a grid of 24 glyphs plus none below itself, in the editor's own flow). An activity has the Name only. A name a
 source owns (Notion schema or any non-Local task) is disabled with the reason; Farbe and Symbol stay editable and say they
 apply only in kan-do. A new name that already exists merges into it and the target's style stays. Saving is local and
 immediate: no loading or error state.
@@ -14,8 +14,9 @@ immediate: no loading or error state.
 - Name is trimmed; an empty name or nothing changed cannot be saved; the editor closes after saving
 - The key of the editor is the *name*: the host re-keys after a rename instead of editing the old name
 - Focus starts in the Name (the first colour when the name is gated); Escape closes the editor only (the task sheet vetoes its own dismissal, `data-topic-editor`)
-- Hue and symbol groups are `SwatchRadioGroup` (`role="radiogroup"`, arrow keys); the symbol popover closes on pick or Escape and keeps the editor open
-@accessibility The gate hint is `aria-describedby` of the disabled Name, the merge note is `role="status"`
+- Hue and symbol groups are `SwatchRadioGroup` (`role="radiogroup"`, arrow keys); the symbol grid closes on pick or Escape, keeps the editor open and hands focus back to its button
+- The symbol grid is inline, never a popover (kd#135, agent-decided): a popover sat over the count line and the actions of its own form (below the button at 1280, flipped over Name and Farbe at 390), and no side is free of the form once the sheet is short or scrolled. In the flow it pushes them down, and opening it scrolls the actions back into view where the scroll region has the room. Seven capped columns in a white well under the button: four rows instead of five, one compact block in every host, and the glyphs keep the contrast they have on a card (yellow 3.4:1; 2.9:1 on the muted panel). Rejected: `side: 'top'` (covers Name and Farbe, flips back over the actions when there is no room above), a side placement (no room at 390, covers Speichern at 1280), a grid that is always open (25 glyphs at rest in a form mostly opened to rename), `UCollapsible` (its height animation runs while the focus and the scroll have to land)
+@accessibility The gate hint is `aria-describedby` of the disabled Name, the merge note is `role="status"`; the symbol button is a disclosure (`aria-expanded`, `aria-controls`)
 -->
 <template>
   <form class="space-y-4" data-testid="topic-editor" data-topic-editor @submit.prevent="onSave" @keydown.esc.stop.prevent="emit('close')">
@@ -69,51 +70,54 @@ immediate: no loading or error state.
         </p>
       </fieldset>
 
-      <div class="space-y-1.5">
+      <div class="space-y-1.5" @keydown.esc="onPickerEscape">
         <span class="block text-xs font-medium text-muted">{{ t('topic.editor.symbol') }}</span>
-        <UPopover v-model:open="pickerOpen" :content="{ side: 'bottom', align: 'start', sideOffset: 6 }" :ui="{ content: 'w-64 p-2' }">
-          <UButton
-            color="neutral"
-            variant="subtle"
-            :label="symbolLabel"
-            trailing-icon="i-ph-caret-down"
-            :aria-label="t('topic.editor.symbolButton', { value: symbolLabel })"
-            aria-haspopup="dialog"
-            data-testid="topic-symbol-trigger"
-          >
-            <template #leading>
-              <span class="topic-symbol-well">
-                <TopicMark v-if="effectiveHue || symbol" :hue="effectiveHue" :symbol="symbol" />
-                <span v-else class="topic-symbol-empty" aria-hidden="true" />
-              </span>
-            </template>
-          </UButton>
-          <template #content>
-            <SwatchRadioGroup
-              ref="symbolGroup"
-              v-model="symbol"
-              :options="symbolOptions"
-              :label="t('topic.editor.symbol')"
-              variant="glyph"
-              :columns="5"
-              item-testid="topic-symbol"
-              class="topic-symbol-grid"
-              data-testid="topic-symbol-group"
-              @pick="pickerOpen = false"
-            >
-              <template #option="{ option }">
-                <TopicMark v-if="option.key" :hue="effectiveHue" :symbol="option.key" />
-                <span v-else class="topic-symbol-empty" aria-hidden="true" />
-              </template>
-            </SwatchRadioGroup>
+        <UButton
+          ref="symbolTrigger"
+          type="button"
+          color="neutral"
+          variant="subtle"
+          :label="symbolLabel"
+          trailing-icon="i-ph-caret-down"
+          :ui="{ trailingIcon: pickerOpen ? 'rotate-180 transition-transform duration-(--duration-base)' : 'transition-transform duration-(--duration-base)' }"
+          :aria-label="t('topic.editor.symbolButton', { value: symbolLabel })"
+          :aria-expanded="pickerOpen"
+          :aria-controls="pickerOpen ? gridId : undefined"
+          data-testid="topic-symbol-trigger"
+          @click="pickerOpen = !pickerOpen"
+        >
+          <template #leading>
+            <span class="topic-symbol-well">
+              <TopicMark v-if="effectiveHue || symbol" :hue="effectiveHue" :symbol="symbol" />
+              <span v-else class="topic-symbol-empty" aria-hidden="true" />
+            </span>
           </template>
-        </UPopover>
+        </UButton>
+        <SwatchRadioGroup
+          v-if="pickerOpen"
+          :id="gridId"
+          ref="symbolGroup"
+          v-model="symbol"
+          :options="symbolOptions"
+          :label="t('topic.editor.symbol')"
+          variant="glyph"
+          :columns="SYMBOL_COLUMNS"
+          item-testid="topic-symbol"
+          class="topic-symbol-grid"
+          data-testid="topic-symbol-group"
+          @pick="closePicker"
+        >
+          <template #option="{ option }">
+            <TopicMark v-if="option.key" :hue="effectiveHue" :symbol="option.key" />
+            <span v-else class="topic-symbol-empty" aria-hidden="true" />
+          </template>
+        </SwatchRadioGroup>
       </div>
     </template>
 
     <p class="text-sm text-muted" data-testid="topic-editor-count">{{ countLine }}</p>
 
-    <div class="flex items-center justify-end gap-2">
+    <div ref="actionsRow" class="flex scroll-mb-4 items-center justify-end gap-2">
       <UButton type="button" color="neutral" variant="ghost" :label="t('topic.editor.cancel')" data-testid="topic-cancel" @click="emit('close')" />
       <UButton
         size="lg"
@@ -149,6 +153,10 @@ const styles = useTopicStylesStore()
 const { sourceHueOf } = useTopicColor()
 const nameId = useId()
 const gateId = useId()
+const gridId = useId()
+
+/** Columns of the symbol grid: 25 cells in four rows, and seven 40 px cells still fit the narrowest drawer (320 px). */
+const SYMBOL_COLUMNS = 7
 
 const start = styles.styleOf(props.topic)
 const name = ref(props.topic)
@@ -194,12 +202,32 @@ const symbolLabel = computed(() => {
 const hueGroup = ref<InstanceType<typeof SwatchRadioGroup> | null>(null)
 const symbolGroup = ref<InstanceType<typeof SwatchRadioGroup> | null>(null)
 
-// Focus the selected glyph when the popover opens, so the arrow keys work at once
+const symbolTrigger = ref<{ $el?: HTMLElement } | null>(null)
+const actionsRow = ref<HTMLElement | null>(null)
+
+// The grid opens in the editor's own flow (kd#135): it pushes the count line and the actions down instead of covering
+// them. Bring the actions back into view where the scroll region has the room, then focus the selected glyph, so the
+// arrow keys work at once (the focus call itself keeps the glyph in view when the editor is taller than the region).
 watch(pickerOpen, async (open) => {
   if (!open) return
   await nextTick()
+  actionsRow.value?.scrollIntoView({ block: 'nearest' })
   symbolGroup.value?.focusSelected()
 })
+
+/** A pick or Escape closes the grid; focus returns to its button, never to the page. */
+function closePicker() {
+  pickerOpen.value = false
+  symbolTrigger.value?.$el?.focus({ preventScroll: true })
+}
+
+/** Escape closes the open grid only; with the grid closed it bubbles to the form and closes the editor. */
+function onPickerEscape(event: KeyboardEvent) {
+  if (!pickerOpen.value) return
+  event.stopPropagation()
+  event.preventDefault()
+  closePicker()
+}
 
 // The editor takes focus where the edit starts: the Name, or the first colour when Notion owns the name
 onMounted(() => {
@@ -266,8 +294,18 @@ function onSave() {
 
 .topic-symbol-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  /* 7 = SYMBOL_COLUMNS in the script (ArrowUp/Down move by this many cells). Tracks are capped, so the grid is one
+     compact block under its button in every host (a wide settings row as the 320 px drawer, where they shrink) */
+  grid-template-columns: repeat(7, minmax(0, 2.75rem));
   gap: 0.125rem;
+  /* A white well in a hairline, like the Name field: on the muted inline panel the yellow glyph would fall to 2.9:1,
+     on white it keeps the 3.4:1 it has on a card (WCAG 1.4.11); it also holds the grid together as one control */
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.25rem;
+  border-radius: var(--ui-radius);
+  background: var(--ui-bg);
+  box-shadow: inset 0 0 0 1px var(--ui-border);
 }
 
 @media (--phone) {

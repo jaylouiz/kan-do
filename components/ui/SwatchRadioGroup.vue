@@ -8,7 +8,7 @@
 @responsibility
 - Render `role="radiogroup"` with one native `<button role="radio">` per option (`aria-checked`, `aria-label` from the option); roving tabindex: the selected option (else the first) is the one Tab stop
 - Arrow keys move the focus and the selection to the neighbour (wrapping), Home/End to the ends, with `columns` Up/Down by a row (`utils/radioArrowKeys`); no library radio group does a grid, which is why this stays a hand-built role (decision D3 of #72)
-- `swatch` 28 px round (40 px on a phone, the ring marks the selection), `glyph` 40 px cells (the `none` cell in a hairline); the solid ink focus ring
+- `swatch` 28 px round (40 px on a phone, the ring marks the selection), `glyph` 40 px cells (the `none` cell in a hairline; hover is a fill, the selection an inset ring); the solid ink focus ring
 - Option content (the dot, the glyph) is the `option` slot; `focusSelected()` is exposed for hosts that move focus in on open
 - `item-testid` names the options `<prefix>-<key|none>`; attributes of the host (the group's `data-testid`) land on the group
 -->
@@ -125,12 +125,15 @@ defineExpose({ focusSelected });
   box-shadow: inset 0 0 0 1px var(--ui-border);
 }
 
+/* Hover is a fill, the selection a ring (the swatches' own mark): two channels, so a hovered cell never reads as a
+   second selected one, on a muted panel as on a white one (the topic editor's inline grid, kd#135) */
 .swatch-radio--glyph:hover {
-  background: var(--ui-bg-muted);
+  background: var(--ui-bg-accented);
 }
 
-.swatch-radio--glyph[aria-checked='true'] {
-  background: var(--ui-bg-accented);
+.swatch-radio--glyph[aria-checked='true'],
+.swatch-radio--glyph.swatch-radio--none[aria-checked='true'] {
+  box-shadow: inset 0 0 0 2px var(--ui-text-highlighted);
 }
 
 @media (--phone) {

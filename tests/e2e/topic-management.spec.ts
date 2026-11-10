@@ -222,6 +222,33 @@ for (const vp of VIEWPORTS) {
       await expect(page.getByTestId('topics-list')).not.toContainText('Reisen')
     })
 
+    test('the open symbol grid covers neither the count line nor the actions; Escape closes it alone and focus returns to its button (kd#135)', async ({ page }) => {
+      await page.goto('/tasks/tm-open')
+      await openEditorFromPicker(page, 'Home')
+      const trigger = editor(page).getByTestId('topic-symbol-trigger')
+      await trigger.focus()
+      await page.keyboard.press('Enter')
+      await expect(trigger).toHaveAttribute('aria-expanded', 'true')
+      // Focus moves into the grid, on the selected glyph
+      await expect(page.getByTestId('topic-symbol-group').getByRole('radio', { checked: true })).toBeFocused()
+      // A covered element fails the trial click's hit test
+      await editor(page).getByTestId('topic-editor-count').click({ trial: true })
+      await editor(page).getByTestId('topic-cancel').click({ trial: true })
+
+      await page.keyboard.press('Escape')
+      await expect(page.getByTestId('topic-symbol-group')).toHaveCount(0)
+      await expect(editor(page)).toBeVisible()
+      await expect(trigger).toBeFocused()
+
+      // A pick by mouse closes the grid and hands focus back too; the next Escape closes the editor
+      await trigger.click()
+      await page.getByTestId('topic-symbol-briefcase').click()
+      await expect(page.getByTestId('topic-symbol-group')).toHaveCount(0)
+      await expect(trigger).toBeFocused()
+      await page.keyboard.press('Escape')
+      await expect(editor(page)).toHaveCount(0)
+    })
+
     test('colour and symbol: the mark shows on the card and in the sheet, an unstyled topic has none, all survive a reload', async ({ page }) => {
       await page.goto('/settings/topics')
       await row(page, 'Home').getByTestId('topics-row-button').click()
