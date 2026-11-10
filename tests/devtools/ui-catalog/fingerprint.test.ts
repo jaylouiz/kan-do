@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { diffFingerprint, serializeFingerprint } from '../../e2e/helpers/fingerprint'
+import { mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { diffFingerprint, readFingerprintDir, serializeFingerprint, splitFingerprint, writeFingerprintDir } from '../../e2e/helpers/fingerprint'
 
 const base = {
   'UButton:matrix:primary/solid/md': { 'background-color': 'rgb(1, 2, 3)', 'color': 'rgb(255, 255, 255)' },
@@ -27,5 +30,22 @@ describe('style fingerprint helpers (#66)', () => {
     const text = serializeFingerprint({ b: { x: '1' }, a: { x: '2' } })
     expect(text).toBe('{\n  "a": {"x":"2"},\n  "b": {"x":"1"}\n}\n')
     expect(JSON.parse(text)).toEqual({ a: { x: '2' }, b: { x: '1' } })
+  })
+
+  it('splits by component: one file per component, a removed component loses its file, reading gives the whole fingerprint back (#117)', () => {
+    const all = { ...base, 'ExternalLink:state:focus': { color: 'x' } }
+    expect(Object.keys(splitFingerprint(all))).toEqual(['UButton', 'ExternalLink'])
+    const dir = mkdtempSync(join(tmpdir(), 'fingerprint-'))
+    try {
+      writeFingerprintDir(dir, all)
+      expect(readdirSync(dir).sort()).toEqual(['ExternalLink.json', 'UButton.json'])
+      expect(readFingerprintDir(dir)).toEqual(all)
+      writeFileSync(join(dir, 'Gone.json'), '{}')
+      writeFingerprintDir(dir, base)
+      expect(readdirSync(dir)).toEqual(['UButton.json'])
+      expect(() => splitFingerprint({ ':x': {} })).toThrow(/component name/)
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
   })
 })

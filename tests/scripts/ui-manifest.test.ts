@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { readFileSync } from 'node:fs'
-import { MANIFEST_PATH, UI_CATEGORIES, UI_KINDS, buildManifest, catalogFiles, checkDocBlock, loadCatalogEntries, componentFiles, parseDocBlock, renderManifest } from '../../scripts/ui-manifest.mjs'
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
+import { UI_CATEGORIES, UI_KINDS, buildManifest, catalogFiles, checkDocBlock, loadCatalogEntries, componentFiles, parseDocBlock } from '../../scripts/ui-manifest.mjs'
 
 const block = (extra = '') => `<!--
 @component Demo
@@ -52,7 +53,7 @@ describe('checkDocBlock', () => {
   })
 })
 
-describe('docs/design/ui-manifest.json', () => {
+describe('the derived manifest (#117: no committed file)', () => {
   const manifest = buildManifest()
 
   it('lists every component with a kind and one category from the list', () => {
@@ -76,10 +77,10 @@ describe('docs/design/ui-manifest.json', () => {
   })
 
   it('is deterministic', () => {
-    expect(renderManifest(buildManifest())).toBe(renderManifest(manifest))
+    expect(JSON.stringify(buildManifest())).toBe(JSON.stringify(manifest))
   })
 
-  it('is up to date: run `npm run ui:manifest` after a doc-block edit', () => {
-    expect(readFileSync(MANIFEST_PATH, 'utf8')).toBe(renderManifest(manifest))
+  it('is no committed file: a stale copy is what made clean merges of parallel UI PRs fail (#117)', () => {
+    expect(existsSync(join(__dirname, '../../docs/design/ui-manifest.json'))).toBe(false)
   })
 })

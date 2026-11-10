@@ -5,9 +5,6 @@
 import { CATALOG_DEMO_TASKS, CATALOG_STATES, type CatalogEntry } from '~/catalog/types'
 import { isI18nRef, type ManifestRow } from './catalogModel'
 
-/** Categories whose slice has landed: every manifest component of such a category needs an entry. The category slices (#71 to #77) add theirs (Aktion: #71, Darstellung: #76, Rückmeldung: #74, Overlay: #75, Navigation and keyboard: #73, Eingabe and form structure: #72, Layout and blocks: #77). */
-export const LANDED_CATEGORIES: string[] = ['action', 'display', 'feedback', 'overlay', 'navigation', 'keyboard', 'input', 'form-structure', 'layout']
-
 /** Every i18n key an entry refers to (slots and props, nested). */
 export function referencedKeys(entry: CatalogEntry): string[] {
   const keys: string[] = []
@@ -61,9 +58,9 @@ export function entryProblems(path: string, entry: CatalogEntry, manifest: Manif
   return problems
 }
 
-/** Manifest components a landed category still lacks an entry for. */
-export function missingEntries(manifest: ManifestRow[], entries: CatalogEntry[], landed: string[] = LANDED_CATEGORIES): string[] {
+/** Manifest components that lack an entry (every category has landed; #117 dropped the per-category list). */
+export function missingEntries(manifest: ManifestRow[], entries: CatalogEntry[]): string[] {
   return manifest
-    .filter(row => landed.includes(row.category) && !entries.some(entry => entry.component === row.name))
+    .filter(row => !entries.some(entry => entry.component === row.name))
     .map(row => row.name)
 }
