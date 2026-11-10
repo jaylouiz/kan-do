@@ -80,7 +80,7 @@
           @clear="formData.topic = ''"
           @create="handleCreateTopic"
         >
-          <template v-if="formData.topic" #value-leading>
+          <template v-if="formData.topic && topicHasMark" #value-leading>
             <TopicMark :topic="formData.topic" />
           </template>
           <template #item-leading="{ item }">
@@ -525,7 +525,8 @@ const showActivity = computed(() => fields.value.activity);
 const showTopic = computed(() => fields.value.topic);
 
 /** The colour siblings with the chosen topic show, so the draft card and the saved task carry their mark (#672) */
-const { colorCodeFor } = useTopicColor();
+const { colorCodeFor, markOf } = useTopicColor();
+const topicHasMark = computed(() => { const m = markOf(formData.value.topic); return !!(m.hue || m.symbol); });
 const topicColorCode = computed(() => {
   if (!showTopic.value || !formSource.value) return null;
   const topic = formData.value.topic?.trim();

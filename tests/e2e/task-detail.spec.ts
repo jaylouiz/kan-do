@@ -407,6 +407,19 @@ test.describe('Task Detail View', () => {
     await expect.soft(page.getByTestId('task-topic-select').getByTestId('topic-mark'), 'topic mark inside the select').toHaveCount(1);
     await expect.soft(list.getByTestId('topic-mark'), 'no second topic mark beside the select').toHaveCount(1);
 
+    // hover and focus change the fill; a click keeps it filled (no blank-out); keyboard focus draws the solid ink ring
+    const status = page.getByTestId('task-status-select');
+    const rest = await status.evaluate((el) => getComputedStyle(el).backgroundColor);
+    await status.hover();
+    await expect.poll(() => status.evaluate((el) => getComputedStyle(el).backgroundColor), 'status select: hover changes the fill').not.toBe(rest);
+    await page.mouse.move(0, 0);
+    await status.focus();
+    await page.keyboard.press('Shift+Tab');
+    await page.keyboard.press('Tab');
+    await expect.soft(status, 'status select: keyboard focus ring is solid 2px').toHaveCSS('outline-style', 'solid');
+    await expect.soft(status, 'status select: keyboard focus ring width').toHaveCSS('outline-width', '2px');
+    await expect.soft(status, 'status select: focus keeps a fill').toHaveCSS('background-color', /^(?!rgba\(0, 0, 0, 0\)|transparent).+/);
+
     // a free value: dotted rule at rest, no fill
     const timebox = page.getByRole('button', { name: /^Timebox: / });
     await expect.soft(timebox, 'timebox: dotted rule at rest').toHaveCSS('text-decoration-style', 'dotted');

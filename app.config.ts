@@ -230,7 +230,7 @@ export default defineAppConfig({
         // `property` (#161) is the quiet text trigger, kept for the add sheet's footer line (AddTargetSwitch):
         // body text with the dotted rule on hover/focus (task-detail.css), no fill, no caret, no icons.
         variant: {
-          soft: 'text-default bg-muted hover:bg-accented focus-visible:bg-accented disabled:bg-muted',
+          soft: 'text-default bg-muted hover:bg-(--ui-border-accented) focus:bg-muted focus-visible:bg-(--ui-border-accented) disabled:bg-muted',
           property: {
             value: 'pointer-events-none',
             placeholder: 'text-muted',
@@ -244,7 +244,8 @@ export default defineAppConfig({
         {
           variant: 'soft',
           class: {
-            base: 'min-h-9 w-48 cursor-pointer text-sm max-md:min-h-11 md:text-sm',
+            // the solid 2px ink ring of DESIGN.md "Focus": a compound variant, because Nuxt UI's own outline-3 / outline-primary/25 halo merges in after the plain variant
+            base: 'min-h-9 w-48 cursor-pointer text-sm max-md:min-h-11 md:text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
             placeholder: 'text-muted',
             trailingIcon: 'size-4 text-muted'
           }

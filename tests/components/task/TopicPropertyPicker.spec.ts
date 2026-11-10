@@ -201,8 +201,11 @@ describe('TopicPropertyPicker edit mode (#443)', () => {
     expect(countOfCalls.n).toBe(2)
   })
 
-  it('the topic mark sits inside the select through the value-leading slot, only for a set topic (#114)', () => {
+  it('the topic mark sits inside the select through the value-leading slot, only for a set topic with a mark (#114)', () => {
+    useTasksStore().setTasks([{ ...task('a', 'Wrk'), topicColorCode: 'blue' }, task('c', 'Home')])
     expect(mountedMark(mountPicker()).exists()).toBe(true)
+    // An unstyled topic has no mark: no leading slot, so the select keeps no empty gap
+    expect(mountedMark(mountPicker({ modelValue: 'Home' })).exists()).toBe(false)
     expect(mountedMark(mountPicker({ modelValue: null })).exists()).toBe(false)
     expect(mountedMark(mountPicker({ modelValue: undefined })).exists()).toBe(false)
     expect(mountedMark(mountPicker({ kind: 'activity', label: 'Aktivität' })).exists()).toBe(false)

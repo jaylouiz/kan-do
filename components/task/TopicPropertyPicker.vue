@@ -38,7 +38,7 @@
     @clear="emit('clear')"
     @create="(value) => emit('create', value)"
   >
-    <template v-if="kind === 'topic' && modelValue" #value-leading>
+    <template v-if="kind === 'topic' && modelValue && hasMark" #value-leading>
       <TopicMark :topic="modelValue" :task="task" />
     </template>
     <template v-if="kind === 'topic'" #item-leading="{ item }">
@@ -103,6 +103,7 @@ import { computed, nextTick, ref, useId, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TaskPropertySelect from '~/components/task/TaskPropertySelect.vue';
 import TopicMark from '~/components/topic/TopicMark.vue';
+import { useTopicColor } from '~/composables/useTopicColor';
 import { useTopicManagement } from '~/composables/useTopicManagement';
 import type { Task } from '~/types/task';
 
@@ -142,6 +143,12 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const { countOf } = useTopicManagement();
+const { markOf } = useTopicColor();
+/** A topic without hue or symbol has no mark: no leading slot, so the select keeps no empty gap (#114) */
+const hasMark = computed(() => {
+  const mark = markOf(props.modelValue, props.task);
+  return !!(mark.hue || mark.symbol);
+});
 
 const isOpen = ref(false);
 const editMode = ref(false);
