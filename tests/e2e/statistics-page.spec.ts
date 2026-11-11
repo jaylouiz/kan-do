@@ -348,6 +348,33 @@ test.describe('Statistics Page', () => {
       await expect(page).toHaveURL(/\/statistics(\?open=3)?$/);
     });
 
+    test('opening and closing a task keeps the page where it was, like the board (kd#179)', async ({ page, baseURL }) => {
+      await page.goto(`${baseURL}/statistics`);
+      const list = page.getByTestId('stats-all-tasks');
+      await list.getByText(/Alle erledigten Aufgaben/).click();
+      const row = list.getByText('Test Task 1');
+      await expect(row).toBeVisible();
+      await row.scrollIntoViewIfNeeded();
+      await page.evaluate(() => window.scrollBy(0, 120));
+      const before = await page.evaluate(() => window.scrollY);
+      expect(before).toBeGreaterThan(100);
+      await row.click();
+      await expect(page.getByRole('dialog', { name: 'Test Task 1' })).toBeVisible();
+      expect(await page.evaluate(() => window.scrollY)).toBe(before);
+      await page.keyboard.press('Escape');
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+      await expect(page).toHaveURL(/\/statistics$/);
+      expect(await page.evaluate(() => window.scrollY)).toBe(before);
+    });
+
+    test('the sheet dims the page like on the board (kd#179)', async ({ page, baseURL }) => {
+      await page.goto(`${baseURL}/statistics?open=3`);
+      await page.getByTestId('stats-outliers').getByRole('button', { name: /Test Task 2/ }).click();
+      const overlay = page.locator('[data-slot="overlay"]:visible');
+      await expect(overlay).toHaveCount(1);
+      await expect.poll(async () => overlay.evaluate(el => getComputedStyle(el).backgroundColor)).not.toBe('rgba(0, 0, 0, 0)');
+    });
+
     test('a reload on /statistics/<id> shows the page with the sheet open; an unknown task shows the not-found state', async ({ page, baseURL }) => {
       await page.goto(`${baseURL}/statistics/test-task-1`);
       await expect(page.getByTestId('stats-verdict')).toBeVisible();

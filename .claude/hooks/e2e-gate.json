@@ -661,6 +661,7 @@
       "specs": [
         "task-detail-focus",
         "task-sheet-spotlight",
+        "statistics-page",
         "task-form-structure",
         "task-draft-card",
         "add-task-button",
