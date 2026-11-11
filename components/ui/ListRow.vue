@@ -7,7 +7,7 @@
 @avoid Not a card (TaskCard, UCard) and not a table row (UTable); a row that is only text with no trailing part is a plain `<li>`.
 @responsibility
 - Render the `<li>`; the surrounding `<ul class="divide-y divide-default">` draws the hairlines
-- `to`: the row is one `NuxtLink` (`min-h-11`, focus ring, the `surface` tint on hover whatever `hover` says), laid out `-mx-2 px-2` so its icon lines up with the rows of the list above (#683) and the tint has room around the text, `@click` is re-emitted so a host (a dialog) can close itself while the link navigates; `buttonTestid` names the link
+- `to`: the row is one `NuxtLink` (it wins over `action`: no button, `expanded`, `label`, `#after` or `focus()`; `min-h-11`, focus ring, the `surface` tint on hover whatever `hover` says), laid out `-mx-2 px-2` so its icon lines up with the rows of the list above (#683) and the tint has room around the text, `@click` is re-emitted so a host (a dialog) can close itself while the link navigates; `buttonTestid` names the link
 - `hover` (action rows): `text` (default) or `surface` for rows whose children set their own colours
 - `density` sets the vertical rhythm: roomy (sources), cozy (action rows), compact (backups)
 - `action`: the slot (use a `<span class="flex …">` for its layout) sits inside one `<button>` with `focus-ring`, `min-h-11`, `aria-expanded` from `expanded`, `aria-label` from `label`; `focus()` is exposed for hosts that return focus to the row

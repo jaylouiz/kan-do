@@ -24,7 +24,7 @@ let returnFocusTaskId: string | null = null;
 /** Wait for the history step of `router.back()` before giving up and replacing. */
 const BACK_TIMEOUT_MS = 1500;
 
-/** The page that hosts the sheet: the top of the matched route records (`/tasks`, `/statistics`). */
+/** The page that hosts the sheet: the top of the matched route records (`/tasks`, `/statistics`). A host page with a dynamic parent (`/boards/:id`) would need the resolved path here instead of the record's pattern. */
 const hostPath = (): string => {
   const router = useRouter();
   return router.currentRoute.value.matched[0]?.path ?? '/tasks';
