@@ -519,8 +519,13 @@ const openDetails = (event: MouseEvent) => {
   filter: grayscale(var(--task-muted-filter-grayscale))
     brightness(var(--task-muted-filter-brightness))
     contrast(var(--task-muted-filter-contrast));
-  transition: filter var(--task-muted-transition-duration)
-      var(--task-muted-transition-easing),
+  /* Same colour and shadow easing as the `.task` base rule: this list replaces it, so leaving them out made the hover
+     shadow of a Wartet card snap instead of ease (#147) */
+  transition:
+    background-color var(--duration-fast) var(--ease-emphasized),
+    color var(--duration-fast) var(--ease-emphasized),
+    box-shadow var(--duration-fast) var(--ease-standard),
+    filter var(--task-muted-transition-duration) var(--task-muted-transition-easing),
     opacity var(--sheet-fade-duration) var(--sheet-fade-easing);
 }
 
