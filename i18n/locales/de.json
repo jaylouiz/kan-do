@@ -1519,6 +1519,7 @@
       "color": "Farbe",
       "colorNone": "Keine Farbe",
       "colorInherited": "Ohne eigene Wahl zeigt Kan-Do die Farbe aus Notion ({hue}).",
+      "colorInheritedFromTasks": "Ohne eigene Wahl zeigt Kan-Do die Farbe der Aufgaben ({hue}).",
       "colorLocalOnly": "Gilt nur in Kan-Do, Notion behält {hue}.",
       "symbol": "Symbol",
       "symbolNone": "Kein Symbol",

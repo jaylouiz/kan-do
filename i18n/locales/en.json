@@ -1519,6 +1519,7 @@
       "color": "Color",
       "colorNone": "No color",
       "colorInherited": "Without a choice of your own, Kan-Do shows the color from Notion ({hue}).",
+      "colorInheritedFromTasks": "Without a choice of your own, Kan-Do shows the color of the tasks ({hue}).",
       "colorLocalOnly": "Applies only in Kan-Do, Notion keeps {hue}.",
       "symbol": "Symbol",
       "symbolNone": "No symbol",
