@@ -4,16 +4,16 @@ Use when a calibration is asked for, or after large copy growth (many new keys, 
 every string, measure the locales, derive the language concepts that matter, ask the user at most 12 questions and map
 each answer to the keys that need an override. The procedure is reusable: a rerun skips what is already settled.
 
-Hard rules: this procedure never edits a locale, `docs/copy/terms.json`, `docs/copy/terms.lock.json` or `DESIGN.md`
+Hard rules: this procedure never edits a locale, `docs/copy/terms.json`, `docs/copy/terms.lock.json` or `docs/copy/voice.md`
 (the apply step does, as its own issue), never runs `npm run terms:approve`, and writes the questions in English
 (before/after examples quote the real German and English strings unchanged).
 
 ## 1. Read what is settled
 
-Read `DESIGN.md` `## Voice and copy` and `docs/copy/terms.json`. **Skip every question they already settle**: the address
+Read `docs/copy/voice.md` and `docs/copy/terms.json`. **Skip every question they already settle**: the address
 (du), every `decided` term, the rules (no exclamation marks, no praise, sentence case, `…` not three dots, buttons are
 verbs, errors say what happened and what to do, no raw technical detail), and answers of earlier calibrations (they
-are in `DESIGN.md` or the registry `note`s, e.g. "User answer (#473)"). A `proposed` term with no user answer behind it
+are in `docs/copy/voice.md` or the registry `note`s, e.g. "User answer (#473)"). A `proposed` term with no user answer behind it
 is not settled: mixed forms of it may be asked. A violation of a settled rule whose fix is mechanical (`...` to `…`,
 an exclamation mark) is not a question: list it under "Settled, no question" so the apply step fixes it. If the fix
 needs a choice (what to show instead of a raw `{error}`), ask it.
@@ -92,7 +92,7 @@ the answers are in. The Build:
 4. **Terms.** An answer that decides a term sets or adds its registry entry as `proposed` (`de`, `en`, `avoidDe`,
    `avoidEn`, `note: "User answer (#<issue>): ..."`) and the PR names the ids for the user's `npm run terms:approve`.
    Never touch a `decided` entry or the lock.
-5. **Principles.** Write each settled principle into `DESIGN.md` `## Voice and copy` (one line, in the existing
+5. **Principles.** Write each settled principle into `docs/copy/voice.md` `## Rules` (one line, in the existing
    style), so a rerun of this procedure skips it. Changing a named rule or token is a one-way decision: request it.
 6. **Verify.** Rerun `npm run copy:concepts`: the counts of the answered concepts moved as expected; `npx vitest run
    tests/i18n`, then `npm run verify`.

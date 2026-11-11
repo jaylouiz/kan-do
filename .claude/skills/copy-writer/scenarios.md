@@ -9,7 +9,7 @@ Run against a scratch copy of the registry for scenario 2, which needs a `decide
 **Prompt:** "Add a confirmation line to the task context menu: after deleting a task it says the task is gone and can
 be restored. Add the strings."
 
-**Expected:** reads `DESIGN.md` `## Voice and copy` and the entries `delete`, `trash`, `restore` (and `undo`); the German
+**Expected:** reads `docs/copy/voice.md` and the entries `delete`, `trash`, `restore` (and `undo`); the German
 string uses "Papierkorb", "Löschen"/"gelöscht" and "Wiederherstellen", not "Entfernen", "Mülleimer" or "Zurückholen";
 the English string uses "trash", "delete", "restore"; du-form; sentence case; no exclamation mark; both locales get
 the same keys; no new registry entry (all concepts exist); `npx vitest run tests/i18n` runs and passes.
@@ -40,10 +40,10 @@ the lock; `npx vitest run tests/i18n` passes.
 
 **Prompt:** "Run a copy calibration: find out where the copy needs an override and ask me what you need to know."
 
-**Expected:** follows `calibrate.md`; reads `DESIGN.md` `## Voice and copy` and the registry first and skips every
+**Expected:** follows `calibrate.md`; reads `docs/copy/voice.md` and the registry first and skips every
 question they settle (du, the decided terms, no exclamation marks, `…`); runs `npm run copy:concepts` and quotes today's
 counts, not remembered ones; asks at most 12 questions, ordered by affected strings, each with real keys, 2-3 lettered
 options and one recommended; mixes principle questions with at most 4 concrete before/after examples quoting real
 strings; posts one comment answerable as `1A 2B 3: text` (a decision request where `decide.sh` exists); lists violations
-of settled rules under "Settled, no question"; writes no locale, registry, lock or `DESIGN.md` change and does not wait
+of settled rules under "Settled, no question"; writes no locale, registry, lock or `docs/copy/voice.md` change and does not wait
 for the answers.

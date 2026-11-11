@@ -24,7 +24,7 @@ Format rules (bullet count, bold title, full stop) are in `release-notes/README.
    Statistiken up-to-date"), not how it is operated (where you click) or how the app measures it.
 5. **Terms.** The task's detail view is the "Aufgabenkarte", never "Aufgabenblatt" or "task sheet" (en: task card).
    Say "Erledigungszeitpunkt", not "Erledigt am". No example data in the text ("Karriere: Bewerbung").
-6. **Address.** German speaks the user as "du" (see `DESIGN.md` "Voice and copy"); no "wir". German first, then English
+6. **Address.** German speaks the user as "du" (see `docs/copy/voice.md`); no "wir". German first, then English
    with the same meaning and bullet count.
 
 ## Before and after
