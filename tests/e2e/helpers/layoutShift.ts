@@ -14,11 +14,12 @@ const FORCE_CLASSIC_SCROLLBAR = '::-webkit-scrollbar { width: 15px; height: 15px
 
 /**
  * Makes the document scrollbar classic (width-taking) whatever the OS scrollbar setting or attached devices are. Call before `goto`.
- * Skips the test on a desktop viewport when the browser cannot keep the root gutter for that bar (`keepsRootGutter`, #164).
+ * On a macOS host only, skips the test on a desktop viewport when the browser cannot keep the root gutter for that bar
+ * (`keepsRootGutter`, #164). Never on Linux: CI always runs these cases, whatever the probe says there.
  */
 export async function forceClassicScrollbar(page: Page): Promise<void> {
   const desktop = (page.viewportSize()?.width ?? 1280) > 767
-  test.skip(desktop && !(await keepsRootGutter(page)), 'this browser keeps no root scrollbar-gutter for a forced classic bar (macOS overlay scroll bars, #164)')
+  test.skip(process.platform === 'darwin' && desktop && !(await keepsRootGutter(page)), 'this browser keeps no root scrollbar-gutter for a forced classic bar (macOS overlay scroll bars, #164)')
   await page.addInitScript((css) => {
     const add = () => {
       const style = document.createElement('style')
@@ -40,7 +41,8 @@ export async function forceClassicScrollbar(page: Page): Promise<void> {
  * Whether this browser keeps the root's `scrollbar-gutter: stable` for a forced classic bar once scrolling is locked, measured
  * on a blank page with no app code. Chromium on a macOS host with overlay scroll bars draws the styled bar but drops the
  * gutter with it (#164): the zero-shift the app builds on that gutter cannot hold there, so a spec skips those cases with
- * this as the reason. Linux (CI) and a Mac with classic bars keep it.
+ * this as the reason. Only consulted on macOS: the probe page is not a reliable witness on Linux (it reported no gutter
+ * in CI, where the app's own cases pass), so it must not decide there.
  */
 export async function keepsRootGutter(page: Page): Promise<boolean> {
   const probe = await page.context().newPage()
