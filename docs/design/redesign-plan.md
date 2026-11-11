@@ -24,13 +24,13 @@ A redesigned UI that
 |---|---|---|---|
 | 0 | Inventory and visually neutral consolidation | **done** (epic kd#58, closed 2026-11) | – |
 | 1 | Gap audit: what step 0 did not look at | **done** 2026-11-11 (`docs/design/redesign-gap-audit.md`) | agent runs, owner reads |
-| 2 | Rule review of `DESIGN.md` | **next** (its starting list: "Input for the next steps" in the gap audit) | owner, per challenged rule |
+| 2 | Rule review of `DESIGN.md` | **done** 2026-11-11 ("Step 2: rule review of `DESIGN.md`" in `docs/design/redesign-gap-audit.md`; four challenged rules answered by the owner) | owner, per challenged rule |
 | 3 | Visual direction on the cleaned kit | **done** 2026-11-11: Paper Desk with Fraunces and the yellow marker on the Jetzt headline (`## UX decision` in the body of kd#1; prototype branch `proto/1-visual-redesign`, commit `15b65260`) | owner |
-| 4 | System definition: foundations and the rewritten `DESIGN.md` | not started (needs 2 and 3) | owner approves |
+| 4 | System definition: foundations and the rewritten `DESIGN.md` | **next** (starts with the three open questions below) | owner approves |
 | 5 | Migration in slices | not started | agents; owner feel-checks |
 | 6 | Lock-in: guards, baselines, canvas | not started | agents |
 
-Steps 2 and 3 do not depend on each other and can run in parallel.
+Steps 2 and 3 are both done; step 4 builds on the labels of step 2 and the decision of step 3.
 
 ## How we work on it
 
@@ -57,12 +57,14 @@ Limits: iOS and web only (no desktop apps), static screenshots (no motion or fee
 
 ## Open questions for the owner
 
-The look is decided (kd#1, `## UX decision`). Each question names the step in which it is due; the session doing that step asks it first (see "How we work on it"). None of them blocks step 2.
+The look is decided (kd#1, `## UX decision`). Each question names the step in which it is due; the session doing that step asks it first (see "How we work on it").
 
 | # | Question | Due | Recommendation |
 |---|---|---|---|
 | 1 | The page title scale beyond the column names (parked decision U18): which sizes do page titles, section headings and dialog titles get in Fraunces? The prototype only shows the column names at 36 px. | start of step 4 (type scale) | show two or three scales on the prototype branch, then ask |
-| 2 | The merge candidates of the gap audit that do not depend on the look: button sizes, `ListRow` density, `ChoiceChip` shapes, field heights. Which variants go? | start of step 4 (closing the variant lists) | one question per candidate, each with the audit's numbers |
+| 2 | The merge candidates of the gap audit that do not depend on the look: button sizes, neutral soft and ghost buttons as two looks (added by step 2), `ListRow` density, `ChoiceChip` shapes, field heights (the one row height of the task sheet's value controls is part of it). Which variants go? | start of step 4 (closing the variant lists) | one question per candidate, each with the audit's numbers |
+| 4 | Where does "Voice and copy" live? Step 2 proposes to move the section (25 lines) next to its registry in `docs/copy/`, with a pointer in `DESIGN.md`. | step 4, before the rewrite of `DESIGN.md` | move it |
+| 5 | A page sheet (settings section, statistics tile): the card's radius, or its own (the prototype used the card radius times 1.25)? | start of step 4 (radius) | the card's radius: one surface shape |
 | 3 | Drag and drop motion: the prototype changed only the shadows. Should lifting, moving and dropping a card get the new state language (durations, curves, the "set down" feel), and how strong? | start of step 4 (motion), tried in a coded prototype before asking | – |
 
 Decided by the owner on 2026-11-11 and to be written down in step 4 (nothing of this is in `DESIGN.md` or `PRODUCT.md` yet):
@@ -72,6 +74,7 @@ Decided by the owner on 2026-11-11 and to be written down in step 4 (nothing of 
 - Text is near-black; shadows are the deeper warm set; the app bar row (parked decision U2) uses flat white pills, no glass.
 - A yellow text-marker stroke is an allowed decoration "with slight intentional use"; the Jetzt headline is its first use.
 - Statistics opens the same task sheet as the board: one common sheet, one way to open a task (parked decision U7, answered 2026-11-11).
+- The four challenged rules of step 2 (answered 2026-11-11, detail in the gap audit, "Asked in this step"): The One Lamp Rule stays as "one solid green button per view; marks, selected options, links and the focus ring are green without being a fill". The three line heights stay and are built into the size tokens. Only sheets cast a shadow, with the app bar's nav pill as the named exception; a control never casts one. The task sheet keeps its two value looks (a select with a chevron, text on a dotted rule) with one row height and one hover, focus and disabled answer.
 - Airbnb stays the positive reference; Slack joins the anti-references in `PRODUCT.md` (a saturated block of brand colour as chrome, a dense sidebar, cluttered and dense with many interactive elements at once); principle 3 of `PRODUCT.md` is reworded for the sheets.
 
 ## Step 0: what already exists (do not redo)
@@ -194,3 +197,4 @@ In short: measuring, tracing, prototyping, rewriting and migrating can be done b
 - 2026-11-11: round 3 answered, round 4 built and shown. The owner picked a Paper and Green with a slightly darker paper and, from Sand Desk, the near-black text, the flat white pills and the deeper shadows, and asked for one more divergent round: that mix as the new a (Paper Desk), two new interpretations that each leave it in one direction (b Clay Desk: greige canvas, long shadows, a soft heavy serif, the Jetzt task as a deep pine sheet with a terracotta timebox; c Ink and Marker: cream canvas, hairline sheets, lane rules, ink for the primary button and the current place, yellow marker on Jetzt), and the heading font as a separate toggle on every variant (`?font=`: Newsreader, Fraunces, Young Serif, Besley, today's sans). Flat pills and the darker-canvas fill logic moved into the shared block. Checked as in round 3 (axe contrast 0 failures on five surfaces at two widths with each variant's default font, Impeccable rendered scan advisory notes only, production build). Round 3's Sand Desk and Ink Edge remain in the branch history (commit `04aae3eb`); round 4 is `eb3604ae`.
 - 2026-11-11: step 3 done. After round 4 the owner chose a Paper Desk with Fraunces and added the yellow marker of c on the Jetzt headline, with the statement that this marker decoration is allowed in the app in slight, intentional use. The final state was shown once more (round 5 on kd#1, contrast check 0 failures at both widths) and written into the body of kd#1 as `## UX decision` with new acceptance criteria; the issue moved from `needs-design` to `needs-spec` and keeps `on-hold` until steps 2 and 4 are through. Rejected: Clay Desk, Ink and Marker except its marker, the other three serifs. Not decided by step 3 and carried on: the statistics task view (U7), the page title scale (U18), the look-independent merge candidates of the gap audit, drag and drop motion. Next: step 2 (rule review), then step 4.
 - 2026-11-11: the owner answered parked decision U7: statistics opens the same task sheet as the board, one common sheet. On the owner's request the open questions now carry the step in which they are due, and "How we work on it" says that a session starts its step by interviewing the owner on the questions due for it.
+- 2026-11-11: step 2 done: every rule and paragraph of `DESIGN.md` is labelled in the gap audit ("Step 2: rule review of `DESIGN.md`"). Of the 257 body lines roughly 95 are component detail, 35 enforced and 30 duplicates; 17 rules are challenged, 13 of them already answered by the direction decision. The owner answered the other four in the session (One Lamp reworded for green, three line heights built into the size tokens, only sheets cast a shadow with the app bar's nav pill as the exception, two value looks in the task sheet with one height and one behaviour). Three challenged rules stay with the open questions of step 4; two new questions were added there (where "Voice and copy" lives, the radius of a page sheet) and question 2 gained the soft and ghost buttons. Nothing was changed in `DESIGN.md`. Next: step 4.
