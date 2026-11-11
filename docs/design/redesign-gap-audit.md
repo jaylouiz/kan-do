@@ -278,3 +278,213 @@ Usage also moved since the audit: `UAlert` 9 → 27 tags (the plain coloured lin
 - `assets/css/main.css:131`: the comment says the radius baseline is 0.75rem, the value is 0.5rem.
 - The pill radius is written as `9999px` by hand and as Tailwind's `rounded-full`; both render the same.
 - Disabled `PropertyValueTrigger` and `DatePickerField` keep the hand cursor and the hover answer.
+
+## Step 2: rule review of `DESIGN.md`
+
+Every rule and paragraph of `DESIGN.md` (373 lines at commit `71abce60`, 2026-11-11) with a label of the plan's table, the evidence, and what step 4 does with it. Nothing in `DESIGN.md` is changed by this step. Line numbers are those of `DESIGN.md`.
+
+- **Labels:** principle (stays), foundation (stays as a table), pattern (one line and a pointer to `/ui`), component detail (moves to the component's doc block or its CSS comment), enforced (prose goes, the guard is named once), challenged (the owner decides). "Duplicate" means the same rule is already stated in another section and is counted there.
+- **Evidence** is the gap audit above (parts 1 to 3), the guard tests in `tests/config/`, ESLint, `tests/e2e/a11y.spec.ts`, and for the challenged rules the owner's decision on kd#1 (`## UX decision`, 2026-11-11) and the chosen prototype (`assets/css/proto.css` on `proto/1-visual-redesign`, commit `15b65260`).
+
+### Result in short
+
+1. **Well over half of the body can go or move.** Of the 257 lines below the frontmatter, roughly 95 are component detail (they describe one component and belong in its doc block), 35 are enforced by a test or lint rule, and 30 repeat a rule that is stated elsewhere in the file (an estimate by paragraph, not a count by line). The whole "Do's and Don'ts" section (18 lines) is duplicates and enforced lines.
+2. **Seventeen rules are challenged.** Thirteen are already answered by the owner's direction decision of 2026-11-11 and only need rewriting in step 4. Four needed the owner's word in this step and have it (below). Three more are already in the plan's open questions and are due at the start of step 4.
+3. **Five rules are stated but nothing checks them** (the three line heights, the icon size scale, one `lg` button per surface, one filled primary per view, "the selected place is the route"). Step 6 gives each a guard, or step 4 drops it.
+4. **The frontmatter (116 lines) repeats token values of `assets/css/main.css` and `app.config.ts`** and has drifted from them: it gives buttons an 8 px radius and badges a 4 px one, where 12 and 8 px are rendered (part 1, radius). Step 4 first checks what the Impeccable detector reads from the frontmatter, then keeps only that.
+
+### Labels per section
+
+**Overview (lines 122 to 136)**
+
+| Rule or paragraph | Label | Evidence | Step 4 |
+|---|---|---|---|
+| Creative North Star "The Quiet Desk" | principle, challenged (decided) | The direction is now Paper Desk: a calm canvas, lifted sheets, depth and contrast. "Calm comes from restraint" stays true; "flat" and "one ink accent" do not | rewritten for Paper Desk from the seven principles of the brief on kd#1 |
+| References: Airbnb; Trello and Notion as anti-references | principle | Owner, 2026-11-11: Airbnb stays, Slack joins the anti-references | stays, Slack added (also in `PRODUCT.md`) |
+| "Warm paper page, bright card sheets, one quiet ink accent" | principle, challenged (decided) | green accent, hue 152 | reworded |
+| "One typeface; type and space compose the page, not boxes, lines or fills" | principle, challenged (decided) | Fraunces for headings; input areas on sheets | reworded |
+| "Flat by default; shadows only on things you can pick up" | principle, challenged (decided) | every lifted surface is a sheet with the warm shadow | reworded |
+| "Questions are asked in place; reversible actions act at once and offer undo" | duplicate of Behaviour | – | removed here |
+| "Motion is small and physical and explains a state change" | duplicate of Behaviour, Motion | – | removed here |
+| "Light only for now" | principle | `colorMode: false` | stays |
+
+**Colors (lines 138 to 177)**
+
+| Rule or paragraph | Label | Evidence | Step 4 |
+|---|---|---|---|
+| Primary: Desk Ink, Deep Ink, Ink Wash | foundation, challenged (decided) | the primary is the forest green (hue 152), locked by the owner | table row with the new ramp |
+| Warning Orange | foundation | unchanged by the direction | table row |
+| Done Teal | foundation, challenged (decided) | Owner: done may use the accent green. The prototype maps the whole `success` ramp onto the primary | removed; done is the accent. The list of places (check, drop wash, in-card confirmation, Yesterday note) is component detail |
+| Raspberry | foundation | "red for exceptions" (rule proposal 2) | table row |
+| Focus Dusk | component detail | one use: the Jetzt focus overlay and its card shadow | comment at the token |
+| Topic marks: nine hues | foundation, enforced | `tests/config/topic-tokens.test.ts` holds 3:1 per hue | one line and the guard; Notion's mapping is component detail |
+| Topic marks: "Known collision, accepted" | component detail (a recorded decision) | new: the topic green now also meets the accent green, the topic yellow the marker | the record grows by these two; the hues are retuned on the white sheet in step 4 (the guard keeps 3:1) |
+| Neutral: Paper, Sheet, Rule Line, Pencil, Graphite, Ink Black | foundation, challenged (decided) | warm ramp (hue 84), white sheets, near-black text | table with the new values |
+| The One Lamp Rule | principle, **challenged (asked)** | see "Asked in this step", 1 | per the answer |
+| The Status Is Not Decoration Rule | principle, challenged (decided) | "teal means done" no longer holds; orange and red keep their meaning; brand colours of integrations stay out | reworded: green is action and done, orange attention, red destructive or failed |
+| The Topic Mark Rule | pattern | holds in the code, no guard | one line, pointer to `/ui` |
+| The Frozen Primary Rule | principle (process) | the owner's decision of 2026-11-11 is the recorded decision the rule asks for; `CLAUDE.md` states the rule too | stays, frozen on the green; stated once |
+| The Receding Text Rule | principle, partly enforced | `tests/e2e/a11y.spec.ts` checks the contrast and names the two exemptions. Open defect, not a rule question: the waiting card's greyscale reads cool on the warm canvas (kd#1, "Known issues") | stays as one sentence; the exemptions live in the test |
+
+**Typography (lines 179 to 198)**
+
+| Rule or paragraph | Label | Evidence | Step 4 |
+|---|---|---|---|
+| Display Font, Body Font, Mono, Character ("one friendly geometric sans … not a second typeface") | foundation, challenged (decided) | Fraunces 500 in the display and headline roles, Figtree for everything read and operated | rewritten |
+| Hierarchy: Display, Headline, Title, Body, Label, Mobile step | foundation | part 1: 12 sizes on the screens against 8 roles; 20, 22 and 24 px headings two pixels apart; 14, 15 and 16 px one pixel apart | a table of the closed scale (the audit's candidate: eight sizes) |
+| Display: "column names (always `text-muted`, centred)" and "statistics key figures" | foundation, challenged (decided) | column names are in ink; numerals stay in the sans (`proto.css`: "a serif figure in a table of minutes reads as decoration") | reworded |
+| Headline: section headings, modal titles "a notch smaller" | foundation, challenged (due at step 4) | the page title scale, open question 1 of the plan | per the answer |
+| The One Role Rule | principle, challenged (decided in part) | the rule now carries the serif; "and numerals" leaves it | stays, reworded: the display face is for headings only |
+| The Three Line-Heights Rule | foundation, **challenged (asked)** | see "Asked in this step", 2 | per the answer |
+
+**Layout (lines 200 to 209)**
+
+| Rule or paragraph | Label | Evidence | Step 4 |
+|---|---|---|---|
+| "Type and space compose every page … lines, boxes and tints do not" | principle, challenged (decided) | rule proposal 4: input areas on lifted sheets, one level | replaced by "sheets on a desk, one level" |
+| "No card in a card" | principle | kept by the decision ("never a sheet on a sheet") | stays, inside the new rule |
+| Board (desktop) | pattern | columns and card size are in the code; "the Jetzt slot is always one card tall" is the part a reader cannot see | one line |
+| Board (mobile) | component detail | `.claude/rules/mobile-board.md` already holds it | removed here |
+| Stacks | component detail | `TaskStack` doc block, `.claude/rules/drag-and-drop.md` | moves; one pattern line stays: "no lines, boxes or tints around a group" |
+| Chrome: one global app bar, no board toolbar, no back arrow | pattern | holds everywhere | one line |
+| Page offsets | component detail | `assets/css/app-nav.css` is "the one place" by the paragraph's own words | removed here |
+| Pages: "one flat, readable column"; "Statistik is the exception" | pattern, challenged (decided) | settings sections and statistics tiles become sheets, so the exception becomes the normal case | reworded as one pattern for every page |
+
+**Elevation and Shapes (lines 211 to 225)**
+
+| Rule or paragraph | Label | Evidence | Step 4 |
+|---|---|---|---|
+| "Hybrid: flat paper and flat chrome; cards are the only lifted objects" | principle, challenged (decided) | rule proposal 4 | replaced |
+| Shadow Vocabulary | foundation | part 1: eight custom shadow tokens plus four Tailwind shadows, in two shadow colours | a table: one warm shadow colour, one named step per kind of surface |
+| The Only Cards Float Rule | principle, challenged (decided), remainder **asked** | every lifted surface is a sheet with the same warm shadow. What a control may do is not decided: see "Asked in this step", 3 | replaced by the sheet rule; the remainder per the answer |
+| The Glass Chrome Rule | principle, challenged (decided) | flat white pills, no glass (parked decision U2) | removed; `tests/config/app-nav-glass.test.ts` goes with the glass code in step 5 |
+| Shapes: "gently rounded from one base" | foundation, challenged (decided in substance) | part 1: 48 px statistics surfaces, 24 and 32 px on the welcome page, 6 and 15 px one-offs. The decision gives settings sections and statistics tiles one sheet shape. The prototype uses the card radius times 1.25 for page sheets, which would be a second surface radius | a table: 8, 12 and 16 px, pill, circle; step 4 settles whether a page sheet takes the card's radius or its own |
+| "No pill-shaped containers", exception: the app bar | pattern | holds | one line |
+
+**Components (lines 227 to 309)**
+
+| Rule or paragraph | Label | Evidence | Step 4 |
+|---|---|---|---|
+| Intro: "custom components only for the board domain" | principle, out of date | `components/ui/` holds shared primitives since step 0 | reworded: Nuxt UI first, a shared primitive from three call sites on |
+| Buttons, Primary: "at most one per view" | duplicate of The One Lamp Rule | – | removed here |
+| Buttons, Focus | foundation (decided 2026-11-11), enforced in part | `button-contrast.test.ts` (no compound overrides the ring), `a11y.spec.ts` (the primary button shows the halo) | two lines: the ring and the accepted trade-off; the rest is a comment at `focus-ring` |
+| Buttons, Soft / Ghost | pattern, challenged (due at step 4) | part 2: neutral soft (44 uses) and neutral ghost (48) differ only at rest, "with no rule a reader can see" | joins open question 2 of the plan |
+| Buttons, Size ladder (table and rules) | enforced, challenged (due at step 4) | `button-ladder.test.ts` checks every line of the table except "exactly one `lg` per surface". Part 1: three sizes 4 px apart | the prose becomes one line and the guard; the number of steps is open question 2 |
+| Buttons, Phones: 44 px (with the measured Nuxt UI internals) | enforced, component detail | `button-ladder.test.ts` (theme floor); the measurements are a record of #552 | one line; the measurements move to the theme comment in `app.config.ts` |
+| Chips / Badges | pattern | part 2: soft and subtle badges, five sizes of `TaskPriorityBadge` | one line; "no rainbow labels" is The Topic Mark Rule |
+| Task card (five paragraphs) | component detail | doc blocks of `TaskCard`, `TaskProgressChip`, `TaskCarryOverDots` | moves; one pattern line stays: "the Jetzt card is a regular card, focus comes from the board stepping back" (the owner rejected the coloured Jetzt card of Clay Desk) |
+| Add task | component detail | `AddTaskSlot` and `NewCardFlow` doc blocks; the paragraph already points there | moves |
+| Task sheet: one sheet for details and the add form | pattern | Owner, 2026-11-11: statistics opens the same sheet (parked decision U7); `TaskDetailModal` goes | one line, now without an exception |
+| Task sheet: property rows | component detail, part of the challenged "Choice chip or property value" | part 2: five control heights in the rows | moves; the affordance per the answer |
+| Dialogs and overlays | enforced, pattern | `design-patterns.test.ts` (no bare `UModal`); `ResponsiveOverlay` | one line and the guard |
+| In-card question | pattern | `TaskTimeboxNudge`, `NewCardFlow` | one line |
+| Notices and toasts | pattern, enforced in part | part 2: "this family is done". `warning-notices.test.ts`, `role-contrast.test.ts` | one line per kind; the contrast numbers (measured on the old palette) live in the tests |
+| Sync status | component detail | `MorePanel`, `AppNav` | moves |
+| App bar, Look | component detail, challenged (decided) | flat white pills; values in `app-nav.css` | moves; the glass text is dropped |
+| App bar, "Selected state is the route" | pattern, no guard | marked "binding" | one line; a guard in step 6 |
+| App bar: Third segment and indicator, Mehr panel, Layering | component detail | `AppNav` doc block, `app-nav.css`, the z-index tokens | moves |
+| Statistik surfaces, Grouped surface | pattern, challenged (decided) | the tiles take the sheet of the card (kd#1, "Patterns") | folded into the one sheet rule |
+| Statistik surfaces: Disclosure tile, Ink ring | component detail | `StatsTile`, `StatsEstimateRing` doc blocks | moves; one pattern line stays: "charts use the ink ramp only" |
+| Tabs | pattern, enforced | `design-patterns.test.ts` (no hand-rolled tabs); the look is the theme | one line and the guard |
+| Settings sub-page: header, widths | component detail | `PageHeader`, the sub-page layout | moves |
+| Settings sub-page: "hairline-divided rows, no cards" | pattern, challenged (decided) | settings sections become sheets | removed |
+| Settings: "Behaviour apart from maintenance" | pattern (adopted 2026-11-06) | holds | stays, one line |
+| Inputs / Fields: "disabled inputs get a muted background, not only opacity" | pattern, challenged (decided) | part 3: five disabled looks. The chosen state language has one (50 %) | replaced by the state language |
+| Inputs / Fields: "inline editing is the default for task properties" | pattern | holds | one line |
+| Behaviour: Ask in place, Optimistic moves, No modal on modal, Quiet notices over interruptions | principle | hold | stay, one line each |
+| Behaviour: Undo instead of confirm | principle, component detail | the delete gap's values are in the `TaskDeletedGap` doc block | the principle stays as two lines |
+| Behaviour: Motion | principle, foundation, challenged (decided in part, the rest due at step 4) | part 1: ten durations and eight curves against three and two tokens. The chosen state language uses the tokens only, a press gives 3 %, cards lift on hover. "Never during a drag" meets open question 3 of the plan | the principle stays; a table of the three durations and two curves; the count is held by the motion ratchet (`token-literals.test.ts`) |
+| Behaviour: Earned celebration | principle (recorded exception, 2026-11-06) | fits principle 1 of the brief ("joyful in the moment") | stays |
+| Behaviour: Keyboard | principle, enforced in part | `a11y.spec.ts`; part 3, keyboard table | stays, two lines |
+
+The state language the owner chose (hand cursor on everything pressable, a press gives 3 %, one disabled look, cards lift on hover and set down on press, one easing for a state change) has no home in `DESIGN.md` yet. Step 4 writes it as one foundation table; it answers the seven differences at the end of part 3.
+
+**Usage guidelines (lines 311 to 324)**
+
+| Rule or paragraph | Label | Evidence | Step 4 |
+|---|---|---|---|
+| Which icon | enforced | `icon-map.test.ts`, `icons-bundled.test.ts`, `nuxt-ui-icons.test.ts`; the icon sizes are not checked (part 1: 13 and 17 px icons sized in `em`) | one line and the guards; the size scale becomes a foundation row |
+| Which button | duplicate of Buttons | – | removed |
+| Dialog actions | pattern (convention) | "cancel first, primary last" has no guard | one line under Buttons |
+| Destructive action | duplicate of "Undo instead of confirm"; the irreversible half is a pattern | `pages/trash.vue` | one line: an irreversible action confirms in place |
+| Open outside vs inside | component detail | `ExternalLink` doc block, `lib/icons.ts` | moves |
+| Notice, toast or inline | duplicate of Notices and toasts | – | merged into that one place |
+| Empty state | pattern | `EmptyState`, `EmptyNote`; part 2: inside the range of shipped products | one line, pointer to `/ui` |
+| Wording of Save, Cancel and Close | duplicate of Voice and copy | `docs/copy/terms.json` | removed |
+| Choice chip or property value | pattern, **challenged (asked)** | see "Asked in this step", 4 | per the answer |
+
+**Voice and copy (lines 326 to 350), App icon, Do's and Don'ts**
+
+| Rule or paragraph | Label | Evidence | Step 4 |
+|---|---|---|---|
+| Voice and copy: Address, Tone, Buttons are verbs, Errors, Failure sentences, No "Bitte", Technical detail, Empty states, Progress, English, Voice, Names and full stops, Characters, Statistik verdicts | principle (copy) | no check can tell these | stay. Proposal for the owner in step 4: the section moves next to its registry (`docs/copy/`), which the `copy-writer` skill reads, and `DESIGN.md` keeps a pointer. That alone is 25 lines |
+| Voice and copy: One term per concept, Löschen / Entfernen / Trennen, Task state, Settings / token / time | enforced by the registry | `docs/copy/terms.json` holds each term with the forms to avoid (`delete`, `remove`, `disconnect`, `done-day`, `settings`, `set-up`, `token`, `time-spent`) | prose removed, the registry named once |
+| Voice and copy: Case ("No ALL CAPS") | enforced | `design-patterns.test.ts` (no uppercase class) | one line |
+| Voice and copy: Plurals, Both languages together | enforced | `npm run i18n:check`, ESLint `no-raw-text` | one line |
+| App icon: "Yellow is an icon-only exception, never used in the app UI" | principle, challenged (decided) | Owner, 2026-11-11: the yellow marker is allowed in slight, intentional use; the Jetzt headline is its first use | reworded as the marker rule |
+| Do: styling priority, overrides in `app.config.ts`, `bg-page` and `bg-elevated` | duplicate of `CLAUDE.md` "Styling" and the Neutral table | – | removed |
+| Do: "compose pages with type and space" | challenged (decided) | rule proposal 4 | removed |
+| Do: ask in place and offer undo | duplicate of Behaviour | – | removed |
+| Do: WCAG 2.2 AA | principle, enforced | `a11y.spec.ts`, `button-contrast.test.ts`, `role-contrast.test.ts` | one line under the foundations |
+| Do: Phosphor icons. Don't: raw palette classes, hex or px values | enforced | ESLint (palette classes, Heroicons), `token-literals.test.ts`, `icons-bundled.test.ts` | removed, the guards are named once |
+| Don't: more than one ink fill, confirmation dialogs, nested cards and stacked modals, decorative animation | duplicates of The One Lamp Rule and Behaviour | – | removed |
+| Don't: "a second display typeface" | challenged (decided) | Fraunces | removed |
+
+### Challenged rules the owner's direction decision already answers
+
+No question is open on these; step 4 rewrites them. Source: kd#1 `## UX decision` and the answers to the brief (2026-11-11).
+
+| Rule today | What replaces it |
+|---|---|
+| North Star "The Quiet Desk": flat, one ink accent, one typeface | Paper Desk: a calm warm canvas, white sheets lifted by a warm shadow, near-black text, one green, a serif for headings |
+| Desk Ink as the primary; The Frozen Primary Rule | forest green, hue 152; the rule stays and is frozen on the green |
+| Done Teal; "teal means done" in The Status Is Not Decoration Rule | done shares the accent green; orange and red keep their meaning |
+| One typeface; "Don't add a second display typeface"; numerals in the display role; column names in muted text | Fraunces in the display and headline roles only; numerals and interface text in Figtree; column names in ink |
+| "Type and space, not boxes" (Layout, Pages, the settings sub-page, a Do) | everything entered or edited sits on a bright lifted sheet, one level only; "No card in a card" stays |
+| The Only Cards Float Rule | one warm shadow scale for every lifted surface (card, page sheet, task sheet, dialog, menu) |
+| The Glass Chrome Rule | flat white pills, no glass |
+| Statistik as the named exception with its own 48 px surfaces | statistics tiles and settings sections are the same sheet |
+| "Disabled inputs get a muted background, not only opacity" | one disabled look for every control |
+| "Yellow is an icon-only exception" | a yellow marker stroke is an allowed decoration in slight, intentional use |
+| The task sheet on the board, `TaskDetailModal` on statistics | one common task sheet |
+| Anti-references Trello and Notion | Slack joins them; Airbnb stays the positive reference |
+| Motion as it is rendered (ten durations, eight curves) | three durations, two curves, one state language |
+
+### Asked in this step
+
+Each with the evidence, references for and against (Mobbin, web: how shipped products solve it, never a look to copy) and the recommendation. The owner's answer is recorded under each.
+
+**1. The One Lamp Rule: "Ink is the only accent. If more than one element per view is ink-filled, one of them is wrong."**
+- Evidence: the accent is now green and also means done, so a board with done cards shows green checks beside the green button under Erledigt; selected options, links and the focus ring are green too. The rule's first sentence still holds (one accent); its second sentence, read by the word, would now forbid what the owner chose. Only "a solid primary is `lg`" is checked (`button-ladder.test.ts`); "one per view" is not.
+- For keeping it: [Mintlify](https://mobbin.com/screens/fcbb573f-e515-4e12-bd15-46e39a13564c) has one filled button on the page and the eye lands on it. Against a loose reading: [Replit](https://mobbin.com/screens/093752e0-185b-45e6-b6b9-10ae944810a2) shows four filled blue buttons in one column, and none reads as the next step. A product that lives with several: [Klaviyo](https://mobbin.com/screens/2b6f0a9f-94b2-4275-87c3-7475bd42bf8a) has one Save per sheet, each quiet until its sheet has changes.
+- Recommendation: keep it, reworded to what it protects: "one solid green button per view; marks, selected options, links and the focus ring are green without being a fill". Step 6 can then check it per surface.
+- **Answer (owner, 2026-11-11): keep, reworded as recommended.**
+
+**2. The Three Line-Heights Rule: "`--lh-tight` for display text, `--lh-snug` for compact UI, `--lh-body` for reading. No other line-heights."**
+- Evidence: 13 ratios are rendered (part 1). The three tokens are used in 16 files; everything else takes the line height that Tailwind pairs with a size class (`text-sm` brings 20 px, `text-xs` 16 px), so 14 px text alone has six line heights. The rule names three roles and the code has no way to follow it.
+- Recommendation: keep the three, and make them true by construction: each type role of the closed scale carries its line height in its own token (`--text-<role>--line-height`, as `--text-headline` already does), so a size class brings the right one and nobody writes a `leading-*` class. The prose rule becomes a column of the type table, and the ratchet for type literals holds it. Cost: a few pixels of height change in many places, inside the foundations slice of step 5, where the baselines are re-recorded anyway.
+- **Answer (owner, 2026-11-11): keep the three, built into the size tokens, as recommended.**
+
+**3. What may cast a shadow (the remainder of The Only Cards Float Rule)**
+- Evidence: decided is that every sheet casts the one warm shadow. Not decided is a control. Today four things outside the rule cast one (part 1): the indicator of the tabs, the thumb of the switch, the end-of-day button under Erledigt (`shadow-md`) and the welcome sheet. The chosen prototype took the shadow off the app bar's indicator and left the others as they were.
+- For a shadow on a moving indicator: [Canva](https://mobbin.com/screens/2cbe2bb0-bb17-4f1b-83ea-7047a5781339) raises the selected segment as a white chip with a soft shadow, which says "this part slides". Against: [Replit](https://mobbin.com/screens/093752e0-185b-45e6-b6b9-10ae944810a2) (the theme switch) and [Mintlify](https://mobbin.com/screens/fcbb573f-e515-4e12-bd15-46e39a13564c) mark the selected segment by fill alone and stay readable.
+- Recommendation: a shadow belongs to a sheet (a surface lifted off the canvas that holds content: card, page sheet, task sheet, dialog, menu, toast, the app bar pill). A control never casts one: the selected tab and the selected place are a fill, the end-of-day button is a plain soft button on the canvas. This keeps the shadow's one meaning ("a sheet on the desk") and removes Tailwind's second shadow colour from the app.
+- **Answer (owner, 2026-11-11): "Agree to only sheets cast a shadow with the app bar nav pill as exception."** Read as: the app bar's pill (the bar itself, as in the chosen prototype) is the one named exception and is not counted as a sheet; the selected place inside it stays a fill without a shadow. Step 4 confirms this reading when the rule is written.
+
+**4. "Choice chip or property value": in the task sheet's rows a value that opens a list is a filled select with a chevron, a free value is text on a dotted rule**
+- Evidence: part 2 and summary point 5: two affordances and five control heights (32 to 40 px) side by side in one column. The split is the owner's own decision (D2 on kd#114): the look says what will happen, a list opens or a field is typed into.
+- For one affordance: [Plane](https://mobbin.com/screens/e4e28e54-94c1-432b-946b-430997323dd8) and Todoist (part 2) use one chip shape for every property, whatever it opens. For two that share a frame: [hilos](https://mobbin.com/screens/1bccd0ad-5b1c-4bf9-beba-5f856e59a13e) gives list values a select with a chevron and the free "Labels" value a text field, both with the same height, border and radius; [Unify](https://mobbin.com/screens/0d35f16d-27a1-4bba-ae88-c7c50cfb7926) puts three selects of one height in a row.
+- Recommendation: keep the two affordances, because each tells the truth about what a click does, and remove what the audit measured as inconsistent: one row height for every value control, and one answer to hover, focus and disabled (today `PropertyValueTrigger` and `DatePickerField` do not look disabled at all). The chevron stays the only difference a reader has to learn. The exact height is part of open question 2 of the plan (field heights).
+- **Answer (owner, 2026-11-11): keep both looks, one height and one behaviour, as recommended.**
+
+### Due at the start of step 4 (already in the plan's open questions)
+
+| Rule | Plan question |
+|---|---|
+| Headline hierarchy: page titles, section headings, dialog titles | 1, the page title scale |
+| Buttons: the size ladder; soft and ghost as two neutral looks (new in this list); "`USelect` and `UInput` keep their own field heights" | 2, the merge candidates |
+| Motion: "never runs … during a drag" | 3, drag and drop motion |
+
+### Stated but checked by nothing
+
+Input for step 6 (a guard) or step 4 (drop the rule): The Three Line-Heights Rule; the icon size scale of `lib/icons.ts`; "exactly one `lg` per surface"; "one filled primary per view"; "selected state is the route" (`aria-current` on exactly one control).
