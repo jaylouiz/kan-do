@@ -14,11 +14,11 @@ const tailwindCss = readFileSync(resolve(root, 'node_modules/tailwindcss/theme.c
 
 export type Rgb = [number, number, number]
 export const WHITE: Rgb = [255, 255, 255]
-/** The grounds a component sits on: the sheet/dialog white, the elevated sheet and the page wash. */
+/** The grounds a component sits on: the white sheet, the fill inside a sheet (`--ui-bg-muted`) and the paper canvas (`--ui-page-bg`). */
 export const GROUNDS: Array<[string, Rgb]> = [
   ['white', WHITE],
-  ['sheet #fafaf9', [250, 250, 249]],
-  ['page #f5f5f4', [245, 245, 244]],
+  ['sheet fill #f6f3ed', [246, 243, 237]],
+  ['paper #f3efe6', [243, 239, 230]],
 ]
 export const ROLES = ['primary', 'secondary', 'success', 'info', 'warning', 'error', 'neutral'] as const
 export type Role = (typeof ROLES)[number]
@@ -94,7 +94,7 @@ export function roleContrast(options: { stock: Compound[], app: Compound[], ramp
     const neutral = ramps.neutral!
     const semantic: Record<string, Rgb> = kind === 'text'
       ? { inverted: WHITE, default: rampStep(neutral, '900'), highlighted: rampStep(neutral, '900') }
-      : { default: WHITE, elevated: rampStep(neutral, '50'), accented: rampStep(neutral, '200'), inverted: rampStep(neutral, '500') }
+      : { default: WHITE, elevated: WHITE, accented: [240, 236, 228], inverted: rampStep(neutral, '500') }
     if (semantic[name]) return semantic[name]
     const [color, step] = name.split(/-(?=\d+$)/) as [Role, string | undefined]
     if (!(ROLES as readonly string[]).includes(color)) throw new Error(`unknown colour token "${kind}-${name}"`)

@@ -11,21 +11,24 @@ The living plan for getting from today's UI to a redesigned one that follows the
 
 *As of 2026-11-11. Update this block whenever a slice changes state.*
 
-**Steps 0 to 4 are done: everything is decided, and of the look nothing is built.** The look (Paper Desk) and the system behind it are approved by the owner. `main` still shows the old look, and `DESIGN.md` still describes the old look on purpose. Step 5 has started with the one slice that does not touch the look: the wording rules now live in `docs/copy/voice.md` (kd#175, PR 185).
+**Steps 0 to 4 are done, and step 5 has built the foundations.** Slice 1 (kd#176, PR 193) puts Paper Desk on `main` wherever tokens and the theme reach: the paper canvas, white sheets with the warm shadow, forest green, Fraunces headings, the marker on Jetzt, the flat app bar pills and the state language. `DESIGN.md` is the approved new text; `docs/design/DESIGN.next.md` is gone. Old variants still exist and keep working until their slice merges them.
 
 **Do next**, in this order:
-1. kd#176, slice 1, the foundations: `needs-spec`. `/specify-gh-issue 176`, then `/build-gh-issue 176`. Every other slice waits for it.
-2. After kd#176 is merged: kd#177, kd#178 and kd#179 can run side by side (`/orchestrate-gh-issues 177 178 179`); kd#180 also waits for kd#177. Then kd#181 (the board) alone, then kd#182 (lock-in).
+1. Merge PR 193 (kd#176) after a look at its screenshots. Every other slice waits for it.
+2. kd#177, kd#178 and kd#179 can then run side by side (`/orchestrate-gh-issues 177 178 179`); each is `needs-spec`. kd#180 also waits for kd#177.
+3. kd#190 (slice 1b, the line heights of interface text) after kd#177 and kd#178, alone while it re-records baselines. Then kd#181 (the board) alone, then kd#182 (lock-in).
 
 **Read before building** (a slice's issue links them too):
 
 | What | Where |
 |---|---|
 | The decision on the look, the user criteria, the slice tracker | kd#1 (`gh issue view 1`) |
-| Token values (today against new), closed variant lists, where each paragraph of `DESIGN.md` goes, what the build has to know | `docs/design/redesign-system.md` |
-| The approved design file that replaces `DESIGN.md` in slice 1 | `docs/design/DESIGN.next.md` |
+| The design file in force | `DESIGN.md` |
+| Token values (before the redesign against new), closed variant lists, where each paragraph of the old `DESIGN.md` went, what the build has to know | `docs/design/redesign-system.md` |
 | The measurements and the rule review behind both | `docs/design/redesign-gap-audit.md` |
 | The prototype, reference only (rebuild properly, never merge or cherry-pick) | branch `proto/1-visual-redesign`, commit `968c1861`; `PORT=<free port> npm run dev`, then `/tasks?seed=demo&variant=a&type=1&btn=both&drag=1` |
+
+**Ahead of the code until slice 1b:** `DESIGN.md` "Type" states the line heights of body, interface and label text and the 12 px label; the code gets them with kd#190. The detector's sidecar `.impeccable/design.json` still describes the old palette; it is refreshed in the lock-in (kd#182).
 
 **Open for the owner:** nothing. Coming up in step 5: a look at each slice's screenshots, and one check of drag and motion in the desktop app (`npm run tauri:dev`) and on a real phone after slice 6.
 
@@ -51,7 +54,7 @@ A redesigned UI that
 | 2 | Rule review of `DESIGN.md` | **done** 2026-11-11 ("Step 2: rule review of `DESIGN.md`" in `docs/design/redesign-gap-audit.md`; four challenged rules answered by the owner) | owner, per challenged rule |
 | 3 | Visual direction on the cleaned kit | **done** 2026-11-11: Paper Desk with Fraunces and the yellow marker on the Jetzt headline (`## UX decision` in the body of kd#1; prototype branch `proto/1-visual-redesign`, the pick at commit `15b65260`, with the switches of step 4 at `968c1861`) | owner |
 | 4 | System definition: foundations and the rewritten `DESIGN.md` | **done** 2026-11-11: `docs/design/redesign-system.md` and `docs/design/DESIGN.next.md`, approved by the owner; kd#1 is the epic with one sub-issue per slice | owner approves |
-| 5 | Migration in slices | **running**: 1 of 8 sub-issues done (kd#175); the look slices have not started (table under "Step 5") | agents; owner feel-checks |
+| 5 | Migration in slices | **running**: kd#175 done, slice 1 (kd#176) in PR 193, seven sub-issues to go (table under "Step 5") | agents; owner feel-checks |
 | 6 | Lock-in: guards, baselines, canvas | not started (kd#182, after all slices) | agents |
 
 What to do next is in "Where we are" at the top.
@@ -197,13 +200,14 @@ Each slice is a sub-issue of the epic kd#1 with its scope, acceptance criteria a
 | Issue | Slice | Depends on | State |
 |---|---|---|---|
 | kd#175 | Move "Voice and copy" to `docs/copy/voice.md` | – | merged 2026-11-11 (PR 185) |
-| kd#176 | 1 Foundations: tokens, theme, fonts, state language, the `DESIGN.md` swap | – | needs-spec |
+| kd#176 | 1 Foundations: tokens, theme, the display face and its roles, state language, the `DESIGN.md` swap | – | PR 193 |
 | kd#177 | 2 Actions: two button sizes, soft and ghost by rule | 1 | needs-spec |
 | kd#178 | 3 Inputs: 36 px fields, one choice chip, the task sheet value rows | 1 | needs-spec |
+| kd#190 | 1b Interface type roles: line heights in the size tokens, `text-body`, 12 px label | 1, 2, 3 (alone while it re-records baselines) | needs-spec |
 | kd#179 | 4 Navigation, overlays and notices: one task sheet, titles | 1 | needs-spec |
 | kd#180 | 5 Display and layout: page sheets, one list row, headings, badges | 1, 2 | needs-spec |
 | kd#181 | 6 The board: card hover and press, drag motion, stacks, focus overlay, add slot | 1 to 5 (last and alone) | needs-spec |
-| kd#182 | 7 Lock-in (step 6) | 1 to 6 | needs-spec |
+| kd#182 | 7 Lock-in (step 6) | 1 to 6, 1b | needs-spec |
 
 State is the issue's lane (`needs-spec`, `ready`), then `in build`, `PR <n>` and `merged <date>`.
 
@@ -216,11 +220,12 @@ How a slice runs:
 
 Rules for all slices:
 
-- **Slice 1 carries the swap.** The PR of kd#176 changes the token values and the theme, bundles Fraunces (before any slice uses it; desktop content security policy, ADR 012), moves `docs/design/DESIGN.next.md` over `DESIGN.md`, updates `PRODUCT.md` and repoints the readers listed in `docs/design/redesign-system.md` ("What step 5 has to know"). From then on `DESIGN.md` is the new text and `DESIGN.next.md` is gone.
+- **Slice 1 carried the swap.** The PR of kd#176 changed the token values and the theme, bundled Fraunces (desktop content security policy, ADR 012), moved `docs/design/DESIGN.next.md` over `DESIGN.md`, updated `PRODUCT.md` and repointed the readers listed in `docs/design/redesign-system.md` ("What step 5 has to know"). `DESIGN.md` is the new text and `DESIGN.next.md` is gone.
+- **Slices 2 and 3 set explicit control heights.** Today a desktop control's height follows from the 20 px line of `text-sm` plus padding. Slice 1b changes that line, so kd#177 and kd#178 each carry the criterion that the sizes that stay get an explicit height.
 - **`main` is mixed between slice 1 and slice 6:** the new look with some old variants still in it. Accepted for small PRs (kd#1, "Accepted trade-offs"). No agent cuts a desktop release during the migration.
 - **The board comes last and alone** (kd#181): drag ghost and drop wash, stacks, the Jetzt focus overlay, the add-task flow. Visuals only, no drop logic (`.claude/rules/drag-and-drop.md`).
 - **No slice for feedback and navigation of their own:** the gap audit found nothing to merge there; what tokens do not reach in them is part of slice 4 (kd#179).
-- **A slice that turns out too large is cut**, not stretched: a new sub-issue of kd#1, a new row here, a change log line saying why (kd#176 names its likely cut: the type scale as slice 1b).
+- **A slice that turns out too large is cut**, not stretched: a new sub-issue of kd#1, a new row here, a change log line saying why (done once: the interface type roles of kd#176 became slice 1b, kd#190).
 
 ## Step 6: lock-in
 
@@ -263,3 +268,5 @@ In short: measuring, tracing, prototyping, rewriting and migrating can be done b
 - 2026-11-11: the plan was brought to the state after step 4 so a fresh session can start from it: a block "Where we are (start here)" at the top (what is decided, what to do next and with which command, what to read, the prototype's limits), "How we work on it" now speaks of a session per slice and says that the issue is the spec in step 5, the decisions are headed as final, and the procedure of step 5 follows the six look slices instead of the seven categories of the first plan. No decision and no state changed.
 - 2026-11-11: step 5 started. kd#175 built (PR 185): the wording rules moved to `docs/copy/voice.md` (20 rules, and a guards table for the mechanical part that the registry, `design-patterns.test.ts`, `npm run i18n:check` and ESLint check; the review showed that the registry catches forms to avoid but not when a term is right, so the usage rules stayed as rules against the issue's "not repeated"); `DESIGN.md` keeps a two-line pointer and is 351 lines (was 373); the copy editor's translation agent reads the `## Rules` list of the new file; the references by section name are repointed. Changed against the issue: the note of the decided term `address-du` in `docs/copy/terms.json` was not repointed, because the registry lock pins the note and only the owner runs `npm run terms:approve`; it is listed under "Open questions for the owner" and is due with kd#176. Next: kd#176 (specify, then build).
 - 2026-11-11: the open owner action of kd#175 is done: the note of the decided term `address-du` in `docs/copy/terms.json` points to `docs/copy/voice.md`, and the owner approved it with `npm run terms:approve` (lock rewritten, `address-du` the only changed term). No reference by section name is left outside the pointer in `DESIGN.md` and the history documents. Nothing is open for the owner; next is kd#176.
+- 2026-11-11: slice 1 specified and built (kd#176, PR 193). Specify measured that desktop control heights are not set anywhere but follow from the 20 px line of `text-sm` plus padding, so line height 1.3 on interface text would have shrunk every control by about 2 px. The slice was therefore cut as its issue foresaw: the line heights of interface, body and label text, `text-body` and the 12 px label are slice 1b (kd#190, after slices 2 and 3, which got the criterion to set explicit heights); the decision is recorded on kd#176. Built in slice 1: `custom-forest` and the warm neutral ramp `custom-paper` (`custom-ink`, `custom-teal` and `stone` are gone), white sheets on paper, the warm shadow set with menus, popovers and toasts on it, Fraunces bundled with the heading roles carrying their line height, numerals moved back to the sans, the state language in the base layer and the theme (hand cursor, press, one disabled look, soft fill on the canvas), the marker on Jetzt, flat app bar pills (the glass code and `app-nav-glass.test.ts` removed), the `DESIGN.md` swap (239 lines against 351), `PRODUCT.md`, the references by section name repointed in 32 files, and the details that left `DESIGN.md` checked against their doc blocks (eight were missing and added). Contrast guards now measure against the white sheet, the fill inside a sheet and the paper. Found while building and fixed: the phone's sticky add bar and the sticky end-of-day button showed cards through the new translucent fill. Left for later slices: `.impeccable/design.json` (lock-in), the hand-written `cursor-pointer` classes and `ChoiceChip`'s own press rules (slices 2 and 3), the statistics verdict surface and tile radius (slice 5).
+- 2026-11-11: review fixes on slice 1 (kd#176, PR 193). The press scale now has an opt-out, `.no-press`, set on InlineEditable's read-mode trigger so the task sheet's title and notes no longer jump before editing opens; the command palette's active row takes `--fill-on-canvas-hover` (the white modal's `--ui-bg-muted` was about 1.07:1); the stack header's close button and the stack pill take `--fill-on-canvas` (hover `--fill-on-canvas-hover`) like the add slot and the app bar's ⋯, since `--ui-bg-muted` is lighter than the paper; the 50 % disabled look skips `[data-disabled]` (Nuxt UI styles those itself); the end-of-day closing line keeps body line height; stale comments (teal, "accented equals muted", the sheet header weight) corrected. Baselines re-recorded: stack-expanded (both widths) and day-close-1280. Still open from the review: the opacity transition on raw buttons and links, and Fraunces as a 360 kB TTF (woff2 later).

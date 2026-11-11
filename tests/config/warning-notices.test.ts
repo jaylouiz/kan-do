@@ -3,7 +3,7 @@ import { readdirSync, readFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 
 // Warning notices are `UAlert` (subtle, warning), not hand-built boxes, and warning status text on
-// `bg-default` is one step: `text-warning-700` (DESIGN.md "Notices and toasts", #558). The 800 step lives
+// `bg-default` is one step: `text-warning-700` (DESIGN.md "Components", #558). The 800 step lives
 // only in `app.config.ts` (the alert wash) and the base `text-warning` orange fails 4.5:1 as text.
 
 const root = resolve(__dirname, '../..')

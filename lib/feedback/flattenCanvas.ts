@@ -129,8 +129,8 @@ export function readAnnotationColors(): AnnotationColors {
   const style = getComputedStyle(document.documentElement)
   const read = (name: string, fallback: string) => style.getPropertyValue(name).trim() || fallback
   return {
-    redact: read('--color-custom-ink-900', '#000000'),
-    stroke: read('--ui-error', read('--color-custom-ink-600', '#000000')),
+    redact: read('--ui-text-highlighted', '#000000'),
+    stroke: read('--ui-error', read('--ui-primary', '#000000')),
   }
 }
 

@@ -9,7 +9,7 @@ export default {
   source: 'nuxt-ui',
   kind: 'compound',
   category: 'feedback',
-  description: 'The inline notice: a short message with an optional title, icon and actions in the semantic colour roles (DESIGN.md "Notices and toasts").',
+  description: 'The inline notice: a short message with an optional title, icon and actions in the semantic colour roles (DESIGN.md "Components").',
   usage: '`variant="subtle"` with `color` `error` for a failure, `warning` for "needs attention", `info` for a hint, `success` for a confirmed good result, `neutral` for a quiet result. The call site sets `role` (`alert` for a failure that appears, `status` for a state) and `data-testid`; text goes into `description` (and `title` when a second line helps). A system notice with actions is `orientation="horizontal"` (DataStorageNotice).',
   avoid: 'Not for a field\'s own error (UFormField error), not for a reaction to an action that passes by (a toast, raised with `useToast`), and no hand-built tinted box or coloured `<p role="alert">` line next to it.',
   alternatives: ['DataStorageNotice', 'EmptyNote'],

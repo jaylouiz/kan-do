@@ -28,10 +28,10 @@ test.describe('/ui catalog shell', () => {
     const noteHeight = page.getByRole('listitem').filter({ has: page.locator('code', { hasText: /^--task-note-height$/ }) })
     await expect(noteHeight).toContainText('max-width: 767px')
 
-    // The frozen custom-ink ramp and the role mapping from app.config.ts
-    await expect(page.getByText('primary → custom-ink')).toBeVisible()
+    // The frozen custom-forest ramp and the role mapping from app.config.ts
+    await expect(page.getByText('primary → custom-forest')).toBeVisible()
     await expect(page.getByText('frozen (DESIGN.md)').first()).toBeVisible()
-    await expect(page.locator('code', { hasText: /^custom-ink$/ }).first()).toBeVisible()
+    await expect(page.locator('code', { hasText: /^custom-forest$/ }).first()).toBeVisible()
 
     // A token nothing defines does not appear
     await expect(page.locator('code', { hasText: /^--z-modal$/ })).toHaveCount(0)

@@ -12,7 +12,7 @@
 <template>
   <div class="flex items-center gap-5" :class="stacked ? 'md:flex-col md:items-start' : ''">
     <StatsRing :segments="segments" :label="label" :size="size" :thickness="14">
-      <span class="font-display text-2xl leading-(--lh-tight) text-highlighted tabular-nums">{{ estimate.n }}</span>
+      <span class="text-2xl leading-(--lh-tight) font-semibold text-highlighted tabular-nums">{{ estimate.n }}</span>
       <span class="text-xs text-toned">{{ t('statistics.estimate.center') }}</span>
     </StatsRing>
     <ul class="min-w-0 space-y-1.5 text-sm">

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { readdirSync, readFileSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
 
-// #552 (audit U4): one button size and variant ladder (DESIGN.md "Buttons"). The theme in `app.config.ts` carries
+// #552 (audit U4): one button size and variant ladder (DESIGN.md "Components"). The theme in `app.config.ts` carries
 // the default size and the 44 px phone floor; call sites set a size only to climb the ladder (`lg` for the one
 // primary of a surface, `sm` for rows and cards). This test keeps the theme and the call sites from drifting.
 

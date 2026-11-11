@@ -8,10 +8,10 @@
   /* === Typography === */
   :where(.text-2xs) { font-size: var(--text-label); line-height: 1rem; }
 
-  :where(.font-display) { font-family: var(--font-display); font-weight: 600; }
+  :where(.font-display) { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.02em; }
 
-  /* Slight negative tracking for the large display step (column names, welcome hero). */
-  .tracking-display { letter-spacing: -0.015em; }
+  /* The display face's tracking, for a heading that sets the face another way. */
+  .tracking-display { letter-spacing: -0.02em; }
 
   /* viewport-fit=cover (#257): sticky page chrome keeps clear of the status bar / notch; 0 without insets */
   .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
@@ -77,7 +77,7 @@ html.kando-capture-mask [data-private] ::placeholder {
   color: transparent !important;
 }
 html.kando-capture-mask [data-private] {
-  background-color: var(--color-custom-ink-900) !important;
+  background-color: var(--ui-text-highlighted) !important;
   border-radius: var(--radius-xs);
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
@@ -92,15 +92,15 @@ html.kando-capture-mask [data-private] {
  */
 @utility section-heading {
   font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: -0.015em;
+  font-weight: 500;
+  letter-spacing: -0.02em;
   font-size: var(--text-headline);
   line-height: var(--lh-tight);
   color: var(--ui-text-highlighted);
 }
 
 /*
- * `focus-ring`: the one focus ring of DESIGN.md "Focus", Nuxt UI's soft halo (3px, 25% of the ink, no offset), for
+ * `focus-ring`: the one focus ring of DESIGN.md "States", Nuxt UI's soft halo (3px, 25% of the ink, no offset), for
  * hand-rolled controls (buttons and links Nuxt UI does not render). Nuxt UI components draw the same halo from
  * their own theme; the values are the `--focus-ring-*` tokens in main.css.
  */

@@ -203,6 +203,14 @@ export default defineNuxtConfig({
         weight: '300 900',
         style: 'italic',
         global: true
+      },
+      // The display face (DESIGN.md "Type"): headings only. Bundled like Figtree, no web font request (ADR 012).
+      {
+        name: 'Fraunces',
+        src: '/fonts/Fraunces-Variable.ttf',
+        weight: '100 900',
+        style: 'normal',
+        global: true
       }
     ]
   },

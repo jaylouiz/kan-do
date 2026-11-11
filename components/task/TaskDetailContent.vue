@@ -26,6 +26,7 @@
   `useTaskSync.setCompletedDay` (statistics and the board's today / before-today split follow at once). The row is
   conditional, so the six-row guard above still counts the always-visible rows. A task whose connection holds no
   completion date says "Gilt nur in Kan-Do." beside the value
+- Property rows (moved from DESIGN.md, kd#176): a quiet label column and the value as its own control, a soft select with a chevron when it opens a list (`TaskPropertySelect`), an editable label on a faint dotted rule when it is free input (`InlineEditable`, `PropertyValueTrigger`). Every row keeps its place whether set or not ("Auswählen…", "+ hinzufügen"); six standard rows, the last one "Aufgewendete Zeit"; no per-row icons, dividers or chips, and no separate time block or progress ring on the sheet
 -->
 
 <template>
@@ -62,7 +63,7 @@
             :required-message="t('task.form.titleRequired')"
             class="text-2xl/tight"
             container-class="-ms-2"
-            display-class="font-display font-normal tracking-tight"
+            display-class="font-display"
             size="xl"
             :aria-describedby="isSmallerStep ? smallerHintId : undefined"
             @save="(val) => handleTitleSave(val as string)"

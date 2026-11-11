@@ -1,6 +1,6 @@
 /**
- * E2E: overlay elevation (issue #126). Every modal content lifts off the scrim by `--shadow-overlay`;
- * the context menu keeps Nuxt UI's stock shadow.
+ * E2E: overlay elevation (issue #126, kd#176). Every modal content lifts off the scrim by `--shadow-overlay`,
+ * and so does a menu: no overlay keeps Nuxt UI's stock shadow in Tailwind's black.
  */
 import { test, expect, type Page } from '@playwright/test'
 import { seedLocalBoard } from './helpers/seed'
@@ -67,15 +67,15 @@ for (const viewport of [{ name: 'desktop', width: 1280, height: 800 }, { name: '
       }
     })
 
-    test('context menu keeps the stock shadow', async ({ page }) => {
+    test('context menu carries --shadow-overlay, not the stock shadow', async ({ page }) => {
       await page.goto('/tasks')
       await page.locator('.task-wrapper').first().click({ button: 'right' })
       await expect(page.getByRole('menu')).toBeVisible()
       const token = layersOf(await overlayToken(page))
       const stock = layersOf(await stockShadow(page))
-      await expect.poll(async () => layersOf(await shadowOf(page, '[role="menu"]'))).toEqual(expect.arrayContaining(stock))
+      await expect.poll(async () => layersOf(await shadowOf(page, '[role="menu"]'))).toEqual(expect.arrayContaining(token))
       const shadow = layersOf(await shadowOf(page, '[role="menu"]'))
-      for (const layer of token) expect(shadow).not.toContain(layer)
+      for (const layer of stock.filter(l => !/^rgba\(0, 0, 0, 0\) 0px 0px 0px 0px$/.test(l))) expect(shadow, 'stock shadow-lg must not survive').not.toContain(layer)
     })
   })
 }

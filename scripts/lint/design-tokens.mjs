@@ -197,7 +197,7 @@ export function checkCssVars(root, files = styleSources(root)) {
  * keeps new literals out of the styling sources. What it flags, per declaration or class string:
  * - a colour literal (`#hex`, `rgb()`, `rgba()`, `hsl()`, `hwb()`, `oklch()`, `oklab()`, a named colour such as `white`),
  *   also inside `box-shadow` and `text-shadow` values and `shadow-[…]`;
- * - a Tailwind hue or `custom-*` palette class (`bg-red-500`, `text-slate-700`, `bg-custom-ink-900`) and the
+ * - a Tailwind hue or `custom-*` palette class (`bg-red-500`, `text-slate-700`, `bg-custom-forest-900`) and the
  *   `white`/`black` utilities. A semantic role with a step (`text-error-700`, `var(--ui-color-success-700)`) is the
  *   status-text rule of DESIGN.md and stays allowed;
  * - a radius off the scale: only `0`, `50%`, `9999px` (the pill), `inherit` and `var(--…)`/`calc()` over a token pass.

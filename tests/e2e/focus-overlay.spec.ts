@@ -86,7 +86,7 @@ test.describe('desktop, mouse', () => {
       bar: await chrome.bar.screenshot(),
       cta: await chrome.cta.screenshot(),
     })
-    // The glass pill blurs what lies behind it, so its pixels change with the board; what must hold is the stacking:
+    // What must hold is the stacking:
     // at the pill's centre the app bar is painted above the overlay
     const barAboveOverlay = () => chrome.bar.first().evaluate((el) => {
       const r = el.getBoundingClientRect()

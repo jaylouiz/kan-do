@@ -7,7 +7,7 @@
 @avoid Not the full add form: the sheet's TaskForm adds with all fields, NewCardFlow asks the guided questions; not for editing an existing task.
 @responsibility
 - Native button named by its visible label, in a regular card's box (width, --task-card-height, card radius); the box never changes size, so layout, hit area and DnD rects stay put
-- Inside the button, `.add-task-button-surface` (centred icon + label on --ui-bg-muted, button radius) is the visible shape. Offen: label-wide at rest (2.25rem = 36px on desktop, the height of the day-close `lg` button beside it, #582; 3rem on mobile, where `lg` is 48px), grows to the card box over --add-slot-grow-duration on hover (pointer devices only, so a tap never sticks), focus-visible and while drafting (held grown, so it does not jump back under the fading label); the label stays centred throughout. Growth animates min-width/min-height inside the fixed box (an accepted trade-off: a transform would distort radius and label)
+- Inside the button, `.add-task-button-surface` (centred icon + label on --fill-on-canvas, button radius) is the visible shape. Offen: label-wide at rest (2.25rem = 36px on desktop, the height of the day-close `lg` button beside it, #582; 3rem on mobile, where `lg` is 48px), grows to the card box over --add-slot-grow-duration on hover (pointer devices only, so a tap never sticks), focus-visible and while drafting (held grown, so it does not jump back under the fading label); the label stays centred throughout. Growth animates min-width/min-height inside the fixed box (an accepted trade-off: a transform would distort radius and label)
 - Offen on mobile: a sticky 48px bar (#33) that swaps for the draft at the end of the list (#110); the surface never grows there
 - Jetzt: the `icon` prop (lightning) and the label say it starts a task now; the surface is always the full card shape; on pointer devices surface and label appear only while the Jetzt section is hovered or the slot has focus; touch shows the label at rest
 - While the in-card form is open the Jetzt focus overlay steps aside (useInCardAdding, kd#56)
@@ -215,11 +215,11 @@ const isEmpty = computed(() => !props.showButton && !isDrafting.value);
   box-sizing: border-box;
   min-width: 0;
   max-width: 100%;
-  /* 2.25rem = the `lg` button's desktop height (DESIGN.md "Buttons"), so the add-task and day-close buttons match (#582). The hit area is the card-sized button, not this surface */
+  /* 2.25rem = the `lg` button's desktop height (DESIGN.md "Components"), so the add-task and day-close buttons match (#582). The hit area is the card-sized button, not this surface */
   min-height: 2.25rem;
   padding: 0.5rem 1rem;
   border-radius: inherit;
-  background-color: var(--ui-bg-muted);
+  background-color: var(--fill-on-canvas);
   transition:
     min-width var(--add-slot-grow-duration) var(--ease-standard),
     min-height var(--add-slot-grow-duration) var(--ease-standard);
@@ -294,7 +294,7 @@ const isEmpty = computed(() => !props.showButton && !isDrafting.value);
 
   #column-progress:hover .add-task-slot--progress .add-task-button-surface,
   .add-task-slot--progress .add-task-button:focus .add-task-button-surface {
-    background-color: var(--ui-bg-muted);
+    background-color: var(--fill-on-canvas);
   }
 }
 
@@ -329,6 +329,9 @@ const isEmpty = computed(() => !props.showButton && !isDrafting.value);
   .add-task-slot--open .add-task-button .add-task-button-surface {
     min-width: 0;
     min-height: 3rem;
+    /* Solid: the fill on the canvas is a translucent tint, so the bar lays it over the paper itself */
+    background-image: linear-gradient(var(--fill-on-canvas), var(--fill-on-canvas));
+    background-color: var(--ui-page-bg);
   }
 
   /* Jetzt keeps the full card shape, which is 8rem tall here */

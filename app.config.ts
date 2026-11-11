@@ -4,12 +4,12 @@ import { ICONS } from './lib/icons'
 // has no button for (`secondary`, `success`, `info`, `warning`) and the text variants of `error` are fixed here, the
 // whole matrix is guarded by tests/config/button-contrast.test.ts. The class names are literals on purpose: Tailwind
 // only generates what it can read in the source. Steps are the lightest that reach 4.5:1: white on the solid fill, the
-// role text on the page, the sheet and the role's 10% wash. Teal needs 800 for text (700 is 4.0:1 on its wash), but
-// 700 as a fill; the press step is one deeper, like the primary's Deep Ink.
+// role text on the paper, the sheet and the role's 10% wash. Info needs 800 for text (700 is 4.43:1 on its hover wash
+// over the paper); success keeps 800 for text and 700 as a fill; the press step is one deeper, like the primary's 600.
 const BUTTON_ROLE_TEXT = {
   secondary: 'text-secondary-700',
   success: 'text-success-800',
-  info: 'text-info-700',
+  info: 'text-info-800',
   warning: 'text-warning-700',
   error: 'text-error-700'
 } as const
@@ -89,13 +89,13 @@ export default defineAppConfig({
       display: "var(--font-display)",
     },
     colors: {
-      primary: 'custom-ink',
+      primary: 'custom-forest',
       secondary: 'custom-orange',
-      success: 'custom-teal',
+      success: 'custom-forest',
       info: 'sky',
       warning: 'custom-orange',
       error: 'custom-raspberry',
-      neutral: 'stone',
+      neutral: 'custom-paper',
     },
     radius: {
       sm: '0.25rem',
@@ -152,7 +152,7 @@ export default defineAppConfig({
       upload: 'i-ph-upload-simple',
       warning: 'i-ph-warning'
     },
-    // Every overlay darkens the page by the shared 12% scrim (DESIGN.md Overlays);
+    // Every overlay darkens the page by the shared scrim (`--overlay-scrim`);
     // only the task sheet opts out (transparent overlay, board-side spotlight).
     modal: {
       slots: {
@@ -161,9 +161,9 @@ export default defineAppConfig({
         // to half strength so sections read as zones, not hard splits.
         content: 'bg-elevated ring-1 ring-default divide-default/50 sm:max-w-lg',
         header: 'px-6 py-4',
-        // Every modal title is the display role (Figtree 600, weight explicit so Nuxt UI title classes cannot override) (DESIGN.md Headline); custom
-        // in-body titles (task detail) must use `font-display` too.
-        title: 'font-display text-lg font-semibold tracking-tight',
+        // Every dialog title is the subhead role in the display face (weight and tracking explicit so Nuxt UI's title
+        // classes cannot override, DESIGN.md "Type"); custom in-body titles (task detail) use `font-display` too.
+        title: 'font-display text-lg font-medium tracking-display',
         // Standard footer chrome: actions right-aligned. Wizards that need a
         // two-zone layout put a `flex w-full justify-between` div inside.
         footer: 'flex items-center justify-end gap-2 px-6 py-4',
@@ -186,24 +186,36 @@ export default defineAppConfig({
       slots: {
         overlay: 'z-(--z-overlay)',
         content: 'z-(--z-overlay) bg-elevated md:shadow-(--shadow-sheet)',
-        title: 'font-display text-lg font-semibold tracking-tight',
+        title: 'font-display text-lg font-medium tracking-display',
       }
     },
     drawer: {
       slots: {
         overlay: 'z-(--z-overlay) bg-(--overlay-scrim)',
         content: 'z-(--z-overlay) bg-elevated',
-        title: 'font-display text-lg font-semibold tracking-tight',
+        title: 'font-display text-lg font-medium tracking-display',
       }
     },
+    // Menus, popovers and toasts are sheets: the warm overlay shadow replaces Nuxt UI's `shadow-lg` in Tailwind's black
+    // (DESIGN.md "Elevation"). A tooltip is a label, not a sheet: its ring is enough.
     popover: {
       slots: {
-        content: 'z-(--z-popover)'
+        content: 'z-(--z-popover) shadow-(--shadow-overlay)'
       }
     },
     tooltip: {
       slots: {
-        content: 'z-(--z-popover)'
+        content: 'z-(--z-popover) shadow-none'
+      }
+    },
+    contextMenu: {
+      slots: {
+        content: 'shadow-(--shadow-overlay)'
+      }
+    },
+    inputMenu: {
+      slots: {
+        content: 'shadow-(--shadow-overlay)'
       }
     },
     // Toasts (e.g. a failed save) must stay visible above the open task sheet.
@@ -216,12 +228,13 @@ export default defineAppConfig({
     // Action buttons (undo for delete, archive, completion) get a 44px target on touch (mobile-nav.css).
     toast: {
       slots: {
+        root: 'shadow-(--shadow-overlay)',
         actions: 'kando-toast-actions'
       }
     },
     dropdownMenu: {
       slots: {
-        content: 'z-(--z-popover) min-w-40',
+        content: 'z-(--z-popover) min-w-40 shadow-(--shadow-overlay)',
         item: 'text-sm cursor-pointer'
       }
     },
@@ -231,15 +244,13 @@ export default defineAppConfig({
         content: 'data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up overflow-hidden'
       }
     },
-    // Central disabled styling for form inputs
-    // Nuxt UI default only applies opacity-75, not a distinct background
-    // This override adds a muted background to clearly distinguish disabled inputs
+    // The one disabled look (DESIGN.md "States"): 50 % opacity and `not-allowed`, on fields as on buttons.
     // Placeholders step down through `text-muted`, not Nuxt UI's `text-dimmed` (2.5:1 on the sheet; Receding Text
-    // Rule, #646). A disabled field's placeholder keeps `text-dimmed` (Pencil, DESIGN.md).
+    // Rule, #646).
     input: {
       slots: {
         base: [
-          'placeholder:text-muted disabled:placeholder:text-dimmed disabled:cursor-not-allowed disabled:opacity-100 disabled:bg-muted'
+          'placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50'
         ]
       }
     },
@@ -251,17 +262,18 @@ export default defineAppConfig({
     },
     select: {
       slots: {
+        content: 'shadow-(--shadow-overlay)',
         base: [
-          'disabled:cursor-not-allowed disabled:opacity-100 disabled:bg-muted'
+          'disabled:cursor-not-allowed disabled:opacity-50'
         ]
       }
     },
     selectMenu: {
       slots: {
-        content: 'z-(--z-popover) min-w-40'
+        content: 'z-(--z-popover) min-w-40 shadow-(--shadow-overlay)'
       },
       variants: {
-        // `soft` is the select of the task sheet's property rows (#114, DESIGN.md "Choice chip or property value"):
+        // `soft` is the select of the task sheet's property rows (#114, DESIGN.md "Components"):
         // a muted fill and a chevron at rest, no border, so a value that opens a list reads as one. 36px high,
         // 44px on touch. Wrapped by TaskPropertySelect; set it nowhere else.
         // `property` (#161) is the quiet text trigger, kept for the add sheet's footer line (AddTargetSwitch):
@@ -297,20 +309,25 @@ export default defineAppConfig({
     textarea: {
       slots: {
         base: [
-          'placeholder:text-muted disabled:placeholder:text-dimmed disabled:cursor-not-allowed disabled:opacity-100 disabled:bg-muted'
+          'placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50'
         ]
       }
     },
-    // The button ladder (#552, DESIGN.md "Buttons"): `md` is the default size and siblings in a footer or row stay at
+    // The button ladder (#552, DESIGN.md "Components"): `md` is the default size and siblings in a footer or row stay at
     // it; the one primary of a surface sets `size="lg"`; rows, cards and in-card actions set `sm`; `xs` only sits
     // inside text. On a phone every button is 44 px high (`lg` 48), icon-only ones 44 wide, so no surface applies
-    // `.touch-target` by hand (tests/config/button-ladder.test.ts keeps call sites on the ladder).
+    // `.touch-target` by hand (tests/config/button-ladder.test.ts keeps call sites on the ladder). Nuxt UI internals
+    // follow the floor, measured at 390 px (#552): calendar header and its Löschen / Heute 44, modal close 44 x 44,
+    // alert and toast actions 44 (they stay `xs` with their own rule, `.kando-notice-actions` / `.kando-toast-actions`
+    // in mobile-nav.css, #284). The ladder covers buttons only: `USelect` and `UInput` keep their own field heights.
     button: {
       defaultVariants: {
         size: 'md'
       },
       slots: {
-        base: 'max-md:min-h-11'
+        // The state language (DESIGN.md "States"): the one disabled look here; the hand cursor, the press and the
+        // fast transition come from the base layer (assets/css/main.css) for every pressable element.
+        base: 'max-md:min-h-11 disabled:opacity-50 aria-disabled:opacity-50'
       },
       variants: {
         size: {
@@ -318,6 +335,18 @@ export default defineAppConfig({
         }
       },
       compoundVariants: [
+        // Neutral soft: a fill one step darker than whatever lies below, so it shows on a white sheet and on the
+        // paper (Nuxt UI's `bg-elevated` is white here). Neutral ghost gains the same fill on hover.
+        {
+          color: 'neutral',
+          variant: 'soft',
+          class: 'bg-(--fill-on-canvas) hover:bg-(--fill-on-canvas-hover) active:bg-(--fill-on-canvas-hover) disabled:bg-(--fill-on-canvas) aria-disabled:bg-(--fill-on-canvas)'
+        },
+        {
+          color: 'neutral',
+          variant: 'ghost',
+          class: 'hover:bg-(--fill-on-canvas) active:bg-(--fill-on-canvas-hover)'
+        },
         // `xs` is a control inside text or one with its own hit area (the stack header close): no floor
         { size: 'xs', class: 'max-md:min-h-0' },
         // Icon-only buttons: a 44 x 44 target with the icon centred
@@ -325,10 +354,10 @@ export default defineAppConfig({
         {
           color: 'primary',
           variant: 'solid',
-          // Deep Ink (button-primary-hover) on hover/press: the base primary/75 blend measures 3.33:1 with white text (#251); enabled: keeps disabled states flat
+          // Primary 600 on hover/press: the base primary/75 blend measures 3.33:1 with white text (#251); enabled: keeps disabled states flat
           class: 'enabled:hover:bg-primary-600 enabled:active:bg-primary-600'
         },
-        // DESIGN.md button-soft: Deep Ink text on Ink Wash; plain primary text on the tint measures 4.41:1 (#152)
+        // Soft primary: the 600 step as text on the primary wash; the guard (button-contrast.test.ts) keeps it at 4.5:1 (#152)
         {
           color: 'primary',
           variant: 'soft',
@@ -340,14 +369,14 @@ export default defineAppConfig({
           variant: 'soft',
           class: 'text-error-700'
         },
-        // Subtle primary: ink-500 on the page measures 4.44:1 (#97), the same 600 step as soft
+        // Subtle primary: the same 600 step as soft (#97)
         {
           color: 'primary',
           variant: 'subtle',
           class: 'text-primary-600'
         },
-        // Hover and press of the primary text variants (kd#124): ink-500 on its own 10% hover wash measures 4.44:1 on the
-        // page, and the link fades to 75% (3.1:1). Deep Ink on hover and press, the rest state stays.
+        // Hover and press of the primary text variants (kd#124): the 500 step on its own 10% hover wash is too close to
+        // 4.5:1 on the paper, and the link fades to 75%. The 600 step on hover and press, the rest state stays.
         ...(['outline', 'ghost', 'link'] as const).map((variant) => ({
           color: 'primary' as const,
           variant,
@@ -367,21 +396,21 @@ export default defineAppConfig({
         ...buttonRoleCompounds
       ]
     },
-    // One in-page tab look (#557): the app bar's neutral pill (DESIGN.md "Tabs"): grey track, the active tab a raised
-    // white chip, no ink fill. Nuxt UI's neutral pill fills the active tab with `bg-inverted`; the second class on the
+    // One in-page tab look (#557): a track on the canvas, the active tab a flat white chip (a selected tab is a fill,
+    // never a shadow: DESIGN.md "States"). Nuxt UI's neutral pill fills the active tab with `bg-inverted`; the second class on the
     // `before:` selector covers a list without an indicator. Unselected text stays `text-muted` from the base slot.
     tabs: {
       slots: {
-        // Phone: every tab is a 44px target (DESIGN.md "Touch targets"), like the button floor above; no call site sets it
-        trigger: 'max-md:min-h-11 max-md:min-w-11'
+        // Phone: every tab is a 44px target (DESIGN.md "Space, size and shape"), like the button floor above; no call site sets it
+        trigger: 'max-md:min-h-11 max-md:min-w-11 disabled:opacity-50'
       },
       compoundVariants: [
         {
           color: 'neutral',
           variant: 'pill',
           class: {
-            list: 'bg-muted',
-            indicator: 'bg-default',
+            list: 'bg-(--fill-on-canvas)',
+            indicator: 'bg-default shadow-none',
             trigger: [
               'data-[state=active]:text-highlighted',
               'in-[[data-slot=list]:not(:has([data-slot=indicator]))]:data-[state=active]:before:bg-default'
@@ -423,7 +452,7 @@ export default defineAppConfig({
     switch: {
       slots: {
         base: 'data-[state=unchecked]:bg-default data-[state=unchecked]:border-(--ui-text-muted)',
-        thumb: 'data-[state=unchecked]:bg-(--ui-text-muted)'
+        thumb: 'shadow-none data-[state=unchecked]:bg-(--ui-text-muted)'
       }
     },
     card: {

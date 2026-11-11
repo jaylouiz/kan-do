@@ -14,7 +14,7 @@
 - Provides header with status information
 - Enables task addition for the Open column (card-sized add slot that morphs into the draft, #125)
 - Handles visual states for different statuses and empty states
-- Erledigt drop target (#124): a light teal wash under the list and a one-line hint while a card
+- Erledigt drop target (#124): a light green wash under the list and a one-line hint while a card
   from another column hovers it
 -->
 <template>
@@ -551,7 +551,7 @@ const columnClasses = computed(() => ({
 <style scoped>
 /* ========================================
  * ERLEDIGT DROP TARGET (#124)
- * A light teal wash on the column itself, so it sits under the list and the Gestern note and
+ * A light green wash on the column itself, so it sits under the list and the Gestern note and
  * covers the scrolled content on mobile. It fades on the column, never on .board (DnD invariant).
  * ======================================== */
 .column[data-status="done"] {

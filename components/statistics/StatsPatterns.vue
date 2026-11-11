@@ -12,7 +12,7 @@
 -->
 <template>
   <div>
-    <h3 class="font-display tracking-display text-lg leading-(--lh-tight) text-highlighted">{{ t('statistics.patterns.heading') }}</h3>
+    <h3 class="font-display text-lg text-highlighted">{{ t('statistics.patterns.heading') }}</h3>
     <p v-if="patterns.length === 0" class="mt-3 text-sm text-muted">{{ emptyText }}</p>
     <ul v-else class="mt-3 divide-y divide-default" data-testid="stats-patterns">
       <li v-for="pattern in shown" :key="pattern.id" class="py-3">

@@ -8,19 +8,15 @@
  *
  * The brand `kan-do` sits left of the pill, outside it (#642): the pill holds only the segments.
  *
- * Palette (DESIGN.md "App bar"): neutral tokens only, no ink fill. The track is `--ui-bg-muted`; the selected
- * segment sits on one raised `--ui-bg` chip, the moving indicator (#583, composables/useNavIndicator.ts), which
- * glides and stretches between the segments. ⋯ is never selected: an open panel gives it a soft pressed fill only.
+ * Look: the two pills are flat white sheets on the paper, no glass (owner, 2026-11-11). They are the one control-like
+ * surface that casts a shadow (`--shadow-nav-pill`, DESIGN.md "The Sheets Cast Shadows Rule"). The selected segment
+ * sits on a fill, the moving indicator (#583, composables/useNavIndicator.ts), which glides and stretches between the
+ * segments and casts no shadow. ⋯ is never selected: an open panel gives it the same pressed fill only.
  *
- * Glass and veil (#615, DESIGN.md "The Glass Chrome Rule"): cards scroll under the bar, so the two pills are frosted
- * glass, bottom to top: a blurred, saturated backdrop; a paper-tinted fill (`--ui-bg-muted` at 60%, never white) under
- * a faint top light; a hairline drawn as an inset shadow (desktop: no border width, so a pill keeps its size, #616; phone: the pill's 1px border draws it); a 1px
- * inner top highlight and a faint inner bottom edge; depth from the shadow scale (`--shadow-sm` desktop, `--shadow-md`
- * phone). Behind the pills a paper veil (`.app-nav::before`, 80% -> 62% -> 0 of `--ui-page-bg`) hangs `--app-bar-veil-hang` (1.75rem) below
- * the desktop row and rises 1.5rem above the phone pill, so cards dissolve into the paper instead of ending at the
- * pill's edge. The veil takes no pointer events (the `.titlebar` drag strip and the page stay usable under it).
- * Without `backdrop-filter`, or under reduced transparency, the tint rises to 94% and the filter is dropped: the
- * near-opaque pre-glass pill, labels still AA. All recipe values are the `--nav-glass-*` properties on `.app-nav`.
+ * Veil (#615): cards scroll under the bar. Behind the pills a paper veil (`.app-nav::before`, 80% -> 62% -> 0 of
+ * `--ui-page-bg`) hangs `--app-bar-veil-hang` (1.75rem) below the desktop row and rises 1.5rem above the phone pill, so
+ * cards dissolve into the paper instead of ending at the pill's edge. The veil takes no pointer events (the
+ * `.titlebar` drag strip and the page stay usable under it).
  *
  * Third segment (#583): on /settings* and /trash the page appears as a third segment in the pill. One timeline
  * (`--nav-move`, `--nav-ease`, set on `.app-nav`; 0ms under reduced motion, which also switches the JS springs off)
@@ -65,25 +61,14 @@
     /* One timeline for everything that changes the pill's layout (#583); read by AppNav.vue as well */
     --nav-move: 420ms;
     --nav-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
-    /* Glass recipe (#615): see the header comment. The tint is the one value the fallbacks override. */
-    --nav-glass-tint: color-mix(in srgb, var(--ui-bg-muted) 60%, transparent);
-    /* The fallbacks' tint (no backdrop-filter, reduced transparency): declared once */
-    --nav-glass-tint-solid: color-mix(in srgb, var(--ui-bg-muted) 94%, transparent);
     /* The paper veil, one gradient for both placements: it fades away from the row (down on desktop, up on a phone) */
     --nav-veil-dir: to bottom;
     --nav-veil: linear-gradient(var(--nav-veil-dir),
       color-mix(in srgb, var(--ui-page-bg) 80%, transparent) 0%,
       color-mix(in srgb, var(--ui-page-bg) 62%, transparent) 50%,
       transparent 100%);
-    --nav-glass-filter: blur(20px) saturate(1.8) brightness(1.03);
-    --nav-glass-light: linear-gradient(180deg, color-mix(in srgb, var(--color-white) 46%, transparent) 0%, transparent 62%);
-    --nav-glass-edge:
-      inset 0 0 0 1px color-mix(in srgb, var(--ui-border) 55%, transparent),
-      inset 0 1px 0 0 color-mix(in srgb, var(--color-white) 70%, transparent),
-      inset 0 -1px 0 0 color-mix(in srgb, var(--ui-text-highlighted) 5%, transparent);
-    --nav-glass-shadow: var(--shadow-sm);
-    --nav-glass-chip: color-mix(in srgb, var(--ui-bg) 94%, transparent);
-    --nav-glass-open: color-mix(in srgb, var(--ui-color-neutral-300) 78%, transparent);
+    /* The fill of the selected segment and of the open ⋯ */
+    --nav-chip: var(--fill-on-canvas-hover);
     position: sticky;
     top: 0;
     /* Below dialogs and scrims (z-50 and up) so an open overlay dims the bar and blocks it; above the page content (the page header scrolls away, #615); the Jetzt focus overlay dims the row with its own strip, z-41 */
@@ -127,21 +112,17 @@
        its own content would show as grey ending before the label. The brand (flex 0 1 auto, clips) gives way instead. */
     flex: none;
     position: relative;
-    border-radius: 9999px; /* the one pill-shaped container (DESIGN.md Shapes) */
+    border-radius: 9999px; /* the one pill-shaped container (DESIGN.md "Space, size and shape") */
   }
 
-  /* Frosted glass (#615, DESIGN.md "The Glass Chrome Rule"): only the app bar's two pills */
+  /* Flat white sheets on the paper: only the app bar's two pills */
   .app-nav-pill,
   .app-nav-more {
-    background: var(--nav-glass-light), var(--nav-glass-tint);
-    /* The light gradient spans the border box too: the phone's 1px border must not show a repeated tile */
-    background-origin: border-box;
-    -webkit-backdrop-filter: var(--nav-glass-filter);
-    backdrop-filter: var(--nav-glass-filter);
-    box-shadow: var(--nav-glass-edge), var(--nav-glass-shadow);
+    background: var(--ui-bg);
+    box-shadow: var(--shadow-nav-pill);
   }
 
-  /* The raised white chip behind the selected segment; left/width are driven per frame by useNavIndicator */
+  /* The fill behind the selected segment; left/width are driven per frame by useNavIndicator */
   .app-nav-indicator {
     position: absolute;
     top: 0.125rem;
@@ -150,8 +131,7 @@
     width: 0;
     opacity: 0;
     border-radius: 9999px;
-    background: var(--nav-glass-chip);
-    box-shadow: 0 0 0 0.5px color-mix(in srgb, var(--ui-border) 70%, transparent), var(--shadow-xs);
+    background: var(--nav-chip);
     pointer-events: none;
   }
 
@@ -167,8 +147,8 @@
     white-space: nowrap;
     font-family: var(--font-display);
     font-size: var(--text-brand);
-    font-weight: 600;
-    letter-spacing: -0.01em;
+    font-weight: 500;
+    letter-spacing: -0.02em;
     line-height: 1;
     color: var(--ui-text-highlighted);
   }
@@ -195,8 +175,7 @@
     font-weight: 500;
     line-height: 1;
     white-space: nowrap;
-    /* neutral-700, not muted: holds AA over any card colour that shows through the glass (#615) */
-    color: var(--ui-color-neutral-700);
+    color: var(--ui-text-toned);
     transition: color var(--duration-fast) ease, background-color var(--duration-fast) ease;
   }
 
@@ -238,7 +217,7 @@
     width: var(--app-nav-pill-height);
     height: var(--app-nav-pill-height);
     border-radius: 9999px;
-    color: var(--ui-color-neutral-700);
+    color: var(--ui-text-toned);
     transition: color var(--duration-fast) ease, background-color var(--duration-fast) ease;
   }
 
@@ -246,9 +225,9 @@
     color: var(--ui-text-highlighted);
   }
 
-  /* Open = soft pressed fill, visibly not the raised white chip. ⋯ is never selected (#583). */
+  /* Open = the pressed fill. ⋯ is never selected (#583). */
   .app-nav-more.is-open {
-    background: var(--nav-glass-open);
+    background: linear-gradient(var(--nav-chip), var(--nav-chip)), var(--ui-bg);
     color: var(--ui-text-highlighted);
   }
 
@@ -257,7 +236,7 @@
     height: 1.25rem;
   }
 
-  /* The one focus ring (DESIGN.md "Focus", `--focus-ring-*` in main.css) */
+  /* The one focus ring (DESIGN.md "States", `--focus-ring-*` in main.css) */
   .app-nav-brand:focus-visible,
   .app-nav-place:focus-visible,
   .app-nav-more:focus-visible {
@@ -270,23 +249,9 @@
     box-shadow: none;
   }
 
-  /* ⋯ is a glass pill: its ring must not take the glass edge and shadow with it (#631) */
+  /* ⋯ is a pill of its own: its ring must not take the pill's shadow with it (#631) */
   .app-nav-more:focus-visible {
-    box-shadow: var(--nav-glass-edge), var(--nav-glass-shadow);
-  }
-
-  /* No glass: the near-opaque pre-glass pill. Without backdrop-filter nothing is blurred, so the tint must carry. */
-  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .app-nav {
-      --nav-glass-tint: var(--nav-glass-tint-solid);
-    }
-  }
-
-  @media (prefers-reduced-transparency: reduce) {
-    .app-nav {
-      --nav-glass-tint: var(--nav-glass-tint-solid);
-      --nav-glass-filter: none;
-    }
+    box-shadow: var(--shadow-nav-pill);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -309,8 +274,7 @@
       padding: 0 max(0.75rem, env(safe-area-inset-right, 0px)) calc(0.75rem + env(safe-area-inset-bottom, 0px)) max(0.75rem, env(safe-area-inset-left, 0px));
     }
 
-    /* The drag fade lives on the pills and the veil, never on .app-nav: opacity < 1 on an ancestor makes it a Backdrop
-       Root, so the pills' blur would see nothing behind them while fading and pop in at the end (#631). */
+    /* The drag fade lives on the pills and the veil */
     .app-nav-pill,
     .app-nav::before {
       transition: opacity var(--duration-fast) ease;
@@ -325,15 +289,8 @@
       max-width: 100%;
     }
 
-    /* Cards scroll under the bar: frosted glass with a soft lift. The 1px border stays, so a pill keeps exactly its
-       size (#616); it carries the hairline (below). */
     .app-nav {
-      --nav-glass-shadow: var(--shadow-md);
       --nav-veil-dir: to top;
-      /* The 1px border draws the hairline (an inset ring would sit 1px inside the tinted edge): highlight and bottom edge stay */
-      --nav-glass-edge:
-        inset 0 1px 0 0 color-mix(in srgb, var(--color-white) 70%, transparent),
-        inset 0 -1px 0 0 color-mix(in srgb, var(--ui-text-highlighted) 5%, transparent);
     }
 
     /* The veil rises above the pill instead of hanging below a row */
@@ -344,7 +301,8 @@
     .app-nav-pill,
     .app-nav-more {
       height: 3.25rem;
-      border: 1px solid color-mix(in srgb, var(--ui-border) 55%, transparent);
+      /* Kept from the glass pill so the pill's inner box, and with it the segments and the indicator, stay where they were */
+      border: 1px solid transparent;
     }
 
     .app-nav-pill {

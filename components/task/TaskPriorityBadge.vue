@@ -75,7 +75,7 @@ const priorityIcon = computed(() => {
 });
 
 /**
- * CSS class for styling: only High carries a tint (the warning tone, DESIGN.md "Warning Orange"), by level
+ * CSS class for styling: only High carries a tint (the warning tone, DESIGN.md "Colour"), by level
  * alone, so the same level looks the same on every board (#617, replaces the board-relative tint of #504)
  */
 const prioCssClass = computed(() => (priorityValue.value === HIGH ? "priority-high" : ""));

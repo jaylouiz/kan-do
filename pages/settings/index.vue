@@ -1,6 +1,6 @@
 <!--
 @component SettingsPage
-@description "Einstellungen" (/settings, #394, #691): three groups behind a tab strip (`UTabs`, the shared grey-pill look of DESIGN.md "Tabs", as /settings/topics),
+@description "Einstellungen" (/settings, #394, #691): three groups behind a tab strip (`UTabs`, the shared tab look of DESIGN.md "Components", as /settings/topics),
 one shown at a time, the active one in the URL as `?tab=board|sources|manage` (default board, unknown value = board):
 Board (the Fokus option), Aufgabenquellen (the former "Aufgaben-Quellen" page, #324: every source with its health, the default
 for new tasks, repair / configure / connect / disconnect) and Verwaltung (hairline rows to Themen und Aktivitäten, Daten &

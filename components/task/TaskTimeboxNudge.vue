@@ -13,7 +13,7 @@
 - Ends itself when the card leaves Jetzt, is deleted, gets a timebox elsewhere or opens its sheet
 - The card dims its own content through the `task--nudged` class (TaskCard); the rules for both live in this file
 
-In-card question pattern (DESIGN.md "Ask in place"; this is its first user, extract a shared layer when a second exists):
+In-card question pattern (DESIGN.md "Behaviour"; this is its first user, extract a shared layer when a second exists):
 - One at a time, keyed by task id in a transient board-store flag (a cross-column move mounts the card fresh), set
   only by user-driven moves: never by page load, sync, undo or closing the day
 - Covers the card face, does not rearrange it: a radial wash of the sheet colour (the stack pill's wash), the card's
@@ -225,7 +225,7 @@ const onBarEnd = (event: AnimationEvent) => {
 
 <style>
 /* ===========================================================================
-   Timebox nudge (#389): the first in-card question (DESIGN.md "Ask in place", pattern notes in the doc block).
+   Timebox nudge (#389): the first in-card question (DESIGN.md "Behaviour", pattern notes in the doc block).
    Global, not scoped, so the card can dim its own content. Colours are Nuxt UI tokens only; the card face is
    covered by a radial wash of the sheet colour (the stack pill's pattern, #270/#371).
    =========================================================================== */
@@ -318,7 +318,7 @@ const onBarEnd = (event: AnimationEvent) => {
   outline: none; /* the pill around it carries the focus ring */
 }
 
-/* DESIGN.md "Buttons > Focus": the focus ring, on the pill when its input has keyboard focus */
+/* DESIGN.md "States": the focus ring, on the pill when its input has keyboard focus */
 .nudge__field:focus-within {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);

@@ -89,4 +89,4 @@ Notion is optional and configured in the app; `.env.example` lists the variables
 
 Kan-do is released under the [MIT License](LICENSE). Copyright (c) 2026 Julius Wüstefeld.
 
-The interface font is [Figtree](https://github.com/erikdkennedy/figtree) by Erik Kennedy, licensed under the SIL Open Font License 1.1 ([public/fonts/Figtree-OFL.txt](public/fonts/Figtree-OFL.txt)).
+The interface font is [Figtree](https://github.com/erikdkennedy/figtree) by Erik Kennedy, licensed under the SIL Open Font License 1.1 ([public/fonts/Figtree-OFL.txt](public/fonts/Figtree-OFL.txt)). The heading font is [Fraunces](https://github.com/undercasetype/Fraunces) by Undercase Type, under the same licence ([public/fonts/Fraunces-OFL.txt](public/fonts/Fraunces-OFL.txt)).

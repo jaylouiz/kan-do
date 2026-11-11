@@ -13,7 +13,7 @@
 - The round X at the row's right edge asks the column to collapse the group (click, Enter, Space); the
   column returns focus to the stack, as it does for Escape. Its accessible name is "Gruppe <group>
   schließen" (no aria-expanded: it is an action). 24px round, same soft grey as the pill, the add-task
-  button and the app bar's ⋯ (`--ui-bg-muted`, no ring); on hover the pointer cursor and one neutral step darker (`--ui-color-neutral-300`: `--ui-bg-accented` is the same value as `--ui-bg-muted` here, so it showed nothing, kd#55); 44px hit area on touch
+  button and the app bar's ⋯ (`--fill-on-canvas`, no ring); on hover the pointer cursor and one step darker (`--fill-on-canvas-hover`); 44px hit area on touch
 - The root is a role=group named by the stack caption text; it is not a sortable and carries no
   data-task-id: dnd-kit and the drop mapping never see it
 - Row min-height 2rem (2.75rem on touch widths)
@@ -106,14 +106,14 @@ const caption = useStackCaption(() => props.label, () => props.count);
   padding: 0;
   justify-content: center;
   border-radius: 9999px;
-  background-color: var(--ui-bg-muted);
+  background-color: var(--fill-on-canvas);
   color: var(--ui-text);
   cursor: pointer;
 }
 
-/* `--ui-bg-accented` equals `--ui-bg-muted` in this theme (main.css), so the hover reads the next neutral step */
+/* The same fill as the add slot and the app bar's ⋯, one step deeper on hover (it sits on the canvas, so not `--ui-bg-muted`, which is lighter than the paper) */
 .task-stack-header__close:hover {
-  background-color: var(--ui-color-neutral-300);
+  background-color: var(--fill-on-canvas-hover);
 }
 
 @media (--phone) {

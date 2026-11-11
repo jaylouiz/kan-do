@@ -76,7 +76,7 @@ describe('buildTokenCatalog (#65)', () => {
     ])
     const by = (name: string) => catalog.tokens.find(t => t.name === name)
     expect(by('--task-list-gap')).toMatchObject({ group: 'spacing', value: '0.75rem', file: 'assets/css/main.css' })
-    expect(by('--color-custom-ink-500')).toMatchObject({ group: 'colors', file: 'assets/css/main.css' })
+    expect(by('--color-custom-forest-500')).toMatchObject({ group: 'colors', file: 'assets/css/main.css' })
     expect(by('--shadow-sheet')?.group).toBe('shadows')
     expect(by('--task-note-height')?.responsive).toHaveLength(1)
     expect(by('--breakpoint-md')).toMatchObject({ value: '48rem', file: 'tailwindcss/theme.css' })
@@ -88,9 +88,9 @@ describe('buildTokenCatalog (#65)', () => {
 
 describe('splitRamps', () => {
   it('groups --color-<ramp>-<step> into ramps and leaves the rest', () => {
-    const catalog = buildTokenCatalog([{ file: 'x.css', css: '@theme { --color-custom-ink-50: #fff; --color-custom-ink-100: #eee; --color-page: var(--ui-page-bg) }' }])
+    const catalog = buildTokenCatalog([{ file: 'x.css', css: '@theme { --color-custom-forest-50: #fff; --color-custom-forest-100: #eee; --color-page: var(--ui-page-bg) }' }])
     const { ramps, rest } = splitRamps(catalog.tokens)
-    expect(ramps.map(r => [r.name, r.steps.length])).toEqual([['custom-ink', 2]])
+    expect(ramps.map(r => [r.name, r.steps.length])).toEqual([['custom-forest', 2]])
     expect(rest.map(t => t.name)).toEqual(['--color-page'])
   })
 })
@@ -98,14 +98,14 @@ describe('splitRamps', () => {
 describe('summarizeAppConfig', () => {
   it('lists colour roles, radii and the components that carry defaults, slots or variants', () => {
     const summary = summarizeAppConfig({
-      colors: { primary: 'custom-ink' },
+      colors: { primary: 'custom-forest' },
       radius: { sm: '0.25rem' },
       icons: { close: 'i-ph-x' },
       modal: { slots: { header: 'x' }, variants: { overlay: {} } },
       button: { defaultVariants: { size: 'md', color: 'primary' } },
       weird: { nothing: 1 },
     })
-    expect(summary.colorRoles).toEqual([{ role: 'primary', palette: 'custom-ink' }])
+    expect(summary.colorRoles).toEqual([{ role: 'primary', palette: 'custom-forest' }])
     expect(summary.radius).toEqual([{ key: 'sm', value: '0.25rem' }])
     expect(summary.components).toEqual([
       { name: 'button', defaultVariants: 'size: md, color: primary', slots: [], variants: [] },

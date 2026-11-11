@@ -76,7 +76,7 @@ test.describe('Mobile app bar', () => {
     expect(Math.abs(pill.y - more.y)).toBeLessThanOrEqual(1); // same row
     // The bar sits 0.75rem above the bottom edge (no safe-area inset in the test browser)
     expect(844 - (pill.y + pill.height)).toBeCloseTo(12, 0);
-    // Frosted glass (#615): a tinted fill, never fully transparent (the near-opaque fallback is guarded in tests/config/app-nav-glass.test.ts)
+    // A flat white sheet (kd#176): an opaque fill, never transparent
     // Chromium reports the tint as `color(srgb r g b / a)`, other engines as `rgba(r, g, b, a)`: read the alpha from either
     const background = await bar(page).evaluate(el => getComputedStyle(el).backgroundColor);
     const alpha = Number(background.match(/\/\s*([\d.]+)\s*\)$/)?.[1] ?? background.match(/^rgba\(.*,\s*([\d.]+)\)$/)?.[1] ?? 1);

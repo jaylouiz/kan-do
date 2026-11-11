@@ -81,7 +81,7 @@ Path-scoped rules in `.claude/rules/` load when you read or edit a matching file
 
 ### Styling
 
-Rules live in `DESIGN.md` (direction, tokens, named rules, recurring patterns; per-component values and accepted trade-offs live in the component's doc block). Short form: Nuxt UI semantic tokens first, no raw hex or palette classes (ESLint warns), component overrides in `app.config.ts`, Phosphor icons (`ph:`). The primary palette (`custom-ink`) is frozen — change it only by a decision recorded in DESIGN.md (an agent may make it as an `agent-decided` record, `.claude/issue-workflow.md` "Decisions"). Icons from an uninstalled collection (`i-lucide-*`) are blocked by the desktop CSP; enforced by `tests/config/icons-bundled.test.ts`.
+Rules live in `DESIGN.md` (direction, tokens, named rules, recurring patterns; per-component values and accepted trade-offs live in the component's doc block). Short form: Nuxt UI semantic tokens first, no raw hex or palette classes (ESLint warns), component overrides in `app.config.ts`, Phosphor icons (`ph:`). The primary palette (`custom-forest`) is frozen — change it only by a decision recorded in DESIGN.md (an agent may make it as an `agent-decided` record, `.claude/issue-workflow.md` "Decisions"). Icons from an uninstalled collection (`i-lucide-*`) are blocked by the desktop CSP; enforced by `tests/config/icons-bundled.test.ts`.
 
 ### UI Work
 

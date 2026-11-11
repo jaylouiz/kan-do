@@ -15,8 +15,8 @@
     :class="['column-header', { 'waiting-header': isWaiting, empty: isEmpty }]"
     class="flex items-center justify-center"
   >
-    <h2 class="font-display">
-      <span v-if="status === TaskStatus.Done" aria-hidden="true">{{ doneMark }}</span>
+    <h2 class="font-display" :class="{ 'column-header__marked': status === TaskStatus.Progress }">
+      <UIcon v-if="status === TaskStatus.Done" name="i-ph-check-bold" class="column-header__mark" aria-hidden="true" />
       {{ title }}
     </h2>
   </div>
@@ -26,9 +26,6 @@
 import { TaskStatus } from "~/types/taskStatus";
 
 defineOptions({ name: "BoardColumnHeader" });
-
-/** Language-neutral checkmark shown in the Done column header */
-const doneMark = "✓";
 
 /**
  * Props
@@ -60,17 +57,36 @@ const isWaiting = computed(() => props.status === TaskStatus.Waiting);
 </script>
 
 <style scoped>
+  /* The marker (DESIGN.md "The Marker Rule"): a stroke of yellow text marker through the lower half of the Jetzt
+     headline, its only use. Static, a decoration without a meaning of its own; the ink on it keeps body contrast. */
+  h2.column-header__marked {
+    padding-inline: 0.3em;
+    border-radius: var(--radius-xs);
+    background: linear-gradient(transparent 0 56%, var(--marker) 56% 90%, transparent 90%) no-repeat;
+  }
+
+  /* The done mark before "Erledigt" is the check icon the done cards use, not a text glyph: the display face has no
+     check, and a fallback glyph changes with the font. Sized to the headline's x-height region and set on its
+     baseline; decorative (aria-hidden), the column name carries the meaning. */
+  .column-header__mark {
+    display: inline-block; /* an svg is a block by the base styles */
+    width: 0.8em;
+    height: 0.8em;
+    margin-inline-end: -0.05em;
+    vertical-align: -0.06em;
+  }
+
   h2 {
     z-index: 10;
     margin-top: 1.75rem;
     margin-bottom: 0;
     text-align: center;
     font-size: var(--text-display); /* display step; one size at every width (DESIGN.md ramp) */
-    /* Weight and tracking spelled out: scoped CSS cannot use the font-semibold / tracking-display utilities */
-    font-weight: 600;
-    letter-spacing: -0.015em;
+    /* Weight and tracking of the display face spelled out: scoped CSS cannot use the utilities */
+    font-weight: 500;
+    letter-spacing: -0.02em;
     line-height: var(--lh-tight);
-    color: var(--ui-text-muted);
+    color: var(--ui-text);
     transition: opacity 100ms ease-out;
     transform: translateY(0vh);
     /* The colour follows the Erledigt drop wash (#124, BoardColumn) */

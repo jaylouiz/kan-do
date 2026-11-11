@@ -2,7 +2,7 @@
 @component BoardColumnYesterdayNote
 @kind component
 @category display
-@description One-line "Gestern erledigt" note on a soft Done-Teal surface at the top of the Done column
+@description One-line "Gestern erledigt" note on a soft done-green surface at the top of the Done column
 @usage Rendered by BoardColumn above today's done list while tasks finished before today are not acknowledged
 @avoid Only above the Erledigt list; not for an alert or an error (use a UAlert or the sync popover).
 @responsibility

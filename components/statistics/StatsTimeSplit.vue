@@ -13,7 +13,7 @@
 <template>
   <div v-if="mode === 'chart'" class="flex items-center gap-5" :class="stacked ? 'md:flex-col md:items-start' : ''">
     <StatsRing :segments="segments" :label="ringLabel" :size="size" :thickness="14">
-      <span class="font-display leading-(--lh-tight) text-highlighted tabular-nums" :class="size >= 150 ? 'text-2xl' : 'text-base'">{{ formatDuration(seconds, 'clockShort') }}</span>
+      <span class="leading-(--lh-tight) font-semibold text-highlighted tabular-nums" :class="size >= 150 ? 'text-2xl' : 'text-base'">{{ formatDuration(seconds, 'clockShort') }}</span>
     </StatsRing>
     <ul v-if="legendRows.length" class="min-w-0 space-y-1.5 text-sm">
       <li v-for="(row, index) in legendRows" :key="row.key" class="flex items-center gap-2 text-default">

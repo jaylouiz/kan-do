@@ -2,7 +2,7 @@ import type { CatalogEntry } from '../types'
 
 /**
  * Nuxt UI native-style select. The Notion mapping steps always use `size="lg"` (the form-row height); the theme keeps
- * its own height next to the buttons (DESIGN.md "Buttons" note).
+ * its own height next to the buttons (DESIGN.md "Components").
  */
 export default {
   component: 'USelect',

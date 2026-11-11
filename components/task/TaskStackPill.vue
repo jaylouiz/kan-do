@@ -14,7 +14,7 @@
   "Karriere: Weiterbildung" stay apart; the cap is a look decision, tune here); the full
   name stays in the stack control's accessible name, so there is no tooltip. The pill is decorative: the
   visible word "Aufgaben" is gone, the control still says it
-- Soft neutral like the former text pill (`bg-muted`, label role 500 / 0.6875rem, 0.75rem on touch), 1.5rem
+- Soft neutral like the former text pill (`--fill-on-canvas`, label role 500 / 0.6875rem, 0.75rem on touch), 1.5rem
   high, fully rounded outer shape, a 1px hairline between the segments
 - Never takes a pointer event (its layer is `pointer-events: none`)
 -->
@@ -69,7 +69,7 @@ const kind = computed<"topic" | "priority" | "plain">(() => {
 </script>
 
 <style scoped>
-/* Label role (DESIGN.md Typography): 500, 0.6875rem, 1rem; text on bg-muted as the former text pill */
+/* Label role (DESIGN.md "Type"): 500, 0.6875rem, 1rem; text on the canvas fill as the former text pill */
 .task-stack-pill {
   display: inline-flex;
   align-items: center;
@@ -96,7 +96,7 @@ const kind = computed<"topic" | "priority" | "plain">(() => {
   align-items: center;
   gap: 0.375rem;
   height: 1.5rem;
-  background-color: var(--ui-bg-muted);
+  background-color: var(--fill-on-canvas);
   white-space: nowrap;
 }
 

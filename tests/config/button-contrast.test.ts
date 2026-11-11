@@ -17,11 +17,11 @@ const tailwindCss = readFileSync(resolve(root, 'node_modules/tailwindcss/theme.c
 type Rgb = [number, number, number]
 
 const WHITE: Rgb = [255, 255, 255]
-/** The grounds a button sits on: the sheet/dialog white, the elevated sheet and the page wash (`--ui-page-bg`, neutral-100). */
+/** The grounds a button sits on: the white sheet, the fill inside a sheet (`--ui-bg-muted`) and the paper canvas (`--ui-page-bg`, neutral-100). */
 const GROUNDS: Array<[string, Rgb]> = [
   ['white', WHITE],
-  ['sheet #fafaf9', [250, 250, 249]],
-  ['page #f5f5f4', [245, 245, 244]],
+  ['sheet fill #f6f3ed', [246, 243, 237]],
+  ['paper #f3efe6', [243, 239, 230]],
 ]
 
 function oklchToRgb(l: number, c: number, hDeg: number): Rgb {
@@ -77,6 +77,10 @@ function over(fg: Rgb, alpha: number, ground: Rgb): Rgb {
   return fg.map((v, i) => v * alpha + ground[i]! * (1 - alpha)) as Rgb
 }
 
+/** The fills that sit on the canvas (`assets/css/main.css`): the shadow colour at 7 % and at 13 % over whatever lies below. */
+const SHADOW_COLOR: Rgb = [70, 48, 20]
+const FILLS_ON_CANVAS: Record<string, number> = { '(--fill-on-canvas)': 0.07, '(--fill-on-canvas-hover)': 0.13 }
+
 const COLORS = ['primary', 'secondary', 'success', 'info', 'warning', 'error', 'neutral'] as const
 const VARIANTS = ['solid', 'outline', 'soft', 'subtle', 'ghost', 'link'] as const
 type Role = (typeof COLORS)[number]
@@ -101,20 +105,19 @@ describe('button colour contrast (#97)', () => {
   /** A semantic token or a role step as an RGB: `inverted`, `elevated`, `warning`, `success-700`. Text and background tokens of the same name differ (`text-inverted` is white, `bg-inverted` the neutral-500 of `--ui-bg-inverted`). */
   function token(kind: 'text' | 'bg', name: string, role: Role): Rgb {
     const neutral = ramps.neutral!
-    const mid = (a: Rgb, b: Rgb): Rgb => a.map((v, i) => (v + b[i]!) / 2) as Rgb
     const semantic: Record<string, Rgb> = kind === 'text'
       ? {
         inverted: WHITE,
         default: rampStep(neutral, '900'),
         highlighted: rampStep(neutral, '900'),
-        muted: mid(rampStep(neutral, '500'), rampStep(neutral, '600')),
-        toned: rampStep(neutral, '600'),
+        muted: rampStep(neutral, '600'),
+        toned: rampStep(neutral, '700'),
         dimmed: rampStep(neutral, '400'),
       }
       : {
         default: WHITE,
-        elevated: rampStep(neutral, '50'),
-        accented: rampStep(neutral, '200'),
+        elevated: WHITE,
+        accented: [240, 236, 228],
         inverted: rampStep(neutral, '500'),
       }
     if (semantic[name]) return semantic[name]
@@ -149,7 +152,9 @@ describe('button colour contrast (#97)', () => {
     const fg = token('text', textBase!, role)
     return GROUNDS.map(([name, ground]) => {
       let fill = ground
-      if (bg) {
+      if (bg && FILLS_ON_CANVAS[bg]) {
+        fill = over(SHADOW_COLOR, FILLS_ON_CANVAS[bg], ground)
+      } else if (bg) {
         const [base, pct] = bg.split('/')
         fill = over(token('bg', base!, role), pct ? Number(pct) / 100 : 1, ground)
       }
@@ -177,7 +182,7 @@ describe('button colour contrast (#97)', () => {
     expect(failing).toEqual([])
   })
 
-  it('no button compound overrides the focus ring: every button shows Nuxt UI\'s halo (DESIGN.md "Focus")', () => {
+  it('no button compound overrides the focus ring: every button shows Nuxt UI\'s halo (DESIGN.md "States")', () => {
     // The owner chose the soft halo (3px, 25% of the role colour, no offset) over a solid 3:1 ring on 2026-11-11;
     // the earlier contrast check on the ring colour went with that decision. One ring: no variant brings its own.
     const overriding = appCompounds

@@ -72,7 +72,7 @@
     pointer-events: none !important;
   }
 
-  /* Landing slot in Erledigt (#124): on the teal drop wash the placeholder takes a teal tint so it
+  /* Landing slot in Erledigt (#124): on the green drop wash the placeholder takes a green tint so it
      reads as the slot. Same geometry, class untouched. Skipped while the empty-column ghost shows. */
   .board.dragging:not(:has(.column-drop-zone__ghost)) .column.is-done-drop-target .task-wrapper.kando-dnd-dragged .task,
   .board.dragging:not(:has(.column-drop-zone__ghost)) .column.is-done-drop-target .task-wrapper[data-dnd-dragging] .task {
@@ -84,7 +84,7 @@
    * The stack is one sortable (TaskStack). While it is the drag source its node keeps the stack's
    * footprint (no layout jump) but shows one grey slot like a card: the front card greyed with its
    * content hidden, peek layers, shadow and caption invisible. Same two selectors as cards, and the
-   * same slot colours (teal on the Erledigt wash, none while the empty-column ghost shows).
+   * same slot colours (green on the Erledigt wash, none while the empty-column ghost shows).
    * ======================================== */
   .board.dragging .task-stack.kando-dnd-dragged,
   .board.dragging .task-stack[data-dnd-dragging] {

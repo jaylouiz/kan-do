@@ -23,7 +23,7 @@ const MAX_TARGETS = Number(process.env.A11Y_MAX_TARGETS ?? 3)
 const MOBILE_VIEWPORT = { width: 390, height: 844 }
 
 /**
- * #371, accepted trade-off (DESIGN.md "Stacks"): the content of the front card of a collapsed stack is
+ * #371, accepted trade-off (the `TaskStack` doc block): the content of the front card of a collapsed stack is
  * muted on purpose (it only signals that cards are stacked), so its contrast is not measured. Nothing
  * else is exempt: the pill, the peek layers' sheet and every other card keep 4.5:1.
  */
@@ -31,7 +31,7 @@ const MUTED_STACK_FRONT_CONTENT = '.task-stack .stacked-task--top > *'
 const withMutedStackFrontExempt: AxeConfigure = (b) => b.exclude(MUTED_STACK_FRONT_CONTENT)
 
 /**
- * #394, accepted trade-off (DESIGN.md "Receding Text", measured in the FocusOverlay doc block): while a task sits in Jetzt the rest of the board is dimmed
+ * #394, accepted trade-off (DESIGN.md "The Receding Text Rule", measured in the FocusOverlay doc block): while a task sits in Jetzt the rest of the board is dimmed
  * on purpose (a warm dusk up to 46 % at the rim, with a flat blur); one mouse move, a tap or the setting in
  * Einstellungen brings it back at full contrast. Only the overlay-on test exempts what the overlay covers
  * (Offen, Wartet, Erledigt with its footer; the app bar is not dimmed, #694); the lit part (the Jetzt column) keeps
@@ -130,8 +130,8 @@ test.describe('Accessibility (axe)', () => {
       await expectNoSeriousA11yViolations(page, (b) => b)
     })
 
-    // #632 / #615 (DESIGN.md "Glass Chrome Rule"): the glass app bar's labels keep AA over the cards that scroll behind it.
-    // Measured on painted pixels (helpers/contrast.ts): axe cannot see through the pills' backdrop-filter.
+    // #632 / #615: the app bar's labels keep AA while cards scroll behind it (the brand sits on the paper veil, the
+    // places on the white pill). Measured on painted pixels (helpers/contrast.ts).
     test('desktop – app bar labels over scrolled cards', async ({ page, context }) => {
       await seedLocalBoard(context, [...NO_PROGRESS_TASKS, ...fillerTasks(14)])
       await gotoBoard(page)
@@ -445,7 +445,7 @@ test.describe('Landmarks, focus and motion', () => {
     await expect(page.getByRole('heading', { level: 2, name: 'Erledigt', exact: true })).toBeVisible()
   })
 
-  test('primary button shows the focus ring (DESIGN.md "Focus": the 3px halo, no offset)', async ({ page }) => {
+  test('primary button shows the focus ring (DESIGN.md "States": the 3px halo, no offset)', async ({ page }) => {
     // A solid primary button on a real route: the confirmation of the Local setup on /welcome (#65: the styleguide that hosted this check is gone)
     await page.goto('/welcome')
     await page.getByTestId('welcome-choice-local').click()

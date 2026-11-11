@@ -59,7 +59,7 @@ Emotional side of every job: calm, focused, satisfied ("Brand Commitments"). Inf
 - Personality: **Natural · Helpful · Assistive** — a quiet tool, like a well-made notebook or a good desk lamp: present when needed, invisible when not.
 - Emotional goal: calm, focused, satisfied. Never urgent, cluttered, or overwhelming.
 - Positive reference: Airbnb (calm, generous layouts; friendly, rounded warmth; in-place, low-friction flows; polished micro-motion).
-- Anti-references: Trello (gamified clutter, rainbow labels), Notion (dense, technical, information overload).
+- Anti-references: Trello (gamified clutter, rainbow labels), Notion (dense, technical, information overload), Slack (a saturated block of brand colour as chrome, a dense sidebar, cluttered and dense with many interactive elements at once).
 
 ## Evidence on Hand
 
@@ -70,8 +70,8 @@ Emotional side of every job: calm, focused, satisfied ("Brand Commitments"). Inf
 
 1. **One thing at a time** — every screen and interaction narrows attention instead of expanding it. Remove chrome before adding it. (The app bar of #470 follows it: the action dock, the column tabs and three board icons went, one bar came.)
 2. **Space is content** — calm comes from restraint; avoid nesting and dense rows.
-3. **Typography over decoration** — reach for a typographic solution before a visual one; above all in page composition and layout, where headings, type scale and space structure the page instead of boxes, lines and fills.
-4. **Quiet confirmation, earned celebration** — everyday actions feel resolved, not celebrated: positive reinforcement is a whisper, not a fanfare. Completing a task is an achievement and earns a short, contained reward (DESIGN.md "Earned celebration", #692).
+3. **Sheets and type over decoration** — content sits on a sheet, and inside a sheet headings, type scale and space structure it before lines, boxes and fills do.
+4. **Quiet confirmation, earned celebration** — everyday actions feel resolved, not celebrated: positive reinforcement is a whisper, not a fanfare. Completing a task is an achievement and earns a short, contained reward (DESIGN.md "Behaviour", #692).
 5. **Invisible infrastructure** — hide integration complexity behind calm, guided flows. If a user sees a technical detail, the design has failed.
 6. **Ask in place** — a question that belongs to a card or a row is asked right there, not in a dialog. Dialogs are for flows that need the whole stage.
 

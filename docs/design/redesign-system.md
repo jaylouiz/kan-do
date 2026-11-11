@@ -1,6 +1,6 @@
 # Redesign system definition (step 4 of the redesign plan)
 
-What the chosen direction (Paper Desk, kd#1 `## UX decision`) means as token values, closed variant lists and written rules. It is the input for the spec on kd#1 and for the slices of step 5. It changes no code. Plan: `docs/design/redesign-plan.md`; evidence: `docs/design/redesign-gap-audit.md`; the rewritten design file: `docs/design/DESIGN.next.md`.
+What the chosen direction (Paper Desk, kd#1 `## UX decision`) means as token values, closed variant lists and written rules. It is the input for the spec on kd#1 and for the slices of step 5. It changes no code. Plan: `docs/design/redesign-plan.md`; evidence: `docs/design/redesign-gap-audit.md`; the rewritten design file: `DESIGN.md` since slice 1 (kd#176; it was drafted as `docs/design/DESIGN.next.md`, the name the sections below still use).
 
 - **Sources of a value:** the prototype (`assets/css/proto.css` on `proto/1-visual-redesign`, block "A PAPER DESK" and the shared blocks; the step 4 switches at commit `968c1861`), the owner's answers of 2026-11-11 (listed in the plan under "Open questions for the owner"), and the gap audit's measurements.
 - **Status of each line:** *decided* = the owner said so; *follows* = a direct consequence of a decision; *proposed* = my choice inside a decision, listed again under "Approved by the owner".
