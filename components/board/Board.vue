@@ -89,7 +89,7 @@
               color="neutral"
               variant="soft"
               size="lg"
-              class="bg-default shadow-md max-md:w-full max-md:justify-center"
+              class="max-md:w-full max-md:justify-center"
               data-testid="day-close-cta"
               @click="openDayClose"
             >

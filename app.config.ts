@@ -196,14 +196,26 @@ export default defineAppConfig({
         title: 'font-display text-lg font-semibold tracking-tight',
       }
     },
+    // Menus, popovers and toasts are sheets: the warm overlay shadow replaces Nuxt UI's `shadow-lg` in Tailwind's black
+    // (DESIGN.md "Elevation"). A tooltip is a label, not a sheet: its ring is enough.
     popover: {
       slots: {
-        content: 'z-(--z-popover)'
+        content: 'z-(--z-popover) shadow-(--shadow-overlay)'
       }
     },
     tooltip: {
       slots: {
-        content: 'z-(--z-popover)'
+        content: 'z-(--z-popover) shadow-none'
+      }
+    },
+    contextMenu: {
+      slots: {
+        content: 'shadow-(--shadow-overlay)'
+      }
+    },
+    inputMenu: {
+      slots: {
+        content: 'shadow-(--shadow-overlay)'
       }
     },
     // Toasts (e.g. a failed save) must stay visible above the open task sheet.
@@ -216,12 +228,13 @@ export default defineAppConfig({
     // Action buttons (undo for delete, archive, completion) get a 44px target on touch (mobile-nav.css).
     toast: {
       slots: {
+        root: 'shadow-(--shadow-overlay)',
         actions: 'kando-toast-actions'
       }
     },
     dropdownMenu: {
       slots: {
-        content: 'z-(--z-popover) min-w-40',
+        content: 'z-(--z-popover) min-w-40 shadow-(--shadow-overlay)',
         item: 'text-sm cursor-pointer'
       }
     },
@@ -251,6 +264,7 @@ export default defineAppConfig({
     },
     select: {
       slots: {
+        content: 'shadow-(--shadow-overlay)',
         base: [
           'disabled:cursor-not-allowed disabled:opacity-100 disabled:bg-muted'
         ]
@@ -258,7 +272,7 @@ export default defineAppConfig({
     },
     selectMenu: {
       slots: {
-        content: 'z-(--z-popover) min-w-40'
+        content: 'z-(--z-popover) min-w-40 shadow-(--shadow-overlay)'
       },
       variants: {
         // `soft` is the select of the task sheet's property rows (#114, DESIGN.md "Choice chip or property value"):
@@ -367,8 +381,8 @@ export default defineAppConfig({
         ...buttonRoleCompounds
       ]
     },
-    // One in-page tab look (#557): the app bar's neutral pill (DESIGN.md "Tabs"): grey track, the active tab a raised
-    // white chip, no ink fill. Nuxt UI's neutral pill fills the active tab with `bg-inverted`; the second class on the
+    // One in-page tab look (#557): a track on the canvas, the active tab a flat white chip (a selected tab is a fill,
+    // never a shadow: DESIGN.md "States"). Nuxt UI's neutral pill fills the active tab with `bg-inverted`; the second class on the
     // `before:` selector covers a list without an indicator. Unselected text stays `text-muted` from the base slot.
     tabs: {
       slots: {
@@ -380,8 +394,8 @@ export default defineAppConfig({
           color: 'neutral',
           variant: 'pill',
           class: {
-            list: 'bg-muted',
-            indicator: 'bg-default',
+            list: 'bg-(--fill-on-canvas)',
+            indicator: 'bg-default shadow-none',
             trigger: [
               'data-[state=active]:text-highlighted',
               'in-[[data-slot=list]:not(:has([data-slot=indicator]))]:data-[state=active]:before:bg-default'
@@ -423,7 +437,7 @@ export default defineAppConfig({
     switch: {
       slots: {
         base: 'data-[state=unchecked]:bg-default data-[state=unchecked]:border-(--ui-text-muted)',
-        thumb: 'data-[state=unchecked]:bg-(--ui-text-muted)'
+        thumb: 'shadow-none data-[state=unchecked]:bg-(--ui-text-muted)'
       }
     },
     card: {

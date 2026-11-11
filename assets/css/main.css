@@ -259,22 +259,23 @@
     /* Offen add slot (#466): the soft surface grows from label-wide into the card shape on hover/focus */
     --add-slot-grow-duration: 160ms;
 
-    /* --- Shadows: Custom Elevation System --- */
-    /* App-specific shadow tokens for task cards and stacks (not covered by Nuxt UI's shadow utilities) */
-    /* Desktop slideover elevation (#123): two-layer ambient shadow cast toward the board (left). */
-    --shadow-sheet: -12px 0 32px -4px rgba(15, 23, 42, 0.16), -2px 0 8px rgba(15, 23, 42, 0.1);
-    /* Modal elevation (#126): soft two-layer ambient shadow cast downward, wider blur than the sheet. */
-    --shadow-overlay: 0 12px 32px -4px rgba(15, 23, 42, 0.18), 0 2px 8px rgba(15, 23, 42, 0.1);
-    /* Resting and hovered card shadow share one list of four layers, each with the other's two layers transparent
-       (kd#128): the hover transition then fades colours only. Interpolating the geometry (blur 4 -> 15, spread
-       2 -> -3) is drawn by WebKit (the desktop app) in whole-pixel steps, so the shadow jumped back and forth while
-       it rose. A transparent layer paints nothing: both looks are unchanged. Keep the two lists in step. */
-    --shadow-task: 1px 2px 4px 2px rgba(15, 23, 42, 0.05), 0 1px 2px 0 rgba(15, 23, 42, 0.04), 0 10px 15px -3px rgba(0, 0, 0, 0), 0 4px 6px -2px rgba(0, 0, 0, 0);
-    --shadow-task-hover: 1px 2px 4px 2px rgba(15, 23, 42, 0), 0 1px 2px 0 rgba(15, 23, 42, 0), 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --shadow-task-drag-elevated: 0 25px 50px -12px rgba(15, 23, 42, 0.35);
+    /* --- Elevation (DESIGN.md "Elevation"): one warm shadow colour at four steps --- */
+    /* A shadow belongs to a sheet; a control never casts one (The Sheets Cast Shadows Rule). */
+    /* The task sheet on desktop: cast toward the board (left). */
+    --shadow-sheet: -18px 0 44px -6px rgb(var(--shadow-color) / 0.26), -2px 0 8px rgb(var(--shadow-color) / 0.12);
+    /* Dialogs, menus, popovers and toasts. */
+    --shadow-overlay: 0 22px 50px -8px rgb(var(--shadow-color) / 0.32), 0 3px 10px rgb(var(--shadow-color) / 0.14);
+    /* Resting and raised card shadow share one list of four layers with the same geometry (kd#128): the hover
+       transition then fades alphas only. Interpolating a geometry (blur, spread) is drawn by WebKit (the desktop app)
+       in whole-pixel steps, so the shadow jumped while it rose. Keep the two lists in step. */
+    --shadow-task: 0 0 0 1px rgb(var(--shadow-color) / 0.07), 0 2px 3px 0 rgb(var(--shadow-color) / 0.1), 0 10px 22px -6px rgb(var(--shadow-color) / 0.2), 0 22px 40px -12px rgb(var(--shadow-color) / 0);
+    --shadow-task-hover: 0 0 0 1px rgb(var(--shadow-color) / 0.07), 0 2px 3px 0 rgb(var(--shadow-color) / 0.06), 0 10px 22px -6px rgb(var(--shadow-color) / 0.14), 0 22px 40px -12px rgb(var(--shadow-color) / 0.3);
+    --shadow-task-drag-elevated: 0 0 0 1px rgb(var(--shadow-color) / 0.07), 0 26px 48px -12px rgb(var(--shadow-color) / 0.38);
     --shadow-task-lifted: 0 14px 38px color-mix(in oklab, var(--focus-dusk) 20%, transparent); /* the Jetzt card while the focus overlay is on (#394) */
-    --shadow-stack-collapsed: drop-shadow(0 1px 1px rgba(15, 23, 42, 0.06)) drop-shadow(0 2px 3px rgba(15, 23, 42, 0.05));
-    --shadow-stack-hover: drop-shadow(0 2px 2px rgba(15, 23, 42, 0.07)) drop-shadow(0 5px 8px rgba(15, 23, 42, 0.06));
+    --shadow-stack-collapsed: drop-shadow(0 1px 1px rgb(var(--shadow-color) / 0.08)) drop-shadow(0 2px 3px rgb(var(--shadow-color) / 0.07));
+    --shadow-stack-hover: drop-shadow(0 2px 2px rgb(var(--shadow-color) / 0.09)) drop-shadow(0 5px 8px rgb(var(--shadow-color) / 0.08));
+    /* The app bar's pills: the one control-like surface that casts a shadow (the named exception of the rule). */
+    --shadow-nav-pill: 0 0 0 1px rgb(var(--shadow-color) / 0.07), 0 2px 3px rgb(var(--shadow-color) / 0.1), 0 8px 18px -6px rgb(var(--shadow-color) / 0.2);
 
     /* --- Layers: z-index (#70) ---
      * Every z-index above 20 is one of these (the guard `checkTokenLiterals` fails on a new number); 20 and below is

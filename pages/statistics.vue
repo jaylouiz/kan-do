@@ -19,7 +19,7 @@
 
         <details
           v-if="records.length > 0"
-          class="group rounded-3xl bg-default p-6 shadow-xs md:px-10 md:py-6"
+          class="group rounded-3xl bg-default p-6 shadow-(--shadow-task) md:px-10 md:py-6"
           data-testid="stats-all-tasks"
           @toggle="listOpened = true"
         >

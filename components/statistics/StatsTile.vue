@@ -16,7 +16,7 @@
   <section
     :aria-labelledby="headingId"
     class="rounded-3xl p-6 md:p-7"
-    :class="[tone === 'elevated' ? 'bg-elevated ring ring-default' : 'bg-default shadow-xs', open ? 'md:col-span-3 md:p-10' : wide ? 'md:col-span-3' : '']"
+    :class="[tone === 'elevated' ? 'bg-elevated ring ring-default' : 'bg-default shadow-(--shadow-task)', open ? 'md:col-span-3 md:p-10' : wide ? 'md:col-span-3' : '']"
     :data-testid="`stats-tile-${n}`"
   >
     <h2 :id="headingId" class="m-0">
