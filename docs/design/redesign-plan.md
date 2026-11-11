@@ -9,14 +9,14 @@ The living plan for getting from today's UI to a redesigned one that follows the
 
 ## Where we are (start here)
 
-*As of 2026-11-11. Update this block whenever a slice changes state.*
+*As of 2026-11-12. Update this block whenever a slice changes state.*
 
-**Steps 0 to 4 are done, and step 5 has merged the foundations.** Slice 1 (kd#176, PR 193, merged 2026-11-11) puts Paper Desk on `main` wherever tokens and the theme reach: the paper canvas, white sheets with the warm shadow, forest green, Fraunces headings, the marker on Jetzt, the flat app bar pills and the state language. `DESIGN.md` is the approved new text; `docs/design/DESIGN.next.md` is gone. Old variants still exist and keep working until their slice merges them.
+**Steps 0 to 4 are done, and step 5 has merged slices 1 to 4.** Slices 2, 3 and 4 (kd#177, kd#178, kd#179; PRs 197, 198, 199) are on `main`: two button heights with soft and ghost by rule, 36 px fields with one choice chip and one card picker, one task sheet for the board and statistics, the title scale and list rows as links. Slice 1 (kd#176, PR 193, merged 2026-11-11) puts Paper Desk on `main` wherever tokens and the theme reach: the paper canvas, white sheets with the warm shadow, forest green, Fraunces headings, the marker on Jetzt, the flat app bar pills and the state language. `DESIGN.md` is the approved new text; `docs/design/DESIGN.next.md` is gone. Old variants still exist and keep working until their slice merges them.
 
 **Do next**, in this order:
-1. kd#177, kd#178 and kd#179 are specified (`ready`, their technical choices recorded on each issue) and in build, side by side, in one orchestration run. Their PRs merge one after the other: each later one merges `main` in and re-records its baselines first.
-2. kd#180 after kd#177 is merged.
-3. kd#190 (slice 1b, the line heights of interface text) after kd#177 and kd#178, alone while it re-records baselines. Then kd#181 (the board) alone, then kd#182 (lock-in).
+1. kd#180 (slice 5, display and layout) and kd#190 (slice 1b, the line heights of interface text): both are unblocked and `needs-spec`. Run them one after the other, not side by side: kd#190 moves every baseline and runs alone while it re-records.
+2. Then kd#181 (the board) alone, then kd#182 (lock-in).
+3. Side findings of slices 1 to 4 wait in the `inbox` (kd#191, kd#192, kd#200, kd#201) for triage; none blocks a slice.
 
 **Read before building** (a slice's issue links them too):
 
@@ -30,7 +30,7 @@ The living plan for getting from today's UI to a redesigned one that follows the
 
 **Ahead of the code until slice 1b:** `DESIGN.md` "Type" states the line heights of body, interface and label text and the 12 px label; the code gets them with kd#190. The detector's sidecar `.impeccable/design.json` still describes the old palette; it is refreshed in the lock-in (kd#182).
 
-**Open for the owner:** nothing. Coming up in step 5: a look at each slice's screenshots, and one check of drag and motion in the desktop app (`npm run tauri:dev`) and on a real phone after slice 6.
+**Open for the owner:** nothing that blocks a slice. One optional question from the review of slice 3: should the 44 px floor of fields also hold on touch screens at desktop width (a tablet), not only on a phone? Today it is phone only, as decided. Coming up in step 5: a look at each slice's screenshots, and one check of drag and motion in the desktop app (`npm run tauri:dev`) and on a real phone after slice 6.
 
 **Known limits of the prototype** (so nobody copies them): it overrides the app from one stylesheet outside the layers; its soft-or-ghost rule is approximated in CSS and shows a row's main action as ghost, where the decision is soft; its set-down after a drop watches a class change. The slices build each of these properly.
 
@@ -54,7 +54,7 @@ A redesigned UI that
 | 2 | Rule review of `DESIGN.md` | **done** 2026-11-11 ("Step 2: rule review of `DESIGN.md`" in `docs/design/redesign-gap-audit.md`; four challenged rules answered by the owner) | owner, per challenged rule |
 | 3 | Visual direction on the cleaned kit | **done** 2026-11-11: Paper Desk with Fraunces and the yellow marker on the Jetzt headline (`## UX decision` in the body of kd#1; prototype branch `proto/1-visual-redesign`, the pick at commit `15b65260`, with the switches of step 4 at `968c1861`) | owner |
 | 4 | System definition: foundations and the rewritten `DESIGN.md` | **done** 2026-11-11: `docs/design/redesign-system.md` and `docs/design/DESIGN.next.md`, approved by the owner; kd#1 is the epic with one sub-issue per slice | owner approves |
-| 5 | Migration in slices | **running**: kd#175 and slice 1 (kd#176) merged, slices 2 to 4 (kd#177, kd#178, kd#179) in build, four sub-issues after them (table under "Step 5") | agents; owner feel-checks |
+| 5 | Migration in slices | **running**: kd#175 and slices 1 to 4 (kd#176 to kd#179) merged, four sub-issues to go: kd#180, kd#190, kd#181, kd#182 (table under "Step 5") | agents; owner feel-checks |
 | 6 | Lock-in: guards, baselines, canvas | not started (kd#182, after all slices) | agents |
 
 What to do next is in "Where we are" at the top.
@@ -201,10 +201,10 @@ Each slice is a sub-issue of the epic kd#1 with its scope, acceptance criteria a
 |---|---|---|---|
 | kd#175 | Move "Voice and copy" to `docs/copy/voice.md` | – | merged 2026-11-11 (PR 185) |
 | kd#176 | 1 Foundations: tokens, theme, the display face and its roles, state language, the `DESIGN.md` swap | – | merged 2026-11-11 (PR 193) |
-| kd#177 | 2 Actions: two button sizes, soft and ghost by rule | 1 | PR 197 |
-| kd#178 | 3 Inputs: 36 px fields, one choice chip, the task sheet value rows | 1 | PR 198 |
+| kd#177 | 2 Actions: two button sizes, soft and ghost by rule | 1 | merged 2026-11-12 (PR 197) |
+| kd#178 | 3 Inputs: 36 px fields, one choice chip, the task sheet value rows | 1 | merged 2026-11-11 (PR 198) |
 | kd#190 | 1b Interface type roles: line heights in the size tokens, `text-body`, 12 px label | 1, 2, 3 (alone while it re-records baselines) | needs-spec |
-| kd#179 | 4 Navigation, overlays and notices: one task sheet, titles | 1 | PR 199 |
+| kd#179 | 4 Navigation, overlays and notices: one task sheet, titles | 1 | merged 2026-11-12 (PR 199) |
 | kd#180 | 5 Display and layout: page sheets, one list row, headings, badges | 1, 2 | needs-spec |
 | kd#181 | 6 The board: card hover and press, drag motion, stacks, focus overlay, add slot | 1 to 5 (last and alone) | needs-spec |
 | kd#182 | 7 Lock-in (step 6) | 1 to 6, 1b | needs-spec |
@@ -274,3 +274,4 @@ In short: measuring, tracing, prototyping, rewriting and migrating can be done b
 - 2026-11-11: slice 2 specified and built (kd#177). Specify measured that `md` (32 px) and `lg` (36 px) already are the two heights, so the slice is the removal of `sm` (35 `UButton` uses), `xs` (1), `subtle` (1) from the call sites and the explicit heights in the `button` theme (`h-8`, `h-9`; the phone floors `min-h-11` and `min-h-12` stay above them). The soft and ghost uses were re-sorted by the rule of the system definition; the PR lists the sites that changed look. Nuxt UI's `sm`, `xl`, `outline` and `subtle` stay in the merged theme (a theme cannot delete a key; its own components and `/ui`'s whole-theme view still reach them, so their contrast stays guarded) but no template uses them and `button-ladder.test.ts` fails on a new use. `xs` stays at 24 px only for the actions Nuxt UI renders in an alert or toast (their own 44 px phone rule).
 - 2026-11-11: slice 3 built (kd#178, PR 198). Fields are one height through the `--field-h` token (36 px, 44 px on a phone): the `input`, `select`, `selectMenu` and `textarea` themes take `lg` as default size with an explicit height, so a call site sets no size (the two title fields excepted; `tests/config/field-size.test.ts`), and the task sheet's value rows, `MinutesField` and the chip use the same token. `ChoiceChip` lost its `shape` and `large` props (one pill, `square` for icon-only); the board menu's group-by buttons joined it, `NewCardOptionList` rows took the select menu's item look as native buttons, and the new `ChoiceCard` replaced the welcome page's raw buttons and the local setup's hand-built radio cards. A field that loads is also `disabled` (a call-site rule, guarded). Read against the issue: `InlineEditable` `fill` stays as the hover look of the title and notes (only its row height went). Not done and left to later slices: the title field is 40 px on a phone (own size).
 - 2026-11-11: slice 4 built (kd#179). Statistics opens the board's task sheet through the child route `/statistics/:id`: one `TaskSheetHost` and one `TaskSheetDetail` serve `/tasks/:id`, `/tasks/add` and `/statistics/:id`, `useTaskSheet` leaves to the host page, `TaskDetailModal` is deleted. `PageHeader`'s title is the display role (36 px Fraunces), the new-day recap's title lost its own 24/30 px size and is the 18 px dialog title, menus and popovers take the 16 px radius by theme slots, `ListRow` has a link form (`to`) and `SettingsSubpageLink` is deleted. Measured first: dialog titles, menu and toast shadows, tabs and the nav indicator were already as decided by slice 1; `aria-current` was already on one control per route and is now guarded.
+- 2026-11-12: slices 2, 3 and 4 merged (kd#178 in PR 198, kd#179 in PR 199, kd#177 in PR 197, in that order; each later PR merged `main` in and re-recorded its baselines first). Each got an independent review and one or two fix rounds. What the reviews caught: in slice 3 a disabled select of the task sheet dimmed to 75 %, and the 44 px floor had been widened to touch screens at desktop width, which the owner had not decided (it is back to "on a phone"; the wider floor is a possible follow-up for the owner); in slice 4 opening a task on statistics scrolled the page to the top and the page behind the sheet was not dimmed; in slice 2 the Mehr panel's sync button overflowed its box, the catalog still showed the whole button matrix, and buttons set through prop objects kept the removed sizes, which the ladder test now sees. The Impeccable gate ran as isolated assessments on all three (audit 15 to 17, 14 to 16 and 15 to 16 of 20). Left open as lows in the PRs and as inbox issues kd#200 and kd#201 (the desktop task sheet has no visible close control). Next: kd#180 and kd#190, one after the other.
