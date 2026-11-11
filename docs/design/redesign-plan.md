@@ -62,9 +62,7 @@ The look is decided (kd#1, `## UX decision`). Each question names the step in wh
 | # | Question | Due | Recommendation |
 |---|---|---|---|
 | 1 | The page title scale beyond the column names (parked decision U18): which sizes do page titles, section headings and dialog titles get in Fraunces? The prototype only shows the column names at 36 px. | start of step 4 (type scale) | show two or three scales on the prototype branch, then ask |
-| 2 | The merge candidates of the gap audit that do not depend on the look: button sizes, neutral soft and ghost buttons as two looks (added by step 2), `ListRow` density, `ChoiceChip` shapes, field heights (the one row height of the task sheet's value controls is part of it). Which variants go? | start of step 4 (closing the variant lists) | one question per candidate, each with the audit's numbers |
-| 4 | Where does "Voice and copy" live? Step 2 proposes to move the section (25 lines) next to its registry in `docs/copy/`, with a pointer in `DESIGN.md`. | step 4, before the rewrite of `DESIGN.md` | move it |
-| 5 | A page sheet (settings section, statistics tile): the card's radius, or its own (the prototype used the card radius times 1.25)? | start of step 4 (radius) | the card's radius: one surface shape |
+| 2 | Neutral soft and ghost buttons: the last open merge candidate (the other four are answered below). The owner asked to see "soft only" beside "both, with a rule" before deciding. | step 4, asked with the comparison on the prototype branch | both, with a rule: soft for an action that stands on its own, ghost inside a row, card or toolbar and for icon-only buttons; `subtle` folds into soft |
 | 3 | Drag and drop motion: the prototype changed only the shadows. Should lifting, moving and dropping a card get the new state language (durations, curves, the "set down" feel), and how strong? | start of step 4 (motion), tried in a coded prototype before asking | – |
 
 Decided by the owner on 2026-11-11 and to be written down in step 4 (nothing of this is in `DESIGN.md` or `PRODUCT.md` yet):
@@ -75,6 +73,13 @@ Decided by the owner on 2026-11-11 and to be written down in step 4 (nothing of 
 - A yellow text-marker stroke is an allowed decoration "with slight intentional use"; the Jetzt headline is its first use.
 - Statistics opens the same task sheet as the board: one common sheet, one way to open a task (parked decision U7, answered 2026-11-11).
 - The four challenged rules of step 2 (answered 2026-11-11, detail in the gap audit, "Asked in this step"): The One Lamp Rule stays as "one solid green button per view; marks, selected options, links and the focus ring are green without being a fill". The three line heights stay and are built into the size tokens. Only sheets cast a shadow, with the app bar's nav pill as the named exception; a control never casts one. The task sheet keeps its two value looks (a select with a chevron, text on a dotted rule) with one row height and one hover, focus and disabled answer.
+- The variant lists and two placements, answered at the start of step 4 (2026-11-11):
+  - Buttons have two heights: 32 px regular and 36 px for the one main action of a surface. 28 and 24 px go.
+  - `ListRow` has one density (cozy) and one hover answer (a surface tint); `SettingsSubpageLink` and `DayCloseTaskRow` become that row.
+  - `ChoiceChip` is one chip shape at one height (pill and chip merge, icon is the same chip with only an icon, the board menu's pressed buttons become it); `row` goes and uses the select menu's item; the two card pickers (`LocalSetupFlow`, welcome) become one; `field` stays.
+  - Fields are 36 px everywhere: inputs, selects and the value controls of the task sheet's rows. The title field of the task sheet keeps its own size; phones keep the 44 px floor.
+  - "Voice and copy" moves to `docs/copy/`, `DESIGN.md` keeps a pointer.
+  - A page sheet (settings section, statistics tile) takes the card's radius, 16 px: one surface shape, the radius scale closes at 8, 12 and 16 px plus pill and circle.
 - Airbnb stays the positive reference; Slack joins the anti-references in `PRODUCT.md` (a saturated block of brand colour as chrome, a dense sidebar, cluttered and dense with many interactive elements at once); principle 3 of `PRODUCT.md` is reworded for the sheets.
 
 ## Step 0: what already exists (do not redo)
