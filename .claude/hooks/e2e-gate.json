@@ -510,7 +510,6 @@
       "paths": [
         "pages/settings/index.vue",
         "pages/settings/sources.vue",
-        "components/settings/SettingsSubpageLink.vue",
         "components/settings/SourceRow.vue",
         "components/settings/DisconnectSourceDialog.vue",
         "composables/useSourceList.ts"
@@ -662,6 +661,7 @@
       "specs": [
         "task-detail-focus",
         "task-sheet-spotlight",
+        "statistics-page",
         "task-form-structure",
         "task-draft-card",
         "add-task-button",
@@ -755,6 +755,7 @@
       "paths": [
         "components/statistics/**",
         "pages/statistics.vue",
+        "pages/statistics/**",
         "composables/useStatistics*",
         "composables/useDayEndTracking.ts",
         "plugins/statistics-backfill*",
@@ -887,6 +888,7 @@
         "new-day-recap",
         "notion-setup-stepper",
         "usability-polish",
+        "modal-style",
         "overlay-elevation",
         "overlay-scrim",
         "settings-tabs",

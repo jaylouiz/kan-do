@@ -2,7 +2,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest'
 
 const navigateTo = vi.hoisted(() => vi.fn(async () => {}))
 vi.stubGlobal('navigateTo', navigateTo)
-vi.stubGlobal('useRouter', () => ({ options: { history: { state: { back: null } } }, back: vi.fn(), afterEach: vi.fn(() => () => {}) }))
+vi.stubGlobal('useRouter', () => ({ options: { history: { state: { back: null } } }, currentRoute: { value: { matched: [{ path: '/tasks' }] } }, back: vi.fn(), afterEach: vi.fn(() => () => {}) }))
 
 const { useTaskSheet } = await import('~/composables/useTaskSheet')
 
@@ -51,12 +51,14 @@ describe('useTaskSheet return focus (#125)', () => {
   })
 })
 
-describe('useTaskSheet close navigation (kd#22)', () => {
-  const setup = (back: string | null) => {
+describe('useTaskSheet close navigation (kd#22, kd#179)', () => {
+  /** `host` is the page that hosts the sheet: the first matched route record (`/tasks`, `/statistics`). */
+  const setup = (back: string | null, host = '/tasks') => {
     const hooks: Array<(to: { path: string }, from: unknown, failure?: unknown) => void> = []
     const router = {
       options: { history: { state: { back } } },
-      back: vi.fn(() => { hooks.splice(0).forEach(h => h({ path: '/tasks' }, {})) }),
+      currentRoute: { value: { matched: [{ path: host }, { path: `${host}/:id()` }] } },
+      back: vi.fn(() => { hooks.splice(0).forEach(h => h({ path: host }, {})) }),
       afterEach: vi.fn((h: (typeof hooks)[number]) => { hooks.push(h); return () => {} }),
     }
     vi.stubGlobal('useRouter', () => router)
@@ -93,5 +95,23 @@ describe('useTaskSheet close navigation (kd#22)', () => {
     await done
     vi.useRealTimers()
     expect(navigateTo).toHaveBeenCalledWith('/tasks', { replace: true })
+  })
+
+  it('goes back when the sheet was opened from the statistics page', async () => {
+    const router = setup('/statistics', '/statistics')
+    const sheet = useTaskSheet()
+    void sheet.closeTaskSheet()
+    await sheet.finishClose()
+    expect(router.back).toHaveBeenCalledTimes(1)
+    expect(navigateTo).not.toHaveBeenCalled()
+  })
+
+  it.each([null, '/tasks', '/statistics/other'])('replaces /statistics when the previous entry is %s', async (back) => {
+    const router = setup(back, '/statistics')
+    const sheet = useTaskSheet()
+    void sheet.closeTaskSheet()
+    await sheet.finishClose()
+    expect(router.back).not.toHaveBeenCalled()
+    expect(navigateTo).toHaveBeenCalledWith('/statistics', { replace: true })
   })
 })

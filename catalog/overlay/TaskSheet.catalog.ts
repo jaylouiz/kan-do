@@ -4,7 +4,7 @@ import type { CatalogEntry } from '../types'
 export default {
   component: 'TaskSheet',
   source: 'app',
-  alternatives: ['ResponsiveOverlay', 'TaskDetailModal'],
+  alternatives: ['ResponsiveOverlay'],
   launch: 'open',
   screen: '/tasks',
   variants: [{ id: 'add', label: 'add-task sheet with a title', props: { title: 'Neue Aufgabe' }, slot: 'Inhalt des Blatts' }],

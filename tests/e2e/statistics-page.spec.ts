@@ -309,7 +309,11 @@ test.describe('Statistics Page', () => {
       await expect(page.getByTestId('stats-patterns')).toContainText('länger als geplant');
       await expect(page.getByTestId('stats-patterns')).toContainText('Nächste Timebox');
       await page.getByTestId('stats-outliers').getByRole('button', { name: /Test Task 2/ }).click();
-      await expect(page.getByRole('dialog')).toBeVisible();
+      // The board's task sheet over the statistics page (kd#179): its own route, the page stays under it
+      await expect(page).toHaveURL(/\/statistics\/test-task-2$/);
+      await expect(page.getByRole('dialog', { name: 'Test Task 2' })).toBeVisible();
+      await expect(page.getByTestId('task-detail-header')).toBeVisible();
+      await expect(page.getByTestId('stats-patterns')).toBeVisible();
     });
 
     test('all completed tasks sit behind one disclosure and keep the drill-down', async ({ page, baseURL }) => {
@@ -320,7 +324,63 @@ test.describe('Statistics Page', () => {
       await list.getByText(/Alle erledigten Aufgaben/).click();
       await expect(list.getByText('Test Task 1')).toBeVisible();
       await list.getByText('Test Task 1').click();
-      await expect(page.getByRole('dialog')).toBeVisible();
+      await expect(page).toHaveURL(/\/statistics\/test-task-1$/);
+      await expect(page.getByRole('dialog', { name: 'Test Task 1' })).toBeVisible();
+    });
+
+    test('the sheet closes like the board\'s: Escape lands on /statistics and focus returns to the outlier, Back does the same (kd#179)', async ({ page, baseURL }) => {
+      await page.goto(`${baseURL}/statistics?open=3`);
+      const outlier = page.getByTestId('stats-outliers').getByRole('button', { name: /Test Task 2/ });
+      await outlier.focus();
+      await page.keyboard.press('Enter');
+      await expect(page.getByRole('dialog', { name: 'Test Task 2' })).toBeVisible();
+      await page.keyboard.press('Escape');
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+      await expect(page).toHaveURL(/\/statistics(\?open=3)?$/);
+      await expect(outlier).toBeFocused();
+      // the open tile is still open under the closed sheet
+      await expect(page.getByTestId('stats-patterns')).toBeVisible();
+
+      await outlier.click();
+      await expect(page.getByRole('dialog', { name: 'Test Task 2' })).toBeVisible();
+      await page.goBack();
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+      await expect(page).toHaveURL(/\/statistics(\?open=3)?$/);
+    });
+
+    test('opening and closing a task keeps the page where it was, like the board (kd#179)', async ({ page, baseURL }) => {
+      await page.goto(`${baseURL}/statistics`);
+      const list = page.getByTestId('stats-all-tasks');
+      await list.getByText(/Alle erledigten Aufgaben/).click();
+      const row = list.getByText('Test Task 1');
+      await expect(row).toBeVisible();
+      await row.scrollIntoViewIfNeeded();
+      await page.evaluate(() => window.scrollBy(0, 120));
+      const before = await page.evaluate(() => window.scrollY);
+      expect(before).toBeGreaterThan(100);
+      await row.click();
+      await expect(page.getByRole('dialog', { name: 'Test Task 1' })).toBeVisible();
+      expect(await page.evaluate(() => window.scrollY)).toBe(before);
+      await page.keyboard.press('Escape');
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+      await expect(page).toHaveURL(/\/statistics$/);
+      expect(await page.evaluate(() => window.scrollY)).toBe(before);
+    });
+
+    test('the sheet dims the page like on the board (kd#179)', async ({ page, baseURL }) => {
+      await page.goto(`${baseURL}/statistics?open=3`);
+      await page.getByTestId('stats-outliers').getByRole('button', { name: /Test Task 2/ }).click();
+      const overlay = page.locator('[data-slot="overlay"]:visible');
+      await expect(overlay).toHaveCount(1);
+      await expect.poll(async () => overlay.evaluate(el => getComputedStyle(el).backgroundColor)).not.toBe('rgba(0, 0, 0, 0)');
+    });
+
+    test('a reload on /statistics/<id> shows the page with the sheet open; an unknown task shows the not-found state', async ({ page, baseURL }) => {
+      await page.goto(`${baseURL}/statistics/test-task-1`);
+      await expect(page.getByTestId('stats-verdict')).toBeVisible();
+      await expect(page.getByRole('dialog', { name: 'Test Task 1' })).toBeVisible();
+      await page.goto(`${baseURL}/statistics/does-not-exist`);
+      await expect(page.getByTestId('task-not-found')).toBeVisible();
     });
   });
 
@@ -354,6 +414,19 @@ test.describe('Statistics Page', () => {
 
   test.describe('390px viewport', () => {
     test.use({ viewport: { width: 390, height: 844 } });
+
+    test('a task opens in the bottom drawer, not a centred modal (kd#179)', async ({ page, baseURL }) => {
+      await seedRecords(page, fullHistory());
+      await page.goto(`${baseURL}/statistics?open=3`);
+      await page.getByTestId('stats-outliers').getByRole('button', { name: /Test Task 2/ }).click();
+      const dialog = page.getByRole('dialog', { name: 'Test Task 2' });
+      await expect(dialog).toBeVisible();
+      await expect(page).toHaveURL(/\/statistics\/test-task-2$/);
+      await page.waitForTimeout(500);
+      const box = await dialog.boundingBox();
+      expect(box!.width).toBeGreaterThanOrEqual(388);
+      expect(box!.y + box!.height).toBeGreaterThanOrEqual(843);
+    });
 
     test('one column in the same order, an open tile keeps its place, no horizontal scroll', async ({ page, baseURL }) => {
       await seedRecords(page, fullHistory());

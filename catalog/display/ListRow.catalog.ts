@@ -9,6 +9,7 @@ export default {
     { id: 'static-roomy', props: { density: 'roomy' }, slot: { $t: 'sources.row.default' } },
     { id: 'static-compact', props: { density: 'compact' }, slot: { $t: 'sources.row.default' } },
     { id: 'action', props: { action: true }, slot: { $t: 'common.save' } },
+    { id: 'link', props: { to: '/settings' }, slot: { $t: 'nav.settings' } },
   ],
   states: [
     { id: 'focus', state: 'focus', props: { action: true }, slot: { $t: 'common.save' } },

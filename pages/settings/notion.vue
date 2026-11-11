@@ -231,14 +231,18 @@
         </template>
       </UTabs>
 
-      <SettingsSubpageLink
-        v-if="isDesktop"
-        class="mt-10 max-w-2xl"
-        to="/settings/github"
-        icon="i-ph-key"
-        :label="t('settings.subpages.github.label')"
-        :description="t('settings.subpages.github.description')"
-      />
+      <ul v-if="isDesktop" class="mt-10 max-w-2xl">
+        <ListRow to="/settings/github" button-testid="settings-subpage-link">
+          <span class="flex items-center gap-4">
+            <UIcon name="i-ph-key" class="size-5 shrink-0 text-muted" aria-hidden="true" />
+            <span class="flex min-w-0 flex-1 flex-col">
+              <span data-testid="settings-subpage-link-label">{{ t('settings.subpages.github.label') }}</span>
+              <span class="text-sm text-muted">{{ t('settings.subpages.github.description') }}</span>
+            </span>
+            <UIcon :name="ICONS.goOn" class="size-4 shrink-0 text-muted" aria-hidden="true" />
+          </span>
+        </ListRow>
+      </ul>
 
     </NuxtLayout>
   </div>
@@ -255,7 +259,6 @@ import { useSecrets } from '~/composables/useSecrets';
 import { isTauri } from '~/utils/isTauri';
 import { maskToken } from '~/lib/secrets';
 import ExternalLink from '~/components/ui/ExternalLink.vue';
-import SettingsSubpageLink from '~/components/settings/SettingsSubpageLink.vue';
 import { useFeatureFlags } from '~/utils/featureFlags';
 import { NotionClientAPI } from '~/integrations/NotionClientAPI';
 import { usePropertyOptionsStore } from '~/store/propertyOptions';
@@ -263,6 +266,8 @@ import PropertyMapper from '~/components/notion/setup/mapping/PropertyMapper.vue
 import CustomPropertiesStep from '~/components/notion/setup/wizard/steps/CustomPropertiesStep.vue';
 import PriorityMappingStep from '~/components/notion/setup/wizard/steps/PriorityMappingStep.vue';
 import { normalizePriorityMapping, samePriorityMapping } from '~/lib/priority';
+import ListRow from '~/components/ui/ListRow.vue';
+import { ICONS } from '~/lib/icons';
 import StatusMappingStep from '~/components/notion/setup/wizard/steps/StatusMappingStep.vue';
 import NotionSettingsSection from '~/components/notion/settings/NotionSettingsSection.vue';
 import type { 

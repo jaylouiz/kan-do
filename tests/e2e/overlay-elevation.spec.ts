@@ -4,7 +4,7 @@
  */
 import { test, expect, type Page } from '@playwright/test'
 import { seedLocalBoard } from './helpers/seed'
-import { openDayClose } from './helpers/appNav'
+import { openDayClose, openMore, morePanel } from './helpers/appNav'
 
 const dialog = (page: Page) => page.getByRole('dialog')
 const shadowOf = (page: Page, selector: string) => page.locator(selector).first().evaluate((el) => getComputedStyle(el).boxShadow)
@@ -65,6 +65,20 @@ for (const viewport of [{ name: 'desktop', width: 1280, height: 800 }, { name: '
       for (const stockLayer of layersOf(stock).filter((l) => !/^rgba\(0, 0, 0, 0\) 0px 0px 0px 0px$/.test(l))) {
         expect(layers, 'stock shadow-lg must not survive').not.toContain(stockLayer)
       }
+    })
+
+    // kd#179: menus and popovers are 16 px sheets like the dialogs and toasts
+    test('a context menu and the Mehr popover take the 16 px radius', async ({ page }) => {
+      await page.goto('/tasks')
+      await page.locator('.task-wrapper').first().click({ button: 'right' })
+      await expect(page.getByRole('menu')).toBeVisible()
+      await expect.poll(() => page.getByRole('menu').first().evaluate((el) => getComputedStyle(el).borderTopLeftRadius)).toBe('16px')
+      await page.keyboard.press('Escape')
+      await expect(page.getByRole('menu')).toHaveCount(0)
+      await openMore(page)
+      const popover = page.locator('[data-slot="content"]', { has: morePanel(page) })
+      await expect.poll(() => popover.evaluate((el) => getComputedStyle(el).borderTopLeftRadius)).toBe('16px')
+      await expect.poll(async () => layersOf(await popover.evaluate((el) => getComputedStyle(el).boxShadow))).toEqual(expect.arrayContaining(layersOf(await overlayToken(page))))
     })
 
     test('context menu carries --shadow-overlay, not the stock shadow', async ({ page }) => {

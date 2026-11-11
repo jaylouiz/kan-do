@@ -1,16 +1,16 @@
 <!--
 @component StatisticsPage
 @description Statistik (#469): a review of how work is going, answered in the user's questions and against their own last 4 weeks
-@usage Accessible via /statistics route, replaces modal when feature flag enabled
+@usage Accessible via /statistics route; a task opens as /statistics/:id in the shared task sheet
 @responsibility
 - Compose the verdict (Q1, always open), the three question tiles (Q2 to Q4, open in place), the work-rhythm tile (#600) and the list of all completed tasks
 - No period filter: the windows are fixed (7 days against the 4 weeks before, 8 weekly points); `?timeFrame=` / `?section=` links are ignored
 - No visible page header (#686, reverses #670 D1 for this page): the app bar's second segment reads "Statistik"; the layout keeps the title as an sr-only h1 and the verdict card starts at the same top offset as /settings and /trash
-- Keep the drill-down to the task detail. No sync button of its own (#670): ⋯ -> "Jetzt synchronisieren" syncs, the same sync also runs the archive backfill (`useManualSync`), which otherwise runs by itself daily (`plugins/statistics-backfill.client.ts`)
+- The drill-down opens the task sheet of the board through the child route `/statistics/:id` (`TaskSheetHost`, kd#179); this page stays mounted under it. No sync button of its own (#670): ⋯ -> "Jetzt synchronisieren" syncs, the same sync also runs the archive backfill (`useManualSync`), which otherwise runs by itself daily (`plugins/statistics-backfill.client.ts`)
 -->
 
 <template>
-  <div>
+  <div data-task-sheet-return>
     <NuxtLayout name="sub-page">
       <div class="space-y-4 md:space-y-6">
         <StatsVerdict :review="review" />
@@ -31,10 +31,10 @@
         </details>
       </div>
 
-      <TaskDetailModal
-        v-model="isTaskDetailModalOpen"
-        :task-id="selectedTaskId"
-      />
+      <!-- A task opens in the board's sheet: the child route /statistics/:id (kd#179) -->
+      <TaskSheetHost>
+        <NuxtPage />
+      </TaskSheetHost>
     </NuxtLayout>
   </div>
 </template>
@@ -46,7 +46,7 @@ import { useStatisticsReview } from '~/composables/useStatisticsReview';
 import TasksTable from '~/components/statistics/TasksTable.vue';
 import StatsVerdict from '~/components/statistics/StatsVerdict.vue';
 import StatsTiles from '~/components/statistics/StatsTiles.vue';
-import TaskDetailModal from '~/components/task/TaskDetailModal.vue';
+import TaskSheetHost from '~/components/task/TaskSheetHost.vue';
 
 const { t } = useI18n();
 
@@ -58,15 +58,9 @@ const initialOpen = Number(useRoute().query.open) || null;
 /** The task list builds its table the first time the disclosure opens (months of history stay cheap). */
 const listOpened = ref(false);
 
-/**
- * Task detail modal state
- */
-const isTaskDetailModalOpen = ref(false);
-const selectedTaskId = ref<string | null>(null);
-
+/** A task opens in the same sheet as on the board, through its child route; focus returns to the opener on close. */
 const openTask = (taskId: string) => {
-  selectedTaskId.value = taskId;
-  isTaskDetailModalOpen.value = true;
+  void navigateTo({ path: `/statistics/${taskId}` });
 };
 
 /**

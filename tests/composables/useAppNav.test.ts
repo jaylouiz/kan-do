@@ -17,6 +17,7 @@ describe('placeOfPath: route -> place', () => {
     ['/tasks/add', 'board'],
     ['/tasks/x', 'board'],
     ['/statistics', 'statistics'],
+    ['/statistics/test-task-1', 'statistics'], // a task opened from the statistics page (kd#179)
     ['/trash', 'more'],
     ['/settings', 'more'],
     ['/settings/topics', 'more'],

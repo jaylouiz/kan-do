@@ -63,10 +63,6 @@
     "count": 1,
     "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
   },
-  "components/task/TaskDetailModal.vue": {
-    "count": 1,
-    "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
-  },
   "components/task/TaskPropertySelect.vue": {
     "count": 1,
     "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"

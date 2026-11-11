@@ -47,4 +47,22 @@ describe('ListRow (#76)', () => {
     const wrapper = mount(ListRow, { props: { action: true }, slots: { default: 'x' } })
     expect(wrapper.get('button').attributes('aria-expanded')).toBeUndefined()
   })
+
+  it('a link row is one NuxtLink to the target (kd#179): no button, the surface tint, click re-emitted, the testid names the link', async () => {
+    const NuxtLinkStub = { props: ['to'], template: '<a :href="to" v-bind="$attrs"><slot /></a>' }
+    const wrapper = mount(ListRow, {
+      props: { to: '/settings/github', buttonTestid: 'row-link' },
+      attrs: { 'data-testid': 'row' },
+      slots: { default: 'GitHub-Zugriff' },
+      global: { stubs: { NuxtLink: NuxtLinkStub } },
+    })
+    expect(wrapper.element.tagName).toBe('LI')
+    expect(wrapper.find('button').exists()).toBe(false)
+    const link = wrapper.get('[data-testid="row-link"]')
+    expect(link.attributes('href')).toBe('/settings/github')
+    expect(link.text()).toBe('GitHub-Zugriff')
+    expect(link.classes()).toEqual(expect.arrayContaining(['min-h-11', '-mx-2', 'px-2', 'hover:bg-elevated', 'focus-ring']))
+    await link.trigger('click')
+    expect(wrapper.emitted('click')).toHaveLength(1)
+  })
 })
