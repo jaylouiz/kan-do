@@ -71,6 +71,8 @@ export interface CatalogMatrix {
   /** Props and slot every cell shares. */
   props?: CatalogProps
   slot?: string | I18nRef
+  /** Narrows an axis to the listed values in both views, for a theme that keeps keys (Nuxt UI's own, a theme cannot delete one) the app does not use (kd#177, D7). An axis not listed shows everything. */
+  only?: Record<string, string[]>
 }
 
 export interface CatalogEntry {

@@ -65,7 +65,6 @@
           <UIcon :name="ICONS.delete" class="size-4 shrink-0" aria-hidden="true" />
           <span class="min-w-0 flex-1 wrap-break-word">{{ t('trash.inTrash') }}</span>
           <UButton
-            size="sm"
             color="neutral"
             variant="soft"
             class="shrink-0 rounded-full"

@@ -105,7 +105,7 @@ async function onRetry() {
 }
 
 const actions = computed(() => {
-  const base = { color: 'neutral' as const, variant: 'link' as const, size: 'sm' as const };
+  const base = { color: 'neutral' as const, variant: 'link' as const };
   if (status.value === 'conflict') {
     return [{ ...base, label: t('settings.data.notice.resolve'), onClick: openConflict }];
   }

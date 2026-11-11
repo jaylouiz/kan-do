@@ -42,7 +42,6 @@
         <div class="mt-2 flex items-center border-t border-default pt-2" :class="clearable ? 'justify-between' : 'justify-end'">
           <UButton
             v-if="clearable"
-            size="sm"
             variant="ghost"
             color="neutral"
             :label="t('common.delete')"
@@ -50,7 +49,6 @@
             @click="onClear"
           />
           <UButton
-            size="sm"
             variant="ghost"
             color="primary"
             :label="t('common.today')"

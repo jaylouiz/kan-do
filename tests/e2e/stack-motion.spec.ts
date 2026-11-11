@@ -353,8 +353,8 @@ test.describe('Stack motion (#197)', () => {
     await expect(header).not.toContainText('Schließen')
     const close = header.getByRole('button', { name: 'Gruppe Design schließen' })
     const box = (await close.boundingBox())!
-    expect(Math.round(box.width)).toBe(24)
-    expect(Math.round(box.height)).toBe(24)
+    expect(Math.round(box.width)).toBe(32)
+    expect(Math.round(box.height)).toBe(32)
     const pill = (await header.locator('.task-stack-pill').boundingBox())!
     expect(box.x).toBeGreaterThan(pill.x + pill.width) // beside the pill, never squeezing it
   })

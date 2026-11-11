@@ -98,11 +98,12 @@ export interface ThemeAxis {
  * new colour, variant or size appears without an edit of the entry. The default comes from the config over the theme.
  * An axis the theme does not know is an error: the entry names an axis that does not exist.
  */
-export function themeAxes(theme: ThemeLike, config: ThemeLike | undefined, axes: string[]): ThemeAxis[] {
+export function themeAxes(theme: ThemeLike, config: ThemeLike | undefined, axes: string[], only?: Record<string, string[]>): ThemeAxis[] {
   return axes.map((axis) => {
     const fromTheme = theme.variants?.[axis]
     if (!fromTheme) throw new Error(`The theme has no "${axis}" variant (axes: ${Object.keys(theme.variants ?? {}).join(', ')})`)
-    const keys = [...new Set([...Object.keys(fromTheme), ...Object.keys(config?.variants?.[axis] ?? {})])]
+    const allowed = only?.[axis]
+    const keys = [...new Set([...Object.keys(fromTheme), ...Object.keys(config?.variants?.[axis] ?? {})])].filter(key => !allowed || allowed.includes(key))
     const fallback = config?.defaultVariants?.[axis] ?? theme.defaultVariants?.[axis]
     return { axis, values: keys.map(value => ({ value, isDefault: String(fallback) === value })) }
   })

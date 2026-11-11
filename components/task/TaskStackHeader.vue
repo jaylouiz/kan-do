@@ -12,8 +12,8 @@
   nothing here may squeeze it, the close button is positioned outside its width
 - The round X at the row's right edge asks the column to collapse the group (click, Enter, Space); the
   column returns focus to the stack, as it does for Escape. Its accessible name is "Gruppe <group>
-  schließen" (no aria-expanded: it is an action). 24px round, same soft grey as the pill, the add-task
-  button and the app bar's ⋯ (`--fill-on-canvas`, no ring); on hover the pointer cursor and one step darker (`--fill-on-canvas-hover`); 44px hit area on touch
+  schließen" (no aria-expanded: it is an action). 32px round (the ladder's `md` square, 44px on touch), same soft grey as the pill, the add-task
+  button and the app bar's ⋯ (`--fill-on-canvas`, no ring); on hover the pointer cursor and one step darker (`--fill-on-canvas-hover`)
 - The root is a role=group named by the stack caption text; it is not a sortable and carries no
   data-task-id: dnd-kit and the drop mapping never see it
 - Row min-height 2rem (2.75rem on touch widths)
@@ -36,7 +36,6 @@
       class="task-stack-header__close"
       color="neutral"
       variant="ghost"
-      size="xs"
       square
       :icon="ICONS.close"
       :aria-label="t('board.stack.closeLabel', { group: label })"
@@ -99,10 +98,10 @@ const caption = useStackCaption(() => props.label, () => props.count);
   position: absolute;
   inset-inline-end: 0;
   top: 50%;
-  margin-top: -0.75rem;
-  width: 1.5rem;
-  height: 1.5rem;
-  min-width: 1.5rem;
+  margin-top: -1rem;
+  width: 2rem;
+  height: 2rem;
+  min-width: 2rem;
   padding: 0;
   justify-content: center;
   border-radius: 9999px;
@@ -121,11 +120,12 @@ const caption = useStackCaption(() => props.label, () => props.count);
     min-height: 2.75rem;
   }
 
-  /* 44px hit area around the 24px round button */
-  .task-stack-header__close::after {
-    content: "";
-    position: absolute;
-    inset: -0.625rem;
+  /* the button ladder's 44px floor (the unlayered size above would outrank the theme's `min-h-11`) */
+  .task-stack-header__close {
+    margin-top: -1.375rem;
+    height: 2.75rem;
+    min-width: 2.75rem;
+    width: 2.75rem;
   }
 }
 

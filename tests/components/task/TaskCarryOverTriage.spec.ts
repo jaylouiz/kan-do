@@ -53,11 +53,11 @@ describe('TaskCarryOverTriage (#99)', () => {
     expect(block.findAll('button')).toHaveLength(3)
   })
 
-  it('all three actions are ghost `sm` buttons, in the closing step row and in the task sheet block (#551, #552)', () => {
+  it('all three actions are ghost buttons of the default size, in the closing step row and in the task sheet block (#551, #552)', () => {
     const variants = (compact: boolean) => render({ taskId: 'a', compact }).findAll('button').map(b => b.attributes('variant'))
     expect(variants(true)).toEqual(['ghost', 'ghost', 'ghost'])
     expect(variants(false)).toEqual(['ghost', 'ghost', 'ghost'])
-    expect(render({ taskId: 'a' }).findAll('button').map(b => b.attributes('size'))).toEqual(['sm', 'sm', 'sm'])
+    expect(render({ taskId: 'a' }).findAll('button').map(b => b.attributes('size'))).toEqual([undefined, undefined, undefined])
   })
 
   it('emits the same actions in compact mode; Keep silences the nudge', async () => {

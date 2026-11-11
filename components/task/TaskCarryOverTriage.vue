@@ -36,7 +36,6 @@ Standalone so the closing step (#98) can list it under "still open". Renders not
       <UButton
         color="neutral"
         variant="ghost"
-        size="sm"
         icon="i-ph-push-pin"
         data-testid="carry-over-keep"
         @click="handleKeep"
@@ -46,7 +45,6 @@ Standalone so the closing step (#98) can list it under "still open". Renders not
       <UButton
         color="neutral"
         variant="ghost"
-        size="sm"
         icon="i-ph-arrows-in-simple"
         data-testid="carry-over-smaller"
         @click="emit('smaller')"
@@ -56,7 +54,6 @@ Standalone so the closing step (#98) can list it under "still open". Renders not
       <UButton
         color="neutral"
         variant="ghost"
-        size="sm"
         :icon="ICONS.delete"
         :ui="{ leadingIcon: 'text-error' }"
         data-testid="carry-over-delete"

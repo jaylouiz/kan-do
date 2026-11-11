@@ -132,7 +132,6 @@
           icon="i-ph-wrench"
           color="neutral"
           variant="soft"
-          size="sm"
           block
           :data-testid="`sync-repair-${worstProblem.source}`"
           @click="emit('close')"
@@ -145,7 +144,7 @@
         color="neutral"
         variant="ghost"
         block
-        class="justify-start"
+        class="justify-start md:h-auto md:min-h-8"
         :loading="isLoading"
         :disabled="isLoading"
         :aria-busy="isLoading"

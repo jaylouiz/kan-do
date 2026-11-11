@@ -43,6 +43,12 @@ describe('themeAxes', () => {
     expect(axes[0]!.values.find(v => v.isDefault)?.value).toBe('md')
   })
 
+  it('`only` narrows an axis to the listed values, in theme order, and an unlisted axis keeps all', () => {
+    const axes = themeAxes(theme, undefined, ['color', 'size'], { size: ['lg', 'sm'] })
+    expect(axes[0]!.values.map(v => v.value)).toEqual(['primary', 'error'])
+    expect(axes[1]!.values.map(v => v.value)).toEqual(['sm', 'lg'])
+  })
+
   it('rejects an axis the theme does not know', () => {
     expect(() => themeAxes(theme, undefined, ['colour'])).toThrow(/no "colour" variant/)
   })

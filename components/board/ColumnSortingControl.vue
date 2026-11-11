@@ -28,11 +28,14 @@
       <UButton
         color="neutral"
         variant="ghost"
-        size="sm"
-        :icon="currentIcon"
         :label="currentLabel"
         class="text-2xs max-md:text-xs font-medium text-muted hover:text-default"
-      />
+      >
+        <template #leading>
+          <!-- 16 px beside the 11 px label: the md button's own 20 px icon is out of proportion here -->
+          <UIcon :name="currentIcon" class="size-4 shrink-0" aria-hidden="true" />
+        </template>
+      </UButton>
     </UDropdownMenu>
   </div>
 </template>

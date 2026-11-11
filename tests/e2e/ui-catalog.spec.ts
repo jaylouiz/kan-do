@@ -39,23 +39,26 @@ test.describe('/ui component page: UButton', () => {
     expect(inUse).toBeLessThan(60)
     await expect(card.locator('[data-kd-sample="UButton:matrix:primary/solid/md"] button')).toBeVisible()
     await expect(card.locator('[data-kd-sample="UButton:matrix:neutral/ghost/md"] button')).toBeVisible()
-    await expect(card.locator('[data-kd-sample="UButton:matrix:primary/solid/sm"] button')).toBeVisible()
+    await expect(card.locator('[data-kd-sample="UButton:matrix:primary/solid/lg"] button')).toBeVisible()
     // a role no template uses is not in the first view
     await expect(card.locator('[data-kd-sample^="UButton:matrix:info/"]')).toHaveCount(0)
     await expect(card.locator('[data-kd-sample="UButton:state:disabled"] button')).toBeDisabled()
     await expect(card.locator('[data-kd-sample="UButton:state:icon-only"] button')).toHaveAccessibleName('Schließen')
   })
 
-  test('"Whole theme" shows every color x variant x size the theme defines, from the keyboard', async ({ page }) => {
+  test('"Whole theme" shows every colour of the theme in the four looks and two heights of the ladder, from the keyboard', async ({ page }) => {
     await openCatalog(page, 'c=UButton')
     const card = button(page)
     const whole = values(page).getByRole('button', { name: 'Whole theme' })
     await whole.focus()
     await page.keyboard.press('Enter')
     await expect(whole).toHaveAttribute('aria-pressed', 'true')
-    await expect(card.locator('[data-kd-sample^="UButton:matrix:"]')).toHaveCount(7 * 6 * 5) // Nuxt UI's colour roles, variants and sizes today; a theme that gains one changes this on purpose
-    for (const key of ['primary/solid/md', 'neutral/link/xl', 'error/outline/xs']) {
+    await expect(card.locator('[data-kd-sample^="UButton:matrix:"]')).toHaveCount(7 * 4 * 2) // 7 colour roles x the four looks x the two heights of the button ladder (the entry's `only`); a theme that gains a colour changes this on purpose
+    for (const key of ['primary/solid/lg', 'neutral/link/lg', 'error/ghost/md']) {
       await expect(card.locator(`[data-kd-sample="UButton:matrix:${key}"] button`), key).toBeVisible()
+    }
+    for (const key of ['neutral/link/xl', 'error/outline/xs', 'primary/subtle/sm']) {
+      await expect(card.locator(`[data-kd-sample="UButton:matrix:${key}"]`), key).toHaveCount(0)
     }
     await values(page).getByRole('button', { name: 'In use' }).click()
     await expect(card.locator('[data-kd-sample^="UButton:matrix:info/"]')).toHaveCount(0)
@@ -104,7 +107,7 @@ test.describe('/ui one-page view: sections and texts', () => {
     expect(titles).toEqual(['Eingabe', 'Aktion', 'Navigation', 'Feedback', 'Overlay', 'Darstellung', 'Layout'])
     await expect(part.locator('#component-UButton')).toContainText('The one button of the app')
     // the one-page view starts on the whole theme: it is what the fingerprint reads
-    await expect(part.locator('[data-kd-sample^="UButton:matrix:"]')).toHaveCount(7 * 6 * 5)
+    await expect(part.locator('[data-kd-sample^="UButton:matrix:"]')).toHaveCount(7 * 4 * 2)
   })
 })
 

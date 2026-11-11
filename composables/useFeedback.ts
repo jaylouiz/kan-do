@@ -499,7 +499,7 @@ export function useFeedback() {
       actions: [{
         label: translate('feedback.review.openInBrowser'),
         color: 'neutral',
-        variant: 'outline',
+        variant: 'soft',
         onClick: () => { void openExternal(url).catch(error => handleError(error as Error, 'feedback')) },
       }],
     })

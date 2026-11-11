@@ -107,7 +107,7 @@ test('expansion stays when the page changes without a tap on the tab bar: swipin
   await expect(stack(page)).toHaveCount(0)
 })
 
-test('the header row fits 390px: pill and round X side by side, same pill width as collapsed, a 44px tap target that collapses (#578)', async ({ page }) => {
+test('the header row fits 390px: pill and round X side by side, same pill width as collapsed, a 44px round X that collapses (#578, kd#177)', async ({ page }) => {
   const collapsedPill = (await stack(page).locator('.task-stack-pill').boundingBox())!
   await stack(page).tap()
   await expect(members(page)).toHaveCount(3)
@@ -118,14 +118,15 @@ test('the header row fits 390px: pill and round X side by side, same pill width 
   const pill = (await header.locator('.task-stack-pill').boundingBox())!
   expect(Math.abs(pill.width - collapsedPill.width)).toBeLessThan(0.5)
   const box = (await close.boundingBox())!
-  expect(Math.round(box.width)).toBe(24)
+  // the button ladder's phone floor (kd#177): the round X is itself 44 px, no hit area around a smaller button
+  expect(Math.round(box.width)).toBe(44)
+  expect(Math.round(box.height)).toBe(44)
   expect(box.x + box.width).toBeLessThanOrEqual(390)
   expect(box.x).toBeGreaterThanOrEqual(pill.x + pill.width)
-  // the 44px hit area: a tap 10px beside the 24px button still closes
   const headerBox = (await header.boundingBox())!
   expect(headerBox.height).toBeGreaterThanOrEqual(44)
 
-  await close.tap({ position: { x: 12, y: 12 } })
+  await close.tap()
   await expect(stack(page)).toHaveCount(1)
   await expect(header).toHaveCount(0)
 })

@@ -33,7 +33,6 @@ showing it.
             <UButton
               variant="soft"
               color="neutral"
-              size="sm"
               :disabled="copy.schemaVersion > CURRENT_SCHEMA_VERSION || !canRestore"
               data-testid="data-copy-restore"
               @click="emit('restore', copy)"
@@ -41,9 +40,8 @@ showing it.
               {{ t('settings.data.copies.restore') }}
             </UButton>
             <UButton
-              variant="soft"
+              variant="ghost"
               color="neutral"
-              size="sm"
               :loading="filing === copy.name"
               :disabled="filing !== null"
               data-testid="data-copy-file"

@@ -45,7 +45,6 @@ SortableTaskWrapper (a gap is no dnd-kit sortable: not draggable, not droppable,
             {{ t('trash.inTrash') }}
           </p>
           <UButton
-            size="sm"
             color="error"
             variant="soft"
             class="rounded-full"

@@ -98,7 +98,6 @@ Speicher, and on desktop Updates and GitHub-Zugriff).
                     v-if="row.state === 'connectable'"
                     color="neutral"
                     variant="soft"
-                    size="sm"
                     :aria-label="t('sources.row.connectNamed', { source: row.name })"
                     :loading="isConnecting"
                     :data-testid="`source-connect-${row.id}`"
