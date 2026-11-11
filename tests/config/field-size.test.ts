@@ -82,9 +82,12 @@ describe('field size (kd#178)', () => {
     for (const theme of ['input', 'select', 'selectMenu', 'textarea']) {
       const start = config.indexOf(`\n    ${theme}: {`)
       expect(start, `${theme} theme`).toBeGreaterThan(-1)
-      const block = config.slice(start, start + 2500)
+      const end = config.slice(start + 1).search(/\n {4}\w+: \{/)
+      const block = config.slice(start, end > -1 ? start + 1 + end : undefined)
       expect(block, `${theme} default size`).toMatch(/defaultVariants:\s*\{\s*size: 'lg'/)
       expect(block, `${theme} height`).toMatch(/(min-)?h-\(--field-h\)/)
+      // One disabled answer for every field and select (UAC): 50 %, Nuxt UI's `selectMenu` base would keep 75 %
+      expect(block, `${theme} disabled opacity`).toContain('disabled:opacity-50')
     }
   })
 })

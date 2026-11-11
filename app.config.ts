@@ -245,7 +245,7 @@ export default defineAppConfig({
       }
     },
     // Fields (DESIGN.md "Space, size and shape", kd#178): one size, `lg`, as the theme default, so no call site sets
-    // `size`; the height is the `--field-h` token (36 px, 44 px on a phone and on touch), explicit and not the text
+    // `size`; the height is the `--field-h` token (36 px, 44 px on a phone), explicit and not the text
     // line plus padding (slice 1b, kd#190, changes that line). The one exception is the task sheet's title field,
     // which keeps `xl` and its own height. The one disabled look (DESIGN.md "States"): 50 % opacity and
     // `not-allowed`, on fields as on buttons; a field that loads also sets `disabled`, which locks it like a loading
@@ -283,7 +283,7 @@ export default defineAppConfig({
     },
     selectMenu: {
       slots: {
-        base: 'h-(--field-h)',
+        base: 'h-(--field-h) disabled:opacity-50',
         // The picker's rows keep the `md` item (p-1.5, text-sm) that TaskPropertySelect documents; `lg` would add 2 px
         item: 'p-1.5',
         content: 'z-(--z-popover) min-w-40 shadow-(--shadow-overlay)'

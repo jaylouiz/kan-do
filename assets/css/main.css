@@ -359,7 +359,7 @@
   }
 }
 
-@media (--phone), (hover: none) and (pointer: coarse) {
+@media (--phone) {
   :root {
     --field-h: 2.75rem;
   }
