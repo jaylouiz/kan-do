@@ -21,9 +21,9 @@
  *
  * Stage and testing mode (#693): `--stage alpha|beta|stable` (default `alpha`) is recorded as a `Stage: <stage>` line in
  * the release notes, which the preflight checks against the flag; the version stays plain `X.Y.Z` on the one update
- * channel (ADR 009). In `fast` testing mode (`.claude/testing-mode`) an alpha or beta release runs the fast E2E tier
- * (smoke + risk-area specs, `fastReleaseSpecs`) instead of the full suite; a `stable` release always runs the full
- * suite and is refused in `fast` mode. `npm run verify` is never reduced. `quality` mode behaves as before.
+ * channel (ADR 009). In `fast` testing mode (`.claude/testing-mode`) an alpha or beta release runs neither
+ * `npm run verify` nor E2E (its PRs were gated by CI); a `stable` release always runs the full suite and is refused
+ * in `fast` mode. `quality` mode behaves as before.
  *
  * `--ci` is the GitHub Actions path (`.github/workflows/release.yml`): the tag was pushed first, so the
  * script builds, checks and uploads to a draft for that tag and stops there; publishing the draft stays
@@ -488,10 +488,15 @@ async function main() {
     process.exit(1)
   }
 
-  if (options.skipVerify) console.log('npm run verify: skipped (--skip-verify)')
-  else if (dryRun) console.log('$ npm run verify   # would run before the build')
-  else run('npm', ['run', 'verify'])
-  await runE2e(options)
+  // An alpha or beta release in fast testing mode runs no tests of its own: its PRs were tested and gated by CI (the owner's call)
+  if (!ci && options.mode === 'fast' && options.stage !== 'stable') {
+    console.log(`npm run verify and E2E: skipped (testing mode fast, stage ${options.stage}); the merged PRs were gated by CI`)
+  } else {
+    if (options.skipVerify) console.log('npm run verify: skipped (--skip-verify)')
+    else if (dryRun) console.log('$ npm run verify   # would run before the build')
+    else run('npm', ['run', 'verify'])
+    await runE2e(options)
+  }
 
   const tempDir = mkdtempSync(join(tmpdir(), 'kan-do-release-'))
   const stageDir = join(tempDir, 'stage')
