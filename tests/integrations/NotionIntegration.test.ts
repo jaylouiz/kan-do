@@ -470,7 +470,6 @@ describe('NotionIntegration – priority mapping and time parsing edge cases', (
       id: 'p-done', created_time: '2026-11-01T08:00:00.000Z', last_edited_time: '2026-11-09T16:30:00.000Z',
       properties: { Name: { title: [{ plain_text: 'Done' }] }, Status: { select: { name: 'Erledigt' } }, ...extra },
     })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const parse = (ni: NotionIntegration, page: unknown) => (ni as any).parseNotionPageToTask(page)
 
     it('without a mapped completion property takes the last edit time, the same on every fetch', () => {
