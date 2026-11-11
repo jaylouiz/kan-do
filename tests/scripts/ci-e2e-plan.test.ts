@@ -74,6 +74,8 @@ describe('forcesFull', () => {
     '.github/workflows/release.yml',
     'scripts/ci-e2e-plan.mjs',
     'scripts/e2e-gate.mjs',
+    'scripts/testing-mode.mjs',
+    'scripts/release/e2e.mjs',
     'scripts/e2e-server.mjs',
     'tests/e2e/playwright.config.ts',
     'package.json',
@@ -86,7 +88,7 @@ describe('forcesFull', () => {
     ['server/copy-editor/translate.ts'],
     ['components/board/BoardColumn.vue', 'tests/e2e/smoke.spec.ts'],
     ['src-tauri/package.json.bak', 'docs/ci.md'],
-    ['scripts/release/e2e.mjs'],
+    ['scripts/release/version.mjs'],
   ])('%j does not', (...files) => {
     expect(forcesFull(files)).toBe(false)
   })

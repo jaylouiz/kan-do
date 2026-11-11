@@ -29,6 +29,8 @@ export const FORCE_FULL_PATHS = [
   '.github/workflows/**',
   'scripts/ci-e2e-plan.mjs',
   'scripts/e2e-gate.mjs',
+  'scripts/testing-mode.mjs',
+  'scripts/release/e2e.mjs',
   'scripts/e2e-server.mjs',
   'tests/e2e/playwright.config.ts',
   'package.json',
