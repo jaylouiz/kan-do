@@ -17,11 +17,11 @@ const tailwindCss = readFileSync(resolve(root, 'node_modules/tailwindcss/theme.c
 type Rgb = [number, number, number]
 
 const WHITE: Rgb = [255, 255, 255]
-/** The grounds a button sits on: the sheet/dialog white, the elevated sheet and the page wash (`--ui-page-bg`, neutral-100). */
+/** The grounds a button sits on: the white sheet, the fill inside a sheet (`--ui-bg-muted`) and the paper canvas (`--ui-page-bg`, neutral-100). */
 const GROUNDS: Array<[string, Rgb]> = [
   ['white', WHITE],
-  ['sheet #fafaf9', [250, 250, 249]],
-  ['page #f5f5f4', [245, 245, 244]],
+  ['sheet fill #f6f3ed', [246, 243, 237]],
+  ['paper #f3efe6', [243, 239, 230]],
 ]
 
 function oklchToRgb(l: number, c: number, hDeg: number): Rgb {

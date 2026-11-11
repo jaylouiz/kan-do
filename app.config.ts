@@ -4,12 +4,12 @@ import { ICONS } from './lib/icons'
 // has no button for (`secondary`, `success`, `info`, `warning`) and the text variants of `error` are fixed here, the
 // whole matrix is guarded by tests/config/button-contrast.test.ts. The class names are literals on purpose: Tailwind
 // only generates what it can read in the source. Steps are the lightest that reach 4.5:1: white on the solid fill, the
-// role text on the page, the sheet and the role's 10% wash. Teal needs 800 for text (700 is 4.0:1 on its wash), but
-// 700 as a fill; the press step is one deeper, like the primary's Deep Ink.
+// role text on the paper, the sheet and the role's 10% wash. Info needs 800 for text (700 is 4.43:1 on its hover wash
+// over the paper); success keeps 800 for text and 700 as a fill; the press step is one deeper, like the primary's 600.
 const BUTTON_ROLE_TEXT = {
   secondary: 'text-secondary-700',
   success: 'text-success-800',
-  info: 'text-info-700',
+  info: 'text-info-800',
   warning: 'text-warning-700',
   error: 'text-error-700'
 } as const
@@ -89,13 +89,13 @@ export default defineAppConfig({
       display: "var(--font-display)",
     },
     colors: {
-      primary: 'custom-ink',
+      primary: 'custom-forest',
       secondary: 'custom-orange',
-      success: 'custom-teal',
+      success: 'custom-forest',
       info: 'sky',
       warning: 'custom-orange',
       error: 'custom-raspberry',
-      neutral: 'stone',
+      neutral: 'custom-paper',
     },
     radius: {
       sm: '0.25rem',
@@ -325,10 +325,10 @@ export default defineAppConfig({
         {
           color: 'primary',
           variant: 'solid',
-          // Deep Ink (button-primary-hover) on hover/press: the base primary/75 blend measures 3.33:1 with white text (#251); enabled: keeps disabled states flat
+          // Primary 600 on hover/press: the base primary/75 blend measures 3.33:1 with white text (#251); enabled: keeps disabled states flat
           class: 'enabled:hover:bg-primary-600 enabled:active:bg-primary-600'
         },
-        // DESIGN.md button-soft: Deep Ink text on Ink Wash; plain primary text on the tint measures 4.41:1 (#152)
+        // Soft primary: the 600 step as text on the primary wash; the guard (button-contrast.test.ts) keeps it at 4.5:1 (#152)
         {
           color: 'primary',
           variant: 'soft',
@@ -340,14 +340,14 @@ export default defineAppConfig({
           variant: 'soft',
           class: 'text-error-700'
         },
-        // Subtle primary: ink-500 on the page measures 4.44:1 (#97), the same 600 step as soft
+        // Subtle primary: the same 600 step as soft (#97)
         {
           color: 'primary',
           variant: 'subtle',
           class: 'text-primary-600'
         },
-        // Hover and press of the primary text variants (kd#124): ink-500 on its own 10% hover wash measures 4.44:1 on the
-        // page, and the link fades to 75% (3.1:1). Deep Ink on hover and press, the rest state stays.
+        // Hover and press of the primary text variants (kd#124): the 500 step on its own 10% hover wash is too close to
+        // 4.5:1 on the paper, and the link fades to 75%. The 600 step on hover and press, the rest state stays.
         ...(['outline', 'ghost', 'link'] as const).map((variant) => ({
           color: 'primary' as const,
           variant,

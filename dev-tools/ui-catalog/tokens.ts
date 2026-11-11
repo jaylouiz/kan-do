@@ -134,7 +134,7 @@ export function buildTokenCatalog(sources: TokenSource[]): TokenCatalog {
   return { tokens: [...byName.values()], zIndexLiterals, scopedCount }
 }
 
-/** A colour ramp: `--color-custom-ink-50 ... -950` under one name. */
+/** A colour ramp: `--color-custom-forest-50 ... -950` under one name. */
 export interface Ramp {
   name: string
   steps: Token[]

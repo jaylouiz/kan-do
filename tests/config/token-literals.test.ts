@@ -89,8 +89,8 @@ describe('recall (review round 2)', () => {
 
 describe('palette classes', () => {
   it('flags a raw hue, a custom-* palette step and the white/black utilities, also behind variants', () => {
-    expect(scan('Classes.vue', '<template>\n<p class="bg-red-500" />\n<p class="hover:text-slate-700" />\n<p class="bg-custom-ink-900" />\n<p class="text-white border-black/10" />\n</template>'))
-      .toEqual(['2: bg-red-500', '3: hover:text-slate-700', '4: bg-custom-ink-900', '5: text-white', '5: border-black/10'])
+    expect(scan('Classes.vue', '<template>\n<p class="bg-red-500" />\n<p class="hover:text-slate-700" />\n<p class="bg-custom-forest-900" />\n<p class="text-white border-black/10" />\n</template>'))
+      .toEqual(['2: bg-red-500', '3: hover:text-slate-700', '4: bg-custom-forest-900', '5: text-white', '5: border-black/10'])
   })
 
   it('passes semantic roles with or without a step', () => {

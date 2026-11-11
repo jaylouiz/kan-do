@@ -10,7 +10,7 @@ const root = resolve(__dirname, '../..')
 const css = readFileSync(resolve(root, 'assets/css/main.css'), 'utf8')
 const config = readFileSync(resolve(root, 'app.config.ts'), 'utf8')
 
-const SHEET = '#FAFAF9'
+const SHEET = '#FFFFFF'
 
 function step(n: number): string {
   const hex = css.match(new RegExp(`--color-custom-raspberry-${n}:\\s*(#[0-9A-Fa-f]{6})`))?.[1]

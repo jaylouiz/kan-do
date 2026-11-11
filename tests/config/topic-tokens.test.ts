@@ -5,11 +5,11 @@ import { HUES } from '~/lib/topicStyles'
 
 /**
  * The nine topic mark tones (#431) are named tokens in assets/css/main.css and each must read on the card sheet:
- * >= 3:1 (WCAG 1.4.11, non-text contrast) against Sheet (#FAFAF9, the card surface) and white (the card edge).
+ * >= 3:1 (WCAG 1.4.11, non-text contrast) against the white sheet (the card surface) and the fill inside a sheet (#F6F3ED, `--ui-bg-muted`).
  * Retuning a tone (#423) passes here or it does not ship.
  */
 const css = readFileSync(resolve(__dirname, '../../assets/css/main.css'), 'utf8')
-const SURFACES = { sheet: '#FAFAF9', white: '#FFFFFF' }
+const SURFACES = { sheet: '#F6F3ED', white: '#FFFFFF' }
 
 /** OKLCH -> gamma-encoded sRGB (0..1), clipped. */
 function oklchToSrgb(l: number, c: number, hue: number): [number, number, number] {

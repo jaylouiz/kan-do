@@ -131,7 +131,7 @@ const props = defineProps<{
 }>()
 
 /** Palettes DESIGN.md freezes: a change needs a recorded decision. */
-const FROZEN_PALETTES = ['custom-ink']
+const FROZEN_PALETTES = ['custom-forest']
 const STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
 
 const cssFiles = import.meta.glob('../../assets/css/*.css', { query: '?raw', import: 'default', eager: true }) as Record<string, string>

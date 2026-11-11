@@ -36,19 +36,36 @@
   --animate-collapsible-down: collapsible-down 200ms ease-out;
   --animate-collapsible-up: collapsible-up 200ms ease-out;
 
-  /* === Palette · Primary Ink (frozen 2026-10-19, see DESIGN.md) ===
-   * Muted ink blue, hue 255. 500 carries white text at AA (>= 4.5:1). */
-  --color-custom-ink-50: oklch(0.97 0.013 255);
-  --color-custom-ink-100: oklch(0.93 0.027 255);
-  --color-custom-ink-200: oklch(0.86 0.050 255);
-  --color-custom-ink-300: oklch(0.77 0.072 255);
-  --color-custom-ink-400: oklch(0.66 0.085 255);
-  --color-custom-ink-500: oklch(0.52 0.090 255);
-  --color-custom-ink-600: oklch(0.45 0.085 255);
-  --color-custom-ink-700: oklch(0.39 0.076 255);
-  --color-custom-ink-800: oklch(0.32 0.063 255);
-  --color-custom-ink-900: oklch(0.26 0.050 255);
-  --color-custom-ink-950: oklch(0.19 0.036 255);
+  /* === Palette · Primary Forest (frozen 2026-11-11, DESIGN.md "The Frozen Primary Rule") ===
+   * Muted forest green, hue 152: the colour of action and of done (`primary` and `success` share the ramp).
+   * 500 carries white text at AA (>= 4.5:1). */
+  --color-custom-forest-50: oklch(0.972 0.016 152);
+  --color-custom-forest-100: oklch(0.94 0.032 152);
+  --color-custom-forest-200: oklch(0.885 0.055 152);
+  --color-custom-forest-300: oklch(0.80 0.08 152);
+  --color-custom-forest-400: oklch(0.66 0.10 152);
+  --color-custom-forest-500: oklch(0.47 0.092 152);
+  --color-custom-forest-600: oklch(0.41 0.082 152);
+  --color-custom-forest-700: oklch(0.36 0.070 152);
+  --color-custom-forest-800: oklch(0.30 0.056 152);
+  --color-custom-forest-900: oklch(0.25 0.044 152);
+  --color-custom-forest-950: oklch(0.18 0.030 152);
+
+  /* === Palette · Paper Neutral ===
+   * The warm neutral ramp, hue 84 falling to 70 at the ink end. Four steps are roles of DESIGN.md "Colour":
+   * 100 is the paper canvas, 200 the rule line, 600 graphite (secondary text), 900 the near-black ink. The sheet is
+   * white and the two fills on a sheet are their own values (`--ui-bg-muted`, `--ui-bg-accented` below). */
+  --color-custom-paper-50: oklch(0.985 0.006 86);
+  --color-custom-paper-100: oklch(0.953 0.013 86);
+  --color-custom-paper-200: oklch(0.895 0.016 84);
+  --color-custom-paper-300: oklch(0.84 0.02 84);
+  --color-custom-paper-400: oklch(0.70 0.025 82);
+  --color-custom-paper-500: oklch(0.52 0.025 80);
+  --color-custom-paper-600: oklch(0.42 0.024 80);
+  --color-custom-paper-700: oklch(0.34 0.02 78);
+  --color-custom-paper-800: oklch(0.27 0.016 74);
+  --color-custom-paper-900: oklch(0.19 0.012 70);
+  --color-custom-paper-950: oklch(0.14 0.01 70);
 
   /* === Palette · Raspberry Accent === */
   --color-custom-raspberry-50: #FBE9EE;
@@ -61,18 +78,6 @@
   --color-custom-raspberry-700: #952740;
   --color-custom-raspberry-800: #721E31;
   --color-custom-raspberry-900: #561726;
-
-  /* === Palette · Teal Accent === */
-  --color-custom-teal-50: #E9F8F4;
-  --color-custom-teal-100: #D1F1EA;
-  --color-custom-teal-200: #A6E4D6;
-  --color-custom-teal-300: #7BD7C3;
-  --color-custom-teal-400: #58C9B3;
-  --color-custom-teal-500: #4CBDA8;
-  --color-custom-teal-600: #3DA08E;
-  --color-custom-teal-700: #337F72;
-  --color-custom-teal-800: #29645B;
-  --color-custom-teal-900: #1F4D46;
 
   /* === Palette · Orange Accent === */
   --color-custom-orange-50: #FFF0E9;
@@ -100,28 +105,24 @@
      * See: https://ui.nuxt.com/docs/getting-started/theme/css-variables
      * ======================================== */
 
-    /* `--ui-bg` intentionally NOT overridden here — Nuxt UI defaults it to
-     * neutral-50 (brightest), which is what every overlay component
-     * (DropdownMenu, Popover, Tooltip, ContextMenu, SelectMenu, …) uses via
-     * `bg-default`. Inverting it would force every floating surface to render
-     * darker than the cards it sits on. The page wash lives in `--ui-page-bg`
-     * below and is applied explicitly to body + page chrome. */
-    --ui-bg-muted: var(--ui-color-neutral-200);
-    --ui-bg-elevated: var(--ui-color-neutral-50);
-    --ui-bg-accented: var(--ui-color-neutral-200);
+    /* Sheets on a desk (DESIGN.md "Colour"): every lifted surface is the same white sheet, so `bg-default` and
+     * `bg-elevated` are both white. A fill inside a sheet is a light paper tone (`muted`, one step deeper `accented`);
+     * a fill that sits on the canvas is `--fill-on-canvas` below. */
+    --ui-bg: var(--color-white);
+    --ui-bg-elevated: var(--color-white);
+    --ui-bg-muted: oklch(0.966 0.009 86);
+    --ui-bg-accented: oklch(0.945 0.012 86);
     --ui-bg-inverted: var(--ui-color-neutral-500);
 
-    /* Page wash — separate from `--ui-bg` so Nuxt UI's `bg-default` overlays
-     * stay bright. Use the `bg-page` Tailwind utility (exposed via @theme) or
-     * `var(--ui-page-bg)` for chrome that should sit one step below cards. */
+    /* The paper canvas: page, board and everything behind a sheet. Use the `bg-page` utility (exposed via @theme)
+     * or `var(--ui-page-bg)`. */
     --ui-page-bg: var(--ui-color-neutral-100);
+    --ui-border: var(--ui-color-neutral-200);
 
     --ui-text-dimmed: var(--ui-color-neutral-400);
-    /* Midpoint of neutral-500/600: ~5.5:1 on the page wash (neutral-100) and
-     * ~4.8:1 on neutral-200 — raw neutral-500 was 4.4:1, just under WCAG AA.
-     * Stays visibly lighter than `text-toned` (neutral-600). */
-    --ui-text-muted: color-mix(in oklch, var(--ui-color-neutral-500), var(--ui-color-neutral-600));
-    --ui-text-toned: var(--ui-color-neutral-600);
+    /* Graphite (neutral-600) is the secondary text; `toned` sits one step deeper, the ink is neutral-900. */
+    --ui-text-muted: var(--ui-color-neutral-600);
+    --ui-text-toned: var(--ui-color-neutral-700);
     --ui-text: var(--ui-color-neutral-900);
     --ui-text-highlighted: var(--ui-color-neutral-900);
     --ui-text-inverted: var(--color-white);
@@ -151,18 +152,28 @@
     /* --- Modal: Wizard Content Height --- */
     --modal-height-wizard: 32.5rem; /* 520px — used by the Notion setup wizard */
 
+    /* --- One shadow colour (DESIGN.md "Elevation"): a warm brown, as an rgb triplet so each layer sets its own
+       alpha (`rgb(var(--shadow-color) / 0.1)`). It also tints the fills that sit on the canvas and the scrim. --- */
+    --shadow-color: 70 48 20;
+    /* A fill on the canvas is one step darker than whatever lies below it, paper or sheet: soft buttons, the tab
+       track, the empty add slot. A translucent tint, so the same value reads on both. */
+    --fill-on-canvas: rgb(var(--shadow-color) / 0.07);
+    --fill-on-canvas-hover: rgb(var(--shadow-color) / 0.13);
+    /* The yellow text marker (DESIGN.md "The Marker Rule"): one stroke per view at most; today the Jetzt headline. */
+    --marker: oklch(0.91 0.145 97);
+
     /* --- Focus overlay (#394): the warm dusk the board steps back into while a task sits in Jetzt.
-       A brown-grey at hue 65, deliberately not the cool ink; outside the frozen custom-ink primary (DESIGN.md). --- */
+       A brown-grey at hue 65; outside the frozen primary palette. --- */
     --focus-dusk: oklch(0.27 0.04 65);
 
     /* --- Topic mark tones (#431): the nine hues a topic's dot or glyph can take. Mark only, never a name, card or
-       surface colour (DESIGN.md "The Topic Mark Rule"). Each tone has >= 3:1 on the card sheet (tests/config/topic-tokens.test.ts),
+       surface colour (DESIGN.md "The Topic Mark Rule"). Each tone has >= 3:1 on the white sheet and on a fill inside it (tests/config/topic-tokens.test.ts),
        so they can be retuned here (#423) without touching a component. --- */
     --topic-gray: oklch(0.55 0.015 260);
     --topic-brown: oklch(0.50 0.075 55);
     --topic-orange: oklch(0.60 0.16 52);
     --topic-yellow: oklch(0.64 0.13 88);
-    --topic-green: oklch(0.54 0.12 150);
+    --topic-green: oklch(0.58 0.15 132); /* a leaf green, away from the forest accent (hue 152) */
     --topic-blue: oklch(0.54 0.14 245);
     --topic-purple: oklch(0.52 0.17 305);
     --topic-pink: oklch(0.58 0.18 0);
@@ -189,7 +200,8 @@
     /* --- Task Card: Visual Styling --- */
     --task-card-radius: calc(var(--ui-radius) * 2);
 
-    /* --- Done (#124): cards keep the regular sheet; teal is the drop wash and the confirmation --- */
+    /* --- Done (#124): cards keep the regular sheet; the green of action (`success` is the primary ramp) is the drop
+       wash and the confirmation --- */
     --done-wash: var(--ui-color-success-100); /* Erledigt drop zone */
     --done-note-wash: color-mix(in oklab, var(--ui-color-success-100) 70%, var(--ui-color-success-50)); /* Yesterday note (#57): no outline, so darker than the confirmation wash, still short of the drop wash */
     --done-confirm-wash: var(--ui-color-success-50); /* in-card confirmation layer: the calmer of the compared washes */
@@ -211,7 +223,7 @@
     /* --- Task sheet spotlight (#96): other cards fade while a task sheet is open --- */
     --sheet-fade-opacity: 0.55;
     /* Shared board scrim (#123); #127 reuses it for modals. */
-    --overlay-scrim: color-mix(in oklab, var(--color-neutral-900) 12%, transparent);
+    --overlay-scrim: rgb(var(--shadow-color) / 0.17);
     --sheet-fade-duration: 200ms;
     --sheet-fade-easing: cubic-bezier(0.2, 0, 0, 1);
 
