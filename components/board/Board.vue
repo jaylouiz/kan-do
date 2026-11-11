@@ -83,18 +83,21 @@
       >
         <!-- "Tag abschließen" under the last card (#470); hidden while nothing is done today (the Mehr panel row stays) -->
         <template v-if="tasksDone.length > 0" #footer>
+          <!-- The footer is sticky above the cards: the paper backing keeps the soft button's translucent fill solid -->
           <div class="flex w-full justify-center max-md:px-3">
-            <UButton
-              icon="i-ph-sun-horizon"
-              color="neutral"
-              variant="soft"
-              size="lg"
-              class="max-md:w-full max-md:justify-center"
-              data-testid="day-close-cta"
-              @click="openDayClose"
-            >
-              {{ t('nav.dayClose') }}
-            </UButton>
+            <span class="flex rounded-md bg-page max-md:w-full">
+              <UButton
+                icon="i-ph-sun-horizon"
+                color="neutral"
+                variant="soft"
+                size="lg"
+                class="max-md:w-full max-md:justify-center"
+                data-testid="day-close-cta"
+                @click="openDayClose"
+              >
+                {{ t('nav.dayClose') }}
+              </UButton>
+            </span>
           </div>
         </template>
       </BoardColumn>
