@@ -177,20 +177,13 @@ describe('button colour contrast (#97)', () => {
     expect(failing).toEqual([])
   })
 
-  it('every focus ring (outline colour) has 3:1 non-text contrast on every ground', () => {
-    // WCAG 1.4.11. The offset ring sits on the ground, not on the fill, so it is measured against the grounds.
-    const failing = COLORS.flatMap((role) => VARIANTS.flatMap((variant) => {
-      const classes = [...(nuxtUiButton.compoundVariants as Compound[]), ...appCompounds]
-        .filter((c) => c.color === role && c.variant === variant)
-        .flatMap((c) => (c.class ?? '').split(/\s+/))
-      const ring = classes.filter((c) => /^focus-visible:outline-(?!\d|offset|none)/.test(c)).pop()
-      if (!ring) return []
-      const rgb = token('bg', ring.slice('focus-visible:outline-'.length), role)
-      return GROUNDS.map(([name, ground]) => [`${role}/${variant} ring ${ring} on ${name}`, contrast(rgb, ground)] as [string, number])
-    }))
-      .filter(([, ratio]) => ratio < 3)
-      .map(([label, ratio]) => `${label}: ${ratio.toFixed(2)}`)
-    expect(failing).toEqual([])
+  it('no button compound overrides the focus ring: every button shows Nuxt UI\'s halo (DESIGN.md "Focus")', () => {
+    // The owner chose the soft halo (3px, 25% of the role colour, no offset) over a solid 3:1 ring on 2026-11-11;
+    // the earlier contrast check on the ring colour went with that decision. One ring: no variant brings its own.
+    const overriding = appCompounds
+      .filter((c) => (c.class ?? '').split(/\s+/).some((name) => name.startsWith('focus-visible:outline-')))
+      .map((c) => `${c.color}/${c.variant}`)
+    expect(overriding).toEqual([])
   })
 
   it('measures what the /ui detector found: the stock secondary solid is far below AA', () => {

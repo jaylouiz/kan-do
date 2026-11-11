@@ -407,7 +407,7 @@ test.describe('Task Detail View', () => {
     await expect.soft(page.getByTestId('task-topic-select').getByTestId('topic-mark'), 'topic mark inside the select').toHaveCount(1);
     await expect.soft(list.getByTestId('topic-mark'), 'no second topic mark beside the select').toHaveCount(1);
 
-    // hover and focus change the fill; a click keeps it filled (no blank-out); keyboard focus draws the solid ink ring
+    // hover and focus change the fill; a click keeps it filled (no blank-out); keyboard focus draws the focus ring
     const status = page.getByTestId('task-status-select');
     const rest = await status.evaluate((el) => getComputedStyle(el).backgroundColor);
     await status.hover();
@@ -416,8 +416,8 @@ test.describe('Task Detail View', () => {
     await status.focus();
     await page.keyboard.press('Shift+Tab');
     await page.keyboard.press('Tab');
-    await expect.soft(status, 'status select: keyboard focus ring is solid 2px').toHaveCSS('outline-style', 'solid');
-    await expect.soft(status, 'status select: keyboard focus ring width').toHaveCSS('outline-width', '2px');
+    await expect.soft(status, 'status select: keyboard focus ring is drawn').toHaveCSS('outline-style', 'solid');
+    await expect.soft(status, 'status select: keyboard focus ring width').toHaveCSS('outline-width', '3px');
     await expect.soft(status, 'status select: focus keeps a fill').toHaveCSS('background-color', /^(?!rgba\(0, 0, 0, 0\)|transparent).+/);
 
     // a free value: dotted rule at rest, no fill

@@ -17,6 +17,7 @@ tauri-plugin-opener (narrow URL permission in src-tauri/capabilities); on web it
     :href="href"
     target="_blank"
     rel="noopener noreferrer"
+    class="rounded-sm focus-ring"
     @click="open"
   >
     <slot />

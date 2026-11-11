@@ -152,7 +152,7 @@ for (const vp of VIEWPORTS) {
       await expect.poll(async () => (await stored(page, 'topic-styles') as { styles: Record<string, { hue: string, symbol: string }> }).styles).toEqual({ Home: { hue: 'red', symbol: 'house' } })
     })
 
-    test('the tablist is named and a keyboard-focused tab shows the solid ink ring (#557)', async ({ page }) => {
+    test('the tablist is named and a keyboard-focused tab shows the focus ring (#557)', async ({ page }) => {
       await page.goto('/settings/topics')
       await expect(page.getByRole('tablist', { name: 'Art' })).toBeVisible()
       // Keyboard focus (not a click) so :focus-visible applies
@@ -164,10 +164,8 @@ for (const vp of VIEWPORTS) {
         const s = getComputedStyle(el)
         return { style: s.outlineStyle, width: s.outlineWidth, offset: s.outlineOffset, color: s.outlineColor }
       })
-      // Nuxt UI's default is a 3px 25% halo; DESIGN.md "Focus" asks for a solid 2px offset ring.
-      // Polled: the colour transitions in with the tab's `transition-colors`.
-      await expect.poll(ring).toMatchObject({ style: 'solid', width: '2px', offset: '2px' })
-      await expect.poll(async () => (await ring()).color).not.toMatch(/\/\s*[\d.]+\)/)
+      // DESIGN.md "Focus": Nuxt UI's 3px halo without an offset, on every control.
+      await expect.poll(ring).toMatchObject({ style: 'solid', width: '3px', offset: '0px' })
     })
 
     test('an activity is renamed with the Name only', async ({ page }) => {

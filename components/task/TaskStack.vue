@@ -287,8 +287,8 @@ function getCardStyles(index: number): Record<string, string> {
 }
 
 .task-stack__control:focus-visible ~ .task-stack__cards :deep(.stacked-task--top) {
-  outline: 2px solid var(--ui-primary);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
 }
 
 /**

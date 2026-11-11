@@ -445,7 +445,7 @@ test.describe('Landmarks, focus and motion', () => {
     await expect(page.getByRole('heading', { level: 2, name: 'Erledigt', exact: true })).toBeVisible()
   })
 
-  test('primary button shows a solid offset focus ring', async ({ page }) => {
+  test('primary button shows the focus ring (DESIGN.md "Focus": the 3px halo, no offset)', async ({ page }) => {
     // A solid primary button on a real route: the confirmation of the Local setup on /welcome (#65: the styleguide that hosted this check is gone)
     await page.goto('/welcome')
     await page.getByTestId('welcome-choice-local').click()
@@ -456,11 +456,11 @@ test.describe('Landmarks, focus and motion', () => {
     await expect(button).toBeFocused()
     const outline = await button.evaluate((el) => {
       const s = getComputedStyle(el)
-      return { width: parseFloat(s.outlineWidth), offset: parseFloat(s.outlineOffset), color: s.outlineColor }
+      return { style: s.outlineStyle, width: parseFloat(s.outlineWidth), offset: parseFloat(s.outlineOffset), color: s.outlineColor }
     })
-    expect(outline.width).toBeGreaterThanOrEqual(2)
-    expect(outline.offset).toBeGreaterThanOrEqual(2)
-    expect(outline.color).not.toMatch(/,\s*0\.\d+\)$/)
+    expect(outline.style).toBe('solid')
+    expect(outline.width).toBe(3)
+    expect(outline.offset).toBe(0)
   })
 
   test('sort control becomes visible on keyboard focus', async ({ page }) => {

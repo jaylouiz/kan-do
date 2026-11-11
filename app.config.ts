@@ -21,10 +21,10 @@ const BUTTON_ROLE_LINK = {
   error: 'text-error-700 hover:text-error-800 active:text-error-800'
 } as const
 const BUTTON_ROLE_SOLID = {
-  secondary: 'bg-secondary-700 enabled:hover:bg-secondary-800 enabled:active:bg-secondary-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary-700',
-  success: 'bg-success-700 enabled:hover:bg-success-800 enabled:active:bg-success-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-success-700',
-  info: 'bg-info-700 enabled:hover:bg-info-800 enabled:active:bg-info-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-info-700',
-  warning: 'bg-warning-700 enabled:hover:bg-warning-800 enabled:active:bg-warning-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-warning-700'
+  secondary: 'bg-secondary-700 enabled:hover:bg-secondary-800 enabled:active:bg-secondary-800',
+  success: 'bg-success-700 enabled:hover:bg-success-800 enabled:active:bg-success-800',
+  info: 'bg-info-700 enabled:hover:bg-info-800 enabled:active:bg-info-800',
+  warning: 'bg-warning-700 enabled:hover:bg-warning-800 enabled:active:bg-warning-800'
 } as const
 const BUTTON_ROLES = ['secondary', 'success', 'info', 'warning'] as const
 const BUTTON_TEXT_VARIANTS = ['outline', 'soft', 'subtle', 'ghost'] as const
@@ -281,8 +281,7 @@ export default defineAppConfig({
         {
           variant: 'soft',
           class: {
-            // the solid 2px ink ring of DESIGN.md "Focus": a compound variant, because Nuxt UI's own outline-3 / outline-primary/25 halo merges in after the plain variant
-            base: 'min-h-9 w-48 cursor-pointer text-sm max-md:min-h-11 md:text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
+            base: 'min-h-9 w-48 cursor-pointer text-sm max-md:min-h-11 md:text-sm',
             placeholder: 'text-muted',
             trailingIcon: 'size-4 text-muted'
           }
@@ -323,12 +322,11 @@ export default defineAppConfig({
         { size: 'xs', class: 'max-md:min-h-0' },
         // Icon-only buttons: a 44 x 44 target with the icon centred
         { square: true, class: 'max-md:min-w-11 max-md:justify-center' },
-        // Solid offset ring instead of the 25% halo: WCAG 2.4.11 / 2.4.13 (>= 3:1 vs page, >= 2px)
         {
           color: 'primary',
           variant: 'solid',
           // Deep Ink (button-primary-hover) on hover/press: the base primary/75 blend measures 3.33:1 with white text (#251); enabled: keeps disabled states flat
-          class: 'enabled:hover:bg-primary-600 enabled:active:bg-primary-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+          class: 'enabled:hover:bg-primary-600 enabled:active:bg-primary-600'
         },
         // DESIGN.md button-soft: Deep Ink text on Ink Wash; plain primary text on the tint measures 4.41:1 (#152)
         {
@@ -378,14 +376,6 @@ export default defineAppConfig({
         trigger: 'max-md:min-h-11 max-md:min-w-11'
       },
       compoundVariants: [
-        // Solid offset ring, not Nuxt UI's 25% halo (~1.9:1 on the grey track): DESIGN.md "Focus", WCAG 2.4.11.
-        // A compound variant, because Nuxt UI's own neutral compounds carry `focus-visible:outline-3`.
-        {
-          color: 'neutral',
-          class: {
-            trigger: 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
-          }
-        },
         {
           color: 'neutral',
           variant: 'pill',

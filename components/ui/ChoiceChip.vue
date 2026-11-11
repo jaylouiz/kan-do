@@ -134,9 +134,14 @@ const rowClass = computed(
   color: var(--ui-text-highlighted);
 }
 
-.choice-chip:not(.choice-chip--row):focus-visible {
-  outline: 2px solid var(--ui-primary);
-  outline-offset: 2px;
+.choice-chip:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* A row sits in a scrolling list that would clip a ring around it: the ring is drawn inside the row */
+.choice-chip--row:focus-visible {
+  outline-offset: calc(-1 * var(--focus-ring-width));
 }
 
 .choice-chip--pill:disabled {

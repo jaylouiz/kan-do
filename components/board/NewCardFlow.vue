@@ -962,8 +962,8 @@ onBeforeUnmount(() => {
 
 .ncf__nav:focus-visible,
 .ncf__note:focus-visible {
-  outline: 2px solid var(--ui-primary);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
 }
 
 .ncf__note {

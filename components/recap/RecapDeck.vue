@@ -186,7 +186,7 @@ function onPointerDown(event: PointerEvent) {
   border-radius: var(--radius-lg);
 }
 .recap-deck:focus-visible {
-  outline: 2px solid var(--ui-primary);
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: 6px;
 }
 .recap-deck__card {
