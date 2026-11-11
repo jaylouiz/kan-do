@@ -108,7 +108,7 @@ Changes here are expensive or fragile; they raise the tech-check rating and get 
 - name: `<type>/<n>-<kebab-slug>`, type `fix|feat|test|docs|chore`
 - `.claude/settings.json` allows `rm src-tauri/target`, its `ln -s` from the main checkout and `rm -rf dist` / `.e2e-build` / `tests/e2e/playwright-report` / `tests/e2e/test-results` without a prompt: one path per `rm` call, never chained with git (a chained or multi-path `rm` stops an unattended worker at a prompt)
 - a lone modified `package-lock.json` is Orca's setup `npm install` rewrite: `git checkout -- package-lock.json` before a rebase, never commit it.
-- a worktree made by hand (`git worktree add`, e.g. from a session that already sits in a worktree) gets no `node_modules`: `ln -s <main checkout>/node_modules node_modules`, then `npx nuxt prepare`; only worktrees the harness creates are linked (`worktree.symlinkDirectories`).
+- a worktree made by hand (`git worktree add`, e.g. from a session that already sits in a worktree) gets no `node_modules`: `ln -s <main checkout>/node_modules node_modules`, then `npx nuxt prepare`; only worktrees the harness creates are linked (`worktree.symlinkDirectories`). An Orca worktree has its own real `node_modules` from the setup `npm install`: never link there (`ls -d node_modules` first).
 
 ## Verification
 

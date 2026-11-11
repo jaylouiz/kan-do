@@ -34,6 +34,10 @@ npm run dev:e2e
 # open http://localhost:3000/tasks?seed=notion
 ```
 
+## A new spec or a new 390 viewport
+
+`tests/scripts/e2e-gate.test.ts` treats every spec that names a 390 viewport as a phone spec: it must be listed in the app-shell rule of `.claude/hooks/e2e-gate.json`, and a new or deleted spec file needs its `map` entry. Prefer extending a mapped spec over a new spec file.
+
 ## CI-only (Linux) failures
 
 Reproduce in Linux Chromium before guessing (kd#100): `colima start`, then run the spec in `mcr.microsoft.com/playwright:v<the repo's @playwright/test version>-noble` against a server on the host (`BASE_URL=http://host.docker.internal:<port>`); mount the worktree from under `$HOME` (colima does not share `/private/tmp`). `--cpus 1` exposes focus and timing races CI hits.
