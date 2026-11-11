@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Locator, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { seedLocalBoard, type SeedTask } from './helpers/seed';
 import { settleAnimations } from './helpers/settle';
@@ -954,3 +954,46 @@ test.describe('Task Detail View', () => {
     });
   });
 });
+
+// kd#178: one field height. Inputs, selects, textareas, the value controls of the task sheet's rows and the choice chip
+// are 36 px high on desktop and 44 px on a phone (the `--field-h` token); the title keeps its own size.
+const heightOf = async (locator: Locator) => Math.round((await locator.boundingBox())!.height);
+
+for (const { name, viewport, touch, expected } of [
+  { name: '1280px', viewport: { width: 1280, height: 900 }, touch: false, expected: 36 },
+  { name: '390px', viewport: { width: 390, height: 844 }, touch: true, expected: 44 },
+]) {
+  test.describe(`field height at ${name}`, () => {
+    test.use({ viewport, hasTouch: touch, isMobile: touch })
+
+    test.beforeEach(async ({ context }) => {
+      await seedLocalBoard(context)
+    })
+
+    test(`the task sheet's select and value controls are ${expected} px`, async ({ page }) => {
+      await page.goto('/tasks/seed-open-1')
+      const rows = page.getByTestId('task-property-row')
+      await expect(rows.first()).toBeVisible()
+      // A value that opens a list (a select with a chevron)
+      await expect.poll(() => heightOf(page.getByRole('button', { name: /^Status:/ }))).toBe(expected)
+      await expect.poll(() => heightOf(page.getByRole('button', { name: /^Priorität:/ }))).toBe(expected)
+      // A free value (text on a dotted rule)
+      await expect.poll(() => heightOf(page.getByRole('button', { name: /^Timebox:/ }))).toBe(expected)
+      await expect.poll(() => heightOf(page.getByRole('button', { name: /^Aufgewendete Zeit:/ }))).toBe(expected)
+    })
+
+    test(`the add sheet's fields are ${expected} px; the title keeps its own size`, async ({ page }) => {
+      await page.goto('/tasks/add')
+      await expect(page.getByRole('dialog')).toBeVisible()
+      await expect.poll(() => heightOf(page.getByTestId('add-task-timebox-input'))).toBe(expected)
+      await expect.poll(() => heightOf(page.getByRole('button', { name: /^Priorität:/ }))).toBe(expected)
+      await expect.poll(() => heightOf(page.getByRole('button', { name: /^Thema:/ }))).toBe(expected)
+      // A select beside an input: the same height
+      expect(await heightOf(page.getByRole('button', { name: /^Priorität:/ }))).toBe(await heightOf(page.getByTestId('add-task-timebox-input')))
+      // The title is the one field that is not 36 px
+      expect(await heightOf(page.locator('input[name="title"]'))).not.toBe(expected)
+      // A textarea line is never shorter than a field
+      expect(await heightOf(page.locator('textarea[name="notes"]'))).toBeGreaterThanOrEqual(expected)
+    })
+  })
+}

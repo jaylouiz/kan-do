@@ -23,7 +23,6 @@
         :items="titleProperties"
         :placeholder="t('notion.mapping.title.placeholder')"
         class="w-full"
-        size="lg"
       />
     </UFormField>
 
@@ -38,7 +37,6 @@
         :items="statusProperties"
         :placeholder="t('notion.mapping.status.placeholder')"
         class="w-full"
-        size="lg"
       />
     </UFormField>
 
@@ -52,7 +50,6 @@
         :items="[{ label: t('notion.mapping.noField'), value: null }, ...dateProperties]"
         :placeholder="t('notion.mapping.dueDate.placeholder')"
         class="w-full"
-        size="lg"
       />
     </UFormField>
 
@@ -66,7 +63,6 @@
         :items="[{ label: t('notion.mapping.noField'), value: null }, ...selectProperties]"
         :placeholder="t('notion.mapping.priority.placeholder')"
         class="w-full"
-        size="lg"
       />
     </UFormField>
 
@@ -80,7 +76,6 @@
         :items="[{ label: t('notion.mapping.noField'), value: null }, ...topicProperties]"
         :placeholder="t('notion.mapping.topic.placeholder')"
         class="w-full"
-        size="lg"
       />
     </UFormField>
 
@@ -94,7 +89,6 @@
         :items="[{ label: t('notion.mapping.noField'), value: null }, ...activityProperties]"
         :placeholder="t('notion.mapping.activity.placeholder')"
         class="w-full"
-        size="lg"
       />
     </UFormField>
 
@@ -108,7 +102,6 @@
         :items="[{ label: t('notion.mapping.noField'), value: null }, ...timeboxProperties]"
         :placeholder="t('notion.mapping.timeBox.placeholder')"
         class="w-full"
-        size="lg"
       />
     </UFormField>
 
@@ -123,7 +116,6 @@
         :items="timeBoxUnitOptions"
         :placeholder="t('notion.mapping.unitPlaceholder')"
         class="w-full"
-        size="lg"
       />
     </UFormField>
 
@@ -137,7 +129,6 @@
         :items="[{ label: t('notion.mapping.noField'), value: null }, ...timeSpentProperties]"
         :placeholder="t('notion.mapping.timeSpent.placeholder')"
         class="w-full"
-        size="lg"
       />
     </UFormField>
 
@@ -152,7 +143,6 @@
         :items="timeUnitOptions"
         :placeholder="t('notion.mapping.unitPlaceholder')"
         class="w-full"
-        size="lg"
       />
     </UFormField>
 
@@ -166,7 +156,6 @@
         :items="[{ label: t('notion.mapping.noField'), value: null }, ...dateProperties]"
         :placeholder="t('notion.mapping.completedDate.placeholder')"
         class="w-full"
-        size="lg"
       />
     </UFormField>
 
@@ -183,7 +172,6 @@
           :items="unplannedModeOptions"
           :placeholder="t('notion.mapping.unplanned.modeNone')"
           class="w-full"
-          size="lg"
         />
         
         <!-- Boolean mode: checkbox property selector -->
@@ -193,7 +181,6 @@
             :items="[{ label: t('notion.mapping.unplanned.selectField'), value: null }, ...checkboxProperties]"
             :placeholder="t('notion.mapping.unplanned.checkboxPlaceholder')"
             class="w-full"
-            size="lg"
           />
         </template>
         
@@ -205,7 +192,6 @@
               :items="[{ label: t('notion.mapping.unplanned.selectField'), value: null }, ...valueMatchableProperties]"
               :placeholder="t('notion.mapping.unplanned.selectField')"
               class="w-full"
-              size="lg"
             />
             
             <!-- Show available values or allow custom input -->
@@ -216,7 +202,6 @@
                 :items="availableUnplannedValues"
                 :placeholder="t('notion.mapping.unplanned.valuePlaceholder')"
                 class="w-full"
-                size="lg"
                 searchable
                 creatable
                 @update:model-value="unplannedMatchValue = $event ?? null"
@@ -226,7 +211,6 @@
                 :model-value="unplannedMatchValue ?? undefined"
                 :placeholder="t('notion.mapping.unplanned.valueInputPlaceholder')"
                 class="w-full"
-                size="lg"
                 @update:model-value="unplannedMatchValue = $event ?? null"
               />
             </template>

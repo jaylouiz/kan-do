@@ -56,7 +56,7 @@
   transition: text-decoration-color var(--duration-fast) ease;
 }
 
-.task-property-value:hover,
+.task-property-value:hover:not(:disabled, [aria-disabled='true']),
 .task-property-value:focus-visible {
   text-decoration-color: var(--ui-text-muted);
 }

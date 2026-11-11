@@ -7,7 +7,7 @@
 - „In Notion“ zeigt das Notion-Setup auf dieser Seite (Schienen-Führung, Schritte des WizardController) und endet mit Notion als verbundener Verbindung und Standard
 - Startansicht und Setup tauschen als ein Block (eine Transition, Höhe per WAAPI, Breite per CSS); reduzierte Bewegung: sofort
 - Fokus: nach dem Tausch auf die Überschrift des Setups, beim Zurück auf die Antwortzeile, von der man kam
-- Keine gefüllte Schaltfläche: beide Antworten sind ganze Zeilen (Button, min. 64px), keine hervorgehoben
+- Keine gefüllte Schaltfläche: beide Antworten sind ganze Zeilen (ChoiceCard, min. 64px), keine hervorgehoben
 - Todoist wird nicht angeboten; weitere Verbindungen kommen später in den Einstellungen dazu
 - Ein ruhiges Foto (Jalousie-Schatten, gebündelt in public/welcome, Quelle in CREDITS.md) füllt die Seite; es ist nur
   Stimmung: Text steht nie direkt darauf. Mittig ein heller Bogen (Oberfläche und Schatten wie ein Dialog) trägt
@@ -65,19 +65,15 @@
           {{ t('onboarding.page.title') }}
         </h1>
         <div class="mt-8 flex flex-col gap-3">
-          <!-- Raw button on purpose (#71, ui-kit audit): a two-line choice card with a go-on arrow is not a button look; #72/#76 decide whether it joins a choice or list-row primitive. -->
-          <button
+          <ChoiceCard
             v-for="choice in choices"
             :key="choice.key"
-            type="button"
-            class="flex min-h-16 w-full items-center gap-4 rounded-xl border border-default bg-elevated p-4 text-left hover:border-accented focus-ring"
+            :icon="choice.icon"
             :data-testid="`welcome-choice-${choice.key}`"
             @click="choice.open()"
           >
-            <UIcon :name="choice.icon" class="size-6 shrink-0 text-toned" aria-hidden="true" />
-            <span class="min-w-0 flex-1 text-lg font-medium text-highlighted">{{ choice.label }}</span>
-            <UIcon :name="ICONS.goOn" class="size-5 shrink-0 text-muted" aria-hidden="true" />
-          </button>
+            {{ choice.label }}
+          </ChoiceCard>
         </div>
         <p class="mt-6 text-sm text-muted">{{ t('onboarding.page.later') }}</p>
         <p class="mt-8 text-xs text-muted">
@@ -94,9 +90,9 @@
 </template>
 
 <script setup lang="ts">
-import { ICONS } from '~/lib/icons'
 import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import ChoiceCard from '~/components/ui/ChoiceCard.vue';
 import LocalSetupFlow from '~/components/setup/LocalSetupFlow.vue';
 import NotionSetupFlow from '~/components/setup/NotionSetupFlow.vue';
 import DataStorageNotice from '~/components/settings/DataStorageNotice.vue';

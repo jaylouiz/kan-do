@@ -14,11 +14,19 @@ describe('ChoiceChip (#72)', () => {
   })
 
   it('a host can make it a submit button', () => {
-    expect(mount(ChoiceChip, { attrs: { type: 'submit' }, props: { shape: 'icon' } }).attributes('type')).toBe('submit')
+    expect(mount(ChoiceChip, { attrs: { type: 'submit' } }).attributes('type')).toBe('submit')
   })
 
-  it.each(['pill', 'chip', 'icon'] as const)('shape %s takes its own geometry class', (shape) => {
-    expect(mount(ChoiceChip, { props: { shape } }).classes()).toContain(`choice-chip--${shape}`)
+  it('square makes an icon-only chip as wide as it is tall', () => {
+    expect(mount(ChoiceChip, { props: { square: true } }).classes()).toContain('choice-chip--square')
+    expect(mount(ChoiceChip).classes()).not.toContain('choice-chip--square')
+  })
+
+  it('is one chip: no shape or size prop, one class', () => {
+    const wrapper = mount(ChoiceChip, { props: { shape: 'icon', large: true } as never })
+    expect(wrapper.classes()).toContain('choice-chip')
+    expect(wrapper.classes().filter((c) => c.startsWith('choice-chip--'))).toEqual([])
+    expect(wrapper.classes()).not.toContain('min-h-8')
   })
 
   it('picked, current and field are classes the style keys on', () => {
@@ -33,14 +41,5 @@ describe('ChoiceChip (#72)', () => {
     const wrapper = mount(ChoiceChip, { attrs: { disabled: true } })
     await wrapper.trigger('click')
     expect(wrapper.emitted('click')).toBeUndefined()
-  })
-
-  it('the row is a list row: 32 px, or 44 px with larger text when large, and marks aria-current', () => {
-    const row = mount(ChoiceChip, { props: { shape: 'row' }, attrs: { 'aria-current': 'true' } })
-    expect(row.classes()).toEqual(expect.arrayContaining(['choice-chip--row', 'min-h-8', 'text-sm', 'w-full']))
-    expect(row.attributes('aria-current')).toBe('true')
-    const large = mount(ChoiceChip, { props: { shape: 'row', large: true } })
-    expect(large.classes()).toEqual(expect.arrayContaining(['min-h-11', 'text-base']))
-    expect(large.classes()).not.toContain('min-h-8')
   })
 })

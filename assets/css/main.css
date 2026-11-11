@@ -249,6 +249,11 @@
     --focus-ring-offset: 0px;
     --focus-ring-color: color-mix(in oklab, var(--ui-primary) 25%, transparent);
 
+    /* --- Field height (DESIGN.md "Space, size and shape", kd#178): inputs, selects, textareas, the value controls of
+     * the task sheet's rows and the choice chip are this tall, whatever the text line is (kd#190 changes the line).
+     * The phone and touch screens get the 44 px floor. --- */
+    --field-h: 2.25rem;
+
     /* --- Drag & Drop: Animation Timings --- */
     /* Synchronized with the DnD layer (useColumnDragAndDrop). */
     /* Note: DnD handles position/transform; CSS transitions handle visual properties only. */
@@ -351,5 +356,11 @@
 @media (--phone) {
   :root {
     --task-note-height: 2.875rem;
+  }
+}
+
+@media (--phone) {
+  :root {
+    --field-h: 2.75rem;
   }
 }

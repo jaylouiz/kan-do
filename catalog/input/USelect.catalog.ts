@@ -1,8 +1,8 @@
 import type { CatalogEntry } from '../types'
 
 /**
- * Nuxt UI native-style select. The Notion mapping steps always use `size="lg"` (the form-row height); the theme keeps
- * its own height next to the buttons (DESIGN.md "Components").
+ * Nuxt UI native-style select. Its height is the theme's `lg` default (36 px, the `--field-h` token; kd#178), the same
+ * as UInput beside it, so call sites set no size.
  */
 export default {
   component: 'USelect',
@@ -10,7 +10,7 @@ export default {
   kind: 'primitive',
   category: 'input',
   description: 'A native-style select: pick one value from a short fixed list, shown as a field with a caret.',
-  usage: 'A short, fixed list without search where a field reads better than a menu: the Notion mapping steps (always `size="lg"` inside a UFormField). Set `items` as `{ label, value }`, a `placeholder` and `aria-label` when it has no UFormField label.',
+  usage: 'A short, fixed list without search where a field reads better than a menu: the Notion mapping steps (inside a UFormField; no `size`, the theme default is the field height). Set `items` as `{ label, value }`, a `placeholder` and `aria-label` when it has no UFormField label.',
   avoid: 'Not for a list that needs search or free values (USelectMenu), not for a property value in the task sheet (TaskPropertySelect) and not for two or three options that fit as a radio group (URadioGroup).',
   alternatives: ['USelectMenu', 'TaskPropertySelect', 'URadioGroup'],
   theme: 'select',

@@ -28,11 +28,10 @@ describe('TaskPropertyRow (#161)', () => {
     expect(wrapper.html()).not.toContain('uppercase')
   })
 
-  it('keeps a 44px hit area at the mobile breakpoint for label and value', () => {
+  it('gives label and value the one field height (36 px, 44 px on a phone: the --field-h token)', () => {
     const wrapper = renderRow()
-    expect(wrapper.get('span').classes()).toContain('max-md:min-h-11')
-    expect(wrapper.get('span').classes()).toContain('min-h-8')
-    expect(Array.from(wrapper.element.children[1]!.classList)).toContain('max-md:min-h-11')
+    expect(wrapper.get('span').classes()).toContain('min-h-(--field-h)')
+    expect(Array.from(wrapper.element.children[1]!.classList)).toContain('min-h-(--field-h)')
   })
 
   it('hands the label id to the value slot so the control can be named by it', () => {

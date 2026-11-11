@@ -1,0 +1,4 @@
+- group "Gruppieren nach":
+  - button "Thema" [pressed]
+  - button "Aktivität"
+  - button "Priorität"
