@@ -47,6 +47,7 @@ In-card question pattern (DESIGN.md "Behaviour"; this is its first user, extract
           <ChoiceChip
             v-for="minutes in NUDGE_PRESETS"
             :key="minutes"
+            class="nudge__preset"
             :picked="picked === minutes"
             @click="pick(minutes)"
           >
@@ -286,7 +287,7 @@ const onBarEnd = (event: AnimationEvent) => {
 }
 
 /* The presets share the row by equal widths; the icon chips keep their square */
-.nudge__row > :deep(.choice-chip:not(.choice-chip--square)) {
+.nudge__preset {
   flex: 1 1 0;
 }
 

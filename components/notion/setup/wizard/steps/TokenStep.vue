@@ -57,7 +57,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { nextTick, ref, watch } from "vue";
 import ExternalLink from "~/components/ui/ExternalLink.vue";
 import { useI18n } from "vue-i18n";
 import { LocalizedError, getDisplayMessage } from "~/lib/errorMessages";
@@ -155,6 +155,8 @@ const validateAndProceed = async () => {
     inputMessage.value = getDisplayMessage(error, translate("errors.invalidToken"));
   } finally {
     isValidating.value = false;
+    // The field was disabled while it checked (it loses focus): after an error the user fixes the token right here
+    if (inputState.value === 'error') nextTick(() => document.getElementById('notionToken')?.focus());
   }
 };
 
