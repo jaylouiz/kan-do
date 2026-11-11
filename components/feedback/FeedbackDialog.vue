@@ -63,7 +63,7 @@ optional element, optional screenshot, automatic context line), the annotate ste
               <span class="ml-1 text-toned">{{ elementName }}</span>
               <span class="block truncate font-mono text-xs text-toned">{{ draft.element.selector }}</span>
             </p>
-            <UButton color="neutral" variant="ghost" size="sm" data-testid="feedback-element-remove" @click="draft.element = null">
+            <UButton color="neutral" variant="ghost" data-testid="feedback-element-remove" @click="draft.element = null">
               {{ t('feedback.removeElement') }}
             </UButton>
           </div>
@@ -100,10 +100,10 @@ optional element, optional screenshot, automatic context line), the annotate ste
               data-testid="feedback-screenshot-thumb"
             />
             <div class="flex items-center gap-2">
-              <UButton v-if="rawShot" color="neutral" variant="soft" size="sm" data-testid="feedback-screenshot-edit" @click="toAnnotate">
+              <UButton v-if="rawShot" color="neutral" variant="soft" data-testid="feedback-screenshot-edit" @click="toAnnotate">
                 {{ t('feedback.screenshot.edit') }}
               </UButton>
-              <UButton color="neutral" variant="ghost" size="sm" data-testid="feedback-screenshot-remove" @click="removeScreenshot">
+              <UButton color="neutral" variant="ghost" data-testid="feedback-screenshot-remove" @click="removeScreenshot">
                 {{ t('feedback.screenshot.remove') }}
               </UButton>
             </div>
@@ -140,7 +140,7 @@ optional element, optional screenshot, automatic context line), the annotate ste
 
         <p class="flex items-center gap-2 text-xs text-muted" data-testid="feedback-context-line">
           <span>{{ t('feedback.contextLine', { summary: contextSummary }) }}</span>
-          <UButton color="neutral" variant="link" size="xs" :disabled="!titleValid" class="p-0" @click="toReview">
+          <UButton color="neutral" variant="link" :disabled="!titleValid" class="h-auto min-h-0 p-0" @click="toReview">
             {{ t('feedback.contextReview') }}
           </UButton>
         </p>
@@ -250,15 +250,15 @@ v-if="logTail" v-model="draft.include.log" :label="t('feedback.review.itemLog')"
         <UButton v-else-if="canUndoDiscard" color="neutral" variant="ghost" class="mr-auto" data-testid="feedback-undo-discard" @click="undoDiscard">
           {{ t('common.undo') }}
         </UButton>
-        <UButton color="neutral" variant="ghost" data-testid="feedback-cancel" @click="close">{{ t('common.cancel') }}</UButton>
+        <UButton color="neutral" variant="soft" data-testid="feedback-cancel" @click="close">{{ t('common.cancel') }}</UButton>
         <UButton size="lg" color="primary" :disabled="!titleValid" data-testid="feedback-next" @click="toReview">{{ t('feedback.next') }}</UButton>
       </template>
       <template v-else-if="step === 'annotate'">
-        <UButton color="neutral" variant="ghost" data-testid="annotate-back" @click="toForm">{{ t('feedback.annotate.back') }}</UButton>
+        <UButton color="neutral" variant="soft" data-testid="annotate-back" @click="toForm">{{ t('feedback.annotate.back') }}</UButton>
         <UButton size="lg" color="primary" data-testid="annotate-done" @click="finishAnnotate">{{ t('feedback.annotate.done') }}</UButton>
       </template>
       <template v-else>
-        <UButton color="neutral" variant="ghost" :disabled="sending" data-testid="feedback-back" @click="toForm">{{ t('common.back') }}</UButton>
+        <UButton color="neutral" variant="soft" :disabled="sending" data-testid="feedback-back" @click="toForm">{{ t('common.back') }}</UButton>
         <UButton size="lg" v-if="canSend" color="primary" :loading="sending" data-testid="feedback-send" @click="send">
           {{ sendLabel }}
         </UButton>

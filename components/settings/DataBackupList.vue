@@ -55,7 +55,7 @@ event, the page owns the single confirmation modal.
     </p>
     <div v-else-if="backupsLoad === 'error'" class="flex flex-wrap items-center gap-x-3 gap-y-1" data-testid="data-backups-failed">
       <UAlert color="error" variant="subtle" icon="i-ph-x-circle" class="w-auto" :description="t('settings.data.backups.loadFailed')" />
-      <UButton variant="link" color="neutral" size="sm" @click="refreshBackups">{{ t('settings.data.backups.reload') }}</UButton>
+      <UButton variant="link" color="neutral" @click="refreshBackups">{{ t('settings.data.backups.reload') }}</UButton>
     </div>
     <EmptyNote v-else-if="backups.length === 0" data-testid="data-backups-empty">
       {{ t('settings.data.backups.empty') }}
@@ -86,7 +86,6 @@ event, the page owns the single confirmation modal.
           v-if="entry.readable && isNewer(entry)"
           variant="ghost"
           color="neutral"
-          size="sm"
           disabled
           data-testid="data-backup-update"
         >
@@ -96,7 +95,6 @@ event, the page owns the single confirmation modal.
           v-else-if="entry.readable"
           variant="soft"
           color="neutral"
-          size="sm"
           :disabled="restoreBlock !== null"
           :aria-label="t('settings.data.backups.restoreAt', { time: formatDateTime(entry.ts, 'mediumDateShortTime') })"
           data-testid="data-backup-restore"
@@ -111,7 +109,6 @@ event, the page owns the single confirmation modal.
       v-if="backups.length > VISIBLE_COUNT"
       variant="link"
       color="neutral"
-      size="sm"
       :aria-expanded="showAll"
       data-testid="data-backups-toggle"
       @click="showAll = !showAll"

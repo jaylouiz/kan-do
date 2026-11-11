@@ -39,7 +39,7 @@ test.describe('/ui component page: UButton', () => {
     expect(inUse).toBeLessThan(60)
     await expect(card.locator('[data-kd-sample="UButton:matrix:primary/solid/md"] button')).toBeVisible()
     await expect(card.locator('[data-kd-sample="UButton:matrix:neutral/ghost/md"] button')).toBeVisible()
-    await expect(card.locator('[data-kd-sample="UButton:matrix:primary/solid/sm"] button')).toBeVisible()
+    await expect(card.locator('[data-kd-sample="UButton:matrix:primary/solid/lg"] button')).toBeVisible()
     // a role no template uses is not in the first view
     await expect(card.locator('[data-kd-sample^="UButton:matrix:info/"]')).toHaveCount(0)
     await expect(card.locator('[data-kd-sample="UButton:state:disabled"] button')).toBeDisabled()

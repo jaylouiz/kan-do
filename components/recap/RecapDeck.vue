@@ -65,7 +65,6 @@ changes size, so nothing on the page moves while it is looked at.
       <UButton
         color="neutral"
         variant="ghost"
-        size="sm"
         :icon="ICONS.back"
         :aria-label="t('recap.deck.previous')"
         :disabled="!deck.canMove.value"
@@ -79,7 +78,6 @@ changes size, so nothing on the page moves while it is looked at.
       <UButton
         color="neutral"
         variant="ghost"
-        size="sm"
         :icon="ICONS.forward"
         :aria-label="t('recap.deck.next')"
         :disabled="!deck.canMove.value"

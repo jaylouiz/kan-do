@@ -53,7 +53,6 @@
             <UButton
               v-for="option in groupingOptions"
               :key="option.value"
-              size="sm"
               :color="effectiveGroupKey === option.value ? 'primary' : 'neutral'"
               variant="soft"
               :aria-pressed="effectiveGroupKey === option.value"
@@ -134,7 +133,6 @@
           icon="i-ph-wrench"
           color="neutral"
           variant="soft"
-          size="sm"
           block
           :data-testid="`sync-repair-${worstProblem.source}`"
           @click="emit('close')"

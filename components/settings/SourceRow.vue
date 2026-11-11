@@ -48,8 +48,7 @@
       <UButton
         v-if="row.canSetDefault"
         color="neutral"
-        variant="soft"
-        size="sm"
+        :variant="row.canRepair ? 'ghost' : 'soft'"
         :aria-label="t('sources.row.setDefaultNamed', { source: row.name })"
         :data-testid="`source-set-default-${row.id}`"
         @click="emit('setDefault', row.id)"
@@ -60,7 +59,6 @@
         v-if="row.canRepair"
         color="neutral"
         variant="soft"
-        size="sm"
         :aria-label="t('sources.row.repairNamed', { source: row.name })"
         :data-testid="`source-repair-${row.id}`"
         @click="emit('repair', row.id)"
@@ -71,7 +69,6 @@
         v-if="row.canConfigure"
         color="neutral"
         variant="ghost"
-        size="sm"
         :data-testid="`source-settings-${row.id}`"
         @click="emit('openSettings', row.id)"
       >
@@ -81,7 +78,6 @@
         v-if="row.canConfigure"
         color="neutral"
         variant="ghost"
-        size="sm"
         :aria-label="t('sources.row.disconnectNamed', { source: row.name })"
         :data-testid="`source-disconnect-${row.id}`"
         @click="emit('disconnect', row.id)"

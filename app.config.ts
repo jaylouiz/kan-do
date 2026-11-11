@@ -313,13 +313,19 @@ export default defineAppConfig({
         ]
       }
     },
-    // The button ladder (#552, DESIGN.md "Components"): `md` is the default size and siblings in a footer or row stay at
-    // it; the one primary of a surface sets `size="lg"`; rows, cards and in-card actions set `sm`; `xs` only sits
-    // inside text. On a phone every button is 44 px high (`lg` 48), icon-only ones 44 wide, so no surface applies
-    // `.touch-target` by hand (tests/config/button-ladder.test.ts keeps call sites on the ladder). Nuxt UI internals
-    // follow the floor, measured at 390 px (#552): calendar header and its Löschen / Heute 44, modal close 44 x 44,
-    // alert and toast actions 44 (they stay `xs` with their own rule, `.kando-notice-actions` / `.kando-toast-actions`
-    // in mobile-nav.css, #284). The ladder covers buttons only: `USelect` and `UInput` keep their own field heights.
+    // The button ladder (kd#177, DESIGN.md "Components"): two heights and four looks. `md` is the default, 32 px: every
+    // button, also the rows' and cards' actions; `lg` is 36 px and the one main action of a surface. Both heights are
+    // written here (`h-8`, `h-9`), not derived from the text line plus padding, so a change of the interface line height
+    // cannot move them. Looks: solid (the one main action), soft (a neutral action that stands on its own, and the one
+    // main action of a row), ghost (every further action in a row, card, menu or toolbar, every icon-only button), link.
+    // `sm`, `xl`, `outline` and `subtle` are Nuxt UI's and stay in the merged theme (a theme cannot delete a key) but are
+    // unused: tests/config/button-ladder.test.ts fails on them, `/ui` hides them. `xs` is 24 px and exists only for the
+    // actions Nuxt UI renders in an alert or toast (`size="xs"`, no template sets it); those keep their own 44 px
+    // phone rule (`.kando-notice-actions`, `.kando-toast-actions` in mobile-nav.css, #284).
+    // On a phone every button is 44 px high (`lg` 48), icon-only ones 44 wide (`min-height` beats the `height` above),
+    // so no surface applies `.touch-target` by hand. Nuxt UI internals follow the floor, measured at 390 px (#552):
+    // calendar header and its Löschen / Heute 44, modal close 44 x 44. The ladder covers buttons only: `USelect` and
+    // `UInput` keep their own field heights.
     button: {
       defaultVariants: {
         size: 'md'
@@ -331,7 +337,9 @@ export default defineAppConfig({
       },
       variants: {
         size: {
-          lg: { base: 'max-md:min-h-12' }
+          xs: { base: 'h-6' },
+          md: { base: 'h-8' },
+          lg: { base: 'h-9 max-md:min-h-12' }
         }
       },
       compoundVariants: [
@@ -347,7 +355,7 @@ export default defineAppConfig({
           variant: 'ghost',
           class: 'hover:bg-(--fill-on-canvas) active:bg-(--fill-on-canvas-hover)'
         },
-        // `xs` is a control inside text or one with its own hit area (the stack header close): no floor
+        // `xs` is the action of an alert or toast: no floor here, the notice's own 44 px rule applies on a phone
         { size: 'xs', class: 'max-md:min-h-0' },
         // Icon-only buttons: a 44 x 44 target with the icon centred
         { square: true, class: 'max-md:min-w-11 max-md:justify-center' },
@@ -369,7 +377,8 @@ export default defineAppConfig({
           variant: 'soft',
           class: 'text-error-700'
         },
-        // Subtle primary: the same 600 step as soft (#97)
+        // Subtle primary: the same 600 step as soft (#97). No call site uses it (kd#177); Nuxt UI's own components and the
+        // `/ui` whole-theme view still reach it, so it keeps its contrast.
         {
           color: 'primary',
           variant: 'subtle',

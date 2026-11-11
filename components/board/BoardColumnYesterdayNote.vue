@@ -52,7 +52,7 @@
           </h3>
           <UButton
             color="neutral"
-            variant="ghost"
+            variant="soft"
             class="yesterday-note__ack"
             data-testid="yesterday-ack"
             :aria-label="t('board.yesterday.ackLabel', { n: tasks.length }, tasks.length)"
@@ -242,7 +242,7 @@ function openTask(taskId: string) {
 .yesterday-note__ack {
   flex-shrink: 0;
   min-height: 2rem;
-  padding: 0 0.25rem;
+  padding: 0 0.5rem;
   font-size: var(--text-sm);
   font-weight: 500;
   line-height: inherit;
@@ -262,7 +262,7 @@ function openTask(taskId: string) {
   }
 
   .yesterday-note__ack {
-    padding-inline: 0.5rem;
+    padding-inline: 0.75rem;
   }
 }
 

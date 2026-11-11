@@ -24,14 +24,14 @@
           <div v-if="count > 0" class="flex flex-wrap items-center gap-2" @keydown.esc.stop="confirming && cancelEmpty()">
             <template v-if="confirming">
               <p class="text-sm text-default" role="alert">{{ t('trash.emptyConfirm', { n: count }, count) }}</p>
-              <UButton color="error" variant="soft" size="sm" data-testid="trash-empty-confirm" @click="confirmEmpty">
+              <UButton color="error" variant="soft" data-testid="trash-empty-confirm" @click="confirmEmpty">
                 {{ t('trash.emptyConfirmYes') }}
               </UButton>
-              <UButton ref="cancelEl" color="neutral" variant="ghost" size="sm" data-testid="trash-empty-cancel" @click="cancelEmpty">
+              <UButton ref="cancelEl" color="neutral" variant="ghost" data-testid="trash-empty-cancel" @click="cancelEmpty">
                 {{ t('common.cancel') }}
               </UButton>
             </template>
-            <UButton v-else ref="emptyEl" color="neutral" variant="ghost" size="sm" data-testid="trash-empty" @click="openEmpty">
+            <UButton v-else ref="emptyEl" color="neutral" variant="soft" data-testid="trash-empty" @click="openEmpty">
               {{ t('trash.emptyTrash') }}
             </UButton>
           </div>

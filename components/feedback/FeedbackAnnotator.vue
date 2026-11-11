@@ -22,7 +22,6 @@ three tools (Rechteck, Pfeil, Schwärzen), undo last, clear all, and the toggle 
           :key="entry.tool"
           :icon="entry.icon"
           :label="entry.label"
-          size="sm"
           :aria-pressed="tool === entry.tool"
           :variant="tool === entry.tool ? 'soft' : 'ghost'"
           :class="tool === entry.tool ? 'ring ring-accented ring-inset' : ''"

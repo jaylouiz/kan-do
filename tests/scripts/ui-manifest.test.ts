@@ -101,7 +101,7 @@ describe('usedValues (kd#127: /ui shows what the app uses first)', () => {
 
   it('the manifest carries it on library rows only', () => {
     const manifest = buildManifest() as { name: string, source: string, usedValues?: Record<string, string[]> }[]
-    expect(manifest.find(row => row.name === 'UButton')!.usedValues!.size).toEqual(expect.arrayContaining(['sm', 'lg']))
+    expect(manifest.find(row => row.name === 'UButton')!.usedValues!.size).toEqual(expect.arrayContaining(['lg']))
     expect(manifest.filter(row => row.source === 'app').every(row => row.usedValues === undefined)).toBe(true)
   })
 })

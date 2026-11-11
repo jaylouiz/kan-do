@@ -63,7 +63,6 @@
         <UButton
           variant="ghost"
           color="neutral"
-          size="sm"
           :loading="row.upload === 'checking'"
           :disabled="row.upload === 'checking'"
           @click="tokens.probeUpload(entry)"

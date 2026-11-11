@@ -28,7 +28,6 @@
       <UButton
         color="neutral"
         variant="ghost"
-        size="sm"
         :icon="currentIcon"
         :label="currentLabel"
         class="text-2xs max-md:text-xs font-medium text-muted hover:text-default"

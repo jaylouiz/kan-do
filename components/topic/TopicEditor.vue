@@ -79,7 +79,7 @@ immediate: no loading or error state.
           ref="symbolTrigger"
           type="button"
           color="neutral"
-          variant="subtle"
+          variant="soft"
           :label="symbolLabel"
           trailing-icon="i-ph-caret-down"
           :ui="{ trailingIcon: pickerOpen ? 'rotate-180 transition-transform duration-(--duration-base)' : 'transition-transform duration-(--duration-base)' }"
@@ -121,7 +121,7 @@ immediate: no loading or error state.
     <p class="text-sm text-muted" data-testid="topic-editor-count">{{ countLine }}</p>
 
     <div ref="actionsRow" class="flex scroll-mb-4 items-center justify-end gap-2">
-      <UButton type="button" color="neutral" variant="ghost" :label="t('topic.editor.cancel')" data-testid="topic-cancel" @click="emit('close')" />
+      <UButton type="button" color="neutral" variant="soft" :label="t('topic.editor.cancel')" data-testid="topic-cancel" @click="emit('close')" />
       <UButton
         size="lg"
         type="submit"
