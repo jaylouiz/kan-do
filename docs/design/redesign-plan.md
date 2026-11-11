@@ -204,7 +204,7 @@ Each slice is a sub-issue of the epic kd#1 with its scope, acceptance criteria a
 | kd#177 | 2 Actions: two button sizes, soft and ghost by rule | 1 | in build |
 | kd#178 | 3 Inputs: 36 px fields, one choice chip, the task sheet value rows | 1 | in build |
 | kd#190 | 1b Interface type roles: line heights in the size tokens, `text-body`, 12 px label | 1, 2, 3 (alone while it re-records baselines) | needs-spec |
-| kd#179 | 4 Navigation, overlays and notices: one task sheet, titles | 1 | PR open |
+| kd#179 | 4 Navigation, overlays and notices: one task sheet, titles | 1 | PR 199 |
 | kd#180 | 5 Display and layout: page sheets, one list row, headings, badges | 1, 2 | needs-spec |
 | kd#181 | 6 The board: card hover and press, drag motion, stacks, focus overlay, add slot | 1 to 5 (last and alone) | needs-spec |
 | kd#182 | 7 Lock-in (step 6) | 1 to 6, 1b | needs-spec |
