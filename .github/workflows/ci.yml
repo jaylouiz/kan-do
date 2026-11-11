@@ -5,8 +5,8 @@ on:
   push:
     branches: [main]
     paths-ignore: ['docs/**', '**/*.md', '.claude/**']
-  # PRs run with the read-only token below and no secrets. Standard runners are free for this public repo,
-  # so both jobs always run in full; the local gate (pre-push hook, pre-merge E2E hook) follows the testing mode.
+  # PRs run with the read-only token below and no secrets. Standard runners are free for this public repo.
+  # `quality` always runs in full; the `e2e` selection per event is decided by the `plan` job (kd#187).
   pull_request:
     paths-ignore: ['docs/**', '**/*.md', '.claude/**']
   workflow_dispatch:
@@ -60,18 +60,54 @@ jobs:
           path: impeccable-report.json
           retention-days: 7
 
-  # Full suite after `quality` on every run, split over four runners (#129): one 2-vCPU runner needed ~25 min for the
-  # ~1350 tests and sat just under a 30 min cap. The shards together run every spec exactly once; the pre-merge hook
-  # runs its tiered selection locally and `npm run release` the full suite again.
-  e2e:
-    name: e2e (${{ matrix.shard }}/4)
-    needs: quality
+  # What the `e2e` matrix runs (kd#187). A pull request runs the selection of the pre-merge gate (`scripts/e2e-gate.mjs`:
+  # smoke set + the specs mapped to its files), or the full suite when it changes what decides or runs the tests
+  # (this workflow, the plan and gate scripts, the E2E server, the Playwright config, package files); a push to `main`
+  # and a manual run run every spec. A file no `map` rule covers is caught by the full run on `main`. The plan needs
+  # no dependencies, only Node and the PR's history for the merge base. `.claude/hooks/e2e-*` changes cannot be
+  # covered here: `paths-ignore` keeps `.claude/**` out of CI.
+  plan:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.plan.outputs.run }}
+      tier: ${{ steps.plan.outputs.tier }}
+      specs: ${{ steps.plan.outputs.specs }}
+      total: ${{ steps.plan.outputs.total }}
+      shards: ${{ steps.plan.outputs.shards }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - id: plan
+        run: node scripts/ci-e2e-plan.mjs
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+
+  # The selected specs split over up to eight runners (#129: one 2-vCPU runner needed ~25 min for the ~1350 tests);
+  # the shards together run every selected spec exactly once, and a tiered run uses as many shards as its spec count
+  # needs (no shard may be empty). Starts beside `quality`, not after it. Runs in Playwright's image, so no browser and
+  # no system package is installed during the job (kd#186); its tag must equal the locked `playwright` version
+  # (`tests/config/deploy-triggers.test.ts`). `npm run release` runs the full suite again.
+  e2e:
+    name: e2e (${{ matrix.shard }}/${{ needs.plan.outputs.total }})
+    needs: plan
+    if: needs.plan.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      options: --ipc=host
     timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
+        shard: ${{ fromJSON(needs.plan.outputs.shards) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -79,20 +115,10 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-        with:
-          path: ~/.cache/ms-playwright
-          key: pw-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-      - run: npx playwright install chromium
-      # System packages are best effort with a time limit (kd#186): the runner image already has Chromium's libraries, the
-      # rest are fallback fonts. An unreachable Ubuntu mirror failed every shard before a test ran, or hung to the job
-      # timeout. A library that is really missing still fails loudly when the browser starts.
-      - name: Install Chromium system packages (best effort)
-        run: |
-          timeout --kill-after=10 180 npx playwright install-deps chromium \
-            || echo "::warning::Playwright system packages were not installed (package mirror unreachable or slow); running on the runner image's own libraries and fonts."
-      # visual-regression.spec.ts self-skips when CI is set (baselines are macOS-rendered).
-      - run: npm run test:e2e -- --shard=${{ matrix.shard }}/4
+      # visual-regression.spec.ts self-skips when CI is set (baselines are macOS-rendered). SPECS is empty for the full suite.
+      - run: npm run test:e2e -- $SPECS --shard=${{ matrix.shard }}/${{ needs.plan.outputs.total }}
+        env:
+          SPECS: ${{ needs.plan.outputs.specs }}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:

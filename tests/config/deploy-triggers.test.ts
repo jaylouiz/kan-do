@@ -20,7 +20,7 @@ describe('vercel.json', () => {
 })
 
 describe('ci.yml triggers', () => {
-  interface Job { needs?: string, if?: string }
+  interface Job { needs?: string, if?: string, container?: { image: string } }
   const text = read('.github/workflows/ci.yml')
   const doc = parse(text) as {
     on: Record<string, unknown>
@@ -36,10 +36,21 @@ describe('ci.yml triggers', () => {
     expect(text).not.toContain('pull_request_target')
   })
 
-  it('runs quality, then e2e behind it, on every run', () => {
+  it('runs quality and plan on every run and e2e beside quality, behind plan only (kd#187)', () => {
     expect(doc.jobs.quality!.if).toBeUndefined()
-    expect(doc.jobs.e2e!.needs).toBe('quality')
-    expect(doc.jobs.e2e!.if).toBeUndefined()
+    expect(doc.jobs.plan!.if).toBeUndefined()
+    expect(doc.jobs.e2e!.needs).toBe('plan')
+    expect(doc.jobs.e2e!.if).toBe("needs.plan.outputs.run == 'true'")
+  })
+
+  it('runs e2e in the Playwright image of the locked version, with no browser or system package install', () => {
+    const lock = JSON.parse(read('package-lock.json')) as { packages: Record<string, { version: string }> }
+    const locked = lock.packages['node_modules/playwright']!.version
+    expect(doc.jobs.e2e!.container!.image).toBe(`mcr.microsoft.com/playwright:v${locked}-noble`)
+    const e2e = text.slice(text.indexOf('\n  e2e:'))
+    expect(e2e).not.toMatch(/playwright install/)
+    expect(e2e).not.toMatch(/actions\/cache@/)
+    expect(e2e).not.toMatch(/ms-playwright/)
   })
 })
 
