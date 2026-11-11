@@ -2,7 +2,7 @@
  * @module copy-editor/translate
  * @description The one batch translation of Publish (#59, decision D2): the designer wrote one language per edit, the
  * local agent CLI (`claude -p`, headless, tools off, empty scratch directory, so no repository access and no project
- * hooks) writes the other following `DESIGN.md` "Voice and copy" and the term registry. The answer is a draft: every
+ * hooks) writes the other following the wording rules (`docs/copy/voice.md`) and the term registry. The answer is a draft: every
  * draft is re-checked (placeholders, plural branches, decided terms) and shown for review before anything is pushed.
  * @responsibility Prompt, agent call and draft validation. The runner is injected; nothing is written.
  */
@@ -23,9 +23,12 @@ export interface TranslateDeps { base: BaseTrees, terms: readonly TermEntry[], r
 const LANG_NAME: Record<Lang, string> = { de: 'German', en: 'English' }
 const other = (lang: Lang): Lang => (lang === 'de' ? 'en' : 'de')
 
-/** The `## Voice and copy` section of DESIGN.md (the copy rules), or '' when it is missing. */
-export function extractVoiceRules(designMd: string): string {
-  const match = /^## Voice and copy\n([\s\S]*?)(?=^## |(?![\s\S]))/m.exec(designMd)
+/** The wording rules the agent follows, relative to the repository root. */
+export const VOICE_RULES_FILE = 'docs/copy/voice.md'
+
+/** The `## Rules` list of `docs/copy/voice.md` (the wording rules), or '' when it is missing. */
+export function extractVoiceRules(voiceMd: string): string {
+  const match = /^## Rules\n([\s\S]*?)(?=^## |(?![\s\S]))/m.exec(voiceMd)
   return match?.[1]?.trim() ?? ''
 }
 
@@ -61,7 +64,7 @@ export function buildPrompt(items: readonly TranslateItem[], { base, terms, rule
   })
   return [
     'You translate UI copy of the kan-do app between German and English. The app UI is German first.',
-    'Follow these copy rules (DESIGN.md "Voice and copy") exactly:',
+    `Follow these wording rules (${VOICE_RULES_FILE}) exactly:`,
     rules || '(rules not found: keep the tone short, concrete and consistent with the current target text)',
     '',
     'Term registry: use the preferred form (`de`/`en`) of a term; never write a form from `avoidDe`/`avoidEn`, also not inflected or as a compound start.',

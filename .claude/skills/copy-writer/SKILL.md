@@ -1,6 +1,6 @@
 ---
 name: copy-writer
-description: Writes and reviews user-visible copy for Kan-Do against the UI term registry and the copy rules in DESIGN.md. Use when adding or changing UI strings, i18n keys in de.json/en.json, button labels, errors, empty states, tooltips, toasts, confirmations or renaming a UI term. Keeps one term per concept and never changes a decided term without the user.
+description: Writes and reviews user-visible copy for Kan-Do against the UI term registry and the wording rules in docs/copy/voice.md. Use when adding or changing UI strings, i18n keys in de.json/en.json, button labels, errors, empty states, tooltips, toasts, confirmations or renaming a UI term. Keeps one term per concept and never changes a decided term without the user.
 paths:
   - i18n/locales/*.json
   - components/**/*.vue
@@ -10,13 +10,13 @@ paths:
 
 # Copy writer
 
-Kan-Do's UI wording has two sources of truth: the rules in `DESIGN.md` `## Voice and copy` and the term registry
+Kan-Do's UI wording has two sources of truth: the rules in `docs/copy/voice.md` and the term registry
 `docs/copy/terms.json` (one term per concept, German and English, forms to avoid). This skill makes you use both.
 Locale mechanics (keys, i18n, German default) are in `CLAUDE.md` "Language Policy"; do not repeat them here.
 
 ## Procedure
 
-1. **Read the rules and the terms you need.** Read `DESIGN.md` `## Voice and copy`. Then find the registry entries
+1. **Read the rules and the terms you need.** Read `docs/copy/voice.md`. Then find the registry entries
    of the concepts in your copy: `node -e "console.log(JSON.stringify(require('./docs/copy/terms.json').filter(t => /delete|trash/.test(t.id)), null, 1))"`,
    or `rg -n '"id": "<id>"' -A 12 docs/copy/terms.json`. Entries have `de`, `en`, `avoidDe`, `avoidEn`, `status`, `note`.
 2. **Reuse the registered term.** Write `de` and `en` of the entry; never an `avoidDe` / `avoidEn` form, also not
@@ -45,7 +45,7 @@ Locale mechanics (keys, i18n, German default) are in `CLAUDE.md` "Language Polic
 
 When a calibration is asked for, or after large copy growth, do not review the strings one by one: follow
 `calibrate.md` (`npm run copy:concepts` measures the locales, you derive the concepts, ask at most 12 questions as one
-comment and map the answers to overrides). It never edits a locale, the registry or `DESIGN.md`; applying is its own issue.
+comment and map the answers to overrides). It never edits a locale, the registry or `docs/copy/voice.md`; applying is its own issue.
 
 ## Check yourself
 

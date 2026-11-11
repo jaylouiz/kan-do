@@ -1,8 +1,10 @@
 // @vitest-environment node
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 import type { TermEntry } from '~/lib/copy-editor/terms'
 import type { Runner } from '~/server/copy-editor/exec'
-import { buildPrompt, checkDraft, extractVoiceRules, parseAgentOutput, translate, validateItems } from '~/server/copy-editor/translate'
+import { buildPrompt, checkDraft, extractVoiceRules, parseAgentOutput, translate, validateItems, VOICE_RULES_FILE } from '~/server/copy-editor/translate'
 import type { BaseTrees } from '~/server/copy-editor/validate'
 
 const base: BaseTrees = { de: { a: { title: 'Aufgabe {name}' }, b: 'Zurück' }, en: { a: { title: 'Task {name}' }, b: 'Back' } }
@@ -14,9 +16,17 @@ const runner = (stdout: string, code: number | null = 0, extra: Partial<Awaited<
 const deps = (run: Runner) => ({ base, terms, rules: 'Short and concrete.', run, agentCmd: 'claude' })
 
 describe('copy editor translate', () => {
-  it('extracts the Voice and copy section of DESIGN.md', () => {
-    expect(extractVoiceRules('## A\nx\n## Voice and copy\nrule 1\nrule 2\n## Next\ny')).toBe('rule 1\nrule 2')
+  it('extracts the rule list of docs/copy/voice.md', () => {
+    expect(extractVoiceRules('# Voice\nintro\n## Rules\nrule 1\nrule 2\n## Guards\ny')).toBe('rule 1\nrule 2')
+    expect(extractVoiceRules('# Voice\nintro\n## Rules\nrule 1')).toBe('rule 1')
     expect(extractVoiceRules('## A\nx')).toBe('')
+  })
+
+  it('finds the rules in the real file, without the guards table', () => {
+    const rules = extractVoiceRules(readFileSync(join(process.cwd(), VOICE_RULES_FILE), 'utf8'))
+    expect(rules).toContain('**Address.**')
+    expect(rules).toContain('**Statistik verdicts.**')
+    expect(rules).not.toContain('| Guaranteed |')
   })
 
   it('validates items', () => {
@@ -29,6 +39,7 @@ describe('copy editor translate', () => {
   it('puts rules, terms, the format contract and the entries into the prompt', () => {
     const prompt = buildPrompt(items, { base, terms, rules: 'Short and concrete.' })
     expect(prompt).toContain('Short and concrete.')
+    expect(prompt).toContain('docs/copy/voice.md')
     expect(prompt).toContain('"avoidDe":["Quelle"]')
     expect(prompt).toContain('"currentTarget":"Task {name}"')
     expect(prompt).toContain('{"translations":')

@@ -95,7 +95,7 @@ Rules live in `DESIGN.md` (direction, tokens, named rules, recurring patterns; p
 
 - Code, comments, commits, docs: **English**
 - UI copy: **German by default, English supported, via i18n keys** — `import { useI18n } from 'vue-i18n'`, `const { t } = useI18n()`, never hardcoded strings in templates (ESLint `no-raw-text`). Outside component setup use `translate()` from `lib/i18n.ts`.
-- UI copy goes through the `copy-writer` skill and the term registry `docs/copy/terms.json` (rules: `DESIGN.md` "Voice and copy"); only the user approves a `decided` term.
+- UI copy goes through the `copy-writer` skill and the term registry `docs/copy/terms.json` (rules: `docs/copy/voice.md`); only the user approves a `decided` term.
 - Locales: `i18n/locales/de.json` + `en.json` (vue-i18n syntax, not ICU); every key in both. Check with `npm run i18n:check`.
 - Locale resolution (no switcher, `plugins/i18n-locale.client.ts`): `?lang=de|en` (persisted) > `KANDO_LOCALE` (dev only, not persisted) > stored `kando-locale` > `navigator.languages` > `de`. Try it: `KANDO_LOCALE=en npm run dev` or `/tasks?lang=en`. Rationale: `docs/adr/006-i18n-routing-and-locale-detection.md`.
 

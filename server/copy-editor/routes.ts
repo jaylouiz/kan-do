@@ -13,7 +13,7 @@ import { run } from './exec'
 import { checkRequestHeaders } from './guard'
 import { readLocaleTrees } from './locales'
 import { publish } from './publish'
-import { extractVoiceRules, translate, validateItems } from './translate'
+import { extractVoiceRules, translate, validateItems, VOICE_RULES_FILE } from './translate'
 
 const root = () => process.cwd()
 const readTerms = () => JSON.parse(readFileSync(join(root(), 'docs/copy/terms.json'), 'utf8')) as TermEntry[]
@@ -31,11 +31,11 @@ export const translateRoute = defineEventHandler(async (event) => {
     setResponseStatus(event, 400)
     return { ok: false, errors: parsed.errors }
   }
-  const designMd = readFileSync(join(root(), 'DESIGN.md'), 'utf8')
+  const voiceMd = readFileSync(join(root(), VOICE_RULES_FILE), 'utf8')
   const result = await translate(parsed.items, {
     base,
     terms: readTerms(),
-    rules: extractVoiceRules(designMd),
+    rules: extractVoiceRules(voiceMd),
     run,
     agentCmd: process.env.KANDO_COPY_AGENT_CMD || 'claude',
   })
