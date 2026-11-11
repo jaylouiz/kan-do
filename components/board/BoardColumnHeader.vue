@@ -66,11 +66,11 @@ const isWaiting = computed(() => props.status === TaskStatus.Waiting);
     margin-bottom: 0;
     text-align: center;
     font-size: var(--text-display); /* display step; one size at every width (DESIGN.md ramp) */
-    /* Weight and tracking spelled out: scoped CSS cannot use the font-semibold / tracking-display utilities */
-    font-weight: 600;
-    letter-spacing: -0.015em;
+    /* Weight and tracking of the display face spelled out: scoped CSS cannot use the utilities */
+    font-weight: 500;
+    letter-spacing: -0.02em;
     line-height: var(--lh-tight);
-    color: var(--ui-text-muted);
+    color: var(--ui-text);
     transition: opacity 100ms ease-out;
     transform: translateY(0vh);
     /* The colour follows the Erledigt drop wash (#124, BoardColumn) */

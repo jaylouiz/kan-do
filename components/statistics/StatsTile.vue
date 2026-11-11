@@ -31,12 +31,12 @@
         @click="emit('toggle')"
         @keydown.esc="open && emit('toggle')"
       >
-        <span class="font-display tracking-display block text-headline leading-(--lh-tight) text-highlighted">{{ question }}</span>
+        <span class="font-display block text-headline text-highlighted">{{ question }}</span>
         <span class="mt-1 flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-toned group-hover:text-highlighted" aria-hidden="true">
           <UIcon :name="open ? ICONS.close : 'i-ph-arrows-out-simple'" class="size-4" />
         </span>
       </button>
-      <span v-else class="font-display tracking-display block text-headline leading-(--lh-tight) text-highlighted">{{ question }}</span>
+      <span v-else class="font-display block text-headline text-highlighted">{{ question }}</span>
     </h2>
     <div :class="wide && !open ? 'md:flex md:items-center md:justify-between md:gap-10' : ''">
       <div :class="wide && !open ? 'md:flex-1' : ''">

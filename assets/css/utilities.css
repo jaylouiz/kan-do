@@ -8,10 +8,10 @@
   /* === Typography === */
   :where(.text-2xs) { font-size: var(--text-label); line-height: 1rem; }
 
-  :where(.font-display) { font-family: var(--font-display); font-weight: 600; }
+  :where(.font-display) { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.02em; }
 
-  /* Slight negative tracking for the large display step (column names, welcome hero). */
-  .tracking-display { letter-spacing: -0.015em; }
+  /* The display face's tracking, for a heading that sets the face another way. */
+  .tracking-display { letter-spacing: -0.02em; }
 
   /* viewport-fit=cover (#257): sticky page chrome keeps clear of the status bar / notch; 0 without insets */
   .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
@@ -92,8 +92,8 @@ html.kando-capture-mask [data-private] {
  */
 @utility section-heading {
   font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: -0.015em;
+  font-weight: 500;
+  letter-spacing: -0.02em;
   font-size: var(--text-headline);
   line-height: var(--lh-tight);
   color: var(--ui-text-highlighted);

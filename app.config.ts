@@ -161,9 +161,9 @@ export default defineAppConfig({
         // to half strength so sections read as zones, not hard splits.
         content: 'bg-elevated ring-1 ring-default divide-default/50 sm:max-w-lg',
         header: 'px-6 py-4',
-        // Every modal title is the display role (Figtree 600, weight explicit so Nuxt UI title classes cannot override) (DESIGN.md Headline); custom
-        // in-body titles (task detail) must use `font-display` too.
-        title: 'font-display text-lg font-semibold tracking-tight',
+        // Every dialog title is the subhead role in the display face (weight and tracking explicit so Nuxt UI's title
+        // classes cannot override, DESIGN.md "Type"); custom in-body titles (task detail) use `font-display` too.
+        title: 'font-display text-lg font-medium tracking-display',
         // Standard footer chrome: actions right-aligned. Wizards that need a
         // two-zone layout put a `flex w-full justify-between` div inside.
         footer: 'flex items-center justify-end gap-2 px-6 py-4',
@@ -186,14 +186,14 @@ export default defineAppConfig({
       slots: {
         overlay: 'z-(--z-overlay)',
         content: 'z-(--z-overlay) bg-elevated md:shadow-(--shadow-sheet)',
-        title: 'font-display text-lg font-semibold tracking-tight',
+        title: 'font-display text-lg font-medium tracking-display',
       }
     },
     drawer: {
       slots: {
         overlay: 'z-(--z-overlay) bg-(--overlay-scrim)',
         content: 'z-(--z-overlay) bg-elevated',
-        title: 'font-display text-lg font-semibold tracking-tight',
+        title: 'font-display text-lg font-medium tracking-display',
       }
     },
     // Menus, popovers and toasts are sheets: the warm overlay shadow replaces Nuxt UI's `shadow-lg` in Tailwind's black

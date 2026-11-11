@@ -11,7 +11,7 @@
 -->
 <template>
   <div>
-    <h3 class="font-display tracking-display text-lg leading-(--lh-tight) text-highlighted">{{ t('statistics.outliers.heading') }}</h3>
+    <h3 class="font-display text-lg text-highlighted">{{ t('statistics.outliers.heading') }}</h3>
     <EmptyNote v-if="outliers.length === 0" class="mt-3">{{ t('statistics.outliers.empty') }}</EmptyNote>
     <ul v-else class="mt-3 divide-y divide-default" data-testid="stats-outliers">
       <ListRow
