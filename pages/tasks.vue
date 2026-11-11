@@ -4,7 +4,7 @@
 @usage Erreichbar unter /tasks, zeigt Board, Setup- und Statistik-Modal
 @responsibility
 - Lädt und aktualisiert Aufgaben periodisch
-- Öffnet Modale (Aufgabe, Statistik auf Anfrage der App-Leiste oder der Palette) und führt die Palette zur Seite „Einstellungen“
+- Hosts the task sheet (`TaskSheetHost`, kd#179) for /tasks/:id and /tasks/add; the palette leads to Statistik and „Einstellungen“
 - Sync, Ansicht und Tag abschließen laufen über die App-Leiste (Mehr-Panel, #470), nicht über das Board
 -->
 <template>
@@ -14,68 +14,9 @@
 
     <Board />
 
-    <TaskSheet
-      :open="isSheetOpen"
-      :title="modalTitle"
-      :hide-title="route.name !== 'tasks-add'"
-      :flush-body="route.name !== 'tasks-add'"
-      @update:open="handleSheetOpenChange"
-      @after-leave="handleSheetAfterLeave"
-    >
+    <TaskSheetHost>
       <NuxtPage />
-
-      <template v-if="hasFooterActions" #footer>
-        <div class="flex w-full flex-col gap-3">
-        <!-- Quiet line above the button row, registered by the route (the add form's "Speichern in", #321) -->
-        <component :is="modalFooter.footerConfig.value.lead" v-if="modalFooter.footerConfig.value.lead" />
-        <div class="flex w-full items-center justify-between">
-          <!-- Secondary actions (left-aligned, e.g., cancel) -->
-          <div class="flex items-center gap-2">
-            <UButton
-              v-for="action in modalFooter.footerConfig.value.secondary"
-              :key="action.key"
-              :color="action.color ?? 'neutral'"
-              :variant="action.variant ?? 'soft'"
-              :icon="action.icon"
-              :loading="action.loading"
-              :disabled="action.disabled"
-              @click="action.onClick"
-            >
-              {{ action.label }}
-            </UButton>
-          </div>
-          <!-- Tertiary + Primary actions (right-aligned) -->
-          <div class="flex items-center gap-2">
-            <UButton
-              v-for="action in modalFooter.footerConfig.value.tertiary"
-              :key="action.key"
-              :color="action.color ?? 'error'"
-              :variant="action.variant ?? 'soft'"
-              :icon="action.icon"
-              :loading="action.loading"
-              :disabled="action.disabled"
-              @click="action.onClick"
-            >
-              {{ action.label }}
-            </UButton>
-            <UButton
-              size="lg"
-              v-for="action in modalFooter.footerConfig.value.primary"
-              :key="action.key"
-              :color="action.color ?? 'primary'"
-              :variant="action.variant ?? 'solid'"
-              :icon="action.icon"
-              :loading="action.loading"
-              :disabled="action.disabled"
-              @click="action.onClick"
-            >
-              {{ action.label }}
-            </UButton>
-          </div>
-        </div>
-        </div>
-      </template>
-    </TaskSheet>
+    </TaskSheetHost>
     <DayCloseDialog />
     <NewDayRecap />
     <FeedbackDialog v-if="isDesktopApp" />
@@ -96,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, onUnmounted, watch } from "vue";
+import { ref, onMounted, onBeforeUnmount, onUnmounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useTasksStore } from "~/store/tasks";
 import { useIntegrationManager } from "~/composables/useIntegrationManager";
@@ -104,8 +45,6 @@ import { useKeychainStatus } from "~/composables/useKeychainStatus";
 import DataStorageNotice from "~/components/settings/DataStorageNotice.vue";
 import { useRoute, navigateTo } from "nuxt/app";
 import { useSyncValidation, resetSyncValidation } from "~/composables/useSyncValidation";
-import { useModalFooter } from "~/composables/useModalFooter";
-import { useTaskSheet } from "~/composables/useTaskSheet";
 import { useCarryOverTracking } from "~/composables/useCarryOver";
 import { useDayEndTracking } from "~/composables/useDayEndTracking";
 import { useTaskDeletion } from "~/composables/useTaskDeletion";
@@ -113,7 +52,7 @@ import { useUndoDeleteShortcut } from "~/composables/useUndoDeleteShortcut";
 import { useTaskMove } from "~/composables/useTaskMove";
 import { usePropertyOptionsSync } from "~/composables/usePropertyOptionsSync";
 import SyncWarningModal from "~/components/sync/SyncWarningModal.vue";
-import TaskSheet from "~/components/task/TaskSheet.vue";
+import TaskSheetHost from "~/components/task/TaskSheetHost.vue";
 import CommandPalette from "~/components/CommandPalette.vue";
 import DayCloseDialog from "~/components/board/DayCloseDialog.vue";
 import NewDayRecap from "~/components/recap/NewDayRecap.vue";
@@ -151,46 +90,11 @@ const handleOnline = () => {
 const { ensureOptionsAvailable } = usePropertyOptionsSync();
 const syncValidation = useSyncValidation();
 const recap = useNewDayRecap();
-const modalFooter = useModalFooter();
 
 const refreshInterval = ref<NodeJS.Timeout>();
 const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
 const lastTaskUpdateTime = ref<number>(0);
 const REFRESH_DEBOUNCE_TIME = 2000; // 2 seconds
-
-/**
- * Ermittelt, ob die aktuelle Route eine verschachtelte Route unter /tasks ist.
- */
-const computeIsNestedRoute = (): boolean => route.matched.length > 1;
-const isNestedRoute = computed(computeIsNestedRoute);
-
-/**
- * Liefert die aktuell geöffnete Aufgabe, falls eine Unterseite aktiv ist.
- */
-const computeTask = () => {
-  if (!isNestedRoute.value) return null;
-  return tasksStore.task(route.params.id as string);
-};
-const _task = computed(computeTask);
-
-/**
- * Computes the modal title based on the current route
- */
-const modalTitle = computed(() => {
-  if (route.name === 'tasks-add') {
-    const isAdHocMode = route.query.mode === 'adhoc';
-    return isAdHocMode ? t('task.createAdHoc') : t('task.createNew');
-  }
-  return _task.value?.title || t('task.fallbackTitle');
-});
-
-/**
- * Checks if modal footer has any actions to display
- */
-const hasFooterActions = computed(() => {
-  const config = modalFooter.footerConfig.value;
-  return config.secondary.length > 0 || config.tertiary.length > 0 || config.primary.length > 0;
-});
 
 /**
  * Startet das periodische Aktualisieren der Aufgaben.
@@ -227,22 +131,6 @@ const handleVisibilityChange = () => {
     startAutoRefresh();
   }
 };
-
-/**
- * The sheet stays mounted; it is open while a nested route is active.
- * Every close (Escape, overlay, swipe, in-sheet actions) goes through
- * useTaskSheet: the sheet animates out first, then the route changes to /tasks.
- */
-const taskSheet = useTaskSheet();
-const isSheetOpen = computed(() => isNestedRoute.value && !taskSheet.isDismissed.value);
-
-const handleSheetOpenChange = (open: boolean) => {
-  if (!open) void taskSheet.closeTaskSheet();
-};
-
-const handleSheetAfterLeave = () => void taskSheet.finishClose();
-
-watch(() => route.fullPath, () => taskSheet.resetTaskSheet());
 
 /** The command palette's "Statistik öffnen" goes to the statistics page (`/statistics`). */
 const handleOpenStatistics = () => {

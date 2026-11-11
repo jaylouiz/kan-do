@@ -6,7 +6,7 @@
 @usage Used in the sub-page layout for the settings sub-pages (/settings/*); not on /settings, /trash and /statistics (`pageHeader: false`, #670, #686): the app bar names those, the layout renders the title as a screen-reader-only h1
 @avoid Only the settings sub-pages; /settings, /trash and /statistics are named by the app bar.
 @responsibility
-- Provide consistent header styling across settings/detail pages
+- Provide consistent header styling across settings/detail pages; the title is the display role (36 px Fraunces, the size of the column names, kd#179)
 - No back arrow (#470): a page is left through the app bar (Heute, Statistik) or ⋯ -> Einstellungen
 - Not sticky (#615): it scrolls away with the page and the app bar alone stays, so the page gets the room. It sits in
   the flow below the desktop bar row; on a phone the bar is at the bottom and the header is the first thing on the page
@@ -22,7 +22,7 @@
     <div class="mx-auto max-w-5xl px-4 py-6">
       <div class="flex items-center justify-between" :class="{ 'mx-auto max-w-2xl': narrow }">
         <div>
-          <h1 class="text-xl font-semibold tracking-tight">{{ title }}</h1>
+          <h1 class="font-display text-display tracking-display text-highlighted">{{ title }}</h1>
           <p v-if="description" class="mt-0.5 text-sm text-muted">{{ description }}</p>
         </div>
         <div v-if="$slots.actions" class="flex items-center gap-2">

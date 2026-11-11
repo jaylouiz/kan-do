@@ -7,7 +7,7 @@
 Hosted by ResponsiveOverlay (modal at >=768px with both decks side by side, bottom drawer below with a switcher that shows one deck at a time), the same shell as DayCloseDialog. The page itself never scrolls; only the body may, on very short windows.
 @avoid Only the first start of a new day; closing the day is DayCloseDialog.
 @responsibility
-- Shell only: headline (title slot), summary (description slot), decks (body), submit panel (footer, pinned)
+- Shell only: headline (the title prop, the theme's 18 px dialog title, kd#179), summary (description slot), decks (body), submit panel (footer, pinned)
 - Escape, scrim click, swipe down and the button all call `leave()`, which follows the switch (#44); the desktop close button is off
 - Phone switcher ("n noch offen" / "n erledigt", a `UTabs` pill: `role="tab"`, `aria-selected`): one RecapDeck mounted at a time, starts on "noch offen" (on "erledigt" when nothing is open, then without a switcher)
 - The decks never change size (RecapDeck), so nothing moves while they are looked at
@@ -26,9 +26,6 @@ Hosted by ResponsiveOverlay (modal at >=768px with both decks side by side, bott
     @update:open="handleOpenChange"
     @after-leave="finishLeave"
   >
-    <template #title>
-      <span class="font-display tracking-display text-2xl leading-(--lh-tight) text-balance text-highlighted sm:text-3xl">{{ t('recap.title') }}</span>
-    </template>
     <template #description>
       <span class="text-base text-toned" data-testid="recap-summary">{{ summary }}</span>
     </template>

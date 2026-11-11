@@ -39,6 +39,16 @@ test.describe('sub-page column (#673)', () => {
       })
     }
 
+    // kd#179 (U18): a page title is the display role, the size of the column names
+    test('/settings/topics: the page title is 36 px Fraunces', async ({ page }) => {
+      await page.goto('/settings/topics')
+      const title = page.locator('header.page-header h1')
+      await expect(title).toBeVisible()
+      const style = await title.evaluate((el) => ({ size: getComputedStyle(el).fontSize, family: getComputedStyle(el).fontFamily }))
+      expect(style.size).toBe('36px')
+      expect(style.family).toContain('Fraunces')
+    })
+
     test('/settings/topics: the header title starts where the column starts', async ({ page }) => {
       await page.goto('/settings/topics')
       const title = await page.locator('header.page-header h1').boundingBox()

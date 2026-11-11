@@ -4,7 +4,7 @@ import type { CatalogEntry } from '../types'
 export default {
   component: 'MorePanel',
   source: 'app',
-  alternatives: ['AppNav', 'SettingsSubpageLink'],
+  alternatives: ['AppNav', 'ListRow'],
   host: 'board',
   screen: '/tasks',
   variants: [{ id: 'panel', label: 'the more panel on a board' }],
