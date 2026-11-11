@@ -62,7 +62,7 @@ const where = (t: ButtonTag) => `${t.file}:${t.line}`
 /** A solid primary in these files is deliberately not an `lg` CTA; each entry says why. */
 const NOT_A_CTA: Record<string, string> = {}
 
-/** The one link that sits inside running text, so it is text and not a 32 px button (kd#177): it sets `h-auto`. */
+/** The one link that sits inside running text, so it is text and not a 32 px button (kd#177): it sets `md:h-auto`. */
 const INLINE_TEXT_LINKS = ['components/feedback/FeedbackDialog.vue']
 
 /** The one CTA that is not a solid primary: "Tag abschließen" is a neutral soft `lg` button (#470). */
@@ -94,13 +94,14 @@ describe('button ladder: call sites (#552, kd#177)', () => {
     expect(hits.map(where)).toEqual([])
   })
 
-  it('lets only a link inside running text drop the height (`h-auto`)', () => {
-    const hits = tags.filter((t) => /(^|[\s"'])h-auto/.test(t.attrs) && !INLINE_TEXT_LINKS.includes(t.file))
+  it('lets only a link inside running text drop the height (`md:h-auto`) and the phone floor (`max-md:min-h-0`)', () => {
+    const hits = tags.filter((t) => /(^|[\s"'])md:h-auto/.test(t.attrs) && !INLINE_TEXT_LINKS.includes(t.file))
     expect(hits.map(where)).toEqual([])
     for (const file of INLINE_TEXT_LINKS) {
-      const tag = tags.find((t) => t.file === file && /h-auto/.test(t.attrs))
+      const tag = tags.find((t) => t.file === file && /md:h-auto/.test(t.attrs))
       expect(tag, file).toBeDefined()
       expect(attr(tag!.attrs, 'variant'), file).toBe('link')
+      expect(tag!.attrs, file).toMatch(/max-md:min-h-0/)
     }
   })
 
@@ -166,9 +167,9 @@ describe('button ladder: theme (#552)', () => {
 
   it('writes the desktop height of every size that stays: md 32, lg 36, the notice action xs 24', async () => {
     const sizes = (await theme()).variants?.size
-    expect(sizes?.md?.base).toMatch(/(^|\s)h-8(\s|$)/)
-    expect(sizes?.lg?.base).toMatch(/(^|\s)h-9(\s|$)/)
-    expect(sizes?.xs?.base).toMatch(/(^|\s)h-6(\s|$)/)
+    expect(sizes?.md?.base).toMatch(/(^|\s)md:h-8(\s|$)/)
+    expect(sizes?.lg?.base).toMatch(/(^|\s)md:h-9(\s|$)/)
+    expect(sizes?.xs?.base).toMatch(/(^|\s)md:h-6(\s|$)/)
   })
 
   it('leaves the notice action `xs` without a floor: the notice has its own phone rule', async () => {

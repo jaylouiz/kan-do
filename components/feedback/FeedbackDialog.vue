@@ -140,7 +140,7 @@ optional element, optional screenshot, automatic context line), the annotate ste
 
         <p class="flex items-center gap-2 text-xs text-muted" data-testid="feedback-context-line">
           <span>{{ t('feedback.contextLine', { summary: contextSummary }) }}</span>
-          <UButton color="neutral" variant="link" :disabled="!titleValid" class="h-auto min-h-0 p-0" @click="toReview">
+          <UButton color="neutral" variant="link" :disabled="!titleValid" class="md:h-auto max-md:min-h-0 p-0" @click="toReview">
             {{ t('feedback.contextReview') }}
           </UButton>
         </p>

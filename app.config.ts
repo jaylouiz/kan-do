@@ -315,14 +315,14 @@ export default defineAppConfig({
     },
     // The button ladder (kd#177, DESIGN.md "Components"): two heights and four looks. `md` is the default, 32 px: every
     // button, also the rows' and cards' actions; `lg` is 36 px and the one main action of a surface. Both heights are
-    // written here (`h-8`, `h-9`), not derived from the text line plus padding, so a change of the interface line height
+    // written here (`md:h-8`, `md:h-9`), not derived from the text line plus padding, so a change of the interface line height
     // cannot move them. Looks: solid (the one main action), soft (a neutral action that stands on its own, and the one
     // main action of a row), ghost (every further action in a row, card, menu or toolbar, every icon-only button), link.
     // `sm`, `xl`, `outline` and `subtle` are Nuxt UI's and stay in the merged theme (a theme cannot delete a key) but are
     // unused: tests/config/button-ladder.test.ts fails on them, `/ui` hides them. `xs` is 24 px and exists only for the
     // actions Nuxt UI renders in an alert or toast (`size="xs"`, no template sets it); those keep their own 44 px
     // phone rule (`.kando-notice-actions`, `.kando-toast-actions` in mobile-nav.css, #284).
-    // On a phone every button is 44 px high (`lg` 48), icon-only ones 44 wide (`min-height` beats the `height` above),
+    // On a phone every button is 44 px high (`lg` 48), icon-only ones 44 wide (the heights above apply from `md` up, so a label that wraps grows the button on a phone),
     // so no surface applies `.touch-target` by hand. Nuxt UI internals follow the floor, measured at 390 px (#552):
     // calendar header and its Löschen / Heute 44, modal close 44 x 44. The ladder covers buttons only: `USelect` and
     // `UInput` keep their own field heights.
@@ -337,9 +337,9 @@ export default defineAppConfig({
       },
       variants: {
         size: {
-          xs: { base: 'h-6' },
-          md: { base: 'h-8' },
-          lg: { base: 'h-9 max-md:min-h-12' }
+          xs: { base: 'md:h-6' },
+          md: { base: 'md:h-8' },
+          lg: { base: 'md:h-9 max-md:min-h-12' }
         }
       },
       compoundVariants: [
