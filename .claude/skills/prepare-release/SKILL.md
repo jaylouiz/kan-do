@@ -85,5 +85,5 @@ Tell the user to run, in this session:
 ! npm run release <version> -- --stage <stage>
 ```
 
-It runs `npm run verify` and the full E2E suite (about 6 minutes on a quiet machine, against a production build; an alpha or beta release in fast testing mode runs the fast tier instead, a stable one always the full suite), builds, signs and publishes. Afterwards
+It runs `npm run verify` and the full E2E suite (about 6 minutes on a quiet machine, against a production build; an alpha or beta release in fast testing mode skips verify and E2E altogether, a stable one always runs the full suite), builds, signs and publishes. Afterwards
 point at the "Verify a release" checklist in `docs/release.md`; on a failure, its "Recovery" section.
