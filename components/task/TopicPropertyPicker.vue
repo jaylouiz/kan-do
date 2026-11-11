@@ -32,6 +32,7 @@
     :search-autofocus="!toggleKeepsFocus"
     :clear-label="inEditMode ? undefined : clearLabel"
     :create-item="createItem && !inEditMode"
+    middle-ellipsis
     :picker-ui="inEditMode ? { viewport: 'hidden', empty: 'hidden' } : undefined"
     :data-testid="`task-${kind}-select`"
     @update:model-value="(value) => emit('update:modelValue', String(value))"
