@@ -103,12 +103,12 @@ Findings of `docs/design/audit-2026-11.md` (audited at `2bc0f398`). Filed fix se
 | # | Item | Where | Status |
 |---|---|---|---|
 | ~~U1 (#550)~~ | ~~Sticky page header is translucent and blurred; its height is copied as `7rem`~~ | `components/ui/PageHeader.vue`, `assets/css/app-nav.css` | done 2026-11-03: opaque `bg-page`, PageHeader publishes `--page-header-height` |
-| U2 | The app bar's row is transparent, content shows beside the pills while scrolling | `assets/css/app-nav.css:42-54` | open, needs a layout decision (redesign) |
+| U2 | The app bar's row is transparent, content shows beside the pills while scrolling | `assets/css/app-nav.css:42-54` | decided 2026-11-11 (kd#1): flat white pills, no glass; built in step 5 of the redesign |
 | ~~U3 (#551)~~ | ~~Day close: secondary actions heavier than the CTA, footer duplicated~~ | `TaskCarryOverTriage.vue`, `DayCloseDialog.vue` | done 2026-11-03: compact triage is ghost, footer buttons carry `touch-target` (Fertig 44 px at 390) |
 | ~~U4 (#552)~~ | ~~No button size and variant ladder~~ | `DESIGN.md`, `app.config.ts` | ~~filed, needs-design~~ done (`tests/config/button-ladder.test.ts`, completion date not recorded; checked 2026-11-09, `docs/design/ui-kit-audit.md`) |
 | U5 (#553) | Unused components, helper and CSS | `OnboardingWelcome.vue`, `ui/feedback/ProgressBar.vue`, `ui/Section.vue`, `task-detail.css:29-61` | ~~filed, ready~~ done 2026-11-03 (#553) |
 | U6 (#554) | Legacy statistics modal and the always-on `statisticsPageEnabled` flag | `TaskStatisticsModal.vue`, `app.config.ts:271` | ~~filed, needs-spec~~ done 2026-11-03 (#554) |
-| U7 | Statistics drill-down opens `TaskDetailModal`, the board opens `TaskSheet` | `pages/statistics.vue:34` | open, needs a layout decision (redesign) |
+| U7 | Statistics drill-down opens `TaskDetailModal`, the board opens `TaskSheet` | `pages/statistics.vue:34` | decided 2026-11-11 (kd#1): statistics opens the task sheet, `TaskDetailModal` goes; built in step 5 of the redesign |
 | ~~U8 (#556)~~ | ~~Section-heading class string copied 11×~~ | settings pages and components | ~~filed, ready~~ done (`@utility section-heading`; checked 2026-11-09) |
 | U9 (#557) | Three tab looks | `pages/settings/topics.vue:17`, `notion.vue:36`, `StatsTiles.vue:55` | ~~filed, needs-spec~~ done 2026-11-03 (#557) |
 | ~~U10 (#558)~~ | ~~Hand-rolled warning boxes, drifting warning text step~~ | `SyncWarningModal.vue:100`, wizard steps | ~~filed, needs-spec~~ done (boxes gone, `warning-notices.test.ts`; plain coloured lines remain, tracked in #74; checked 2026-11-09) |
@@ -119,6 +119,6 @@ Findings of `docs/design/audit-2026-11.md` (audited at `2bc0f398`). Filed fix se
 | ~~U15 (#551, #552)~~ | ~~`.touch-target` applied by hand, missed in the day-close footer~~ | `board.css:62`, `DayCloseDialog.vue` | done with U3 (#551) and U4 (#552) |
 | U16 | Large components mixing jobs: `TaskForm` 777, `notion.vue` 699, `TaskDetailContent` 655, `BoardColumn` 610, `TaskCard` 594 lines | `components/task`, `components/board`, `pages/settings` | open; the board files are a drag-and-drop and visual-regression risk area, so each split is its own spec |
 | U17 | 40 `data-testid`s that no test references (`day-close-body`, `trash-restore`, `trash-remove`, `gap-undo`, `settings-subpage-link`, `focus-settings`, …) | `components/**` | open, low; drop or use them in a cleanup |
-| U18 | Page title scale: `PageHeader` h1 is `text-xl font-semibold`, DESIGN.md "Pages" says display headings | `components/ui/PageHeader.vue:15` | open, needs a layout decision (redesign) |
+| U18 | Page title scale: `PageHeader` h1 is `text-xl font-semibold`, DESIGN.md "Pages" says display headings | `components/ui/PageHeader.vue:15` | decided 2026-11-11 (kd#1): page titles are the display role, 36 px; built in step 5 of the redesign |
 | U19 | Card titles leave a one-word last line (detector `straggler` ×3 on the demo board); `text-wrap: pretty` is not set | `components/task/TaskCard.vue:38` | open, visible on every card, regenerates visual baselines |
 | ~~U20~~ | ~~`statistics.pageTitle` "Statistiken" vs the app bar place "Statistik"~~ | `i18n/locales/de.json` | done 2026-11-06 (#680): "Statistik" everywhere, `statistics-page` proposed in `docs/copy/terms.json` |

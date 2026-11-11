@@ -26,11 +26,11 @@ A redesigned UI that
 | 1 | Gap audit: what step 0 did not look at | **done** 2026-11-11 (`docs/design/redesign-gap-audit.md`) | agent runs, owner reads |
 | 2 | Rule review of `DESIGN.md` | **done** 2026-11-11 ("Step 2: rule review of `DESIGN.md`" in `docs/design/redesign-gap-audit.md`; four challenged rules answered by the owner) | owner, per challenged rule |
 | 3 | Visual direction on the cleaned kit | **done** 2026-11-11: Paper Desk with Fraunces and the yellow marker on the Jetzt headline (`## UX decision` in the body of kd#1; prototype branch `proto/1-visual-redesign`, commit `15b65260`) | owner |
-| 4 | System definition: foundations and the rewritten `DESIGN.md` | **next** (starts with the three open questions below) | owner approves |
+| 4 | System definition: foundations and the rewritten `DESIGN.md` | **drafted** 2026-11-11, waits for the owner's approval (`docs/design/redesign-system.md`, `docs/design/DESIGN.next.md`); then the spec on kd#1 | owner approves |
 | 5 | Migration in slices | not started | agents; owner feel-checks |
 | 6 | Lock-in: guards, baselines, canvas | not started | agents |
 
-Steps 2 and 3 are both done; step 4 builds on the labels of step 2 and the decision of step 3.
+Steps 2 and 3 are done; step 4 is drafted from the labels of step 2, the decision of step 3 and the owner's answers. **Next:** the owner approves the draft (the list "For the owner to approve" in `docs/design/redesign-system.md`), then `/specify-gh-issue 1` writes the spec and step 5 starts.
 
 ## How we work on it
 
@@ -57,15 +57,13 @@ Limits: iOS and web only (no desktop apps), static screenshots (no motion or fee
 
 ## Open questions for the owner
 
-The look is decided (kd#1, `## UX decision`). Each question names the step in which it is due; the session doing that step asks it first (see "How we work on it").
+The look is decided (kd#1, `## UX decision`) and the five questions of step 4 are answered (below). Each question names the step in which it is due; the session doing that step asks it first (see "How we work on it").
 
 | # | Question | Due | Recommendation |
 |---|---|---|---|
-| 1 | The page title scale beyond the column names (parked decision U18): which sizes do page titles, section headings and dialog titles get in Fraunces? The prototype only shows the column names at 36 px. | start of step 4 (type scale) | show two or three scales on the prototype branch, then ask |
-| 2 | Neutral soft and ghost buttons: the last open merge candidate (the other four are answered below). The owner asked to see "soft only" beside "both, with a rule" before deciding. | step 4, asked with the comparison on the prototype branch | both, with a rule: soft for an action that stands on its own, ghost inside a row, card or toolbar and for icon-only buttons; `subtle` folds into soft |
-| 3 | Drag and drop motion: the prototype changed only the shadows. Should lifting, moving and dropping a card get the new state language (durations, curves, the "set down" feel), and how strong? | start of step 4 (motion), tried in a coded prototype before asking | – |
+| 6 | Approval of the system definition: the nine points under "For the owner to approve" in `docs/design/redesign-system.md` (my choices inside your decisions: label text at 12 px, the sizes that leave the type scale, the task title in its sheet, the two line heights of 14 px text, the spacing half steps, the warm shadow on menus and toasts, the re-spaced neutral ramp, the wording for `PRODUCT.md`, and `DESIGN.next.md` as a whole). | before the spec of step 4 is written | approve; a comment on the pull request of step 4 vetoes a single point |
 
-Decided by the owner on 2026-11-11 and to be written down in step 4 (nothing of this is in `DESIGN.md` or `PRODUCT.md` yet):
+Decided by the owner on 2026-11-11 (written into the draft `docs/design/DESIGN.next.md`; `DESIGN.md` and `PRODUCT.md` change in the foundations slice of step 5):
 - The four rule proposals of the brief: a warm neutral canvas, never a saturated one; a muted green as the colour of action, red for exceptions; a serif for headings, the sans for everything read and operated; everything entered or edited sits on a bright lifted sheet, one level only.
 - Done may use the accent green. The green is locked with the pick: forest green, hue 152.
 - The heading font is Fraunces. The design detector calls it an overused face; the owner chose it knowingly against Newsreader, Young Serif and Besley.
@@ -80,6 +78,9 @@ Decided by the owner on 2026-11-11 and to be written down in step 4 (nothing of 
   - Fields are 36 px everywhere: inputs, selects and the value controls of the task sheet's rows. The title field of the task sheet keeps its own size; phones keep the 44 px floor.
   - "Voice and copy" moves to `docs/copy/`, `DESIGN.md` keeps a pointer.
   - A page sheet (settings section, statistics tile) takes the card's radius, 16 px: one surface shape, the radius scale closes at 8, 12 and 16 px plus pill and circle.
+  - Neutral buttons keep two looks (decided after a comparison of "soft only" and "both" on the prototype): soft for an action that stands on its own and for the one main action of a row; ghost for further actions inside a row, card, menu or toolbar and for icon-only buttons. `subtle` folds into soft.
+  - The heading scale in Fraunces (parked decision U18, decided on three scales shown on the prototype): page titles 36 px like the column names, section headings 22 px, dialog titles and sub-headings 18 px.
+  - Drag and drop takes the state language in its gentle form (tried in the running prototype against "as today" and "marked"): the card rises out of its resting pose (2 % larger, the tilt and the shadow grow, 150 ms), the drop glides 200 ms and the card is set down in 200 ms.
 - Airbnb stays the positive reference; Slack joins the anti-references in `PRODUCT.md` (a saturated block of brand colour as chrome, a dense sidebar, cluttered and dense with many interactive elements at once); principle 3 of `PRODUCT.md` is reworded for the sheets.
 
 ## Step 0: what already exists (do not redo)
@@ -155,6 +156,8 @@ The round shows two or three interpretations of the confirmed brief, not seven n
 
 ## Step 4: system definition
 
+**Procedure (changed 2026-11-11):** the result is two documents and then the spec, not an edit of `DESIGN.md`. `docs/design/redesign-system.md` holds the token values (today against new), the closed variant lists with the uses that move, where each paragraph of today's `DESIGN.md` goes, and the points the owner still approves. `docs/design/DESIGN.next.md` is the complete rewritten design file; the foundations slice of step 5 moves it over `DESIGN.md` in the same change as the token values. Why: `DESIGN.md` is read by guards, the copy editor, skills and agents as the description of the code that is there; rewriting it on `main` before the tokens change would make every one of them wrong for the length of the migration.
+
 - Fix the foundations of the chosen direction as token values: type scale, spacing scale, colour roles (including the frozen primary palette, which only the owner may change), elevation, radius, motion, density.
 - Close the variant lists of the primitives.
 - Rewrite `DESIGN.md` from the labels of step 2. Target: clearly under today's 373 lines; the Components section shrinks the most.
@@ -164,7 +167,7 @@ Result: a spec on kd#1 (or its follow-up issues) through `/specify-gh-issue`.
 
 ## Step 5: migration in slices
 
-1. **Foundations first**, one PR: token values and theme. Everything that is token-driven changes at once; baselines and the fingerprint are re-recorded here.
+1. **Foundations first**, one PR: token values and theme. Everything that is token-driven changes at once; baselines and the fingerprint are re-recorded here. The same PR moves `docs/design/DESIGN.next.md` over `DESIGN.md`, updates `PRODUCT.md` and repoints the readers listed in `docs/design/redesign-system.md` ("What step 5 has to know"). The move of "Voice and copy" to `docs/copy/voice.md` does not depend on the look and may go first as its own small change.
 2. **Then one slice per category**, in the order of `/ui`: action, input, navigation, feedback, overlay, display, layout and blocks. Each slice applies the direction to what tokens could not reach, merges the variants marked in step 1, and **deletes what it replaces in the same PR**.
 3. **Risk areas last and alone:** drag ghost and drop wash, stacks, the Jetzt focus overlay, the add-task flow.
 4. Fonts are bundled for the desktop content security policy before any slice uses them.
@@ -203,3 +206,4 @@ In short: measuring, tracing, prototyping, rewriting and migrating can be done b
 - 2026-11-11: step 3 done. After round 4 the owner chose a Paper Desk with Fraunces and added the yellow marker of c on the Jetzt headline, with the statement that this marker decoration is allowed in the app in slight, intentional use. The final state was shown once more (round 5 on kd#1, contrast check 0 failures at both widths) and written into the body of kd#1 as `## UX decision` with new acceptance criteria; the issue moved from `needs-design` to `needs-spec` and keeps `on-hold` until steps 2 and 4 are through. Rejected: Clay Desk, Ink and Marker except its marker, the other three serifs. Not decided by step 3 and carried on: the statistics task view (U7), the page title scale (U18), the look-independent merge candidates of the gap audit, drag and drop motion. Next: step 2 (rule review), then step 4.
 - 2026-11-11: the owner answered parked decision U7: statistics opens the same task sheet as the board, one common sheet. On the owner's request the open questions now carry the step in which they are due, and "How we work on it" says that a session starts its step by interviewing the owner on the questions due for it.
 - 2026-11-11: step 2 done: every rule and paragraph of `DESIGN.md` is labelled in the gap audit ("Step 2: rule review of `DESIGN.md`"). Of the 257 body lines roughly 95 are component detail, 35 enforced and 30 duplicates; 17 rules are challenged, 13 of them already answered by the direction decision. The owner answered the other four in the session (One Lamp reworded for green, three line heights built into the size tokens, only sheets cast a shadow with the app bar's nav pill as the exception, two value looks in the task sheet with one height and one behaviour). Three challenged rules stay with the open questions of step 4; two new questions were added there (where "Voice and copy" lives, the radius of a page sheet) and question 2 gained the soft and ghost buttons. Nothing was changed in `DESIGN.md`. Next: step 4.
+- 2026-11-11: step 4 drafted. The session opened with the owner interview: button sizes (32 and 36 px), list rows (one density, one hover), choice chips (one chip, one card picker), field heights (36 px everywhere), "Voice and copy" (moves to `docs/copy/`), the sheet radius (16 px) were answered at once. Three questions were answered on the prototype branch, which gained a switch for each (`?type=`, `?btn=`, `?drag=`, commit `968c1861` on `proto/1-visual-redesign`): the heading scale (36 / 22 / 18 px), the neutral button looks (both; the owner asked for a comparison of "soft only" and "both" and then chose both with the row's main action as soft) and drag and drop motion (gentle). Written: `docs/design/redesign-system.md` (token values, closed variant lists, where the text of `DESIGN.md` goes, what step 5 has to know) and `docs/design/DESIGN.next.md` (241 lines against 373). Procedure changed: `DESIGN.md` itself is not edited in step 4; the draft replaces it in the foundations slice of step 5 (reason under "Step 4"). Rows U2, U7 and U18 of `docs/design/backlog.md` are marked decided. Open: the owner's approval of nine points (question 6), then the spec through `/specify-gh-issue`.
