@@ -16,7 +16,7 @@ centred on the Jetzt card (a desk lamp), with a flat defocus under the whole lay
 - Lit above it: only the Jetzt column (header and card, which lifts with `--shadow-task-lifted` while the overlay is
   visible), and on the phone the nav pill. The Erledigt footer sits below it (#503); on desktop the app bar (z 40) stays
   above it, undimmed (#694), and the overlay is `fixed` over the whole viewport. While it is lit a classic scroll bar takes the dusk tone. `--focus-dusk` is used only here and in that shadow, never as text, fill or border
-- Accepted contrast trade-off (DESIGN.md "Receding Text"): the dimmed board is intentionally below 4.5:1 while the
+- Accepted contrast trade-off (DESIGN.md "The Receding Text Rule"): the dimmed board is intentionally below 4.5:1 while the
   overlay is on. Measured 2026-10-29 from composited colours without the blur: worst case muted text on paper at the
   rim 3.13:1 (3.24:1 on a card, body text on a card 5.7:1); the lit Jetzt column keeps its normal contrast. #503 puts the Erledigt
   footer under the same trade-off (same rule, same reversal); the app bar is no longer dimmed (#694). It is reversible

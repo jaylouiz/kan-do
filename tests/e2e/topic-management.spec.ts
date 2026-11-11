@@ -164,7 +164,7 @@ for (const vp of VIEWPORTS) {
         const s = getComputedStyle(el)
         return { style: s.outlineStyle, width: s.outlineWidth, offset: s.outlineOffset, color: s.outlineColor }
       })
-      // DESIGN.md "Focus": Nuxt UI's 3px halo without an offset, on every control.
+      // DESIGN.md "States": Nuxt UI's 3px halo without an offset, on every control.
       await expect.poll(ring).toMatchObject({ style: 'solid', width: '3px', offset: '0px' })
     })
 

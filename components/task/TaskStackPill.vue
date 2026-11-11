@@ -69,7 +69,7 @@ const kind = computed<"topic" | "priority" | "plain">(() => {
 </script>
 
 <style scoped>
-/* Label role (DESIGN.md Typography): 500, 0.6875rem, 1rem; text on bg-muted as the former text pill */
+/* Label role (DESIGN.md "Type"): 500, 0.6875rem, 1rem; text on bg-muted as the former text pill */
 .task-stack-pill {
   display: inline-flex;
   align-items: center;

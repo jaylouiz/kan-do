@@ -3,10 +3,10 @@
  * `tests/config/`, that may only fall. A file above its count fails (a new file has 0), a baseline above the real count
  * fails too ("lower it"), so a cleanup that removes a raw `<button>` or a `:ui` binding has to say so in the same PR.
  *
- * - `raw-button`: `<button>` elements in shipped Vue UI. A button is a `UButton` (DESIGN.md "Buttons", `/ui` Aktion
+ * - `raw-button`: `<button>` elements in shipped Vue UI. A button is a `UButton` (DESIGN.md "Components", `/ui` Aktion
  *   entries) or the `ListRow` action row; a raw one needs a reason in the baseline.
  * - `ui-prop`: `:ui="…"` / `ui="…"` bindings, and the `*-ui` forwarding props (`:desktop-ui`, `:picker-ui`, …) that carry call-site classes into a `:ui`. Visual identity belongs in the `app.config.ts` theme or in tokens (epic #58
- *   D1, DESIGN.md "Styling"); the call-site `ui` prop only places a part.
+ *   D1, DESIGN.md "Guards"); the call-site `ui` prop only places a part.
  *
  * Lower: `npm run ratchet:lower` (never raises; raising is a hand edit of the baseline, visible in the diff).
  */
@@ -19,13 +19,13 @@ export const RATCHETS = {
     baseline: 'tests/config/raw-button.baseline.json',
     pattern: /<button(?=[\s>/])/g,
     unit: 'raw <button> element',
-    fix: 'use UButton (ghost or soft, color neutral; DESIGN.md "Buttons", /ui Aktion entries) or the ListRow action row; a kept raw button needs a reason in the baseline',
+    fix: 'use UButton (ghost or soft, color neutral; DESIGN.md "Components", /ui Aktion entries) or the ListRow action row; a kept raw button needs a reason in the baseline',
   },
   'ui-prop': {
     baseline: 'tests/config/ui-prop.baseline.json',
     pattern: /(?<![\w:.-])(?::|v-bind:)?(?:[a-z]+-)*ui=(?=["'])/g,
     unit: ':ui binding',
-    fix: 'move the visual identity into the app.config.ts theme or a token (DESIGN.md "Styling", epic #58 D1); the call-site ui prop only places a part',
+    fix: 'move the visual identity into the app.config.ts theme or a token (DESIGN.md "Guards", epic #58 D1); the call-site ui prop only places a part',
   },
 }
 

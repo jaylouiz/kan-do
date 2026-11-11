@@ -152,7 +152,7 @@ export default defineAppConfig({
       upload: 'i-ph-upload-simple',
       warning: 'i-ph-warning'
     },
-    // Every overlay darkens the page by the shared 12% scrim (DESIGN.md Overlays);
+    // Every overlay darkens the page by the shared scrim (`--overlay-scrim`);
     // only the task sheet opts out (transparent overlay, board-side spotlight).
     modal: {
       slots: {
@@ -273,7 +273,7 @@ export default defineAppConfig({
         content: 'z-(--z-popover) min-w-40 shadow-(--shadow-overlay)'
       },
       variants: {
-        // `soft` is the select of the task sheet's property rows (#114, DESIGN.md "Choice chip or property value"):
+        // `soft` is the select of the task sheet's property rows (#114, DESIGN.md "Components"):
         // a muted fill and a chevron at rest, no border, so a value that opens a list reads as one. 36px high,
         // 44px on touch. Wrapped by TaskPropertySelect; set it nowhere else.
         // `property` (#161) is the quiet text trigger, kept for the add sheet's footer line (AddTargetSwitch):
@@ -313,10 +313,13 @@ export default defineAppConfig({
         ]
       }
     },
-    // The button ladder (#552, DESIGN.md "Buttons"): `md` is the default size and siblings in a footer or row stay at
+    // The button ladder (#552, DESIGN.md "Components"): `md` is the default size and siblings in a footer or row stay at
     // it; the one primary of a surface sets `size="lg"`; rows, cards and in-card actions set `sm`; `xs` only sits
     // inside text. On a phone every button is 44 px high (`lg` 48), icon-only ones 44 wide, so no surface applies
-    // `.touch-target` by hand (tests/config/button-ladder.test.ts keeps call sites on the ladder).
+    // `.touch-target` by hand (tests/config/button-ladder.test.ts keeps call sites on the ladder). Nuxt UI internals
+    // follow the floor, measured at 390 px (#552): calendar header and its Löschen / Heute 44, modal close 44 x 44,
+    // alert and toast actions 44 (they stay `xs` with their own rule, `.kando-notice-actions` / `.kando-toast-actions`
+    // in mobile-nav.css, #284). The ladder covers buttons only: `USelect` and `UInput` keep their own field heights.
     button: {
       defaultVariants: {
         size: 'md'
@@ -398,7 +401,7 @@ export default defineAppConfig({
     // `before:` selector covers a list without an indicator. Unselected text stays `text-muted` from the base slot.
     tabs: {
       slots: {
-        // Phone: every tab is a 44px target (DESIGN.md "Touch targets"), like the button floor above; no call site sets it
+        // Phone: every tab is a 44px target (DESIGN.md "Space, size and shape"), like the button floor above; no call site sets it
         trigger: 'max-md:min-h-11 max-md:min-w-11 disabled:opacity-50'
       },
       compoundVariants: [

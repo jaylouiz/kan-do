@@ -11,6 +11,7 @@ tauri-plugin-opener (narrow URL permission in src-tauri/capabilities); on web it
 - Keep the href real so middle-click, copy-link and screen readers behave on web
 - Hand the URL to the opener plugin on desktop instead of navigating the webview
 - Report an opener failure through useErrorHandler (context `external_link`), never swallow it
+- Open outside or inside (moved from DESIGN.md, D1 on kd#68): `ICONS.external` means "opens outside the app" and is bound to this component; opening details inside the app uses `ICONS.openDetail`. Named exceptions that carry the icon without `ExternalLink`: the feedback dialog's own buttons (`FeedbackDialog.vue`, `useFeedback` `openExternal`), toast actions and the task sheet menu's "open in source" (through `utils/openExternal.ts`)
 -->
 <template>
   <a

@@ -294,7 +294,7 @@ function getCardStyles(index: number): Record<string, string> {
 /**
  * Muted front card (#371, user decision, reverses #270/#282): the content of the front card of a
  * collapsed stack steps back, so the pill reads as the stack's face. Low contrast here is accepted
- * (DESIGN.md "Stacks", exempted in a11y.spec.ts): it only signals that cards are stacked. The card's
+ * (recorded here, exempted in a11y.spec.ts): it only signals that cards are stacked. The card's
  * sheet, shadow and focus ring stay; expanded members and plain cards never get this.
  */
 .task-stack__cards :deep(.stacked-task--top > *) {

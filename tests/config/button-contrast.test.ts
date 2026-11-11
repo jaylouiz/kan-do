@@ -182,7 +182,7 @@ describe('button colour contrast (#97)', () => {
     expect(failing).toEqual([])
   })
 
-  it('no button compound overrides the focus ring: every button shows Nuxt UI\'s halo (DESIGN.md "Focus")', () => {
+  it('no button compound overrides the focus ring: every button shows Nuxt UI\'s halo (DESIGN.md "States")', () => {
     // The owner chose the soft halo (3px, 25% of the role colour, no offset) over a solid 3:1 ring on 2026-11-11;
     // the earlier contrast check on the ring colour went with that decision. One ring: no variant brings its own.
     const overriding = appCompounds

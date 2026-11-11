@@ -15,7 +15,7 @@
 ## Sources
 
 - product: `PRODUCT.md`, `docs/application-purpose.md`, `docs/acceptance-criteria.md`
-- design system: `DESIGN.md` (direction, tokens, named rules, recurring patterns; frozen `custom-ink` palette), `app.config.ts`, `assets/css/`; per-component detail (values, timings, accepted trade-offs) lives in the component's doc block and CSS comments
+- design system: `DESIGN.md` (direction, tokens, named rules, recurring patterns; frozen `custom-forest` palette), `app.config.ts`, `assets/css/`; per-component detail (values, timings, accepted trade-offs) lives in the component's doc block and CSS comments
 - design backlog / audits: an issue naming an ID like `C9` or `A13` → that entry in `docs/design/backlog.md` and the matching finding in `docs/design/audit-2026-10.md`. Done work strikes the backlog entry as `~~...~~ - done <date>`.
 - UI copy: German first, English too; every string an i18n key (CLAUDE.md "Language Policy"). Sketches and ASCII layouts use the real column names `Offen`, `Jetzt`, `Wartet`, `Erledigt` and real copy, never lorem ipsum.
 
@@ -99,7 +99,7 @@ Changes here are expensive or fragile; they raise the tech-check rating and get 
 - `store/` (esp. `tasks.ts` merge logic), `composables/useTaskSync.ts`, `integrations/`, server API routes
 - drag-and-drop (`useBoardDndKit.ts`, stacks, WIP limit on Jetzt): `.claude/rules/drag-and-drop.md`
 - persisted data shape, `PERSISTED_KEYS`, desktop data file and its guard (`src-tauri/`)
-- the frozen `custom-ink` palette; DESIGN.md principles, named rules and tokens
+- the frozen `custom-forest` palette; DESIGN.md principles, named rules and tokens
 - anything that moves visual-regression baselines (`tests/e2e/snapshots/`)
 - E2E per risk area (#446): there is no full-suite tier per PR. `.claude/hooks/e2e-gate.json` maps each area above (and shared test and build infrastructure) to the specs that exercise it (`area` names the reason); a new risk area or a new file in one gets its `map` rule in the same PR (a guard test fails on an unmapped file). Specify names the specs at risk in the spec's "E2E at risk" line; the builder lists them as `E2E-specs:`; the reviewer checks that line against the diff and adds what is missing
 
@@ -140,7 +140,7 @@ Changes here are expensive or fragile; they raise the tech-check rating and get 
 
 User decision 2026-10-30. Rule, labels and `decide.sh`: `/orchestrate-gh-issues` section 5.
 - one-way (a decision request, the issue parks): a Design round of a `needs-design` issue; changing a DESIGN.md principle, named rule or token other than the palette (detail that lives in code, such as timings, sizes or a component's exact look, is two-way: decide, record it in the issue and the component's doc block); deleting or rewriting existing user data (persisted state, Notion/Todoist/GitHub content); release or other outward-facing actions; switching the testing mode or weakening a verification gate (Stop hook, pre-merge E2E gate, release checks; #693); a held merge; low confidence on something expensive to undo
-- explicitly two-way (decide, record in `## Decisions` + `decide.sh record`, continue, merge): technical structure (e.g. a separate settings store vs. reusing a store); `custom-ink` palette changes (also recorded in DESIGN.md); integration changes that hit no one-way item; data model or persisted-shape changes, provided old persisted data still loads (migration or backward-compatible read, covered by a test); a scope change against the issue that the coordinator (standalone: the reviewer) agrees is reasonable
+- explicitly two-way (decide, record in `## Decisions` + `decide.sh record`, continue, merge): technical structure (e.g. a separate settings store vs. reusing a store); `custom-forest` palette changes (also recorded in DESIGN.md); integration changes that hit no one-way item; data model or persisted-shape changes, provided old persisted data still loads (migration or backward-compatible read, covered by a test); a scope change against the issue that the coordinator (standalone: the reviewer) agrees is reasonable
 - digest cap: 2h (`--cap 7200`, the script default)
 
 ## Orchestration

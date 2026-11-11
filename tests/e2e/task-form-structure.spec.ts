@@ -6,7 +6,7 @@
  *  - Thema/Aktivität are rows in stable positions with the empty "Auswählen" state (no add-line)
  *  - Help text lives in the picker / accessible description, not in info-icon tooltips
  *  - Notes section always visible (no "Notiz hinzufügen" reveal button)
- *  - The add sheet title uses the display font (DESIGN.md Headline)
+ *  - The add sheet title uses the display font (DESIGN.md "Type")
  */
 
 import { test, expect } from '@playwright/test';

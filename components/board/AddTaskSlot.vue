@@ -215,7 +215,7 @@ const isEmpty = computed(() => !props.showButton && !isDrafting.value);
   box-sizing: border-box;
   min-width: 0;
   max-width: 100%;
-  /* 2.25rem = the `lg` button's desktop height (DESIGN.md "Buttons"), so the add-task and day-close buttons match (#582). The hit area is the card-sized button, not this surface */
+  /* 2.25rem = the `lg` button's desktop height (DESIGN.md "Components"), so the add-task and day-close buttons match (#582). The hit area is the card-sized button, not this surface */
   min-height: 2.25rem;
   padding: 0.5rem 1rem;
   border-radius: inherit;

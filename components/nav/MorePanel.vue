@@ -15,6 +15,7 @@
 - Board, desktop only: "Befehle" with the palette shortcut hint opens the command palette (U7 of kd#17: the hint was tooltip-only; the palette has no phone entry). AppNav closes the panel and returns focus to ⋯ first, like `dayClose`
 - Keyboard: ↑/↓ move focus to the previous/next enabled control (clamped, no wrap), Home/End to the first/last; Tab order and roles stay (a popover, not role=menu)
 - Emits `close` when a navigation row is chosen and `dayClose` for "Tag abschließen": AppNav closes the panel and returns focus to ⋯ first, then opens the dialog
+- Sync status (moved from DESIGN.md, kd#176): a source that cannot sync puts a status dot on ⋯ (error for a rejected token, else warning; the 700 step, and ⋯'s accessible name says "Verbindungsproblem"), and this panel names the worst problem above the resync row with the fix; never a dialog on its own. A healthy sync is silent: no dot, no extra line
 -->
 <template>
   <div ref="panelEl" class="more-panel w-72 max-w-full p-2" data-testid="more-panel" @keydown="onKeydown">

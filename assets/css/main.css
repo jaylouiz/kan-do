@@ -171,7 +171,10 @@
 
     /* --- Topic mark tones (#431): the nine hues a topic's dot or glyph can take. Mark only, never a name, card or
        surface colour (DESIGN.md "The Topic Mark Rule"). Each tone has >= 3:1 on the white sheet and on a fill inside it (tests/config/topic-tokens.test.ts),
-       so they can be retuned here (#423) without touching a component. --- */
+       so they can be retuned here (#423) without touching a component. Notion's nine colour names map 1:1 onto them,
+       other source colours onto the nearest hue. Known collision, accepted (D2 on #430): orange, red and green share
+       hues with the status colours and the accent; the mark is small and the topic name sits beside it, so the two do
+       not read as one signal. --- */
     --topic-gray: oklch(0.55 0.015 260);
     --topic-brown: oklch(0.50 0.075 55);
     --topic-orange: oklch(0.60 0.16 52);
@@ -239,7 +242,7 @@
     --ease-standard: cubic-bezier(0.4, 0, 0.2, 1); /* things that move or change in place (equals Tailwind's ease-in-out) */
     --ease-emphasized: cubic-bezier(0.2, 0, 0, 1); /* things that arrive: a quick start that settles */
 
-    /* --- Focus ring: Nuxt UI's soft halo on every control (DESIGN.md "Focus") ---
+    /* --- Focus ring: Nuxt UI's soft halo on every control (DESIGN.md "States") ---
      * The same values as Nuxt UI's `focus-visible:outline-3 outline-primary/25`; the `focus-ring` utility and the
      * hand-written rings read them. A ring inside a clipped list sits inside the row (`calc(-1 * width)`). */
     --focus-ring-width: 3px;

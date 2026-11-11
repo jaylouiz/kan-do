@@ -20,7 +20,7 @@
 - Done check spring (#611): the corner check springs in once, as the confirmation layer fades out, when a user action
   (drop, menu, sheet, palette: all set `confirmingTaskIds`) brought the card into Erledigt; never on load, sync or
   undo; static under reduced motion
-- Completion burst (#692, DESIGN.md "Earned celebration"): `TaskCompletionBurst` on the same trigger as the check
+- Completion burst (#692, DESIGN.md "Behaviour"): `TaskCompletionBurst` on the same trigger as the check
   spring, around the card for ~0.9 s; decorative, none under reduced motion
 - Timebox nudge (#389): a Jetzt card without a timebox shows the in-card question (board store
   `timeboxNudgeTaskId`); its own content is hidden under it (`task--nudged`, rules in TaskTimeboxNudge)
@@ -29,6 +29,7 @@
 - Provides drag-and-drop styling
 - `readonly` (#422): the card of a trash entry. Same face, but no task id on the DOM (board selectors never match it), no
   open gesture and no pointer cursor; a card that came back from an undo plays its grow-back (`task--returning`)
+- No activity badge on the card: the activity is for grouping and statistics, the task sheet shows it. Cards and stacks in a column sit `--task-list-gap` (0.75rem) apart
 -->
 <template>
   <UCard

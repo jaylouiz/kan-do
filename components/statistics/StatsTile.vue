@@ -2,7 +2,7 @@
 @component StatsTile
 @kind compound
 @category display
-@description Disclosure tile of the Statistik page (DESIGN.md "Disclosure tile"): a question as heading, one line and a mini chart; it expands in place to its full panel
+@description Disclosure tile of the Statistik page: a question as heading, one line and a mini chart; it expands in place to its full panel
 @usage Q2 to Q4 and the work-rhythm tile (5) in StatsTiles
 @avoid Only the disclosure tiles of the Statistik page; a one-question verdict that stays open is StatsVerdict.
 @responsibility
@@ -11,6 +11,7 @@
 - Summary slot is always shown, the `detail` slot only while open (`v-if`, so a closed tile has no tab stops in its panel)
 - Without `toggleable` (no timeboxes at all) the heading is plain text and there is no panel
 - Expose `focus()` so the grid can restore focus after it reorders the tiles in the DOM
+- Disclosure tile (moved from DESIGN.md, kd#176): the open tile moves first in the DOM at `md+` (never CSS `order`, which breaks reading and focus order), the DOM order stays natural below `md`; closed panels have no tab stops; the toggle row is at least 44px; reduced motion removes any motion. No tile carries a step label
 -->
 <template>
   <section

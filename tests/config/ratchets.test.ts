@@ -47,7 +47,7 @@ describe('seeded violations (#78)', () => {
     const [finding] = checkRatchet(dir, 'raw-button')
     expect(finding).toContain('components/New.vue has 1 raw <button> element, the baseline allows 0')
     expect(finding).toContain('UButton')
-    expect(finding).toContain('DESIGN.md "Buttons"')
+    expect(finding).toContain('DESIGN.md "Components"')
   })
 
   it('a new :ui or ui binding fails and names the theme and the epic decision; the *-ui forwarding props count, comments do not', () => {

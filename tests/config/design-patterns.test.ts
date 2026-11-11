@@ -29,7 +29,7 @@ describe('design patterns (#557)', () => {
     expect(offenders.map((f) => relative(root, f))).toEqual([])
   })
 
-  it('renders no bare UModal: a dialog is an AppDialog, which names its width (DESIGN.md "Dialogs and overlays")', () => {
+  it('renders no bare UModal: a dialog is an AppDialog, which names its width (DESIGN.md "Components")', () => {
     // the palette is a UCommandPalette in a modal shell of its own; ResponsiveOverlay and AppDialog wrap UModal
     const allowed = ['components/CommandPalette.vue', 'components/ui/ResponsiveOverlay.vue', 'components/ui/AppDialog.vue']
     const files = [...vueFiles(join(root, 'components')), ...vueFiles(join(root, 'pages')), ...vueFiles(join(root, 'layouts'))]

@@ -100,7 +100,7 @@ html.kando-capture-mask [data-private] {
 }
 
 /*
- * `focus-ring`: the one focus ring of DESIGN.md "Focus", Nuxt UI's soft halo (3px, 25% of the ink, no offset), for
+ * `focus-ring`: the one focus ring of DESIGN.md "States", Nuxt UI's soft halo (3px, 25% of the ink, no offset), for
  * hand-rolled controls (buttons and links Nuxt UI does not render). Nuxt UI components draw the same halo from
  * their own theme; the values are the `--focus-ring-*` tokens in main.css.
  */

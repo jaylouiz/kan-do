@@ -1,6 +1,6 @@
 /**
  * @module lib/inkRamp
- * @description The chart palette of the Statistik page (#469, DESIGN.md "Ink ring"): the ink (`--ui-text-highlighted`) at six
+ * @description The chart palette of the Statistik page (#469, DESIGN.md "Components"): the ink (`--ui-text-highlighted`) at six
  * strengths, darkest = largest. Charts never take a hue; a topic's own hue stays on its mark.
  */
 

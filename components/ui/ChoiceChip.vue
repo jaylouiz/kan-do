@@ -2,9 +2,9 @@
 @component ChoiceChip
 @kind primitive
 @category input
-@description The one control for "pick one of a few" (#72): a round answer chip (the pill in an Ink Wash tint with ink text, #114) that fills with ink on hover and when picked, or a list row of a searchable option list. The new-card flow's answer pills, the timebox nudge's presets and icon controls and the new-card option rows are this one look.
+@description The one control for "pick one of a few" (#72): a round answer chip (the pill in the primary wash with primary text, #114) that fills with the primary on hover and when picked, or a list row of a searchable option list. The new-card flow's answer pills, the timebox nudge's presets and icon controls and the new-card option rows are this one look.
 @usage <ChoiceChip shape="pill" :picked="picked === value" :current="value === current" @click="pick(value)">{{ label }}</ChoiceChip>; `chip` (equal-width preset in a row), `icon` (square-round control, give it an `aria-label`), `row` (full-width option inside a list, `aria-current` marks the current one); `field` makes a pill read as the search field it opens. Native attributes (`disabled`, `aria-*`, `data-testid`) land on the button.
-@avoid Not for an action (UButton), not for a toggle that stays on beside others (UButton soft/primary with `aria-pressed`, as the board menu's group-by chips) and not for a property value of the task sheet (a list value is a TaskPropertySelect, a free one an InlineEditable; DESIGN.md "Choice chip or property value").
+@avoid Not for an action (UButton), not for a toggle that stays on beside others (UButton soft/primary with `aria-pressed`, as the board menu's group-by chips) and not for a property value of the task sheet (a list value is a TaskPropertySelect, a free one an InlineEditable; DESIGN.md "Components").
 @responsibility
 - Render one native `<button type="button">`; the host decides what a click means and sets `picked` (the answer just given: ink fill, pressed in) and `current` (the value already set: a hairline ring)
 - Shapes carry the geometry each site had: `pill` takes its height from `--choice-chip-h` (the new-card flow sets it to its control height), `chip` and `icon` are 36 px (44 px on a phone and on touch screens), `row` is a 32 px list row (44 px and larger text when `large`, the drawer's)
@@ -79,7 +79,7 @@ const rowClass = computed(
   padding: 0 0.625rem;
   gap: 0.25rem;
   font-size: var(--text-sm);
-  /* Ink Wash tint with ink text: an answer reads as an option, not as a disabled grey pill (#114); `bg-primary/10` of StatsVerdict */
+  /* The primary wash with primary text: an answer reads as an option, not as a disabled grey pill (#114); `bg-primary/10` of StatsVerdict */
   background: color-mix(in oklab, var(--ui-primary) 10%, transparent);
   color: var(--ui-primary);
 }

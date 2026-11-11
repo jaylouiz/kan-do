@@ -19,7 +19,7 @@ test.describe('Add task: persistent control', () => {
     const box = (await add.boundingBox())!;
     expect(box.height).toBeGreaterThanOrEqual(44);
 
-    // Keyboard: focus shows the focus ring (DESIGN.md "Focus": the 3px halo); Enter opens the form.
+    // Keyboard: focus shows the focus ring (DESIGN.md "States": the 3px halo); Enter opens the form.
     await add.focus();
     await expect(add).toBeFocused();
     await expect(add).toHaveCSS('outline-style', 'solid');
