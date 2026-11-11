@@ -85,7 +85,7 @@ Rules live in `DESIGN.md` (direction, tokens, named rules, recurring patterns; p
 
 ### UI Work
 
-- Before UI work read `PRODUCT.md` (users, principles) and `DESIGN.md` (visual system, patterns) — the design source of truth. Open design debt lives in `docs/design/backlog.md`.
+- Before UI work read `PRODUCT.md` (users, principles) and `DESIGN.md` (visual system, patterns) — the design source of truth. Open design debt lives in `docs/design/backlog.md`. The redesign (kd#1) follows `docs/design/redesign-plan.md`: update its status table and change log with any step you finish or change.
 - Look up every Nuxt UI component via the Nuxt UI MCP (`get-component-metadata`, `search-components`) or `.nuxt/ui/<component>.ts` — never guess props or slot names.
 - **Pattern check** (`.claude/rules/ui-patterns.md`, loads with any UI file): before creating or changing a UI element, find the existing Pattern for its user job (`npm run ui:find -- <job words>` over the manifest first, then `/ui`) and decide reuse, align or diverge yourself; leave one `Pattern:` line per decision (PR body, or the final report for ad-hoc work).
 - **Design reasons** ("because…", "so that…") from the user, in any channel, or a `diverged from` reason: skill `design-rule` challenges it and proposes a rule. Never write a rule before the user says yes.

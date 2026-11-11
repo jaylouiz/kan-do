@@ -10,6 +10,7 @@
 - Optional `value-leading` slot: a value icon (the topic mark) sits inside the select, before the value
 - Optional help text at the top of the open picker (reachable on touch, replaces tooltips)
 - Clearing lives inside the picker (a "<label> entfernen" action), never as a × on the trigger
+- `middle-ellipsis`: the trigger value and the menu items cut a long name in the middle (MiddleEllipsis, kd#154) so "Karriere: Bewerbung" and "Karriere: Weiterbildung" stay apart; only for single selects of user-given names
 - Menu items use Nuxt UI size `md`, the same text size as the task card context menu (text-sm)
 - Optional `item-leading` slot per option (the topic mark), a `content-top` slot above the search (after the hint; the edit rows of TopicPropertyPicker, #443)
   and a `content-extra` slot above the clear action ("Bearbeiten", "Themen verwalten")
@@ -34,6 +35,13 @@
     @update:model-value="onUpdate"
     @create="(item: string) => emit('create', item)"
   >
+    <template v-if="middleEllipsis && !multiple" #default="{ ui }">
+      <span v-if="hasValue" :class="ui.value()" data-private><MiddleEllipsis :text="valueText" /></span>
+      <span v-else :class="ui.placeholder()">{{ placeholder ?? '\u00A0' }}</span>
+    </template>
+    <template v-if="middleEllipsis" #item-label="{ item }">
+      <MiddleEllipsis :text="itemText(item)" data-private />
+    </template>
     <template v-if="hint || $slots['content-top']" #content-top>
       <p v-if="hint" class="px-3 pt-2 pb-1 text-xs text-muted">{{ hint }}</p>
       <slot name="content-top" />
@@ -65,6 +73,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { SelectMenuItem } from '@nuxt/ui';
+import MiddleEllipsis from '~/components/ui/MiddleEllipsis.vue';
 
 defineOptions({ name: 'TaskPropertySelect' });
 
@@ -98,6 +107,8 @@ const props = withDefaults(defineProps<{
   side?: 'top' | 'bottom';
   /** Edge of the trigger the picker aligns to; the footer switch aligns to the start so a wide picker stays inside the sheet */
   align?: 'start' | 'center' | 'end';
+  /** Long names are cut in the middle (trigger value and menu items) instead of at the end: for user-given names that share a beginning (topic, activity) */
+  middleEllipsis?: boolean;
   /** Slot classes for the open picker, merged over the default width (e.g. wrapping item descriptions; `viewport` and `empty` `hidden` while a `content-top` slot replaces the list) */
   pickerUi?: { content?: string; itemDescription?: string; viewport?: string; empty?: string };
 }>(), {
@@ -114,6 +125,7 @@ const props = withDefaults(defineProps<{
   disabled: false,
   side: 'bottom',
   align: 'center',
+  middleEllipsis: false,
   pickerUi: undefined,
 });
 
@@ -148,6 +160,11 @@ const valueText = computed(() => {
   const value = props.modelValue as SelectValue;
   return Array.isArray(value) ? value.join(', ') : itemLabel(value);
 });
+
+function itemText(item: unknown): string {
+  if (item && typeof item === 'object') return String((item as Record<string, unknown>).label ?? '');
+  return String(item);
+}
 
 const triggerLabel = computed(() => `${props.label}: ${valueText.value}`);
 

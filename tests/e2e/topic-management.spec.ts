@@ -627,3 +627,19 @@ test.describe('inherited colour in the topic editor (#144)', () => {
     await expect(editor(page).getByTestId('topic-color-hint')).toHaveCount(0)
   })
 })
+
+test.describe('long names in the task sheet select (#154)', () => {
+  test('a long topic is cut in the middle in the trigger and in the menu, the full name stays the accessible name', async ({ context, page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await seedLocalBoard(context, [
+      base({ id: 'ln-1', title: 'Bewerbung schreiben', status: 0, topic: 'Karriere: Weiterbildung am Institut für angewandte Forschung' }),
+      base({ id: 'ln-2', title: 'Zweite', status: 0, topic: 'Karriere: Bewerbung am Institut für angewandte Forschung' }),
+    ])
+    await page.goto('/tasks/ln-1')
+    const trigger = page.getByTestId('task-topic-select')
+    await expect(trigger.locator('.middle-ellipsis.is-cut')).toHaveCount(1)
+    await expect(trigger).toHaveAccessibleName(/Karriere: Weiterbildung am Institut für angewandte Forschung/)
+    await trigger.click()
+    await expect(page.getByRole('option').locator('.middle-ellipsis.is-cut').first()).toBeVisible()
+  })
+})
