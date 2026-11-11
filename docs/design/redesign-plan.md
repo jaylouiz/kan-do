@@ -201,7 +201,7 @@ Each slice is a sub-issue of the epic kd#1 with its scope, acceptance criteria a
 |---|---|---|---|
 | kd#175 | Move "Voice and copy" to `docs/copy/voice.md` | – | merged 2026-11-11 (PR 185) |
 | kd#176 | 1 Foundations: tokens, theme, the display face and its roles, state language, the `DESIGN.md` swap | – | merged 2026-11-11 (PR 193) |
-| kd#177 | 2 Actions: two button sizes, soft and ghost by rule | 1 | in build |
+| kd#177 | 2 Actions: two button sizes, soft and ghost by rule | 1 | PR 197 |
 | kd#178 | 3 Inputs: 36 px fields, one choice chip, the task sheet value rows | 1 | in build |
 | kd#190 | 1b Interface type roles: line heights in the size tokens, `text-body`, 12 px label | 1, 2, 3 (alone while it re-records baselines) | needs-spec |
 | kd#179 | 4 Navigation, overlays and notices: one task sheet, titles | 1 | in build |
