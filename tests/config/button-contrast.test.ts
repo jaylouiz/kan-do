@@ -77,6 +77,10 @@ function over(fg: Rgb, alpha: number, ground: Rgb): Rgb {
   return fg.map((v, i) => v * alpha + ground[i]! * (1 - alpha)) as Rgb
 }
 
+/** The fills that sit on the canvas (`assets/css/main.css`): the shadow colour at 7 % and at 13 % over whatever lies below. */
+const SHADOW_COLOR: Rgb = [70, 48, 20]
+const FILLS_ON_CANVAS: Record<string, number> = { '(--fill-on-canvas)': 0.07, '(--fill-on-canvas-hover)': 0.13 }
+
 const COLORS = ['primary', 'secondary', 'success', 'info', 'warning', 'error', 'neutral'] as const
 const VARIANTS = ['solid', 'outline', 'soft', 'subtle', 'ghost', 'link'] as const
 type Role = (typeof COLORS)[number]
@@ -101,20 +105,19 @@ describe('button colour contrast (#97)', () => {
   /** A semantic token or a role step as an RGB: `inverted`, `elevated`, `warning`, `success-700`. Text and background tokens of the same name differ (`text-inverted` is white, `bg-inverted` the neutral-500 of `--ui-bg-inverted`). */
   function token(kind: 'text' | 'bg', name: string, role: Role): Rgb {
     const neutral = ramps.neutral!
-    const mid = (a: Rgb, b: Rgb): Rgb => a.map((v, i) => (v + b[i]!) / 2) as Rgb
     const semantic: Record<string, Rgb> = kind === 'text'
       ? {
         inverted: WHITE,
         default: rampStep(neutral, '900'),
         highlighted: rampStep(neutral, '900'),
-        muted: mid(rampStep(neutral, '500'), rampStep(neutral, '600')),
-        toned: rampStep(neutral, '600'),
+        muted: rampStep(neutral, '600'),
+        toned: rampStep(neutral, '700'),
         dimmed: rampStep(neutral, '400'),
       }
       : {
         default: WHITE,
-        elevated: rampStep(neutral, '50'),
-        accented: rampStep(neutral, '200'),
+        elevated: WHITE,
+        accented: [240, 236, 228],
         inverted: rampStep(neutral, '500'),
       }
     if (semantic[name]) return semantic[name]
@@ -149,7 +152,9 @@ describe('button colour contrast (#97)', () => {
     const fg = token('text', textBase!, role)
     return GROUNDS.map(([name, ground]) => {
       let fill = ground
-      if (bg) {
+      if (bg && FILLS_ON_CANVAS[bg]) {
+        fill = over(SHADOW_COLOR, FILLS_ON_CANVAS[bg], ground)
+      } else if (bg) {
         const [base, pct] = bg.split('/')
         fill = over(token('bg', base!, role), pct ? Number(pct) / 100 : 1, ground)
       }

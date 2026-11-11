@@ -244,15 +244,13 @@ export default defineAppConfig({
         content: 'data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up overflow-hidden'
       }
     },
-    // Central disabled styling for form inputs
-    // Nuxt UI default only applies opacity-75, not a distinct background
-    // This override adds a muted background to clearly distinguish disabled inputs
+    // The one disabled look (DESIGN.md "States"): 50 % opacity and `not-allowed`, on fields as on buttons.
     // Placeholders step down through `text-muted`, not Nuxt UI's `text-dimmed` (2.5:1 on the sheet; Receding Text
-    // Rule, #646). A disabled field's placeholder keeps `text-dimmed` (Pencil, DESIGN.md).
+    // Rule, #646).
     input: {
       slots: {
         base: [
-          'placeholder:text-muted disabled:placeholder:text-dimmed disabled:cursor-not-allowed disabled:opacity-100 disabled:bg-muted'
+          'placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50'
         ]
       }
     },
@@ -266,7 +264,7 @@ export default defineAppConfig({
       slots: {
         content: 'shadow-(--shadow-overlay)',
         base: [
-          'disabled:cursor-not-allowed disabled:opacity-100 disabled:bg-muted'
+          'disabled:cursor-not-allowed disabled:opacity-50'
         ]
       }
     },
@@ -311,7 +309,7 @@ export default defineAppConfig({
     textarea: {
       slots: {
         base: [
-          'placeholder:text-muted disabled:placeholder:text-dimmed disabled:cursor-not-allowed disabled:opacity-100 disabled:bg-muted'
+          'placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50'
         ]
       }
     },
@@ -324,7 +322,9 @@ export default defineAppConfig({
         size: 'md'
       },
       slots: {
-        base: 'max-md:min-h-11'
+        // The state language (DESIGN.md "States"): the one disabled look here; the hand cursor, the press and the
+        // fast transition come from the base layer (assets/css/main.css) for every pressable element.
+        base: 'max-md:min-h-11 disabled:opacity-50 aria-disabled:opacity-50'
       },
       variants: {
         size: {
@@ -332,6 +332,18 @@ export default defineAppConfig({
         }
       },
       compoundVariants: [
+        // Neutral soft: a fill one step darker than whatever lies below, so it shows on a white sheet and on the
+        // paper (Nuxt UI's `bg-elevated` is white here). Neutral ghost gains the same fill on hover.
+        {
+          color: 'neutral',
+          variant: 'soft',
+          class: 'bg-(--fill-on-canvas) hover:bg-(--fill-on-canvas-hover) active:bg-(--fill-on-canvas-hover) disabled:bg-(--fill-on-canvas) aria-disabled:bg-(--fill-on-canvas)'
+        },
+        {
+          color: 'neutral',
+          variant: 'ghost',
+          class: 'hover:bg-(--fill-on-canvas) active:bg-(--fill-on-canvas-hover)'
+        },
         // `xs` is a control inside text or one with its own hit area (the stack header close): no floor
         { size: 'xs', class: 'max-md:min-h-0' },
         // Icon-only buttons: a 44 x 44 target with the icon centred
@@ -387,7 +399,7 @@ export default defineAppConfig({
     tabs: {
       slots: {
         // Phone: every tab is a 44px target (DESIGN.md "Touch targets"), like the button floor above; no call site sets it
-        trigger: 'max-md:min-h-11 max-md:min-w-11'
+        trigger: 'max-md:min-h-11 max-md:min-w-11 disabled:opacity-50'
       },
       compoundVariants: [
         {
