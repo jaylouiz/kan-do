@@ -25,12 +25,40 @@ A redesigned UI that
 | 0 | Inventory and visually neutral consolidation | **done** (epic kd#58, closed 2026-11) | – |
 | 1 | Gap audit: what step 0 did not look at | **next** | agent runs, owner reads |
 | 2 | Rule review of `DESIGN.md` | not started (needs step 1) | owner, per challenged rule |
-| 3 | Visual direction on the cleaned kit | blocked on the owner: decision "D2" of kd#1 is unanswered since 2026-10-31 | owner |
+| 3 | Visual direction on the cleaned kit | **next**, starts with the owner's three inputs (favourite prototype, inspiration, statements) | owner |
 | 4 | System definition: foundations and the rewritten `DESIGN.md` | not started (needs 2 and 3) | owner approves |
 | 5 | Migration in slices | not started | agents; owner feel-checks |
 | 6 | Lock-in: guards, baselines, canvas | not started | agents |
 
 Steps 1 and 3 do not depend on each other and can run in parallel.
+
+## How we work on it
+
+The owner and an agent work through the plan together, one step (or one clearly cut part of a step) per session.
+
+- **A fresh session per step.** Start it with: "Continue the redesign: read `docs/design/redesign-plan.md` and do the next step." Everything a session needs is in this file and in the documents it points to; nothing is carried in a chat history.
+- **A session ends with a handoff here:** status table, change log, and any question for the owner under "Open questions for the owner" below, so questions are answered in one go and not scattered over chats.
+- **Inside a session** the agent works in the conversation with the owner. It uses sub-agents only for work that is wide and independent (measuring many components in step 1, reading references), and the Orca lanes (`/design-gh-issue`, `/specify-gh-issue`, `/build-gh-issue`, `/orchestrate-gh-issues`) for the prototype rounds of step 3 and the slices of step 5.
+- **Interactive on purpose:** step 2 (challenged rules) and step 3 (direction) are conversations with the owner. Steps 1, 5 and 6 run mostly unattended and end with something to read or look at.
+
+## Reference material: Mobbin
+
+The owner has a Mobbin Pro account; its connector (`mcp__claude_ai_Mobbin__*`: search screens, flows and website sections of shipped products, read the owner's collections with their comments) is available in local sessions. Use it as evidence, never as a look to copy.
+
+| Step | Use |
+|---|---|
+| 1, part 2 and 3 | For each user job where kan-do still has several variants (list rows, choice chips, pick-one controls, notices, empty states), look at how three to five well-made products solve that job with one pattern. Record the links beside the finding. |
+| 2 | A challenged rule gets references for and against, so the owner decides on examples, not on an agent's opinion. |
+| 3 | The owner's inspiration lives in a Mobbin collection; the agent reads it including the comments (a comment is the reason something was saved). The agent may add finds to the collection for the owner to judge. |
+| 4 | Benchmarks for foundations that can be read off a screenshot: density, type hierarchy steps, how many surface levels a product uses. |
+
+Limits: iOS and web only (no desktop apps), static screenshots (no motion or feel, so mechanics still need the running prototype), and a session without the connector (cloud sessions, some workers) cannot use it; such a session works from the links already recorded. Screenshots of other products are not committed to this public repository: cite the Mobbin link.
+
+## Open questions for the owner
+
+1. Step 3: which round-2 prototype is the favourite (A1 Butter Desk, A2 Lemon Panels, A3 Ink Heads, H1 Sunlit Outline, H2 Sunlit Sticker, C1 Riso Pop, C2 Mono Press), and what should change about it?
+2. Step 3: where is the inspiration (name of the Mobbin collection, links or local screenshots of web finds)?
+3. Step 3: the general statements about the look and feel, in the owner's words.
 
 ## Step 0: what already exists (do not redo)
 
@@ -82,7 +110,17 @@ The agent proposes the labels and a recommendation for each challenged rule. Not
 
 ## Step 3: visual direction
 
-Continues kd#1 through its Design stage. Changes to that issue's plan because of step 0:
+Continues kd#1 through its Design stage.
+
+**3a. Direction brief (first, with the owner).** Three inputs from the owner:
+
+1. **The favourite** of the round-2 prototypes (they still live on the `archive` remote, branch `proto/423-visual-redesign`; the agent starts it locally so the owner can look again). This answers the open decision "D2" of kd#1.
+2. **Inspiration** found on the web: saved into a Mobbin collection with a comment saying what is liked about each, or as links and local screenshots handed to the agent.
+3. **General statements** about the look and feel.
+
+The agent turns these into a brief in the body of kd#1: what the favourite keeps, what each piece of inspiration contributes (named as a property: "this density", "this way of separating columns", not "like product X"), the statements as principles, and where inputs contradict each other or `PRODUCT.md`. A statement that carries a reason ("because…", "so that…") goes through the `design-rule` skill as a rule proposal. The owner confirms the brief before any prototype is built.
+
+**3b. Prototype round 3.** Changes to the plan of kd#1 because of step 0:
 
 - **Rebuild the prototype on the cleaned kit.** Round 3 starts from current `main`, as token values and `app.config.ts` theme changes only, not from the old branch. A direction that needs more than tokens and theme says so; that is its build cost.
 - **Show it on `/ui` as well as on the screens.** With a variant switch on `/ui`, each direction is visible on every component and state at once, which also covers the surfaces the earlier rounds never restyled (overlays, toasts, focus, hover, stacks).
@@ -91,7 +129,7 @@ Continues kd#1 through its Design stage. Changes to that issue's plan because of
 - **The parked layout decisions** (app bar row, statistics task view, page title scale) are answered in this step.
 - **Mechanics are part of the direction:** one motion and one state language is proposed per variant and tried in the coded prototype, not on the canvas.
 
-Needs first: the owner's answer to the open decision of kd#1 (which of the seven round-2 variants, or which mix, goes on).
+The round shows two or three interpretations of the confirmed brief, not seven new directions; the owner picks or mixes, and a further round only refines.
 
 ## Step 4: system definition
 
@@ -122,14 +160,16 @@ Result: a spec on kd#1 (or its follow-up issues) through `/specify-gh-issue`.
 |---|---|---|---|
 | Step 1, all four parts | yes: measured from `/ui`, the manifest and the token files | – | reading the summary |
 | Step 2 labels | yes for the five mechanical labels | each challenged rule (expected: a short list) | – |
-| Step 3 prototype variants, contrast checks, build sizes, Impeccable scan | yes | which direction; the parked layout decisions | taste; answering the open decision of kd#1 |
+| Step 3a brief | writes it from the owner's inputs, restarts the old prototypes, reads the Mobbin collection | confirming the brief | the favourite, the inspiration, the statements |
+| Step 3b prototype variants, contrast checks, build sizes, Impeccable scan | yes | which interpretation; the parked layout decisions | taste |
 | Step 3 mechanics | proposes and implements the state and motion language | – | feeling drag, transitions and touch in the running app, on a real phone and in the desktop app |
 | Step 4 tokens, variant lists, `DESIGN.md` draft | yes | every changed principle, token and rule; any change to the primary palette | approving new or changed `decided` copy terms |
 | Step 5 slices, tests, baselines, code review | yes, through the Specify and Build lanes | merge if a slice is held | a look at each slice's screenshots; the desktop app check (`npm run tauri:dev`) |
 | Step 6 | yes | – | final sign-off |
 
-In short: measuring, tracing, prototyping, rewriting and migrating can be done by agents. The owner's part is about five kinds of input: the direction pick (possibly over two rounds), the challenged rules, the three layout decisions, approval of the rewritten `DESIGN.md`, and feel-checks of the running app.
+In short: measuring, tracing, prototyping, rewriting and migrating can be done by agents. The owner's part is about five kinds of input: the direction (favourite, inspiration and statements, then a pick among the interpretations), the challenged rules, the three layout decisions, approval of the rewritten `DESIGN.md`, and feel-checks of the running app.
 
 ## Change log
 
 - 2026-11-11: plan created. Procedure changed from the first sketch: the inventory and consolidation steps are replaced by a pointer to epic kd#58, which already did them; what remains of them is the gap audit (step 1). Step 3 now rebuilds the prototype on the cleaned kit and uses `/ui` as a review surface.
+- 2026-11-11: step 3 now starts with a direction brief built from three owner inputs (favourite of the round-2 prototypes, web inspiration, general statements) and round 3 shows interpretations of that brief. Mobbin added as reference material for steps 1 to 4. Added "How we work on it" (a fresh session per step, this file as the handoff) and "Open questions for the owner".
