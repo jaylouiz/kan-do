@@ -3,7 +3,7 @@
 @kind compound
 @category overlay
 @description The one dialog of the app: a UModal in one of the three named widths, with the theme's header, rules and footer.
-@usage <AppDialog v-model:open="isOpen" size="sm" :title="t('...')"> with `#body` and `#footer`. `size`: `sm` confirmations and one-field prompts, `md` (default) settings and simple forms, `lg` wide content (wizard, task detail). `hide-description` keeps a `description` for screen readers only. Every other UModal prop, event and slot passes through (`dismissible`, `close`, `content`, `@after:leave`).
+@usage <AppDialog v-model:open="isOpen" size="sm" :title="t('...')"> with `#body` and `#footer`. `size`: `sm` confirmations and one-field prompts, `md` (default) settings and simple forms, `lg` wide content (the setup wizard). `hide-description` keeps a `description` for screen readers only. Every other UModal prop, event and slot passes through (`dismissible`, `close`, `content`, `@after:leave`).
 @avoid Not for an overlay that becomes a bottom drawer on a phone (ResponsiveOverlay), not for the task sheet (TaskSheet), and never a bare UModal with its own max-width class.
 @responsibility
 - Apply the width of `utils/modalSizes.ts` by name, so no call site passes a `ui` prop for it
