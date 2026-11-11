@@ -73,6 +73,23 @@ async function expectNoGap(container: Locator, remaining: string[]) {
   })
 }
 
+/**
+ * Pointer over an empty column with the drag live. Under load (CI, many workers) the fast hover can end with the
+ * column hovered while dnd-kit still holds the card in its source list (it re-evaluates on the next pointer move,
+ * #155); a real pointer never stops dead on its way in, so the test keeps nudging it until the ghost shows.
+ */
+async function hoverEmptyColumn(page: Page, key: ColumnKey) {
+  await hover(page, list(page, key))
+  const box = await list(page, key).boundingBox()
+  if (!box) throw new Error('Drop target not visible')
+  const [x, y] = [box.x + box.width / 2, box.y + box.height / 2]
+  await expect(async () => {
+    await page.mouse.move(x + 4, y + 4, { steps: 3 })
+    await page.mouse.move(x, y, { steps: 3 })
+    await expect(ghost(page)).toHaveCount(1, { timeout: 1000 })
+  }).toPass({ timeout: 10_000 })
+}
+
 const OFFEN = ['a', 'b', 'c', 'd']
 
 test.describe('Offen card dragged over empty Jetzt (#393)', () => {
@@ -84,8 +101,7 @@ test.describe('Offen card dragged over empty Jetzt (#393)', () => {
   for (const [where, id] of [['top', 'a'], ['middle', 'c'], ['bottom', 'd']] as const) {
     test(`leaves no gap when the ${where} card leaves`, async ({ page }) => {
       await pickUp(page, card(page, id))
-      await hover(page, list(page, 'progress'))
-      await expect(ghost(page)).toHaveCount(1)
+      await hoverEmptyColumn(page, 'progress')
       await expectNoGap(list(page, 'open'), OFFEN.filter(k => k !== id))
     })
   }
