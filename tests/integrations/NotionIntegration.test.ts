@@ -465,6 +465,36 @@ describe('NotionIntegration – priority mapping and time parsing edge cases', (
     expect(body.properties['Erledigt am'].date.start).toBe(completedAt.toISOString())
   })
 
+  describe('completion time of a done page (#153)', () => {
+    const donePage = (extra: Record<string, unknown> = {}) => ({
+      id: 'p-done', created_time: '2026-11-01T08:00:00.000Z', last_edited_time: '2026-11-09T16:30:00.000Z',
+      properties: { Name: { title: [{ plain_text: 'Done' }] }, Status: { select: { name: 'Erledigt' } }, ...extra },
+    })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const parse = (ni: NotionIntegration, page: unknown) => (ni as any).parseNotionPageToTask(page)
+
+    it('without a mapped completion property takes the last edit time, the same on every fetch', () => {
+      const ni = makeSut()
+      const first = parse(ni, donePage())
+      vi.useFakeTimers({ now: new Date('2026-11-12T10:00:00.000Z') })
+      try {
+        expect(parse(ni, donePage()).completedAt).toEqual(first.completedAt)
+      } finally { vi.useRealTimers() }
+      expect(first.completedAt).toEqual(new Date('2026-11-09T16:30:00.000Z'))
+    })
+
+    it('with a mapped but empty completion property falls back the same way', () => {
+      const ni = makeSut({ ...propertyMapping, completedDate: 'Erledigt am' } as any)
+      expect(parse(ni, donePage({ 'Erledigt am': { date: null } })).completedAt).toEqual(new Date('2026-11-09T16:30:00.000Z'))
+    })
+
+    it('a filled completion property wins over the last edit time', () => {
+      const ni = makeSut({ ...propertyMapping, completedDate: 'Erledigt am' } as any)
+      expect(parse(ni, donePage({ 'Erledigt am': { date: { start: '2026-11-08T12:00:00.000Z' } } })).completedAt)
+        .toEqual(new Date('2026-11-08T12:00:00.000Z'))
+    })
+  })
+
   it('calls handleError and rethrows on HTTP error', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 500, statusText: 'Boom', text: () => Promise.resolve('X') }))
     const ni = makeSut()

@@ -1020,17 +1020,14 @@ export class NotionIntegration {
       })(),
       timerId: null,
       completedAt: (() => {
-        // Extract completion date if property is mapped
-        if (!this.propertyMapping.completedDate) {
-          // No property mapped: default to now if task is done, null otherwise
-          return status === TaskStatus.Done ? new Date() : null;
-        }
+        // A done page without a usable completion date takes the time it was last edited, which is stable from fetch to
+        // fetch; `new Date()` here moved a task done yesterday into today on every sync (#153)
+        const lastEdited = page.last_edited_time ? new Date(page.last_edited_time) : new Date();
+        const fallback = status === TaskStatus.Done ? lastEdited : null;
+        if (!this.propertyMapping.completedDate) return fallback;
         const completedProp = properties[this.propertyMapping.completedDate];
-        if (completedProp?.date?.start) {
-          return new Date(completedProp.date.start);
-        }
-        // Fallback: if task is Done but no date, use current time
-        return status === TaskStatus.Done ? new Date() : null;
+        if (completedProp?.date?.start) return new Date(completedProp.date.start);
+        return fallback;
       })(),
       createdAt: page.created_time ? new Date(page.created_time) : null,
       updatedAt: page.last_edited_time ? new Date(page.last_edited_time) : null,
