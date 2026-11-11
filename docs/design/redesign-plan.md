@@ -25,7 +25,7 @@ A redesigned UI that
 | 0 | Inventory and visually neutral consolidation | **done** (epic kd#58, closed 2026-11) | – |
 | 1 | Gap audit: what step 0 did not look at | **done** 2026-11-11 (`docs/design/redesign-gap-audit.md`) | agent runs, owner reads |
 | 2 | Rule review of `DESIGN.md` | **next** (its starting list: "Input for the next steps" in the gap audit) | owner, per challenged rule |
-| 3 | Visual direction on the cleaned kit | **3a written 2026-11-11, waits for the owner** (direction brief in the body of kd#1); 3b (prototype round 3) starts once the brief is confirmed | owner |
+| 3 | Visual direction on the cleaned kit | 3a **done** (brief confirmed by the owner 2026-11-11). **3b: round 3 shown 2026-11-11, waits for the owner's pick** (three interpretations on branch `proto/1-visual-redesign`; round comment on kd#1) | owner |
 | 4 | System definition: foundations and the rewritten `DESIGN.md` | not started (needs 2 and 3) | owner approves |
 | 5 | Migration in slices | not started | agents; owner feel-checks |
 | 6 | Lock-in: guards, baselines, canvas | not started | agents |
@@ -56,12 +56,15 @@ Limits: iOS and web only (no desktop apps), static screenshots (no motion or fee
 
 ## Open questions for the owner
 
-The direction brief of step 3a is in the body of kd#1 ("Direction brief"). Answer there, in a comment; the four questions are spelled out at the end of the brief.
+Round 3 of step 3b is on kd#1 (the comment "Design round 3", with screenshots and the preview link); answer there or in the session. Locally: `PORT=<port> npm run dev` on branch `proto/1-visual-redesign`, then `/tasks?seed=demo&variant=<a|b|c|o>` (the variant stays while navigating, `/ui` included).
 
-1. Step 3a: is the brief right (yes, or what to change)? Is yellow gone for good or still welcome as one spot of colour?
-2. Step 3a: may the done state use the same green as the new accent, or does done keep a colour of its own?
-3. Step 3a: the four rule proposals in the brief (calm canvas, green accent, serif headings, input on lifted sheets): adopt each, yes / as one-off / no. The last one also means rewording principle 3 in `PRODUCT.md`.
-4. Step 3a: `PRODUCT.md` references: add Slack to the anti-references, what is disliked about Slack, Trello and Notion, and is Airbnb still the positive reference?
+1. Step 3b: which interpretation continues: a Paper and Green, b Sand Desk, c Ink Edge, or a mix (what to take from which)?
+2. Step 3b: the serif: Newsreader (a, the quieter one) or Fraunces (b and c)?
+3. Step 3b: the yellow spot on Jetzt (c): keep it, or no yellow?
+4. Step 3b: the app bar row (parked decision U2): glass pills on a transparent row as today (a), white pills (b), or an opaque strip with a rule (c)?
+5. Step 3b: the statistics task view (parked decision U7) was not shown, because it is behaviour and not look: should statistics open the same task sheet as the board? (Recommendation: yes, one way to open a task.)
+
+Answered on 2026-11-11 (kd#1, the owner's "My feedback" comment), to be written down in step 4: the brief is confirmed; done may use the accent green; the four rule proposals are adopted "for now", the green is locked after round 3; Airbnb stays the positive reference and Slack joins the anti-references in `PRODUCT.md` (a saturated block of brand colour as chrome, a dense sidebar, cluttered and dense with many interactive elements at once).
 
 ## Step 0: what already exists (do not redo)
 
@@ -179,3 +182,4 @@ In short: measuring, tracing, prototyping, rewriting and migrating can be done b
 - 2026-11-11: the focus ring question of step 1 is answered by the owner: one ring, Nuxt UI's soft halo, on every control (`DESIGN.md` "Focus", `--focus-ring-*`). The solid 2 px ink ring and its 3:1 contrast guard are gone on purpose; step 3 may still restyle the ring as part of the state language.
 - 2026-11-11: step 3 now starts with a direction brief built from three owner inputs (favourite of the round-2 prototypes, web inspiration, general statements) and round 3 shows interpretations of that brief. Mobbin added as reference material for steps 1 to 4. Added "How we work on it" (a fresh session per step, this file as the handoff) and "Open questions for the owner".
 - 2026-11-11: step 3a written: the direction brief is in the body of kd#1, built from the owner's comment (remarks on the round-2 prototypes, five inspiration images, the Mobbin collection "kan-do Redesign"). D2 of kd#1 is answered as a mix of properties, not one favourite; the yellow canvas is no longer the leading idea (calm warm canvas, lifted bright sheets, serif headings, muted green accent). The old prototypes were not restarted: the owner's remarks made that unnecessary. Four rule proposals went through `design-rule` and sit in the brief; the rules they contradict ("type and space, not boxes", The Only Cards Float Rule, one typeface, The Frozen Primary Rule, Done Teal) are input for step 2. Round 3 is planned as three interpretations (Paper and Green, Sand Desk, Ink Edge) and waits for the confirmation.
+- 2026-11-11: step 3a confirmed by the owner; step 3b round 3 built and shown. Three interpretations (a Paper and Green, b Sand Desk, c Ink Edge) on branch `proto/1-visual-redesign`, as one stylesheet of token blocks switched by `?variant=` on every route and on `/ui` (the branch ships `/ui` in its preview build). Shared by all three: one green for action and done, white sheets for settings sections and statistics tiles, a serif for headings, one warm shadow colour, one state language (cursor, press, disabled, card hover and press, three durations). Checked: axe contrast 0 failures per variant on five surfaces at 1280 and 390, Impeccable rendered scan 0 findings, production build. Not covered by the round, and said so on the issue: the statistics task view (U7), the look-independent merge candidates of the gap audit (button sizes, `ListRow` density, `ChoiceChip` shapes, field heights), drag and drop motion, the desktop app. The page title scale (U18) is shown only through the column names (36, 32 and 22 px). Step 2 (rule review) is still open and can run next, in parallel to the owner's pick.
