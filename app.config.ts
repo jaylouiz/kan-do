@@ -341,7 +341,7 @@ export default defineAppConfig({
     // `.touch-target` by hand (tests/config/button-ladder.test.ts keeps call sites on the ladder). Nuxt UI internals
     // follow the floor, measured at 390 px (#552): calendar header and its Löschen / Heute 44, modal close 44 x 44,
     // alert and toast actions 44 (they stay `xs` with their own rule, `.kando-notice-actions` / `.kando-toast-actions`
-    // in mobile-nav.css, #284). The ladder covers buttons only: fields are 36 px through `--field-h` (the `input`, `select`, `selectMenu` and `textarea` themes).
+    // in mobile-nav.css, #284). The ladder covers buttons only: `USelect` and `UInput` keep their own field heights.
     button: {
       defaultVariants: {
         size: 'md'
