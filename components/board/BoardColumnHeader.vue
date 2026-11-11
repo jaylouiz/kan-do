@@ -16,7 +16,7 @@
     class="flex items-center justify-center"
   >
     <h2 class="font-display" :class="{ 'column-header__marked': status === TaskStatus.Progress }">
-      <span v-if="status === TaskStatus.Done" class="column-header__mark" aria-hidden="true">{{ doneMark }}</span>
+      <UIcon v-if="status === TaskStatus.Done" name="i-ph-check-bold" class="column-header__mark" aria-hidden="true" />
       {{ title }}
     </h2>
   </div>
@@ -26,9 +26,6 @@
 import { TaskStatus } from "~/types/taskStatus";
 
 defineOptions({ name: "BoardColumnHeader" });
-
-/** Language-neutral checkmark shown in the Done column header */
-const doneMark = "✓";
 
 /**
  * Props
@@ -68,12 +65,15 @@ const isWaiting = computed(() => props.status === TaskStatus.Waiting);
     background: linear-gradient(transparent 0 56%, var(--marker) 56% 90%, transparent 90%) no-repeat;
   }
 
-  /* The done mark is a symbol, not a letter: Fraunces has no check glyph, and the fallback's heavy dingbat sat glued
-     to the word. It is set in the sans, as before the display face changed. */
+  /* The done mark before "Erledigt" is the check icon the done cards use, not a text glyph: the display face has no
+     check, and a fallback glyph changes with the font. Sized to the headline's x-height region and set on its
+     baseline; decorative (aria-hidden), the column name carries the meaning. */
   .column-header__mark {
-    font-family: var(--font-sans);
-    font-weight: 400;
-    letter-spacing: 0;
+    display: inline-block; /* an svg is a block by the base styles */
+    width: 0.8em;
+    height: 0.8em;
+    margin-inline-end: -0.05em;
+    vertical-align: -0.06em;
   }
 
   h2 {
