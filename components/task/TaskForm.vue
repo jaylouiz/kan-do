@@ -182,9 +182,7 @@
             <UInput
               v-if="prop.type === 'text'"
               v-model="(customValues[prop.key] as string)"
-              size="sm"
               class="w-full"
-              :ui="customInputUi"
               :aria-labelledby="labelId"
             />
 
@@ -193,9 +191,7 @@
               v-else-if="prop.type === 'number'"
               v-model.number="(customValues[prop.key] as number)"
               type="number"
-              size="sm"
               class="w-full"
-              :ui="customInputUi"
               :aria-labelledby="labelId"
             />
 
@@ -204,9 +200,7 @@
               v-else-if="prop.type === 'url'"
               v-model="(customValues[prop.key] as string)"
               type="url"
-              size="sm"
               class="w-full"
-              :ui="customInputUi"
               :placeholder="urlPlaceholder"
               :aria-labelledby="labelId"
             />
@@ -216,9 +210,7 @@
               v-else-if="prop.type === 'email'"
               v-model="(customValues[prop.key] as string)"
               type="email"
-              size="sm"
               class="w-full"
-              :ui="customInputUi"
               :aria-labelledby="labelId"
             />
 
@@ -227,16 +219,14 @@
               v-else-if="prop.type === 'phone_number'"
               v-model="(customValues[prop.key] as string)"
               type="tel"
-              size="sm"
               class="w-full"
-              :ui="customInputUi"
               :aria-labelledby="labelId"
             />
 
             <!-- Checkbox -->
             <label
               v-else-if="prop.type === 'checkbox'"
-              class="flex min-h-8 w-full cursor-pointer items-center max-md:min-h-11"
+              class="flex min-h-(--field-h) w-full cursor-pointer items-center"
             >
               <UCheckbox
                 :model-value="!!customValues[prop.key]"
@@ -281,8 +271,6 @@
               v-else-if="prop.type === 'date'"
               v-model="(customValues[prop.key] as string)"
               type="date"
-              size="sm"
-              :ui="customInputUi"
               :aria-labelledby="labelId"
             />
           </TaskPropertyRow>
@@ -567,7 +555,6 @@ const urlPlaceholder = 'https://';
 
 const customProperties = computed<NotionCustomPropertyConfig[]>(() => fields.value.customProperties);
 
-const customInputUi = { base: 'max-md:min-h-11' };
 
 /**
  * Options are now managed centrally by propertyOptionsStore

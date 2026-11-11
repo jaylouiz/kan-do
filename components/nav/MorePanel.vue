@@ -50,16 +50,15 @@
         </UFormField>
         <div v-if="groupingEnabled" class="space-y-2">
           <div role="group" :aria-label="t('board.sync.groupBy')" class="flex flex-wrap gap-1.5">
-            <UButton
+            <ChoiceChip
               v-for="option in groupingOptions"
               :key="option.value"
-              :color="effectiveGroupKey === option.value ? 'primary' : 'neutral'"
-              variant="soft"
+              :picked="effectiveGroupKey === option.value"
               :aria-pressed="effectiveGroupKey === option.value"
               @click="setGroupingKey(option.value)"
             >
               {{ option.label }}
-            </UButton>
+            </ChoiceChip>
           </div>
           <p class="text-xs text-muted max-md:text-sm">{{ t('board.sync.stackHint') }}</p>
         </div>
@@ -168,6 +167,7 @@ import { ICONS } from '~/lib/icons'
 import { computed, ref, useId } from 'vue'
 import { useMediaQuery } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
+import ChoiceChip from '~/components/ui/ChoiceChip.vue'
 import { useAppNav } from '~/composables/useAppNav'
 import { useBoardGrouping } from '~/composables/useBoardGrouping'
 import { useManualSync } from '~/composables/useManualSync'

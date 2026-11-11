@@ -57,6 +57,18 @@ test.describe('loading state', () => {
   })
 })
 
+test.describe('board menu: stacking (kd#178)', () => {
+  test('the group-by options are choice chips and the picked one is pressed (1280)', async ({ context, page }) => {
+    await seedLocalBoard(context)
+    await gotoBoard(page)
+    const panel = await openMore(page)
+    await panel.getByTestId('more-stack').click()
+    const group = panel.getByRole('group', { name: 'Gruppieren nach' })
+    await expect(group).toBeVisible()
+    await expect(group).toMatchAriaSnapshot({ name: 'more-panel-group-by-1280.aria.yml' })
+  })
+})
+
 test.describe('error states', () => {
   test('Notion unreachable: the Mehr panel names the problem', async ({ context, page }) => {
     await seedMixedBoard(context)

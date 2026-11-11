@@ -114,7 +114,6 @@
                       :items="databaseOptions"
                       :placeholder="t('notion.settings.connection.selectDatabase')"
                       class="w-full"
-                      size="lg"
                     />
                     <div class="flex gap-2">
                       <UButton
@@ -146,7 +145,6 @@
                   :items="dataSourceOptions"
                   :placeholder="t('notion.settings.connection.selectDataSource')"
                   class="w-full"
-                  size="lg"
                 />
               </UFormField>
             </div>

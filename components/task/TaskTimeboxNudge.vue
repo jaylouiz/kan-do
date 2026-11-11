@@ -17,7 +17,7 @@ In-card question pattern (DESIGN.md "Behaviour"; this is its first user, extract
 - One at a time, keyed by task id in a transient board-store flag (a cross-column move mounts the card fresh), set
   only by user-driven moves: never by page load, sync, undo or closing the day
 - Covers the card face, does not rearrange it: a radial wash of the sheet colour (the stack pill's wash), the card's
-  content hidden underneath (still in the DOM), answers as soft pills like the stack pill, the question in the Title step
+  content hidden underneath (still in the DOM), answers as `ChoiceChip`s (the one chip: field height, equal widths in the row, icon chips square), the question in the Title step
 - Copy is the question only ("Timebox hinzufügen?"): no title bar, no Abbrechen/OK pair; the answer is the click
 - `role="group"` named by the question, real buttons after the card's content in DOM order, never `role="dialog"` or
   `aria-modal`; no announcement and no focus move. Accepted: a keyboard user reaches it by tabbing and has the
@@ -47,7 +47,7 @@ In-card question pattern (DESIGN.md "Behaviour"; this is its first user, extract
           <ChoiceChip
             v-for="minutes in NUDGE_PRESETS"
             :key="minutes"
-            shape="chip"
+            class="nudge__preset"
             :picked="picked === minutes"
             @click="pick(minutes)"
           >
@@ -55,7 +55,7 @@ In-card question pattern (DESIGN.md "Behaviour"; this is its first user, extract
           </ChoiceChip>
           <ChoiceChip
             ref="customButtonEl"
-            shape="icon"
+            square
             :aria-label="t('task.timeboxNudge.custom')"
             :title="t('task.timeboxNudge.custom')"
             @click="startEdit"
@@ -78,7 +78,7 @@ In-card question pattern (DESIGN.md "Behaviour"; this is its first user, extract
             >
             <span class="nudge__unit" aria-hidden="true">{{ t('task.timeboxNudge.unit') }}</span>
           </label>
-          <ChoiceChip type="submit" shape="icon" :disabled="!validCustom" :aria-label="t('task.timeboxNudge.apply')">
+          <ChoiceChip type="submit" square :disabled="!validCustom" :aria-label="t('task.timeboxNudge.apply')">
             <UIcon name="i-ph-check" class="size-4" />
           </ChoiceChip>
         </form>
@@ -286,13 +286,18 @@ const onBarEnd = (event: AnimationEvent) => {
   justify-content: center;
 }
 
+/* The presets share the row by equal widths; the icon chips keep their square */
+.nudge__preset {
+  flex: 1 1 0;
+}
+
 .nudge__field {
   display: inline-flex;
   flex: 1 1 0;
   align-items: center;
   justify-content: center;
   gap: 0.25rem;
-  height: 2.25rem;
+  height: var(--field-h);
   min-width: 0;
   padding: 0 0.75rem;
   border-radius: 9999px;
@@ -419,10 +424,6 @@ const onBarEnd = (event: AnimationEvent) => {
 
 /* 44px targets on a phone and on any touch screen, a tablet at desktop width included */
 @media (--phone), (hover: none) and (pointer: coarse) {
-  .nudge__field {
-    height: 2.75rem;
-  }
-
   .nudge__panel {
     gap: 0.5rem;
   }

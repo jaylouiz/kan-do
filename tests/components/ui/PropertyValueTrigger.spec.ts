@@ -3,11 +3,11 @@ import { mount } from '@vue/test-utils'
 import PropertyValueTrigger from '~/components/ui/PropertyValueTrigger.vue'
 
 describe('PropertyValueTrigger (#72)', () => {
-  it('is one native button with the shared property-value rule and the sheet row heights', async () => {
+  it('is one native button with the shared property-value rule and the one field height', async () => {
     const wrapper = mount(PropertyValueTrigger, { attrs: { 'data-testid': 'trigger' }, slots: { default: '30 min' } })
     expect(wrapper.element.tagName).toBe('BUTTON')
     expect(wrapper.attributes('type')).toBe('button')
-    expect(wrapper.classes()).toEqual(expect.arrayContaining(['task-property-value', 'min-h-8', 'max-md:min-h-11']))
+    expect(wrapper.classes()).toEqual(expect.arrayContaining(['task-property-value', 'h-(--field-h)']))
     expect(wrapper.text()).toBe('30 min')
     await wrapper.trigger('click')
     expect(wrapper.emitted('click')).toHaveLength(1)

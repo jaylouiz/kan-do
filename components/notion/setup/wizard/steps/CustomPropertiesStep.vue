@@ -42,8 +42,7 @@
             <div v-if="customSelections[prop.name]?.enabled" class="w-48">
               <UInput 
                 v-model="customSelections[prop.name]!.label" 
-                :placeholder="t('notion.customProps.labelPlaceholder')" 
-                size="sm" 
+                :placeholder="t('notion.customProps.labelPlaceholder')"  
                 class="w-full" 
               />
             </div>

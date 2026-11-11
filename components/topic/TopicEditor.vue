@@ -27,7 +27,6 @@ immediate: no loading or error state.
         ref="nameInput"
         v-model="name"
         class="w-full"
-        size="md"
         :disabled="nameLocked"
         :aria-describedby="nameLocked ? gateId : undefined"
         autocomplete="off"
