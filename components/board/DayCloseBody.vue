@@ -79,7 +79,7 @@
       <p v-if="progress.length > 0" class="mt-4 text-sm text-muted" data-testid="day-close-put-back-hint">{{ putBackHint }}</p>
     </section>
 
-    <p class="text-lg text-highlighted" data-testid="day-close-closing-line">{{ closingLine }}</p>
+    <p class="text-lg leading-(--lh-body) text-highlighted" data-testid="day-close-closing-line">{{ closingLine }}</p>
   </div>
 </template>
 

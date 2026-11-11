@@ -55,7 +55,7 @@
       role="button"
       tabindex="0"
       :aria-label="triggerLabel"
-      class="flex min-h-8 items-center rounded-md border border-transparent px-2 py-1.5 focus-ring"
+      class="no-press flex min-h-8 items-center rounded-md border border-transparent px-2 py-1.5 focus-ring"
       :class="[
         isRule ? 'task-property-value -ms-2 py-0 text-sm max-md:min-h-11' : '',
         displayClass,

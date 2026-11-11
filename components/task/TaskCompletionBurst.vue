@@ -3,11 +3,11 @@
 @kind primitive
 @category feedback
 @description The earned celebration of a completion (#692, DESIGN.md "Behaviour"): a short burst of small
-teal pieces that flies out of the card's check, around and over the card, and fades.
+green pieces that flies out of the card's check, around and over the card, and fades.
 @usage Rendered by TaskCard while a completion plays (the card decides when); it tells the card when it is over.
 @avoid Only the completion celebration, driven by TaskCard; no other success feedback uses it.
 @responsibility
-- Draws 24 fixed pieces (6 x 12 px rectangles and 10 px dots, deterministic so screenshots are stable) in the done-teal tints
+- Draws 24 fixed pieces (6 x 12 px rectangles and 10 px dots, deterministic so screenshots are stable) in the done-green tints
   `success-200..500` plus `neutral-400`, flying out along an ellipse of ~175-230 x 88-133 px around the card centre,
   where the confirmation check shows (#124). Look constants are the round-1 prototype's variant A.
 - Plays once, 900 ms (a piece may start up to 90 ms late), animates only `transform` and `opacity`, so the card and the
@@ -131,7 +131,7 @@ onBeforeUnmount(() => clearTimeout(timer))
   border-radius: 50%;
 }
 
-/* The done-teal ramp plus one neutral (design-system tokens only) */
+/* The done-green ramp plus one neutral (design-system tokens only) */
 .completion-burst__piece--c0 { --completion-burst-tint: var(--ui-color-success-300); }
 .completion-burst__piece--c1 { --completion-burst-tint: var(--ui-color-success-400); }
 .completion-burst__piece--c2 { --completion-burst-tint: var(--ui-color-success-500); }

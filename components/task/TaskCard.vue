@@ -15,7 +15,7 @@
 - Shows the source icon at the footer start on a board with tasks from 2+ sources (#323), the cloud "save pending" icon next to it while the task's source cannot sync (#319)
 - Manages task timer functionality (for Progress status)
 - Handles visual states for different task statuses
-- Done (#124): regular sheet, struck toned title, teal corner check, and the
+- Done (#124): regular sheet, struck toned title, green corner check, and the
   short in-card confirmation after a drop into Erledigt (board store `confirmingTaskIds`)
 - Done check spring (#611): the corner check springs in once, as the confirmation layer fades out, when a user action
   (drop, menu, sheet, palette: all set `confirmingTaskIds`) brought the card into Erledigt; never on load, sync or
@@ -42,7 +42,7 @@
     :ui="cardUi"
     @click="openDetails"
   >
-    <!-- Done (#124): the teal corner check, with or without a timebox -->
+    <!-- Done (#124): the green corner check, with or without a timebox -->
     <span
       v-if="isDone"
       class="task-progress-corner task-done-check"
@@ -424,13 +424,13 @@ const openDetails = (event: MouseEvent) => {
    * ======================================== */
 
 /* Done (#124): the regular sheet; the struck title recedes through a token colour (Receding Text
-   Rule, text-toned ~6:1), teal only on the corner glyph */
+   Rule, text-toned ~6:1), green only on the corner glyph */
 .task-done .task-title-text {
   color: var(--ui-text-toned);
   text-decoration: line-through;
 }
 
-/* Done (#124, #388): the teal check in the corner, success-700 (4.55:1 on the sheet) */
+/* Done (#124, #388): the green check in the corner, success-700 (4.55:1 on the sheet) */
 .task-done-check {
   display: flex;
   align-items: center;
@@ -459,7 +459,7 @@ const openDetails = (event: MouseEvent) => {
   .task-done-check--pop { animation: none; }
 }
 
-/* In-card done confirmation (#124): a light teal layer with a check fades in (180ms), holds (~400ms),
+/* In-card done confirmation (#124): a light green layer with a check fades in (180ms), holds (~400ms),
    then fades out (220ms) to reveal the card. Opacity only; the card itself never moves or scales.
    --done-confirm-duration is set inline from DONE_CONFIRMATION_MS (store/board.ts). */
 .task-confirm {

@@ -101,9 +101,10 @@ const paletteUi = {
   viewport: 'divide-y-0 p-2 mask-b-from-92%',
   group: 'p-0 pb-3',
   label: 'text-base font-semibold text-muted px-3 pt-3 pb-1',
-  // The stock highlight (bg-elevated/50) is invisible on the bg-elevated modal; use Rule Line (bg-muted).
+  // The stock highlight (bg-elevated/50) is invisible on the bg-elevated (white) modal, and so is bg-muted (~1.07:1); use the
+  // canvas fill's hover step, the same warm tint as every other state fill (main.css `--fill-on-canvas-hover`).
   // Disabled rows keep full opacity so the reason suffix stays AA; only the label is dimmed.
-  item: 'px-3 py-2 text-sm before:rounded-lg data-disabled:opacity-100 data-highlighted:not-data-disabled:before:bg-muted',
+  item: 'px-3 py-2 text-sm before:rounded-lg data-disabled:opacity-100 data-highlighted:not-data-disabled:before:bg-(--fill-on-canvas-hover)',
   itemLabelBase: 'group-data-disabled:text-dimmed',
   itemLeadingIcon: 'group-data-disabled:text-dimmed',
   itemLabelSuffix: 'text-muted',

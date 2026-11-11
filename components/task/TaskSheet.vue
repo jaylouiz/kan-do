@@ -74,7 +74,7 @@ defineSlots<{
   footer?(): unknown;
 }>();
 
-// The sheet header stays font-semibold (DESIGN.md, #220): it labels the add-task sheet. Only the task's own title is regular weight, and that lives in TaskDetailContent.
+// The sheet header is the display face at medium weight (DESIGN.md): it labels the add-task sheet. The task's own title is set in TaskDetailContent.
 const titleClass = computed(() => (props.hideTitle ? 'sr-only' : 'font-display text-lg font-medium tracking-display text-highlighted'));
 /** Detail route: the header would only hold the visually hidden title, so it takes no space. */
 const headerClass = computed(() => (props.hideTitle ? 'sr-only' : undefined));
