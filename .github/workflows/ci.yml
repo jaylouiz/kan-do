@@ -84,7 +84,7 @@ jobs:
           path: ~/.cache/ms-playwright
           key: pw-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - run: npx playwright install chromium
-      # System packages are best effort with a time limit (#186): the runner image already has Chromium's libraries, the
+      # System packages are best effort with a time limit (kd#186): the runner image already has Chromium's libraries, the
       # rest are fallback fonts. An unreachable Ubuntu mirror failed every shard before a test ran, or hung to the job
       # timeout. A library that is really missing still fails loudly when the browser starts.
       - name: Install Chromium system packages (best effort)

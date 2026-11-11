@@ -25,6 +25,8 @@ describe('copy editor translate', () => {
   it('finds the rules in the real file, without the guards table', () => {
     const rules = extractVoiceRules(readFileSync(join(process.cwd(), VOICE_RULES_FILE), 'utf8'))
     expect(rules).toContain('**Address.**')
+    // Usage rules no check can tell: the agent has to read them (the registry only knows forms to avoid).
+    for (const name of ['One term per concept', 'Löschen, Entfernen, Trennen', 'Task state', 'Settings, token, time', 'Plurals']) expect(rules).toContain(`**${name}.**`)
     expect(rules).toContain('**Statistik verdicts.**')
     expect(rules).not.toContain('| Guaranteed |')
   })
