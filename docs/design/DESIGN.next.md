@@ -55,7 +55,7 @@ rounded:
 
 # Design System: Kan-Do
 
-> **Draft of redesign step 4** (`docs/design/redesign-plan.md`). It replaces `DESIGN.md` in the foundations slice of step 5, in the same change as the token values; until then `DESIGN.md` describes the code. Where a value or a variant comes from: `docs/design/redesign-system.md`.
+> **Approved by the owner on 2026-11-11, not yet in force** (redesign step 4, `docs/design/redesign-plan.md`). It replaces `DESIGN.md` in the foundations slice of step 5, in the same change as the token values; until then `DESIGN.md` describes the code. Where a value or a variant comes from: `docs/design/redesign-system.md`.
 
 This file states the direction, the foundations, the rules and the recurring patterns. A value or trade-off of one component lives in that component's doc block; what a test or lint rule guarantees is named once under "Guards" and not repeated as prose. Product truth is in `PRODUCT.md`, the wording rules in `docs/copy/voice.md`.
 

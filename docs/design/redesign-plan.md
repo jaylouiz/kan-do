@@ -26,11 +26,11 @@ A redesigned UI that
 | 1 | Gap audit: what step 0 did not look at | **done** 2026-11-11 (`docs/design/redesign-gap-audit.md`) | agent runs, owner reads |
 | 2 | Rule review of `DESIGN.md` | **done** 2026-11-11 ("Step 2: rule review of `DESIGN.md`" in `docs/design/redesign-gap-audit.md`; four challenged rules answered by the owner) | owner, per challenged rule |
 | 3 | Visual direction on the cleaned kit | **done** 2026-11-11: Paper Desk with Fraunces and the yellow marker on the Jetzt headline (`## UX decision` in the body of kd#1; prototype branch `proto/1-visual-redesign`, commit `15b65260`) | owner |
-| 4 | System definition: foundations and the rewritten `DESIGN.md` | **drafted** 2026-11-11, waits for the owner's approval (`docs/design/redesign-system.md`, `docs/design/DESIGN.next.md`); then the spec on kd#1 | owner approves |
-| 5 | Migration in slices | not started | agents; owner feel-checks |
-| 6 | Lock-in: guards, baselines, canvas | not started | agents |
+| 4 | System definition: foundations and the rewritten `DESIGN.md` | **done** 2026-11-11: `docs/design/redesign-system.md` and `docs/design/DESIGN.next.md`, approved by the owner; kd#1 is the epic with one sub-issue per slice | owner approves |
+| 5 | Migration in slices | **next**: kd#175 (voice move, `ready`), then kd#176 (foundations, `needs-spec`); slices kd#177 to kd#181 follow | agents; owner feel-checks |
+| 6 | Lock-in: guards, baselines, canvas | not started (kd#182) | agents |
 
-Steps 2 and 3 are done; step 4 is drafted from the labels of step 2, the decision of step 3 and the owner's answers. **Next:** the owner approves the draft (the list "For the owner to approve" in `docs/design/redesign-system.md`), then `/specify-gh-issue 1` writes the spec and step 5 starts.
+Steps 0 to 4 are done. **Next:** step 5. A session takes the next open slice from the table under "Step 5": `/specify-gh-issue <n>` and `/build-gh-issue <n>`, or `/orchestrate-gh-issues` for several. The voice move (kd#175) and the foundations (kd#176) can start at once; every other slice waits for the foundations.
 
 ## How we work on it
 
@@ -59,9 +59,7 @@ Limits: iOS and web only (no desktop apps), static screenshots (no motion or fee
 
 The look is decided (kd#1, `## UX decision`) and the five questions of step 4 are answered (below). Each question names the step in which it is due; the session doing that step asks it first (see "How we work on it").
 
-| # | Question | Due | Recommendation |
-|---|---|---|---|
-| 6 | Approval of the system definition: the nine points under "For the owner to approve" in `docs/design/redesign-system.md` (my choices inside your decisions: label text at 12 px, the sizes that leave the type scale, the task title in its sheet, the two line heights of 14 px text, the spacing half steps, the warm shadow on menus and toasts, the re-spaced neutral ramp, the wording for `PRODUCT.md`, and `DESIGN.next.md` as a whole). | before the spec of step 4 is written | approve; a comment on the pull request of step 4 vetoes a single point |
+No question is open. The next one comes from step 5 (a slice's screenshots, the desktop app check).
 
 Decided by the owner on 2026-11-11 (written into the draft `docs/design/DESIGN.next.md`; `DESIGN.md` and `PRODUCT.md` change in the foundations slice of step 5):
 - The four rule proposals of the brief: a warm neutral canvas, never a saturated one; a muted green as the colour of action, red for exceptions; a serif for headings, the sans for everything read and operated; everything entered or edited sits on a bright lifted sheet, one level only.
@@ -81,6 +79,7 @@ Decided by the owner on 2026-11-11 (written into the draft `docs/design/DESIGN.n
   - Neutral buttons keep two looks (decided after a comparison of "soft only" and "both" on the prototype): soft for an action that stands on its own and for the one main action of a row; ghost for further actions inside a row, card, menu or toolbar and for icon-only buttons. `subtle` folds into soft.
   - The heading scale in Fraunces (parked decision U18, decided on three scales shown on the prototype): page titles 36 px like the column names, section headings 22 px, dialog titles and sub-headings 18 px.
   - Drag and drop takes the state language in its gentle form (tried in the running prototype against "as today" and "marked"): the card rises out of its resting pose (2 % larger, the tilt and the shadow grow, 150 ms), the drop glides 200 ms and the card is set down in 200 ms.
+- The system definition is approved as a whole (2026-11-11): the nine points of "Approved by the owner" in `docs/design/redesign-system.md`, among them 12 px label text, the eight type sizes, the task title in its sheet at 22 px Fraunces, the warm shadow on menus and toasts, and `docs/design/DESIGN.next.md` with The Marker Rule and The Sheets Cast Shadows Rule.
 - Airbnb stays the positive reference; Slack joins the anti-references in `PRODUCT.md` (a saturated block of brand colour as chrome, a dense sidebar, cluttered and dense with many interactive elements at once); principle 3 of `PRODUCT.md` is reworded for the sheets.
 
 ## Step 0: what already exists (do not redo)
@@ -163,9 +162,24 @@ The round shows two or three interpretations of the confirmed brief, not seven n
 - Rewrite `DESIGN.md` from the labels of step 2. Target: clearly under today's 373 lines; the Components section shrinks the most.
 - Each changed principle, token or named rule is a decision request to the owner (the project's rule for one-way decisions).
 
-Result: a spec on kd#1 (or its follow-up issues) through `/specify-gh-issue`.
+Result: a spec on kd#1 (or its follow-up issues) through `/specify-gh-issue`. Done as an epic: kd#1 is the tracker, the slices of step 5 are its sub-issues.
 
 ## Step 5: migration in slices
+
+Each slice is a sub-issue of the epic kd#1 with its scope, acceptance criteria and dependencies; the list below is the procedure, the table the state. Update the table when a slice is specified, merged or re-cut.
+
+| Issue | Slice | Depends on | State |
+|---|---|---|---|
+| kd#175 | Move "Voice and copy" to `docs/copy/voice.md` | – | ready |
+| kd#176 | 1 Foundations: tokens, theme, fonts, state language, the `DESIGN.md` swap | – | needs-spec |
+| kd#177 | 2 Actions: two button sizes, soft and ghost by rule | 1 | needs-spec |
+| kd#178 | 3 Inputs: 36 px fields, one choice chip, the task sheet value rows | 1 | needs-spec |
+| kd#179 | 4 Navigation, overlays and notices: one task sheet, titles | 1 | needs-spec |
+| kd#180 | 5 Display and layout: page sheets, one list row, headings, badges | 1, 2 | needs-spec |
+| kd#181 | 6 The board: card hover and press, drag motion, stacks, focus overlay, add slot | 1 | needs-spec |
+| kd#182 | 7 Lock-in (step 6) | 1 to 6 | needs-spec |
+
+Feedback and navigation have no slice of their own (the gap audit found nothing to merge there); what tokens do not reach in them is part of slice 4.
 
 1. **Foundations first**, one PR: token values and theme. Everything that is token-driven changes at once; baselines and the fingerprint are re-recorded here. The same PR moves `docs/design/DESIGN.next.md` over `DESIGN.md`, updates `PRODUCT.md` and repoints the readers listed in `docs/design/redesign-system.md` ("What step 5 has to know"). The move of "Voice and copy" to `docs/copy/voice.md` does not depend on the look and may go first as its own small change.
 2. **Then one slice per category**, in the order of `/ui`: action, input, navigation, feedback, overlay, display, layout and blocks. Each slice applies the direction to what tokens could not reach, merges the variants marked in step 1, and **deletes what it replaces in the same PR**.
@@ -207,3 +221,4 @@ In short: measuring, tracing, prototyping, rewriting and migrating can be done b
 - 2026-11-11: the owner answered parked decision U7: statistics opens the same task sheet as the board, one common sheet. On the owner's request the open questions now carry the step in which they are due, and "How we work on it" says that a session starts its step by interviewing the owner on the questions due for it.
 - 2026-11-11: step 2 done: every rule and paragraph of `DESIGN.md` is labelled in the gap audit ("Step 2: rule review of `DESIGN.md`"). Of the 257 body lines roughly 95 are component detail, 35 enforced and 30 duplicates; 17 rules are challenged, 13 of them already answered by the direction decision. The owner answered the other four in the session (One Lamp reworded for green, three line heights built into the size tokens, only sheets cast a shadow with the app bar's nav pill as the exception, two value looks in the task sheet with one height and one behaviour). Three challenged rules stay with the open questions of step 4; two new questions were added there (where "Voice and copy" lives, the radius of a page sheet) and question 2 gained the soft and ghost buttons. Nothing was changed in `DESIGN.md`. Next: step 4.
 - 2026-11-11: step 4 drafted. The session opened with the owner interview: button sizes (32 and 36 px), list rows (one density, one hover), choice chips (one chip, one card picker), field heights (36 px everywhere), "Voice and copy" (moves to `docs/copy/`), the sheet radius (16 px) were answered at once. Three questions were answered on the prototype branch, which gained a switch for each (`?type=`, `?btn=`, `?drag=`, commit `968c1861` on `proto/1-visual-redesign`): the heading scale (36 / 22 / 18 px), the neutral button looks (both; the owner asked for a comparison of "soft only" and "both" and then chose both with the row's main action as soft) and drag and drop motion (gentle). Written: `docs/design/redesign-system.md` (token values, closed variant lists, where the text of `DESIGN.md` goes, what step 5 has to know) and `docs/design/DESIGN.next.md` (241 lines against 373). Procedure changed: `DESIGN.md` itself is not edited in step 4; the draft replaces it in the foundations slice of step 5 (reason under "Step 4"). Rows U2, U7 and U18 of `docs/design/backlog.md` are marked decided. Open: the owner's approval of nine points (question 6), then the spec through `/specify-gh-issue`.
+- 2026-11-11: step 4 done. The owner approved the nine points of the system definition in the session ("Approved by the owner" in `docs/design/redesign-system.md`). `/specify-gh-issue 1` treated kd#1 as an epic: its body is now the tracker (problem, solution, the UX decision and its user criteria unchanged, the decisions of step 4, the slice table); the direction brief and the design rounds moved into a history comment. Eight sub-issues were created and linked: kd#175 (voice move, `ready`), kd#176 to kd#181 (the six look slices, `needs-spec`, each specified in its own run) and kd#182 (lock-in). Changed against the first plan: seven category slices became six, because feedback and navigation have nothing to merge; the lock-in of step 6 is a sub-issue too. kd#1 lost `on-hold` and `needs-spec` and is `ready` as a tracker. Next: step 5, starting with kd#175 and kd#176.

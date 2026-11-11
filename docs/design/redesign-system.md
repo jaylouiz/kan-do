@@ -3,7 +3,7 @@
 What the chosen direction (Paper Desk, kd#1 `## UX decision`) means as token values, closed variant lists and written rules. It is the input for the spec on kd#1 and for the slices of step 5. It changes no code. Plan: `docs/design/redesign-plan.md`; evidence: `docs/design/redesign-gap-audit.md`; the rewritten design file: `docs/design/DESIGN.next.md`.
 
 - **Sources of a value:** the prototype (`assets/css/proto.css` on `proto/1-visual-redesign`, block "A PAPER DESK" and the shared blocks; the step 4 switches at commit `968c1861`), the owner's answers of 2026-11-11 (listed in the plan under "Open questions for the owner"), and the gap audit's measurements.
-- **Status of each line:** *decided* = the owner said so; *follows* = a direct consequence of a decision; *proposed* = my choice inside a decision, listed again under "For the owner to approve".
+- **Status of each line:** *decided* = the owner said so; *follows* = a direct consequence of a decision; *proposed* = my choice inside a decision, listed again under "Approved by the owner".
 
 ## 1. Foundations as token values
 
@@ -132,9 +132,9 @@ Before a paragraph is removed from `DESIGN.md`, the slice that removes it checks
 - **Contrast already checked on the prototype:** axe, 0 failures on five surfaces at 1280 and 390 (step 3). Not yet checked: the new soft fill under text (near-black on a 7 % tint is far above 4.5:1 by calculation), the retuned topic hues, the Themen and Daten sub-pages, the desktop app.
 - **Known defect to fix in the card slice:** waiting cards read cool grey on the warm canvas (the greyscale filter).
 
-## 5. For the owner to approve
+## 5. Approved by the owner
 
-Decided items are not asked again. These are my choices inside the decisions; each can be vetoed with a comment on the pull request, and silence on a line is not consent until the pull request is approved as a whole.
+**Approved as a whole on 2026-11-11** (asked in the session, all nine points). They were the agent's choices inside the owner's decisions; the lines marked *proposed* in the tables above are these and now count as decided.
 
 1. **Label text is 12 px everywhere; 11 px goes.** Badges, chips and counts grow by one pixel on desktop (they are 12 px on a phone today).
 2. **16, 20, 24 and 30 px leave the type scale.** Settings and statistics copy becomes 14 px body; small headings move to 18 or 22 px; hero lines to 36 or 48 px.
