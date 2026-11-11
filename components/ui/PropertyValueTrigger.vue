@@ -6,14 +6,14 @@
 @usage <PropertyValueTrigger tone="value" class="-ms-2" inset @click="open">{{ text }}</PropertyValueTrigger>; `tone` `value` (a set value), `empty` (nothing set yet), `action` (a quiet text action such as a suggestion), `picked` (the preset that is set; pass `aria-pressed`). `inset` adds the horizontal padding the sheet's rows use.
 @avoid Not a button look for actions (UButton), not for the choice of one answer of a question (ChoiceChip), not for a value that opens a list (TaskPropertySelect) and not for editing text in place (InlineEditable). The trigger carries a label/value pair only inside TaskPropertyRow.
 @responsibility
-- Render one native `<button type="button">` with the `task-property-value` rule (global CSS `assets/css/task-detail.css`: faint dotted rule at rest on every pointer, darker on hover and focus, focus ring)
-- 32 px tall, 44 px on a phone (`max-md:min-h-11`); text-sm; the tone sets the colour, `picked` also the weight and underline
+- Render one native `<button type="button">` with the `task-property-value` rule (global CSS `assets/css/task-detail.css`: faint dotted rule at rest on every pointer, darker on hover and focus, focus ring; disabled: the base layer's 50 % and `not-allowed`, no hover answer)
+- One field height (`--field-h`: 36 px, 44 px on a phone and on touch); text-sm; the tone sets the colour, `picked` also the weight and underline
 - Attributes (`aria-label`, `aria-pressed`, `data-testid`, `disabled`, handlers) land on the button
 -->
 <template>
   <button
     type="button"
-    class="task-property-value flex min-h-8 cursor-pointer items-center rounded-sm text-sm max-md:min-h-11"
+    class="task-property-value flex h-(--field-h) cursor-pointer items-center rounded-sm text-sm"
     :class="[inset ? 'px-2' : '', TONE[tone]]"
   >
     <slot />

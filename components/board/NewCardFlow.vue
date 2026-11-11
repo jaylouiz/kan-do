@@ -9,7 +9,7 @@
 - Local state only (title, topic, activity, timebox, notes, step): it does not use `useTaskDraft`, which belongs to the sheet (draft card, spotlight, /tasks/add); saves through `useTaskSync().createTask` in the default source (`useAddTarget`), steps follow that source's fields (`fieldsForSource`); a step with nothing to offer is skipped
 - The face is the real TaskCard (`draft`), so the saved card and the cue behind the wash match by construction; the topic row exists only once a topic is picked (the title steps down then, as on a card)
 - Title step (no wash): the field is a textarea that grows with the title (#665; Enter confirms, line breaks become spaces, at most as tall as the face's title, which is what the card shows of it (a long title is clamped there), then it scrolls) and stands where the face's title stands: on the card body padding, or below the topic row once a topic is picked (measured from the face, #668: going back with a topic must not overlap it). The face's own title is hidden there, so the field is the only text; it keeps the field's right padding so both wrap alike. The confirm check is centred vertically on the card, on the line where the answer rows of the later steps stand, so the button controls keep one height; the field keeps the check's width clear (accepted: a short title wraps a few characters earlier)
-- Steps (one question at a time, over the card): head on the card padding (back left, question, skip right; none on Notiz), then the answers in a 2×2 grid (kd#16): Thema and Aktivität `[1] [2] / [3] [Mehr 4]`, Timebox `[1] [2] / [3] [··· 4]` (kd#119: three values like the other steps, 15, 30 and 60 min without a history suggestion; `timeboxStep`); the pills carry the name and the key cue only (a topic's mark shows in the list and on the face), a long name is cut in the middle (`MiddleEllipsis`, kd#119: "Karriere: Bewerbung" and "Karriere: Weiterbildung" stay apart; half the row, not a third). The grid makes the steps about 20 px taller than the title card: the face's min-height is derived from the head, two control rows and the room under them (`--ncf-control-h`, `--ncf-grid-top`, `--ncf-grid-bottom`). Notiz is an input plus a check on the vertical centre; Enter saves. The step slides sideways (140 ms) into the next
+- Steps (one question at a time, over the card): head on the card padding (back left, question, skip right; none on Notiz), then the answers in a 2×2 grid (kd#16): Thema and Aktivität `[1] [2] / [3] [Mehr 4]`, Timebox `[1] [2] / [3] [··· 4]` (kd#119: three values like the other steps, 15, 30 and 60 min without a history suggestion; `timeboxStep`); the chips (`ChoiceChip`, one height: the field height, which is also the control height of the whole flow, `--ncf-control-h`) carry the name and the key cue only (a topic's mark shows in the list and on the face), a long name is cut in the middle (`MiddleEllipsis`, kd#119: "Karriere: Bewerbung" and "Karriere: Weiterbildung" stay apart; half the row, not a third). The grid makes the steps about 28 px taller than the title card at 36 px controls (kd#178): the face's min-height is derived from the head, two control rows and the room under them (`--ncf-control-h`, `--ncf-grid-top`, `--ncf-grid-bottom`). Notiz is an input plus a check on the vertical centre; Enter saves. The step slides sideways (140 ms) into the next
 - Behind the steps the face sits under the stack pill's wash (`--stack-wash-*`) and softened (blur, 45 %), a cue that things are received, not text to read. A pick pulses the wash once (the only cue for Aktivität and Notiz, which a card does not show); saving lifts it
 - Keys: 1/2/3 pick, 4 opens the list (Mehr on Thema and Aktivität, "···" on Timebox), Enter skips (saves on Notiz), Esc goes back (cancels on the title step; with a typed title the slot offers "Rückgängig" in a toast, #665), Cmd/Ctrl+Enter saves now with what is entered, from any step once there is a title (#665; announced by `aria-keyshortcuts` and the check's title). Key cues sit inside the buttons (generated content, so the accessible name stays the label), fine pointers only. Tab order is the DOM order; every step change moves focus to the step (Notiz: its input)
 - A press outside cancels only while the title is blank; a save error keeps the card where it was (Notiz after Enter) with everything entered; the toast after a save is one row (title and Details, #665) so it stays clear of the saved card at 390 px
@@ -683,8 +683,7 @@ onBeforeUnmount(() => {
   /* What the title field keeps free for the check: 40 px button and a gap on a phone; with the key cue the check is wider */
   --ncf-check-clear: 2.75rem;
   /* The answer grid (kd#16): control height, where the grid starts below the head, and the room under it; the steps' card height is derived from them */
-  --ncf-control-h: 2rem;
-  --choice-chip-h: var(--ncf-control-h);
+  --ncf-control-h: var(--field-h);
   --ncf-grid-top: 3.25rem;
   --ncf-grid-bottom: 0.75rem;
   position: relative;
@@ -1037,7 +1036,6 @@ onBeforeUnmount(() => {
 /* Phone: touch targets 44 px (the answers, the save control and the note), no key cues */
 @media (--phone) {
   .ncf {
-    --ncf-control-h: 2.75rem;
     --ncf-check-clear: 3.25rem;
     --ncf-grid-top: 3rem;
     --ncf-grid-bottom: 1.25rem;

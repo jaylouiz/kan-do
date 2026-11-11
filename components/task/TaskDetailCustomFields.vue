@@ -22,7 +22,7 @@
       <!-- Checkbox (direct toggle) -->
       <label
         v-if="entry.value.type === 'checkbox'"
-        class="flex min-h-8 w-full cursor-pointer items-center max-md:min-h-11"
+        class="flex min-h-(--field-h) w-full cursor-pointer items-center"
       >
         <UCheckbox
           :model-value="entry.value.value"
@@ -92,7 +92,6 @@
             :type="inputType(entry.value.type)"
             :aria-label="entry.name"
             autofocus
-            size="sm"
             @keydown.enter="commitEdit"
             @keydown.esc.stop="cancelEdit"
             @update:model-value="(val) => setValue(val)"

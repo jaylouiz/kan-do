@@ -10,7 +10,7 @@
 - Enter in the field: a value named exactly as typed (any case) is picked, else the first match, else the text is created (a partial match never creates by accident: the "Neu" row is the first stop of ArrowDown, or a tap); no match shows "Keine Treffer gefunden." (a status line)
 - Keys: ↑/↓ (wrapping) walk field, "Neu" row and options; Home/End jump between options only while focus is not in the field (there they move the caret); handled keys stop here so no surrounding handler sees them (kd#15). Digits typed in the field never reach the step's 1-4 keys (the parent ignores keys while the list is open)
 - A long value is cut in the middle (`MiddleEllipsis`, kd#119), so values with the same beginning stay apart; the "Neu" row shows the typed text cut at the end (it is in the field above in full)
-- Options are `ChoiceChip` rows (native buttons) with one shared handler (not UDropdownMenu: the drawer has no menu primitive, kd#15)
+- Options are native buttons in the select menu's item look (the `selectMenu` theme's `item` slot: padding, text size, the muted highlight; `aria-current` marks the current one), at the field height (44 px in the phone drawer), with one shared handler (not UDropdownMenu: the drawer has no menu primitive, kd#15)
 -->
 <template>
   <div
@@ -26,7 +26,6 @@
       ref="searchEl"
       v-model="query"
       class="mb-1 w-full"
-      :size="large ? 'lg' : 'md'"
       icon="i-ph-magnifying-glass"
       type="text"
       autocomplete="off"
@@ -36,28 +35,27 @@
       :aria-label="newValues ? t('board.quickAdd.searchOrNew') : t('board.quickAdd.search')"
       @keydown.enter.prevent.stop="onEnter"
     />
-    <ChoiceChip
+    <button
       v-if="creatable"
-      shape="row"
-      :large="large"
-      class="font-medium"
+      type="button"
+      :class="[ROW_CLASS, 'font-medium']"
       data-testid="new-card-new"
       @click="emit('create', creatable)"
     >
       <UIcon name="i-ph-plus-bold" class="size-4 shrink-0" aria-hidden="true" />
       <span class="truncate" data-private>{{ t('board.quickAdd.newValue', { value: creatable }) }}</span>
-    </ChoiceChip>
-    <ChoiceChip
+    </button>
+    <button
       v-for="value in shown"
       :key="value"
-      shape="row"
-      :large="large"
+      type="button"
+      :class="ROW_CLASS"
       :aria-current="value === current ? 'true' : undefined"
       @click="emit('pick', value)"
     >
       <TopicMark v-if="showMark" :topic="value" />
       <MiddleEllipsis :text="optionLabel(value)" :data-private="searchable ? '' : undefined" />
-    </ChoiceChip>
+    </button>
     <p v-if="searchable && query.trim() && !creatable && !shown.length && !existing" class="px-3 py-2 text-sm text-muted" role="status" data-testid="new-card-no-match">
       {{ t('board.quickAdd.noMatch') }}
     </p>
@@ -68,7 +66,6 @@
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TopicMark from '~/components/topic/TopicMark.vue';
-import ChoiceChip from '~/components/ui/ChoiceChip.vue';
 import MiddleEllipsis from '~/components/ui/MiddleEllipsis.vue';
 import { existingValueFor, filterRest, newValueFor, type NewValueRules } from '~/lib/quickAddSuggestions';
 
@@ -91,7 +88,7 @@ const props = defineProps<{
   label: string;
   /** What a value reads as (Timebox: "30 min") */
   optionLabel: (value: string) => string;
-  /** The drawer's bigger targets and padding */
+  /** The drawer's padding and search field (the rows take their 44 px from the field height) */
   large?: boolean;
 }>();
 
@@ -101,6 +98,10 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+
+/** The select menu's item look, at the field height; the focus ring sits inside the row, a scrolling list would clip it */
+const ROW_CLASS =
+  'focus-ring flex min-h-(--field-h) w-full cursor-pointer items-center gap-1.5 rounded-md px-1.5 text-left text-sm text-default hover:bg-muted focus-visible:bg-muted focus-visible:-outline-offset-3 aria-current:font-semibold aria-current:text-highlighted';
 const query = ref('');
 const searchEl = ref<{ inputRef: HTMLInputElement | null } | null>(null);
 

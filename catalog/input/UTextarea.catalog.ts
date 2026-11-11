@@ -7,7 +7,7 @@ export default {
   kind: 'primitive',
   category: 'input',
   description: 'The multi-line text field: the same variants, colours and sizes as UInput, with an optional auto-resize.',
-  usage: 'Several lines of free text: notes, feedback. Inside a UFormField when it has a label; `rows` sets the start height, `autoresize` grows it. Keep the default `md` size.',
+  usage: 'Several lines of free text: notes, feedback. Inside a UFormField when it has a label; `rows` sets the start height, `autoresize` grows it. Set no size: the theme field size applies.',
   avoid: 'Not for a single line (UInput) and not for read-or-edit in place (InlineEditable with `multiline`).',
   alternatives: ['UInput', 'InlineEditable'],
   theme: 'textarea',

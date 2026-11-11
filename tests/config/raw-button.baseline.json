@@ -3,6 +3,10 @@
     "count": 1,
     "reason": "keep: card-shaped slot with a reserved box UButton ghost block cannot reproduce (#71)"
   },
+  "components/board/NewCardOptionList.vue": {
+    "count": 2,
+    "reason": "keep: the rows of the select menu's item look inside the new-card popover and drawer, which have no menu primitive (kd#15, kd#178); not a button look"
+  },
   "components/nav/AppNav.vue": {
     "count": 1,
     "reason": "keep: the app bar \"more\" pill with its status dot (audit, #73)"
@@ -30,9 +34,5 @@
   "components/ui/SwatchRadioGroup.vue": {
     "count": 1,
     "reason": "keep: the radio button of the swatch group; no library radio group does a row-wise grid (#72)"
-  },
-  "pages/welcome.vue": {
-    "count": 1,
-    "reason": "keep: rich two-line choice card, not a button look (audit, #71)"
   }
 }

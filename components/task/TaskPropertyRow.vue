@@ -8,18 +8,18 @@
 @responsibility
 - Fixed label column (Label role, text-muted) so values line up across rows
 - Value slot receives `labelId`, so the value control can be named by its label
-- 44px hit area at <=767px; no icon, divider or box (space separates groups)
+- One field height (`--field-h`: 36 px, 44 px on a phone and on touch) for the label and the value column; no icon, divider or box (space separates groups)
 - `private` marks the value (not the label) `data-private`: hidden during a feedback screenshot (#247)
 -->
 <template>
   <div class="flex items-start gap-3" data-testid="task-property-row">
     <span
       :id="labelId"
-      class="flex min-h-8 w-22 shrink-0 items-center text-xs font-medium text-muted max-md:min-h-11"
+      class="flex min-h-(--field-h) w-22 shrink-0 items-center text-xs font-medium text-muted"
     >
       {{ label }}
     </span>
-    <div class="flex min-h-8 min-w-0 flex-1 flex-wrap items-center gap-x-4 max-md:min-h-11" :data-private="isPrivate ? '' : undefined">
+    <div class="flex min-h-(--field-h) min-w-0 flex-1 flex-wrap items-center gap-x-4" :data-private="isPrivate ? '' : undefined">
       <slot :label-id="labelId" />
     </div>
   </div>

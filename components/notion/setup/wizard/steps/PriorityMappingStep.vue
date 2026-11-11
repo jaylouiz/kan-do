@@ -36,7 +36,6 @@
         :search-input="false"
         :placeholder="t(`notion.priorityMap.${level.key}.placeholder`)"
         class="w-full"
-        size="lg"
         :data-testid="`priority-map-${level.key}`"
         @update:model-value="editLevel(level.key, $event)"
       />

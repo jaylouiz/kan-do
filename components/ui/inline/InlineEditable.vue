@@ -39,7 +39,7 @@
         @keydown.space.self.prevent="startEdit"
       />
       <div
-        class="pointer-events-none relative flex min-h-8 items-center rounded-md border border-transparent px-2 py-1.5"
+        class="pointer-events-none relative flex items-center rounded-md border border-transparent px-2 py-1.5"
         :class="[displayClass, { 'text-muted italic': !modelValue && resolvedPlaceholder }]"
       >
         <slot name="display">
@@ -55,9 +55,9 @@
       role="button"
       tabindex="0"
       :aria-label="triggerLabel"
-      class="no-press flex min-h-8 items-center rounded-md border border-transparent px-2 py-1.5 focus-ring"
+      class="no-press flex items-center rounded-md border border-transparent px-2 py-1.5 focus-ring"
       :class="[
-        isRule ? 'task-property-value -ms-2 py-0 text-sm max-md:min-h-11' : '',
+        isRule ? 'task-property-value -ms-2 h-(--field-h) py-0 text-sm' : '',
         displayClass,
         { 'text-muted italic': !modelValue && resolvedPlaceholder }
       ]"
@@ -122,7 +122,7 @@ const props = withDefaults(defineProps<{
   modelValue?: string | number | null;
   /** Placeholder text when value is empty */
   placeholder?: string;
-  /** Size of the input component (for default UInput) */
+  /** Size of the input component (for default UInput): left out, the theme's one field size applies; only a title sets `xl` */
   size?: "md" | "xs" | "sm" | "lg" | "xl";
   /** Visual variant of the input component (for default UInput) */
   variant?: "outline" | "soft" | "subtle" | "ghost" | "none";
@@ -167,7 +167,7 @@ const props = withDefaults(defineProps<{
   modelValue: '',
   placeholder: undefined,
   label: undefined,
-  size: 'md',
+  size: undefined,
   variant: 'outline',
   showEditIcon: false,
   containerClass: '',

@@ -36,6 +36,7 @@
           type="password"
           :placeholder="t('notion.token.placeholder')"
           :loading="isValidating"
+          :disabled="isValidating"
           :state="inputState"
           autocomplete="off"
           data-1p-ignore

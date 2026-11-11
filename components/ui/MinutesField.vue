@@ -6,16 +6,16 @@
 @usage <MinutesField v-model.number="minutes" min="0" :aria-label="t('task.timebox')" data-testid="timebox-edit-input" @keydown.enter="save" />; or `:value` with `@input` where the host parses the value itself. Attributes and listeners land on the `<input>`.
 @avoid Not a bordered form field (UInput) and not the in-card minutes of the timebox nudge (TaskTimeboxNudge, sized for the card). Only for a duration in minutes inside a label/value row.
 @responsibility
-- Render the row-high wrapper (32 px, 44 px on a phone), the number input without spin buttons on a dotted rule, and the unit from `duration.unitMinute`
+- Render the row-high wrapper (the field height, `--field-h`), the number input without spin buttons on a dotted rule, and the unit from `duration.unitMinute`
 - `v-model.number` gives a number (the typed text while it is not one, like a native input); without `v-model` the host's `value` and `@input` apply unchanged
 - The unit is decoration for sighted users; the host names the field (`aria-label` or `aria-labelledby`)
 -->
 <template>
-  <div class="flex min-h-8 items-center gap-1.5 max-md:min-h-11">
+  <div class="flex h-(--field-h) items-center gap-1.5">
     <input
       :value="model"
       type="number"
-      class="minutes-field min-h-8 w-14 border-0 border-b border-dotted border-muted bg-transparent py-0.5 text-sm placeholder:text-muted focus-ring max-md:min-h-11"
+      class="minutes-field h-(--field-h) w-14 border-0 border-b border-dotted border-muted bg-transparent py-0 text-sm placeholder:text-muted focus-ring"
       v-bind="$attrs"
       @input="onInput"
     >

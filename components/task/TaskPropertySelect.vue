@@ -23,7 +23,6 @@
     :value-key="valueKey"
     :multiple="multiple"
     :variant="plain ? 'property' : 'soft'"
-    size="md"
     :trailing="!plain"
     :disabled="disabled"
     :placeholder="placeholder"
