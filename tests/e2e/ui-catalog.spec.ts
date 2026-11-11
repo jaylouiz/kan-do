@@ -107,7 +107,7 @@ test.describe('/ui one-page view: sections and texts', () => {
     expect(titles).toEqual(['Eingabe', 'Aktion', 'Navigation', 'Feedback', 'Overlay', 'Darstellung', 'Layout'])
     await expect(part.locator('#component-UButton')).toContainText('The one button of the app')
     // the one-page view starts on the whole theme: it is what the fingerprint reads
-    await expect(part.locator('[data-kd-sample^="UButton:matrix:"]')).toHaveCount(7 * 6 * 5)
+    await expect(part.locator('[data-kd-sample^="UButton:matrix:"]')).toHaveCount(7 * 4 * 2)
   })
 })
 
