@@ -25,7 +25,7 @@ A redesigned UI that
 | 0 | Inventory and visually neutral consolidation | **done** (epic kd#58, closed 2026-11) | – |
 | 1 | Gap audit: what step 0 did not look at | **done** 2026-11-11 (`docs/design/redesign-gap-audit.md`) | agent runs, owner reads |
 | 2 | Rule review of `DESIGN.md` | **next** (its starting list: "Input for the next steps" in the gap audit) | owner, per challenged rule |
-| 3 | Visual direction on the cleaned kit | **next**, starts with the owner's three inputs (favourite prototype, inspiration, statements) | owner |
+| 3 | Visual direction on the cleaned kit | **3a written 2026-11-11, waits for the owner** (direction brief in the body of kd#1); 3b (prototype round 3) starts once the brief is confirmed | owner |
 | 4 | System definition: foundations and the rewritten `DESIGN.md` | not started (needs 2 and 3) | owner approves |
 | 5 | Migration in slices | not started | agents; owner feel-checks |
 | 6 | Lock-in: guards, baselines, canvas | not started | agents |
@@ -56,10 +56,12 @@ Limits: iOS and web only (no desktop apps), static screenshots (no motion or fee
 
 ## Open questions for the owner
 
-1. Step 3: which round-2 prototype is the favourite (A1 Butter Desk, A2 Lemon Panels, A3 Ink Heads, H1 Sunlit Outline, H2 Sunlit Sticker, C1 Riso Pop, C2 Mono Press), and what should change about it?
-2. Step 3: where is the inspiration (name of the Mobbin collection, links or local screenshots of web finds)?
-3. Step 3: the general statements about the look and feel, in the owner's words.
-4. Step 1 found three focus rings where `DESIGN.md` names one (gap audit, part 3): most buttons and every field show Nuxt UI's faint 3 px halo instead of the 2 px ink ring. Fix it now as a bug, on today's look, or leave it to the state language of step 3? Recommendation: fix it now; it is an accessibility gap and the ring's shape is not in question.
+The direction brief of step 3a is in the body of kd#1 ("Direction brief"). Answer there, in a comment; the four questions are spelled out at the end of the brief.
+
+1. Step 3a: is the brief right (yes, or what to change)? Is yellow gone for good or still welcome as one spot of colour?
+2. Step 3a: may the done state use the same green as the new accent, or does done keep a colour of its own?
+3. Step 3a: the four rule proposals in the brief (calm canvas, green accent, serif headings, input on lifted sheets): adopt each, yes / as one-off / no. The last one also means rewording principle 3 in `PRODUCT.md`.
+4. Step 3a: `PRODUCT.md` references: add Slack to the anti-references, what is disliked about Slack, Trello and Notion, and is Airbnb still the positive reference?
 
 ## Step 0: what already exists (do not redo)
 
@@ -175,3 +177,4 @@ In short: measuring, tracing, prototyping, rewriting and migrating can be done b
 - 2026-11-11: plan created. Procedure changed from the first sketch: the inventory and consolidation steps are replaced by a pointer to epic kd#58, which already did them; what remains of them is the gap audit (step 1). Step 3 now rebuilds the prototype on the cleaned kit and uses `/ui` as a review surface.
 - 2026-11-11: step 1 done: `docs/design/redesign-gap-audit.md` (foundations as rendered, merge candidates per user job, mechanics matrix, delta since step 0). Measured with a throwaway Playwright script against `nuxt dev`; the mechanics use forced pseudo-states, so drag, script-set states and motion feel are not covered and stay with step 3. Step 2 is next and no longer waits; one new owner question (the focus ring).
 - 2026-11-11: step 3 now starts with a direction brief built from three owner inputs (favourite of the round-2 prototypes, web inspiration, general statements) and round 3 shows interpretations of that brief. Mobbin added as reference material for steps 1 to 4. Added "How we work on it" (a fresh session per step, this file as the handoff) and "Open questions for the owner".
+- 2026-11-11: step 3a written: the direction brief is in the body of kd#1, built from the owner's comment (remarks on the round-2 prototypes, five inspiration images, the Mobbin collection "kan-do Redesign"). D2 of kd#1 is answered as a mix of properties, not one favourite; the yellow canvas is no longer the leading idea (calm warm canvas, lifted bright sheets, serif headings, muted green accent). The old prototypes were not restarted: the owner's remarks made that unnecessary. Four rule proposals went through `design-rule` and sit in the brief; the rules they contradict ("type and space, not boxes", The Only Cards Float Rule, one typeface, The Frozen Primary Rule, Done Teal) are input for step 2. Round 3 is planned as three interpretations (Paper and Green, Sand Desk, Ink Edge) and waits for the confirmation.
