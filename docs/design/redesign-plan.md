@@ -14,7 +14,7 @@ The living plan for getting from today's UI to a redesigned one that follows the
 **Steps 0 to 4 are done: everything is decided, and of the look nothing is built.** The look (Paper Desk) and the system behind it are approved by the owner. `main` still shows the old look, and `DESIGN.md` still describes the old look on purpose. Step 5 has started with the one slice that does not touch the look: the wording rules now live in `docs/copy/voice.md` (kd#175, PR 185).
 
 **Do next**, in this order:
-1. kd#176, slice 1, the foundations: `needs-spec`. `/specify-gh-issue 176`, then `/build-gh-issue 176`. Every other slice waits for it. It also carries the owner item below, if it is still open then.
+1. kd#176, slice 1, the foundations: `needs-spec`. `/specify-gh-issue 176`, then `/build-gh-issue 176`. Every other slice waits for it.
 2. After kd#176 is merged: kd#177, kd#178 and kd#179 can run side by side (`/orchestrate-gh-issues 177 178 179`); kd#180 also waits for kd#177. Then kd#181 (the board) alone, then kd#182 (lock-in).
 
 **Read before building** (a slice's issue links them too):
@@ -27,7 +27,7 @@ The living plan for getting from today's UI to a redesigned one that follows the
 | The measurements and the rule review behind both | `docs/design/redesign-gap-audit.md` |
 | The prototype, reference only (rebuild properly, never merge or cherry-pick) | branch `proto/1-visual-redesign`, commit `968c1861`; `PORT=<free port> npm run dev`, then `/tasks?seed=demo&variant=a&type=1&btn=both&drag=1` |
 
-**Open for the owner:** one command, see "Open questions for the owner" (the registry note of `address-du`). Coming up in step 5: a look at each slice's screenshots, and one check of drag and motion in the desktop app (`npm run tauri:dev`) and on a real phone after slice 6.
+**Open for the owner:** nothing. Coming up in step 5: a look at each slice's screenshots, and one check of drag and motion in the desktop app (`npm run tauri:dev`) and on a real phone after slice 6.
 
 **Known limits of the prototype** (so nobody copies them): it overrides the app from one stylesheet outside the layers; its soft-or-ghost rule is approximated in CSS and shows a row's main action as ghost, where the decision is soft; its set-down after a drop watches a class change. The slices build each of these properly.
 
@@ -83,9 +83,7 @@ Limits: iOS and web only (no desktop apps), static screenshots (no motion or fee
 
 ## Open questions for the owner
 
-**No question is open; one action is.** A slice that meets something undecided adds it here with the slice it blocks.
-
-- **The registry note of `address-du` (blocks nothing today; due with kd#176).** The note of this decided term in `docs/copy/terms.json` still reads `DESIGN.md "Voice and copy": du.` kd#175 could not repoint it: the lock pins a decided entry including its note, and only the owner runs `npm run terms:approve`. Today the note still resolves, because `DESIGN.md` keeps the heading with the pointer; the new `DESIGN.md` of slice 1 has no such heading. To do: change the note's start to `docs/copy/voice.md "Address": du.`, then `npm run terms:approve` (an agent may make the one-line edit in the PR of kd#176; the command stays with the owner).
+**No question is open.** A slice that meets something undecided adds it here with the slice it blocks.
 
 ### Decided (final; a slice builds on these and does not reopen them)
 
@@ -198,7 +196,7 @@ Each slice is a sub-issue of the epic kd#1 with its scope, acceptance criteria a
 
 | Issue | Slice | Depends on | State |
 |---|---|---|---|
-| kd#175 | Move "Voice and copy" to `docs/copy/voice.md` | – | merged 2026-11-11 (PR 185; one line left for the owner: the registry note, see "Open questions for the owner") |
+| kd#175 | Move "Voice and copy" to `docs/copy/voice.md` | – | merged 2026-11-11 (PR 185) |
 | kd#176 | 1 Foundations: tokens, theme, fonts, state language, the `DESIGN.md` swap | – | needs-spec |
 | kd#177 | 2 Actions: two button sizes, soft and ghost by rule | 1 | needs-spec |
 | kd#178 | 3 Inputs: 36 px fields, one choice chip, the task sheet value rows | 1 | needs-spec |
@@ -264,3 +262,4 @@ In short: measuring, tracing, prototyping, rewriting and migrating can be done b
 - 2026-11-11: step 4 done. The owner approved the nine points of the system definition in the session ("Approved by the owner" in `docs/design/redesign-system.md`). `/specify-gh-issue 1` treated kd#1 as an epic: its body is now the tracker (problem, solution, the UX decision and its user criteria unchanged, the decisions of step 4, the slice table); the direction brief and the design rounds moved into a history comment. Eight sub-issues were created and linked: kd#175 (voice move, `ready`), kd#176 to kd#181 (the six look slices, `needs-spec`, each specified in its own run) and kd#182 (lock-in). Changed against the first plan: seven category slices became six, because feedback and navigation have nothing to merge; the lock-in of step 6 is a sub-issue too. kd#1 lost `on-hold` and `needs-spec` and is `ready` as a tracker. Next: step 5, starting with kd#175 and kd#176.
 - 2026-11-11: the plan was brought to the state after step 4 so a fresh session can start from it: a block "Where we are (start here)" at the top (what is decided, what to do next and with which command, what to read, the prototype's limits), "How we work on it" now speaks of a session per slice and says that the issue is the spec in step 5, the decisions are headed as final, and the procedure of step 5 follows the six look slices instead of the seven categories of the first plan. No decision and no state changed.
 - 2026-11-11: step 5 started. kd#175 built (PR 185): the wording rules moved to `docs/copy/voice.md` (20 rules, and a guards table for the mechanical part that the registry, `design-patterns.test.ts`, `npm run i18n:check` and ESLint check; the review showed that the registry catches forms to avoid but not when a term is right, so the usage rules stayed as rules against the issue's "not repeated"); `DESIGN.md` keeps a two-line pointer and is 351 lines (was 373); the copy editor's translation agent reads the `## Rules` list of the new file; the references by section name are repointed. Changed against the issue: the note of the decided term `address-du` in `docs/copy/terms.json` was not repointed, because the registry lock pins the note and only the owner runs `npm run terms:approve`; it is listed under "Open questions for the owner" and is due with kd#176. Next: kd#176 (specify, then build).
+- 2026-11-11: the open owner action of kd#175 is done: the note of the decided term `address-du` in `docs/copy/terms.json` points to `docs/copy/voice.md`, and the owner approved it with `npm run terms:approve` (lock rewritten, `address-du` the only changed term). No reference by section name is left outside the pointer in `DESIGN.md` and the history documents. Nothing is open for the owner; next is kd#176.

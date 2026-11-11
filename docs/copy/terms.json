@@ -620,7 +620,7 @@
     ],
     "avoidEn": [],
     "status": "decided",
-    "note": "DESIGN.md \"Voice and copy\": du. The formal address is converted (#474). \"Sie\"/\"Ihr\"/\"Ihnen\" are matched case-sensitively (caseSensitive), so the pronoun \"sie\"/\"ihre\" (she/they/it) does not hit; the 4 sentence-initial pronouns \"Sie bleibt…\" are exempt via allow (keep the list to these keys: a new sentence-initial pronoun needs an allowed key).",
+    "note": "docs/copy/voice.md \"Address\": du. The formal address is converted (#474). \"Sie\"/\"Ihr\"/\"Ihnen\" are matched case-sensitively (caseSensitive), so the pronoun \"sie\"/\"ihre\" (she/they/it) does not hit; the 4 sentence-initial pronouns \"Sie bleibt…\" are exempt via allow (keep the list to these keys: a new sentence-initial pronoun needs an allowed key).",
     "allow": [
       "settings.data.state.corrupt",
       "settings.topics.emptyTopics",
@@ -634,8 +634,14 @@
     "concept": "The last moment of a day the app saw: the tasks still in Offen, Jetzt or Wartet then are counted on the Statistik page (#537)",
     "de": "Tagesende",
     "en": "day end",
-    "avoidDe": ["Feierabend", "Abend"],
-    "avoidEn": ["evening", "end of day"],
+    "avoidDe": [
+      "Feierabend",
+      "Abend"
+    ],
+    "avoidEn": [
+      "evening",
+      "end of day"
+    ],
     "status": "proposed",
     "note": "Not an exact time: the count is the last one the app saw that day, so a day on which the app was only open in the morning shows the morning count. Not to be confused with day-close (the dialog, \"Tag abschließen\")."
   },
@@ -644,8 +650,12 @@
     "concept": "A task's required name, the first field of the add and detail sheets (#662)",
     "de": "Titel",
     "en": "title",
-    "avoidDe": ["Name der Aufgabe"],
-    "avoidEn": ["task name"],
+    "avoidDe": [
+      "Name der Aufgabe"
+    ],
+    "avoidEn": [
+      "task name"
+    ],
     "status": "proposed",
     "note": "The add-sheet placeholder asks to \"benennen\"/\"name\" the task and the empty-title error says \"Gib der Aufgabe einen Titel.\" / \"Give the task a title.\": verb and noun differ on purpose (the field is a title, naming is the act)."
   },
@@ -654,7 +664,9 @@
     "concept": "The statistics place: app bar segment, page title, browser tab title, open command (#680)",
     "de": "Statistik",
     "en": "Statistics",
-    "avoidDe": ["Statistiken"],
+    "avoidDe": [
+      "Statistiken"
+    ],
     "avoidEn": [],
     "status": "proposed",
     "note": "A place is named like the app bar names it (\"Heute\", \"Statistik\", \"Papierkorb\", \"Einstellungen\"): the singular, also as the page title and the tab title. de \"Statistiken\" was the page title and tab title before #680 while the app bar and the command said \"Statistik\". en was consistent (\"Statistics\" everywhere). \"Statistik\" inside running text (\"zur Statistik hinzugefügt\") is the same word."
@@ -664,8 +676,14 @@
     "concept": "The third tab of Einstellungen: topics and activities, data and storage, updates and GitHub access (#691)",
     "de": "Verwaltung",
     "en": "Manage",
-    "avoidDe": ["App & Daten", "Sonstiges"],
-    "avoidEn": ["Other", "App & data"],
+    "avoidDe": [
+      "App & Daten",
+      "Sonstiges"
+    ],
+    "avoidEn": [
+      "Other",
+      "App & data"
+    ],
     "status": "proposed",
     "note": "Named by the user in the #691 design round: user-data maintenance, not board behaviour, so Themen und Aktivitäten lives here too. The tab strip reads Board, Aufgabenquellen, Verwaltung (en: Board, Connections, Manage; en avoids \"task source\" because of the task-source term). Not \"Mehr\" / \"More\" as a catch-all tab name; the words moved out of the avoid lists in kd#16, where \"Mehr\" names the new-card flow's fourth cell (quick-add-more-values) and the registry test forbids one term's avoid form being another's preferred form."
   },
@@ -674,8 +692,13 @@
     "concept": "How many requests GitHub allows per hour; an optional read-only token raises it (update checks)",
     "de": "Anfragelimit",
     "en": "request limit",
-    "avoidDe": ["Rate-Limit", "Ratenlimit"],
-    "avoidEn": ["rate limit"],
+    "avoidDe": [
+      "Rate-Limit",
+      "Ratenlimit"
+    ],
+    "avoidEn": [
+      "rate limit"
+    ],
     "status": "proposed"
   },
   {
@@ -683,8 +706,14 @@
     "concept": "What a feedback report becomes on GitHub: a public issue in the app's repository",
     "de": "Issue",
     "en": "issue",
-    "avoidDe": ["Ticket", "Fehlermeldung"],
-    "avoidEn": ["ticket", "bug report"],
+    "avoidDe": [
+      "Ticket",
+      "Fehlermeldung"
+    ],
+    "avoidEn": [
+      "ticket",
+      "bug report"
+    ],
     "status": "proposed",
     "note": "GitHub's own word, as the feedback dialog already used it (\"Als Issue senden\"). German keeps the English noun (das Issue). Since the repository is public the dialog says \"öffentliches Issue\" / \"public issue\"."
   },
@@ -693,8 +722,13 @@
     "concept": "The user's own GitHub sign-in that the browser path of the feedback needs",
     "de": "GitHub-Konto",
     "en": "GitHub account",
-    "avoidDe": ["GitHub-Account"],
-    "avoidEn": ["GitHub login", "GitHub profile"],
+    "avoidDe": [
+      "GitHub-Account"
+    ],
+    "avoidEn": [
+      "GitHub login",
+      "GitHub profile"
+    ],
     "status": "proposed",
     "note": "Not the token: the token is the secret stored in the app (token entry); the account is the person's sign-in on github.com. German compound with the brand name takes a hyphen (DESIGN.md)."
   },
@@ -713,8 +747,12 @@
     "concept": "The calendar day a task counts as done on: shown as a row of a done task's sheet, where a task marked done late is moved to the day the work was finished (kd#131)",
     "de": "Erledigt am",
     "en": "Done on",
-    "avoidDe": ["Fertig am"],
-    "avoidEn": ["Finished on"],
+    "avoidDe": [
+      "Fertig am"
+    ],
+    "avoidEn": [
+      "Finished on"
+    ],
     "status": "proposed",
     "note": "Same wording as the Statistik table column (statistics.table.completedAt). Follows the decided task state erledigt / done (column-done). The Notion setup names Notion's own property and is not this row."
   }
