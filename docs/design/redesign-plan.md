@@ -59,7 +59,6 @@ Limits: iOS and web only (no desktop apps), static screenshots (no motion or fee
 1. Step 3: which round-2 prototype is the favourite (A1 Butter Desk, A2 Lemon Panels, A3 Ink Heads, H1 Sunlit Outline, H2 Sunlit Sticker, C1 Riso Pop, C2 Mono Press), and what should change about it?
 2. Step 3: where is the inspiration (name of the Mobbin collection, links or local screenshots of web finds)?
 3. Step 3: the general statements about the look and feel, in the owner's words.
-4. Step 1 found three focus rings where `DESIGN.md` names one (gap audit, part 3): most buttons and every field show Nuxt UI's faint 3 px halo instead of the 2 px ink ring. Fix it now as a bug, on today's look, or leave it to the state language of step 3? Recommendation: fix it now; it is an accessibility gap and the ring's shape is not in question.
 
 ## Step 0: what already exists (do not redo)
 
@@ -174,4 +173,5 @@ In short: measuring, tracing, prototyping, rewriting and migrating can be done b
 
 - 2026-11-11: plan created. Procedure changed from the first sketch: the inventory and consolidation steps are replaced by a pointer to epic kd#58, which already did them; what remains of them is the gap audit (step 1). Step 3 now rebuilds the prototype on the cleaned kit and uses `/ui` as a review surface.
 - 2026-11-11: step 1 done: `docs/design/redesign-gap-audit.md` (foundations as rendered, merge candidates per user job, mechanics matrix, delta since step 0). Measured with a throwaway Playwright script against `nuxt dev`; the mechanics use forced pseudo-states, so drag, script-set states and motion feel are not covered and stay with step 3. Step 2 is next and no longer waits; one new owner question (the focus ring).
+- 2026-11-11: the focus ring question of step 1 is answered by the owner: one ring, Nuxt UI's soft halo, on every control (`DESIGN.md` "Focus", `--focus-ring-*`). The solid 2 px ink ring and its 3:1 contrast guard are gone on purpose; step 3 may still restyle the ring as part of the state language.
 - 2026-11-11: step 3 now starts with a direction brief built from three owner inputs (favourite of the round-2 prototypes, web inspiration, general statements) and round 3 shows interpretations of that brief. Mobbin added as reference material for steps 1 to 4. Added "How we work on it" (a fresh session per step, this file as the handoff) and "Open questions for the owner".

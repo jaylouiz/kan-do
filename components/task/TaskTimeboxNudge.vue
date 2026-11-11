@@ -318,10 +318,10 @@ const onBarEnd = (event: AnimationEvent) => {
   outline: none; /* the pill around it carries the focus ring */
 }
 
-/* DESIGN.md "Buttons > Focus": the solid 2px ink ring, on the pill when its input has keyboard focus */
+/* DESIGN.md "Buttons > Focus": the focus ring, on the pill when its input has keyboard focus */
 .nudge__field:focus-within {
-  outline: 2px solid var(--ui-primary);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
 }
 
 .nudge__input::-webkit-outer-spin-button,

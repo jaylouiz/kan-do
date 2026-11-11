@@ -100,17 +100,16 @@ html.kando-capture-mask [data-private] {
 }
 
 /*
- * `focus-ring` (#556): DESIGN.md "a solid 2px ink ring with an offset on every control", for hand-rolled
- * controls (buttons and links Nuxt UI does not render). Replaces `focus-visible:outline-2
- * focus-visible:outline-offset-2 focus-visible:outline-primary`; `app.config.ts` carries the same ring
- * for Nuxt UI buttons.
+ * `focus-ring`: the one focus ring of DESIGN.md "Focus", Nuxt UI's soft halo (3px, 25% of the ink, no offset), for
+ * hand-rolled controls (buttons and links Nuxt UI does not render). Nuxt UI components draw the same halo from
+ * their own theme; the values are the `--focus-ring-*` tokens in main.css.
  */
 @utility focus-ring {
   &:focus-visible {
     outline-style: solid;
-    outline-width: 2px;
-    outline-offset: 2px;
-    outline-color: var(--ui-primary);
+    outline-width: var(--focus-ring-width);
+    outline-offset: var(--focus-ring-offset);
+    outline-color: var(--focus-ring-color);
   }
 }
 

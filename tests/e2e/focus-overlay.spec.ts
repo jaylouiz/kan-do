@@ -234,7 +234,7 @@ test.describe('desktop, mouse', () => {
     await expectHidden(page)
     const waiting = page.locator('#column-waiting .task-wrapper').first()
     await waiting.focus()
-    await expect(waiting.locator('.task')).toHaveCSS('outline-width', '2px')
+    await expect(waiting.locator('.task')).toHaveCSS('outline-width', '3px')
   })
 
   test('prefers-reduced-motion: the fades are 120 ms', async ({ page }) => {

@@ -230,7 +230,7 @@ Nuxt UI components with project-wide overrides in `app.config.ts`; custom compon
 
 ### Buttons
 - **Primary:** ink fill, light text, at most one per view; deep ink on hover.
-- **Focus:** a solid 2px ink ring with an offset on every control (not Nuxt UI's translucent halo). Hand-rolled controls take the utility `focus-ring` (`assets/css/utilities.css`); solid primary Nuxt UI buttons and tab triggers carry it from `app.config.ts`, while soft and ghost buttons keep Nuxt UI's translucent halo.
+- **Focus:** one ring on every control: Nuxt UI's soft halo, 3px at 25% of the ink (of the role colour on a Nuxt UI component), without an offset. Nuxt UI components draw it from their own theme, so `app.config.ts` sets no ring; hand-rolled controls take the utility `focus-ring` (`assets/css/utilities.css`) or read the `--focus-ring-*` tokens (`assets/css/main.css`). A row inside a clipped list draws it inside the row. Accepted trade-off (owner decision, 2026-11-11): the halo is below the 3:1 of WCAG 1.4.11 on the page; a field keeps its solid 1px inner ring.
 - **Soft / Ghost:** the default for secondary actions; board actions are ghost icon buttons. Dialog footers put the neutral cancel first and the primary last.
 - **Size ladder (#552):** one size per role, not per surface. `md` is the theme default and needs no prop; a call site climbs or descends only by the role below. Heights in px at desktop / at 390 px.
 

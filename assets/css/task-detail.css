@@ -62,8 +62,8 @@
 }
 
 .task-property-value:focus-visible {
-  outline: 2px solid var(--ui-primary);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
 }
 
 /* The plain select trigger of a footer line (`property` variant) keeps the old grammar: the rule only on hover and focus,
@@ -137,8 +137,8 @@ button[data-slot='base'].task-property-value[aria-haspopup='listbox']:focus-visi
 }
 
 .task-notes-markdown a:focus-visible {
-  outline: 2px solid var(--ui-primary);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
   border-radius: var(--radius-xs);
 }
 
@@ -166,7 +166,7 @@ button[data-slot='base'].task-property-value[aria-haspopup='listbox']:focus-visi
 }
 
 /* A row of the Thema / Aktivität picker's edit mode (#443): one real button per name (mark, name, count, pencil) that
-   opens the shared editor. 32px, a 44px target on touch. Focus is the project's solid ink ring, inset so the scroll
+   opens the shared editor. 32px, a 44px target on touch. Focus is the project's focus ring, inset so the scroll
    list does not clip it. */
 .picker-edit-row {
   display: flex;
@@ -186,8 +186,8 @@ button[data-slot='base'].task-property-value[aria-haspopup='listbox']:focus-visi
 }
 
 .picker-edit-row:focus-visible {
-  outline: 2px solid var(--ui-primary);
-  outline-offset: -2px;
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: calc(-1 * var(--focus-ring-width));
 }
 
 @media (--phone) {

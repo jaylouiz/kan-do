@@ -44,13 +44,13 @@ test.describe('Task Form Timebox Presets', () => {
     await expect(timeboxInput).toHaveValue('45');
   });
 
-  test('shows a solid focus ring on the keyboard-focused timebox input (#648, WCAG 2.4.7)', async ({ page }) => {
+  test('shows the focus ring on the keyboard-focused timebox input (#648, WCAG 2.4.7)', async ({ page }) => {
     await page.goto('/tasks/add');
 
     const timeboxInput = page.getByTestId('add-task-timebox-input');
     await timeboxInput.focus();
     await expect(timeboxInput).toHaveCSS('outline-style', 'solid');
-    await expect(timeboxInput).toHaveCSS('outline-width', '2px');
+    await expect(timeboxInput).toHaveCSS('outline-width', '3px');
   });
 
   test('starts empty with the muted placeholder, not 0 (#663)', async ({ page }) => {

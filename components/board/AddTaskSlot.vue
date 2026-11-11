@@ -237,7 +237,7 @@ const isEmpty = computed(() => !props.showButton && !isDrafting.value);
 }
 
 /* Grown: the card box. Hover only on pointer devices, so a tap never leaves a sticky grown state;
-   keyboard focus adds the solid ink ring (DESIGN.md); drafting holds the shape under the fading label */
+   keyboard focus adds the focus ring (DESIGN.md); drafting holds the shape under the fading label */
 @media (hover: hover) {
   .add-task-button:hover .add-task-button-surface {
     min-width: 100%;
@@ -246,8 +246,8 @@ const isEmpty = computed(() => !props.showButton && !isDrafting.value);
 }
 
 .add-task-button:focus-visible {
-  outline: 2px solid var(--ui-primary);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
 }
 
 .add-task-button:focus-visible .add-task-button-surface,

@@ -169,6 +169,8 @@ Computed on the first interactive elements of every `/ui` sample (desktop). "Com
 
 ### Focus-visible
 
+> Resolved after this audit (2026-11-11, owner decision): every control now shows Nuxt UI's halo; the 2 px ink ring is gone. The table below is the state that was measured.
+
 | Ring | Components | Which |
 |---|---|---|
 | 2 px solid ink, 2 px offset (the rule in `DESIGN.md`) | 26 | solid `UButton`, `UTabs`, `TaskPropertySelect`, `USelectMenu` `soft` and `property`, and everything hand-built with `focus-ring`: `ChoiceChip` (pill, chip, icon), `PropertyValueTrigger`, `InlineEditable`, `MinutesField`, `SwatchRadioGroup`, `ListRow`, `StatsTile`, `AddTaskSlot`, `SettingsSubpageLink`, `DatePickerField` |

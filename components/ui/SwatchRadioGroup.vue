@@ -98,11 +98,11 @@ defineExpose({ focusSelected });
 }
 
 .swatch-radio:focus-visible {
-  outline: 2px solid var(--ui-primary);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
 }
 
-/* Swatches: 28px, 40px on touch widths (#431). The ring marks the selection; focus is the project's solid ink ring. */
+/* Swatches: 28px, 40px on touch widths (#431). The ring marks the selection; focus is the project's focus ring. */
 .swatch-radio--swatch {
   width: 1.75rem;
   height: 1.75rem;
