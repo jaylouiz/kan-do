@@ -617,6 +617,17 @@ test.describe('empty list', () => {
   })
 })
 
+test.describe('inherited colour in the topic editor (#144)', () => {
+  test('a Local topic whose tasks carry a colour explains "Keine Farbe" next to the coloured mark', async ({ context, page }) => {
+    await seedLocalBoard(context, [base({ id: 'ih-1', title: 'Entwurf', status: 0, topic: 'Design', topicColorCode: 'blue' })])
+    await page.goto('/tasks/ih-1')
+    await openEditorFromPicker(page, 'Design')
+    await expect(editor(page).getByTestId('topic-color-hint')).toContainText('Ohne eigene Wahl zeigt Kan-Do die Farbe der Aufgaben (Blau)')
+    await editor(page).getByTestId('topic-hue-red').click()
+    await expect(editor(page).getByTestId('topic-color-hint')).toHaveCount(0)
+  })
+})
+
 test.describe('long names in the task sheet select (#154)', () => {
   test('a long topic is cut in the middle in the trigger and in the menu, the full name stays the accessible name', async ({ context, page }) => {
     await page.setViewportSize({ width: 390, height: 844 })

@@ -65,6 +65,9 @@ immediate: no loading or error state.
         <p v-if="notionHue && hue === null" class="text-sm text-muted" data-testid="topic-color-hint">
           {{ t('topic.editor.colorInherited', { hue: hueLabel(notionHue) }) }}
         </p>
+        <p v-else-if="inheritedHue && hue === null" class="text-sm text-muted" data-testid="topic-color-hint">
+          {{ t('topic.editor.colorInheritedFromTasks', { hue: hueLabel(inheritedHue) }) }}
+        </p>
         <p v-else-if="notionHue && hue !== notionHue" class="text-sm text-muted" data-testid="topic-color-hint">
           {{ t('topic.editor.colorLocalOnly', { hue: hueLabel(notionHue) }) }}
         </p>
@@ -170,7 +173,8 @@ const nameChanged = computed(() => !nameLocked.value && renameVerdict(props.topi
 const mergeWith = computed(() => (nameChanged.value ? management.mergeTarget(props.kind, props.topic, name.value) : null))
 const inheritedHue = computed(() => (props.kind === 'topic' ? sourceHueOf(props.topic) : null))
 const effectiveHue = computed(() => hue.value ?? inheritedHue.value)
-// The Notion hints only for a name Notion owns: its colour is what "keine" returns to
+// The Notion hints only for a name Notion owns: its colour is what "keine" returns to. Any other inherited hue (a task's
+// own colour) gets its own hint, so "keine" next to a coloured mark is explained (#144)
 const notionHue = computed(() => (nameLocked.value ? inheritedHue.value : null))
 const count = computed(() => management.countOf(props.kind, props.topic))
 const styleChanged = computed(() => props.kind === 'topic' && (hue.value !== start.hue || symbol.value !== start.symbol))
