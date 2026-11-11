@@ -6,7 +6,7 @@
 @usage Value slot of TaskPropertyRow in the detail and add views; `plain` only for a quiet footer line outside a row (AddTargetSwitch)
 @avoid Only a value picker inside a TaskPropertyRow; topic and activity use TopicPropertyPicker; a free value (timebox, text) is an InlineEditable, not a select.
 @responsibility
-- Soft select trigger (USelectMenu `soft` variant from app.config.ts: muted fill, chevron, 36px, 44px on touch), named "<label>: <value>"; `plain` keeps the old text trigger (`property` variant: body text, dotted rule on hover)
+- Soft select trigger (USelectMenu `soft` variant from app.config.ts: muted fill, chevron, 36px, 44px on a phone), named "<label>: <value>"; `plain` keeps the old text trigger (`property` variant: body text, dotted rule on hover)
 - Optional `value-leading` slot: a value icon (the topic mark) sits inside the select, before the value
 - Optional help text at the top of the open picker (reachable on touch, replaces tooltips)
 - Clearing lives inside the picker (a "<label> entfernen" action), never as a × on the trigger
@@ -23,7 +23,6 @@
     :value-key="valueKey"
     :multiple="multiple"
     :variant="plain ? 'property' : 'soft'"
-    size="md"
     :trailing="!plain"
     :disabled="disabled"
     :placeholder="placeholder"

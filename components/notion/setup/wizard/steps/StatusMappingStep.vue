@@ -27,7 +27,6 @@
         :items="statusOptions"
         :placeholder="t('notion.statusMap.today.placeholder')"
         class="w-full"
-        size="lg"
       />
     </UFormField>
 
@@ -42,7 +41,6 @@
         :items="statusOptions"
         :placeholder="t('notion.statusMap.doing.placeholder')"
         class="w-full"
-        size="lg"
       />
     </UFormField>
 
@@ -57,7 +55,6 @@
         :items="statusOptions"
         :placeholder="t('notion.statusMap.done.placeholder')"
         class="w-full"
-        size="lg"
       />
     </UFormField>
 
@@ -71,7 +68,6 @@
         :items="[{ label: t('notion.wizard.noneOption'), value: null }, ...statusOptions]"
         :placeholder="t('notion.statusMap.waiting.placeholder')"
         class="w-full"
-        size="lg"
       />
     </UFormField>
 
@@ -85,7 +81,6 @@
         :items="[{ label: t('notion.wizard.noneOption'), value: null }, ...statusOptions]"
         :placeholder="t('notion.statusMap.archive.placeholder')"
         class="w-full"
-        size="lg"
       />
     </UFormField>
 

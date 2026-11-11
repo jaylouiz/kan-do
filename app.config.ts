@@ -244,14 +244,24 @@ export default defineAppConfig({
         content: 'data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up overflow-hidden'
       }
     },
-    // The one disabled look (DESIGN.md "States"): 50 % opacity and `not-allowed`, on fields as on buttons.
-    // Placeholders step down through `text-muted`, not Nuxt UI's `text-dimmed` (2.5:1 on the sheet; Receding Text
-    // Rule, #646).
+    // Fields (DESIGN.md "Space, size and shape", kd#178): one size, `lg`, as the theme default, so no call site sets
+    // `size`; the height is the `--field-h` token (36 px, 44 px on a phone), explicit and not the text
+    // line plus padding (slice 1b, kd#190, changes that line). The one exception is the task sheet's title field,
+    // which keeps `xl` and its own height. The one disabled look (DESIGN.md "States"): 50 % opacity and
+    // `not-allowed`, on fields as on buttons; a field that loads also sets `disabled`, which locks it like a loading
+    // button (tests/config/field-size.test.ts). Placeholders step down through `text-muted`, not Nuxt UI's
+    // `text-dimmed` (2.5:1 on the sheet; Receding Text Rule, #646).
     input: {
       slots: {
         base: [
-          'placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50'
+          'h-(--field-h) placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50'
         ]
+      },
+      compoundVariants: [
+        { size: 'xl', class: { base: 'h-auto' } }
+      ],
+      defaultVariants: {
+        size: 'lg'
       }
     },
     formField: {
@@ -264,22 +274,28 @@ export default defineAppConfig({
       slots: {
         content: 'rounded-lg shadow-(--shadow-overlay)',
         base: [
-          'disabled:cursor-not-allowed disabled:opacity-50'
+          'h-(--field-h) disabled:cursor-not-allowed disabled:opacity-50'
         ]
+      },
+      defaultVariants: {
+        size: 'lg'
       }
     },
     selectMenu: {
       slots: {
+        base: 'h-(--field-h) disabled:opacity-50',
+        // The picker's rows keep the `md` item (p-1.5, text-sm) that TaskPropertySelect documents; `lg` would add 2 px
+        item: 'p-1.5',
         content: 'z-(--z-popover) min-w-40 rounded-lg shadow-(--shadow-overlay)'
       },
       variants: {
         // `soft` is the select of the task sheet's property rows (#114, DESIGN.md "Components"):
-        // a muted fill and a chevron at rest, no border, so a value that opens a list reads as one. 36px high,
-        // 44px on touch. Wrapped by TaskPropertySelect; set it nowhere else.
+        // a muted fill and a chevron at rest, no border, so a value that opens a list reads as one. One field height
+        // like every field (`--field-h`). Wrapped by TaskPropertySelect; set it nowhere else.
         // `property` (#161) is the quiet text trigger, kept for the add sheet's footer line (AddTargetSwitch):
         // body text with the dotted rule on hover/focus (task-detail.css), no fill, no caret, no icons.
         variant: {
-          soft: 'text-default bg-muted hover:bg-(--ui-border-accented) focus:bg-muted focus-visible:bg-(--ui-border-accented) disabled:bg-muted',
+          soft: 'text-default bg-muted hover:bg-(--ui-border-accented) focus:bg-muted focus-visible:bg-(--ui-border-accented) disabled:bg-muted disabled:hover:bg-muted',
           property: {
             value: 'pointer-events-none',
             placeholder: 'text-muted',
@@ -293,7 +309,7 @@ export default defineAppConfig({
         {
           variant: 'soft',
           class: {
-            base: 'min-h-9 w-48 cursor-pointer text-sm max-md:min-h-11 md:text-sm',
+            base: 'w-48 cursor-pointer text-sm',
             placeholder: 'text-muted',
             trailingIcon: 'size-4 text-muted'
           }
@@ -301,16 +317,22 @@ export default defineAppConfig({
         {
           variant: 'property',
           class: {
-            base: 'task-property-value -ms-2 min-h-8 cursor-pointer rounded-sm px-2 py-0 text-sm text-default max-md:min-h-11 md:text-sm'
+            base: 'task-property-value -ms-2 cursor-pointer rounded-sm px-2 py-0 text-sm text-default'
           }
         }
-      ]
+      ],
+      defaultVariants: {
+        size: 'lg'
+      }
     },
     textarea: {
       slots: {
         base: [
-          'placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50'
+          'min-h-(--field-h) placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50'
         ]
+      },
+      defaultVariants: {
+        size: 'lg'
       }
     },
     // The button ladder (#552, DESIGN.md "Components"): `md` is the default size and siblings in a footer or row stay at

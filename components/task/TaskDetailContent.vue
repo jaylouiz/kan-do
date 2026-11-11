@@ -241,7 +241,7 @@
           </InlineEditable>
           <span
             v-if="task.timeBoxSeconds"
-            class="flex min-h-8 items-center text-sm tabular-nums max-md:min-h-11"
+            class="flex min-h-(--field-h) items-center text-sm tabular-nums"
             :class="remainingTimeClass"
             data-testid="time-remaining"
           >{{ t('task.timeStats.remaining', { time: remainingTimeText }) }}</span>
