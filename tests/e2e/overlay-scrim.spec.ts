@@ -1,6 +1,6 @@
 /**
  * E2E: overlay scrim (issue #127). Every modal and drawer overlay darkens the page by the shared
- * `--overlay-scrim`; the task sheet is the one exception (transparent overlay, board-side spotlight).
+ * `--overlay-scrim`; the task sheet over the board is the one exception (transparent overlay, board-side spotlight); over the statistics page its overlay carries the scrim.
  */
 import { test, expect, type Page } from '@playwright/test'
 import { seedLocalBoard } from './helpers/seed'
@@ -53,7 +53,7 @@ for (const viewport of [{ name: 'desktop', width: 1280, height: 800 }, { name: '
       await expectScrim(page)
     })
 
-    test('task sheet overlay stays transparent', async ({ page }) => {
+    test('task sheet overlay over the board stays transparent', async ({ page }) => {
       await page.goto('/tasks/seed-open-1')
       await expect(page.getByRole('dialog')).toBeVisible()
       await expect(overlay(page)).toHaveCount(1)

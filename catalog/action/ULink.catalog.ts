@@ -8,7 +8,7 @@ export default {
   category: 'action',
   description: 'Text link to a page inside the app, with the theme\'s active and disabled looks.',
   usage: 'An in-app link inside a sentence (the feedback dialog\'s "Zugang einrichten"): `to` is a route and the caller adds the underline. Without a `class` it is unstyled apart from the theme\'s active colour.',
-  avoid: 'Not for a page outside the app (ExternalLink: it opens the system browser on desktop), not for an action (UButton, `link` variant when it must read as text), not for a settings row (SettingsSubpageLink).',
+  avoid: 'Not for a page outside the app (ExternalLink: it opens the system browser on desktop), not for an action (UButton, `link` variant when it must read as text), not for a settings row (ListRow with `to`).',
   alternatives: ['ExternalLink', 'UButton'],
   theme: 'link',
   variants: [

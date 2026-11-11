@@ -24,7 +24,7 @@ const NOW = new Date(2026, 9, 22, 9, 0)
 const OverlayShell = {
   props: ['open', 'title', 'content', 'ui', 'close'],
   emits: ['update:open', 'after:leave', 'after:enter'],
-  template: `<div v-if="open" role="dialog" :aria-label="title" :data-testid="content?.['data-testid']"><header><slot name="title" /><slot name="description" /></header><slot name="body" /><slot name="footer" /></div>`,
+  template: `<div v-if="open" role="dialog" :aria-label="title" :data-testid="content?.['data-testid']"><header><h2 data-slot="title"><slot name="title">{{ title }}</slot></h2><slot name="description" /></header><slot name="body" /><slot name="footer" /></div>`,
 }
 
 function setDesktop(matches: boolean) {
@@ -103,7 +103,7 @@ describe('NewDayRecap', () => {
   it('is hosted by the overlay, titled "Kurzer Rückblick", with the partial sentence', async () => {
     await open([doneAt(1, 'a'), doneAt(1, 'b'), task('o', TaskStatus.Open), task('w', TaskStatus.Waiting), task('j', TaskStatus.Progress)])
     expect(q('[role="dialog"]').getAttribute('aria-label')).toBe('Kurzer Rückblick')
-    expect(q('header .font-display').textContent).toContain('Kurzer Rückblick')
+    expect(q('header [data-slot="title"]').textContent).toContain('Kurzer Rückblick')
     expect(q('[data-testid="recap-summary"]').textContent).toBe('Du hast gestern 2 von 5 Aufgaben erledigt.')
     expect(wrapper!.findComponent({ name: 'ResponsiveOverlay' }).props('closeButton')).toBe(false)
   })
@@ -129,7 +129,7 @@ describe('NewDayRecap', () => {
   it('has English copy', async () => {
     setTestLocale('en')
     await open([doneAt(3), task('o', TaskStatus.Open)])
-    expect(q('header .font-display').textContent).toContain('Quick look back')
+    expect(q('header [data-slot="title"]').textContent).toContain('Quick look back')
     expect(q('[data-testid="recap-summary"]').textContent).toBe('You got 1 of 2 tasks done on Monday.')
   })
 

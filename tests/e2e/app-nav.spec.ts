@@ -46,6 +46,7 @@ for (const { label, size } of VIEWPORTS) {
       ['/tasks/add', 'app-nav-place-board'],
       ['/tasks/seed-open-1', 'app-nav-place-board'],
       ['/statistics', 'app-nav-place-statistics'],
+      ['/statistics/seed-open-1', 'app-nav-place-statistics'], // a task opened from the statistics page (kd#179)
       ['/trash', 'app-nav-place-more'],
       ['/settings', 'app-nav-place-more'],
       ['/settings/topics', 'app-nav-place-more'],
@@ -58,6 +59,15 @@ for (const { label, size } of VIEWPORTS) {
         await page.goto(path)
         await expect(appNav(page)).toBeVisible()
         await expect.poll(() => page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight)).toBeLessThanOrEqual(0)
+      })
+    }
+
+    // `aria-current="page"` sits on exactly one control of the whole page, with the task sheet open too (kd#179)
+    for (const [path] of places) {
+      test(`${path} has one aria-current="page" on the whole page`, async ({ page }) => {
+        await page.goto(path)
+        await expect(appNav(page)).toBeVisible()
+        await expect.poll(() => page.locator('[aria-current="page"]').count()).toBe(1)
       })
     }
 

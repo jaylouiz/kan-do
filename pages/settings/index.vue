@@ -17,7 +17,7 @@ Speicher, and on desktop Updates and GitHub-Zugriff).
   (`useSourceConnections` does the work)
 - "Weitere Verbindungen": Notion with "Verbinden" while disconnected (today's Notion setup, then `connectSource`),
   Todoist as "bald verfügbar"
-- "Verwaltung": `SettingsSubpageLink` rows (#683 sizing), every sub-page has one; a tab click `router.replace`s the query, so back from a sub-page returns to the tab it was opened from
+- "Verwaltung": `ListRow` link rows (`to`, kd#179; #683 sizing), every sub-page has one; a tab click `router.replace`s the query, so back from a sub-page returns to the tab it was opened from
 - Known trade-off: the Board tab holds only Fokus (accepted by the UX decision)
 - No visible page header (#670): the app bar's third segment reads "Einstellungen"; the layout keeps the title as an sr-only h1
 - Same sub-page pattern as /settings/updates: one flat column, no cards
@@ -113,9 +113,16 @@ Speicher, and on desktop Updates and GitHub-Zugriff).
           </template>
 
           <ul v-else class="divide-y divide-default" data-testid="settings-subpages">
-            <li v-for="link in manageLinks" :key="link.to">
-              <SettingsSubpageLink :to="link.to" :icon="link.icon" :label="link.label" :description="link.description" />
-            </li>
+            <ListRow v-for="link in manageLinks" :key="link.to" :to="link.to" button-testid="settings-subpage-link">
+              <span class="flex items-center gap-4">
+                <UIcon :name="link.icon" class="size-5 shrink-0 text-muted" aria-hidden="true" />
+                <span class="flex min-w-0 flex-1 flex-col">
+                  <span data-testid="settings-subpage-link-label">{{ link.label }}</span>
+                  <span class="text-sm text-muted">{{ link.description }}</span>
+                </span>
+                <UIcon :name="ICONS.goOn" class="size-4 shrink-0 text-muted" aria-hidden="true" />
+              </span>
+            </ListRow>
           </ul>
         </section>
       </div>
@@ -135,7 +142,6 @@ import { useI18n } from 'vue-i18n'
 import { navigateTo } from 'nuxt/app'
 import { useRoute, useRouter } from 'vue-router'
 import SourceRow from '~/components/settings/SourceRow.vue'
-import SettingsSubpageLink from '~/components/settings/SettingsSubpageLink.vue'
 import DisconnectSourceDialog from '~/components/settings/DisconnectSourceDialog.vue'
 import NotionSetupModal from '~/components/notion/setup/NotionSetupModal.vue'
 import { useBoardStore } from '~/store/board'
@@ -145,6 +151,8 @@ import { useSourceConnections } from '~/composables/useSourceConnections'
 import { useIntegrationManager } from '~/composables/useIntegrationManager'
 import { useErrorHandler } from '~/composables/useErrorHandler'
 import { isTauri } from '~/utils/isTauri'
+import ListRow from '~/components/ui/ListRow.vue'
+import { ICONS } from '~/lib/icons'
 import { isIntegrationSourceId } from '~/lib/taskSources'
 import type { IntegrationSourceId, SourceId } from '~/types/taskSource'
 

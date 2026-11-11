@@ -196,11 +196,11 @@ export default defineAppConfig({
         title: 'font-display text-lg font-medium tracking-display',
       }
     },
-    // Menus, popovers and toasts are sheets: the warm overlay shadow replaces Nuxt UI's `shadow-lg` in Tailwind's black
+    // Menus, popovers and toasts are sheets: the 16 px radius (`rounded-lg`) and the warm overlay shadow replace Nuxt UI's `shadow-lg` in Tailwind's black
     // (DESIGN.md "Elevation"). A tooltip is a label, not a sheet: its ring is enough.
     popover: {
       slots: {
-        content: 'z-(--z-popover) shadow-(--shadow-overlay)'
+        content: 'z-(--z-popover) rounded-lg shadow-(--shadow-overlay)'
       }
     },
     tooltip: {
@@ -210,12 +210,12 @@ export default defineAppConfig({
     },
     contextMenu: {
       slots: {
-        content: 'shadow-(--shadow-overlay)'
+        content: 'rounded-lg shadow-(--shadow-overlay)'
       }
     },
     inputMenu: {
       slots: {
-        content: 'shadow-(--shadow-overlay)'
+        content: 'rounded-lg shadow-(--shadow-overlay)'
       }
     },
     // Toasts (e.g. a failed save) must stay visible above the open task sheet.
@@ -234,7 +234,7 @@ export default defineAppConfig({
     },
     dropdownMenu: {
       slots: {
-        content: 'z-(--z-popover) min-w-40 shadow-(--shadow-overlay)',
+        content: 'z-(--z-popover) min-w-40 rounded-lg shadow-(--shadow-overlay)',
         item: 'text-sm cursor-pointer'
       }
     },
@@ -272,7 +272,7 @@ export default defineAppConfig({
     },
     select: {
       slots: {
-        content: 'shadow-(--shadow-overlay)',
+        content: 'rounded-lg shadow-(--shadow-overlay)',
         base: [
           'h-(--field-h) disabled:cursor-not-allowed disabled:opacity-50'
         ]
@@ -286,7 +286,7 @@ export default defineAppConfig({
         base: 'h-(--field-h) disabled:opacity-50',
         // The picker's rows keep the `md` item (p-1.5, text-sm) that TaskPropertySelect documents; `lg` would add 2 px
         item: 'p-1.5',
-        content: 'z-(--z-popover) min-w-40 shadow-(--shadow-overlay)'
+        content: 'z-(--z-popover) min-w-40 rounded-lg shadow-(--shadow-overlay)'
       },
       variants: {
         // `soft` is the select of the task sheet's property rows (#114, DESIGN.md "Components"):

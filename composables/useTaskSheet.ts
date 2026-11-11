@@ -1,9 +1,9 @@
 /**
  * @composable useTaskSheet
- * @description Shared close flow for the task sheet that hosts /tasks/:id and /tasks/add
+ * @description Shared close flow for the task sheet that hosts /tasks/:id, /tasks/add and /statistics/:id (TaskSheetHost)
  * @responsibility
  * - Every close (Escape, overlay, swipe, Cancel, submit, delete) goes through `closeTaskSheet()`
- * - The sheet animates out first; the route changes to /tasks only after the leave animation
+ * - The sheet animates out first; the route returns to the host page (/tasks, /statistics) only after the leave animation
  * - Repeated close requests reuse the pending close instead of arming new timers
  * - A close may name the card that takes focus afterwards (the card just added, #125)
  */
@@ -13,7 +13,7 @@ import { ref, readonly } from 'vue';
 /** Safety net in case the leave event never fires. */
 const LEAVE_FALLBACK_MS = 600;
 
-// Singleton state: one sheet per app (mounted in pages/tasks.vue)
+// Singleton state: one sheet per app (mounted by the page that is showing: pages/tasks.vue or pages/statistics.vue)
 const isDismissed = ref(false);
 let pendingClose: Promise<void> | null = null;
 let resolveClose: (() => void) | null = null;
@@ -24,20 +24,27 @@ let returnFocusTaskId: string | null = null;
 /** Wait for the history step of `router.back()` before giving up and replacing. */
 const BACK_TIMEOUT_MS = 1500;
 
+/** The page that hosts the sheet: the top of the matched route records (`/tasks`, `/statistics`). A host page with a dynamic parent (`/boards/:id`) would need the resolved path here instead of the record's pattern. */
+const hostPath = (): string => {
+  const router = useRouter();
+  return router.currentRoute.value.matched[0]?.path ?? '/tasks';
+};
+
 /**
  * Leaves the sheet route without growing history (kd#22): `router.back()` when the entry before
- * the sheet is the board, else a replace (deep link, reload, opened from another page or sheet).
+ * the sheet is the host page, else a replace (deep link, reload, opened from another page or sheet).
  */
 const leaveSheetRoute = async () => {
   const router = useRouter();
+  const host = hostPath();
   const back = (router.options.history.state as { back?: string | null } | undefined)?.back;
-  if (back && back.split(/[?#]/)[0] === '/tasks') {
+  if (back && back.split(/[?#]/)[0] === host) {
     const arrived = new Promise<boolean>((resolve) => {
       let remove = () => {};
       const timer = setTimeout(() => { remove(); resolve(false); }, BACK_TIMEOUT_MS);
-      // Only a successful arrival on the board counts; a cancelled or failed navigation falls back to the replace
+      // Only a successful arrival on the host page counts; a cancelled or failed navigation falls back to the replace
       remove = router.afterEach((to, _from, failure) => {
-        if (failure || to.path !== '/tasks') return;
+        if (failure || to.path !== host) return;
         clearTimeout(timer);
         remove();
         resolve(true);
@@ -46,11 +53,11 @@ const leaveSheetRoute = async () => {
     router.back();
     if (await arrived) return;
   }
-  await navigateTo('/tasks', { replace: true });
+  await navigateTo(host, { replace: true });
 };
 
 /**
- * Finishes a pending close: leaves the sheet route (back or replace to /tasks) and resolves waiting callers.
+ * Finishes a pending close: leaves the sheet route (back or replace to the host page) and resolves waiting callers.
  * Called by the host on the sheet's leave event (or by the fallback timer).
  */
 const finishClose = async () => {
@@ -64,7 +71,7 @@ const finishClose = async () => {
 };
 
 /**
- * Starts closing the sheet. Resolves once the sheet has left and the route is /tasks.
+ * Starts closing the sheet. Resolves once the sheet has left and the route is the host page.
  * `focusTaskId` sends focus to that card instead of back to the opener (after a save).
  */
 const closeTaskSheet = (options: { focusTaskId?: string } = {}): Promise<void> => {
@@ -85,7 +92,7 @@ const closeTaskSheet = (options: { focusTaskId?: string } = {}): Promise<void> =
 
 /**
  * Re-arms the sheet after the route changed (a new task opened, history back/forward,
- * or back on /tasks). A close still pending from the previous route is dropped.
+ * or back on the host page). A close still pending from the previous route is dropped.
  */
 const resetTaskSheet = () => {
   clearTimeout(leaveFallback);
