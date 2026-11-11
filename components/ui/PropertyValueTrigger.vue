@@ -7,7 +7,7 @@
 @avoid Not a button look for actions (UButton), not for the choice of one answer of a question (ChoiceChip), not for a value that opens a list (TaskPropertySelect) and not for editing text in place (InlineEditable). The trigger carries a label/value pair only inside TaskPropertyRow.
 @responsibility
 - Render one native `<button type="button">` with the `task-property-value` rule (global CSS `assets/css/task-detail.css`: faint dotted rule at rest on every pointer, darker on hover and focus, focus ring; disabled: the base layer's 50 % and `not-allowed`, no hover answer)
-- One field height (`--field-h`: 36 px, 44 px on a phone and on touch); text-sm; the tone sets the colour, `picked` also the weight and underline
+- One field height (`--field-h`: 36 px, 44 px on a phone); text-sm; the tone sets the colour, `picked` also the weight and underline
 - Attributes (`aria-label`, `aria-pressed`, `data-testid`, `disabled`, handlers) land on the button
 -->
 <template>

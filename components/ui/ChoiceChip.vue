@@ -2,7 +2,7 @@
 @component ChoiceChip
 @kind primitive
 @category input
-@description The one control for "pick one of a few" (#72, kd#178): a pill-shaped answer chip at the field height (36 px, 44 px on a phone and on touch), in the primary wash with primary text; a darker wash on hover, the solid primary when picked. The new-card flow's answers, the timebox nudge's presets, its icon controls and the board menu's grouping choice are this one chip.
+@description The one control for "pick one of a few" (#72, kd#178): a pill-shaped answer chip at the field height (36 px, 44 px on a phone), in the primary wash with primary text; a darker wash on hover, the solid primary when picked. The new-card flow's answers, the timebox nudge's presets, its icon controls and the board menu's grouping choice are this one chip.
 @usage <ChoiceChip :picked="picked === value" :current="value === current" @click="pick(value)">{{ label }}</ChoiceChip>; `square` for an icon alone where the options are symbols (give it an `aria-label`); `field` makes it read as the search field it opens (dashed outline, muted). A toggle that stays on beside others is the chip too: bind `picked` and keep `aria-pressed`. Native attributes (`disabled`, `aria-*`, `data-testid`, `type`) land on the button.
 @avoid Not for an action (UButton), not for a property value of the task sheet (a list value is a TaskPropertySelect, a free one an InlineEditable; DESIGN.md "Components") and not for an option inside a list (a row of the select menu's item look, as NewCardOptionList). Options with a description are a ChoiceCard.
 @responsibility

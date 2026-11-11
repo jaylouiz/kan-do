@@ -8,7 +8,7 @@
 @responsibility
 - Fixed label column (Label role, text-muted) so values line up across rows
 - Value slot receives `labelId`, so the value control can be named by its label
-- One field height (`--field-h`: 36 px, 44 px on a phone and on touch) for the label and the value column; no icon, divider or box (space separates groups)
+- One field height (`--field-h`: 36 px, 44 px on a phone) for the label and the value column; no icon, divider or box (space separates groups)
 - `private` marks the value (not the label) `data-private`: hidden during a feedback screenshot (#247)
 -->
 <template>
