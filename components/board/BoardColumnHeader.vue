@@ -16,7 +16,7 @@
     class="flex items-center justify-center"
   >
     <h2 class="font-display" :class="{ 'column-header__marked': status === TaskStatus.Progress }">
-      <span v-if="status === TaskStatus.Done" aria-hidden="true">{{ doneMark }}</span>
+      <span v-if="status === TaskStatus.Done" class="column-header__mark" aria-hidden="true">{{ doneMark }}</span>
       {{ title }}
     </h2>
   </div>
@@ -66,6 +66,14 @@ const isWaiting = computed(() => props.status === TaskStatus.Waiting);
     padding-inline: 0.3em;
     border-radius: var(--radius-xs);
     background: linear-gradient(transparent 0 56%, var(--marker) 56% 90%, transparent 90%) no-repeat;
+  }
+
+  /* The done mark is a symbol, not a letter: Fraunces has no check glyph, and the fallback's heavy dingbat sat glued
+     to the word. It is set in the sans, as before the display face changed. */
+  .column-header__mark {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    letter-spacing: 0;
   }
 
   h2 {
