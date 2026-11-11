@@ -18,19 +18,7 @@ test.describe('Modal Style Validation', () => {
     // Check computed background color of the modal card
     const dialogBg = await modalCard.evaluate((el) => window.getComputedStyle(el).backgroundColor);
     
-    // The modal uses bg-elevated which resolves to a light near-white tone.
-    // Accept any oklch lightness >= 0.96 with the stone hue signature (~106).
-    const validColors = ['rgb(245, 245, 244)', 'oklch(0.97 0.001 106.424)'];
-    
-    // Check if the returned color matches one of our expected formats
-    // We use a flexible check because exact oklch decimals can vary slightly by browser version
-    const isValid = validColors.some(c => dialogBg === c) || 
-                   /oklch\(0\.9[6-9]/.test(dialogBg);
-                   
-    if (!isValid) {
-      console.log(`Expected one of ${validColors.join(' or ')}, got ${dialogBg}`);
-    }
-    
-    expect(isValid).toBeTruthy();
+    // The sheet uses bg-elevated: every lifted surface is the white sheet (DESIGN.md "Colour")
+    expect(dialogBg).toBe('rgb(255, 255, 255)');
   });
 });

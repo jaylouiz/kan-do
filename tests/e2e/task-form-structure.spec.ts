@@ -159,7 +159,7 @@ test.describe('Add task modal — unified calm structure', () => {
 // ---------------------------------------------------------------------------
 
 test.describe('Sheet title typography - display font', () => {
-  test('add sheet title uses the display font (Figtree 600)', async ({ page }) => {
+  test('add sheet title uses the display font (Fraunces)', async ({ page }) => {
     await page.goto('/tasks/add');
     const dialog = page.getByRole('dialog');
     const sheetTitle = dialog.getByRole('heading').first();
@@ -169,7 +169,7 @@ test.describe('Sheet title typography - display font', () => {
       (el) => window.getComputedStyle(el).fontFamily
     );
 
-    expect(fontFamily).toContain('Figtree');
+    expect(fontFamily).toContain('Fraunces');
   });
 });
 

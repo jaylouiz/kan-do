@@ -25,7 +25,7 @@ const expectScrim = async (page: Page) => {
   const { alpha, luma, css } = await scrim(page)
   expect(css, 'overlay must not be transparent').not.toBe('rgba(0, 0, 0, 0)')
   expect(luma, 'overlay must be dark, not light').toBeLessThan(0.2)
-  expect(alpha).toBeLessThan(0.14)
+  expect(alpha).toBeLessThan(0.2) // --overlay-scrim: the shadow colour at 17 %
 }
 
 test.beforeEach(async ({ context }) => {

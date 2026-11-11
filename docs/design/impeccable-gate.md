@@ -17,5 +17,6 @@ Read before running the design gate of a UI PR (`.claude/issue-workflow.md` "Des
 
 - `.vue` files get regex rules only. `detector.extensions: [{ext: ".vue", engine: "html"}]` was tried and rejected (it reads raw templates without CSS and reports every text node as `rgb(0,0,0)`: 42 false positives), so element rules come from the rendered-URL scan (`tests/e2e/design-detect.spec.ts`, the Stop hook's `scripts/design-scan.mjs`).
 - `docs/design/baseline.json` is the accepted source-scan state (currently empty).
+- Ignored rule `cream-palette` (`.impeccable/config.json`, kd#176): the detector reads a warm off-white page as a reflex choice. The paper canvas `oklch(0.953 0.013 86)` is the owner's decision of 2026-11-11 (Paper Desk, kd#1 `## UX decision`, `DESIGN.md` "Colour"); the rule has no value to ignore, so the whole rule is off.
 - Since 4.8.0 audit's touch-target and contrast checks follow WCAG 2.2 AA (24px target, SC 2.5.8), so a target under 44px that meets 24px (or the spacing exception) is not an AA failure and not a P1.
 - Upgrading: bump the devDependency, run `npx impeccable --list-rules` and `npm run design:detect`.
