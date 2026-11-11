@@ -130,8 +130,8 @@ test.describe('Accessibility (axe)', () => {
       await expectNoSeriousA11yViolations(page, (b) => b)
     })
 
-    // #632 / #615 (DESIGN.md "Glass Chrome Rule"): the glass app bar's labels keep AA over the cards that scroll behind it.
-    // Measured on painted pixels (helpers/contrast.ts): axe cannot see through the pills' backdrop-filter.
+    // #632 / #615: the app bar's labels keep AA while cards scroll behind it (the brand sits on the paper veil, the
+    // places on the white pill). Measured on painted pixels (helpers/contrast.ts).
     test('desktop – app bar labels over scrolled cards', async ({ page, context }) => {
       await seedLocalBoard(context, [...NO_PROGRESS_TASKS, ...fillerTasks(14)])
       await gotoBoard(page)

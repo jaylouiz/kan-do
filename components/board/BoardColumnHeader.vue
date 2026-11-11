@@ -15,7 +15,7 @@
     :class="['column-header', { 'waiting-header': isWaiting, empty: isEmpty }]"
     class="flex items-center justify-center"
   >
-    <h2 class="font-display">
+    <h2 class="font-display" :class="{ 'column-header__marked': status === TaskStatus.Progress }">
       <span v-if="status === TaskStatus.Done" aria-hidden="true">{{ doneMark }}</span>
       {{ title }}
     </h2>
@@ -60,6 +60,14 @@ const isWaiting = computed(() => props.status === TaskStatus.Waiting);
 </script>
 
 <style scoped>
+  /* The marker (DESIGN.md "The Marker Rule"): a stroke of yellow text marker through the lower half of the Jetzt
+     headline, its only use. Static, a decoration without a meaning of its own; the ink on it keeps body contrast. */
+  h2.column-header__marked {
+    padding-inline: 0.3em;
+    border-radius: var(--radius-xs);
+    background: linear-gradient(transparent 0 56%, var(--marker) 56% 90%, transparent 90%) no-repeat;
+  }
+
   h2 {
     z-index: 10;
     margin-top: 1.75rem;

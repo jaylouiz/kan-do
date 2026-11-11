@@ -612,22 +612,21 @@ test.describe('App bar: reduced motion (#583)', () => {
 })
 
 /**
- * Issue #615 (DESIGN.md "The Glass Chrome Rule"): the two pills are frosted glass over a paper veil. Chromium paints the
- * blur (the WebKit render is the no-blur fallback case); the veil takes no pointer events, so the page, the cards and
- * the desktop `.titlebar` drag strip stay usable under it.
+ * Issue #615, kd#176: the two pills are flat white sheets (no glass) over a paper veil; the veil takes no pointer
+ * events, so the page, the cards and the desktop `.titlebar` drag strip stay usable under it.
  */
 for (const { label, size } of VIEWPORTS) {
-  test(`App bar at ${label}: frosted pills over a paper veil that lets pointers through (#615)`, async ({ context, page, browserName }) => {
-    test.skip(browserName !== 'chromium', 'WebKit never paints backdrop-filter in headless Playwright: the fallback render')
+  test(`App bar at ${label}: flat white pills over a paper veil that lets pointers through (#615, kd#176)`, async ({ context, page }) => {
     await seedLocalBoard(context, SEED_TASKS, {}, undefined, { once: true })
     await page.setViewportSize(size)
     await page.goto('/tasks')
     await expect(appNav(page)).toBeVisible()
     for (const selector of ['.app-nav-pill', '.app-nav-more']) {
       const pill = appNav(page).locator(selector)
-      expect(await pill.evaluate(el => getComputedStyle(el).backdropFilter)).toContain('blur(20px)')
-      // Translucent tint, never a white fill and never fully transparent
-      expect(await pill.evaluate(el => getComputedStyle(el).backgroundColor)).toMatch(/\/ 0\.6\)|, 0\.6\)/)
+      expect(await pill.evaluate(el => getComputedStyle(el).backdropFilter)).toBe('none')
+      // An opaque white sheet with the nav pill shadow
+      expect(await pill.evaluate(el => getComputedStyle(el).backgroundColor)).toBe('rgb(255, 255, 255)')
+      expect(await pill.evaluate(el => getComputedStyle(el).boxShadow)).not.toBe('none')
     }
     const veil = await appNav(page).evaluate(el => {
       const style = getComputedStyle(el, '::before')
@@ -637,18 +636,11 @@ for (const { label, size } of VIEWPORTS) {
     expect(veil.content).not.toBe('none')
     // Desktop: 3.5rem row + 1.75rem hang; phone: pill row + 0.75rem + 1.5rem rise
     if (label === '1280') expect(veil.height).toBeCloseTo(56 + 28, 0)
-    // The phone pill keeps its 1px border (#616 size) and the border draws the hairline (#631); desktop has no border
-    const border = await appNav(page).locator('.app-nav-pill').evaluate(el => {
-      const style = getComputedStyle(el)
-      return { width: Number.parseFloat(style.borderTopWidth), color: style.borderTopColor }
-    })
-    if (label === '1280') expect(border.width).toBe(0)
-    else {
-      expect(border.width).toBe(1)
-      expect(border.color).not.toMatch(/\/ 0\)|, 0\)|transparent/)
-    }
-    // Keyboard focus (Tab, so :focus-visible holds whatever the pointer did before): ⋯ keeps the ink ring and the glass edge
-    // and shadow (#631); the brand gets the ring too
+    // The phone pill keeps its (transparent) 1px border, so its inner box stays the #616 size; desktop has no border
+    const borderWidth = await appNav(page).locator('.app-nav-pill').evaluate(el => Number.parseFloat(getComputedStyle(el).borderTopWidth))
+    expect(borderWidth).toBe(label === '1280' ? 0 : 1)
+    // Keyboard focus (Tab, so :focus-visible holds whatever the pointer did before): ⋯ keeps the focus halo and the
+    // pill's shadow (#631); the brand gets the ring too
     await appNav(page).getByRole('link', { name: 'Statistik' }).focus()
     await page.keyboard.press('Tab')
     await expect(moreButton(page)).toBeFocused()
