@@ -5,7 +5,7 @@ import { ICONS } from '../../lib/icons.ts'
  * Nuxt UI button. The matrix is read from the merged theme (`.nuxt/ui/button.ts` plus `app.config.ts`), so a colour,
  * variant or size the theme gains appears without an edit here. The button ladder (kd#177, DESIGN.md "Components"): two
  * heights, `md` 32 px (the default) and `lg` 36 px (the one main action of a surface), and four looks (solid, soft, ghost,
- * link). The theme still lists Nuxt UI's `xs`, `sm`, `xl`, `outline` and `subtle`; no template uses them.
+ * link). The theme still holds Nuxt UI's `xs`, `sm`, `xl`, `outline` and `subtle` (a theme cannot delete a key); no template uses them and the matrix (`only`) leaves them out.
  */
 export default {
   component: 'UButton',
@@ -19,6 +19,7 @@ export default {
   theme: 'button',
   matrix: {
     axes: ['color', 'variant', 'size'],
+    only: { variant: ['solid', 'soft', 'ghost', 'link'], size: ['md', 'lg'] },
     slot: { $t: 'common.save' },
   },
   states: [

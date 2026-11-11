@@ -14,7 +14,7 @@
 <template>
   <AppDialog
     v-model:open="isOpen"
-    :close="{ color: 'neutral', variant: 'ghost', size: 'sm' }"
+    :close="{ color: 'neutral', variant: 'ghost' }"
     size="lg"
     :ui="{ header: 'flex justify-end px-4 pt-3 pb-0 border-0', body: 'p-0 overflow-y-auto max-h-[80vh]' }"
   >

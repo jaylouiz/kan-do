@@ -50,7 +50,7 @@ async function resolveEntry(entry: CatalogEntry, appUi: Record<string, ThemeLike
       if (!loadTheme) throw new Error(`no theme "${entry.theme}"`)
       // `app.config.ts` keys are camelCase (`selectMenu`), the theme files kebab-case (`select-menu`)
       const config = appUi?.[entry.theme ?? ''] ?? appUi?.[(entry.theme ?? '').replace(/-(\w)/g, (_, c: string) => c.toUpperCase())]
-      axes = themeAxes(await loadTheme(), config, entry.matrix.axes)
+      axes = themeAxes(await loadTheme(), config, entry.matrix.axes, entry.matrix.only)
     }
     const fixtures: Record<string, CatalogFixture> = {}
     for (const name of new Set([...(entry.variants ?? []), ...entry.states].map(example => example.fixture).filter((n): n is string => !!n))) {

@@ -59,11 +59,28 @@ const attr = (attrs: string, name: string): string | null => {
 
 const where = (t: ButtonTag) => `${t.file}:${t.line}`
 
+function sourceFiles(dir: string): string[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const path = join(dir, entry.name)
+    if (entry.isDirectory()) return entry.name === '__tests__' || entry.name === 'prototype' ? [] : sourceFiles(path)
+    return /\.(vue|ts)$/.test(entry.name) && !/error-test\.vue$/.test(entry.name) ? [path] : []
+  })
+}
+
+/** Files whose `size: 'sm'` or `variant: 'outline'` belongs to another component than `UButton`; each entry says which. */
+const PROP_OBJECT_EXEMPT: Record<string, string> = {
+  'components/task/TaskPriorityBadge.vue': 'UBadge size (badges are slice 3 to 5)',
+  'components/ui/inline/InlineEditable.vue': 'UInput variant of the inline field, not a button',
+}
+
 /** A solid primary in these files is deliberately not an `lg` CTA; each entry says why. */
 const NOT_A_CTA: Record<string, string> = {}
 
 /** The one link that sits inside running text, so it is text and not a 32 px button (kd#177): it sets `md:h-auto`. */
 const INLINE_TEXT_LINKS = ['components/feedback/FeedbackDialog.vue']
+
+/** The two-line sync button of the Mehr panel (label plus last sync time, about 48 px of content): it grows with its text from `md` up (`md:h-auto md:min-h-8`) instead of spilling out of a fixed 32 px box. */
+const TWO_LINE_BUTTONS = ['components/nav/MorePanel.vue']
 
 /** The one CTA that is not a solid primary: "Tag abschließen" is a neutral soft `lg` button (#470). */
 const SOFT_CTA_TESTIDS = ['day-close-cta']
@@ -95,7 +112,7 @@ describe('button ladder: call sites (#552, kd#177)', () => {
   })
 
   it('lets only a link inside running text drop the height (`md:h-auto`) and the phone floor (`max-md:min-h-0`)', () => {
-    const hits = tags.filter((t) => /(^|[\s"'])md:h-auto/.test(t.attrs) && !INLINE_TEXT_LINKS.includes(t.file))
+    const hits = tags.filter((t) => /(^|[\s"'])md:h-auto/.test(t.attrs) && !INLINE_TEXT_LINKS.includes(t.file) && !TWO_LINE_BUTTONS.includes(t.file))
     expect(hits.map(where)).toEqual([])
     for (const file of INLINE_TEXT_LINKS) {
       const tag = tags.find((t) => t.file === file && /md:h-auto/.test(t.attrs))
@@ -128,8 +145,20 @@ describe('button ladder: call sites (#552, kd#177)', () => {
     }
   })
 
-  it('gives an icon-only button (`square`) the ghost look: a soft one would be a second fill beside its row\'s main action (kd#177)', () => {
-    const hits = tags.filter((t) => /(^|\s)square(\s|$|\/)/.test(t.attrs) && attr(t.attrs, 'variant') !== 'ghost')
+  it('keeps the removed sizes and looks out of buttons configured as prop objects too (`:close`, alert and toast `actions`, `ButtonProps`)', () => {
+    const files = [...FOLDERS.flatMap((folder) => sourceFiles(join(root, folder))), ...sourceFiles(join(root, 'composables'))]
+    const hits: string[] = []
+    for (const path of files) {
+      const file = relative(root, path)
+      readFileSync(path, 'utf8').split('\n').forEach((text, index) => {
+        if (/\b(size|variant)\s*:\s*'(xs|sm|xl|outline|subtle)'/.test(text) && PROP_OBJECT_EXEMPT[file] === undefined) hits.push(`${file}:${index + 1}`)
+      })
+    }
+    expect(hits).toEqual([])
+  })
+
+  it('gives an icon-only button (`square`, static or bound) the ghost look: a soft one would be a second fill beside its row\'s main action (kd#177)', () => {
+    const hits = tags.filter((t) => /(^|\s):?square(\s|=|$|\/)/.test(t.attrs) && attr(t.attrs, 'variant') !== 'ghost')
     expect(hits.map(where)).toEqual([])
   })
 })

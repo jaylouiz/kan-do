@@ -341,7 +341,7 @@ export default defineAppConfig({
     // cannot move them. Looks: solid (the one main action), soft (a neutral action that stands on its own, and the one
     // main action of a row), ghost (every further action in a row, card, menu or toolbar, every icon-only button), link.
     // `sm`, `xl`, `outline` and `subtle` are Nuxt UI's and stay in the merged theme (a theme cannot delete a key) but are
-    // unused: tests/config/button-ladder.test.ts fails on them, `/ui` hides them. `xs` is 24 px and exists only for the
+    // unused: tests/config/button-ladder.test.ts fails on them, the `/ui` entry leaves them out (`only`). `xs` is 24 px and exists only for the
     // actions Nuxt UI renders in an alert or toast (`size="xs"`, no template sets it); those keep their own 44 px
     // phone rule (`.kando-notice-actions`, `.kando-toast-actions` in mobile-nav.css, #284).
     // On a phone every button is 44 px high (`lg` 48), icon-only ones 44 wide (the heights above apply from `md` up, so a label that wraps grows the button on a phone),
@@ -399,8 +399,8 @@ export default defineAppConfig({
           variant: 'soft',
           class: 'text-error-700'
         },
-        // Subtle primary: the same 600 step as soft (#97). No call site uses it (kd#177); Nuxt UI's own components and the
-        // `/ui` whole-theme view still reach it, so it keeps its contrast.
+        // Subtle primary: the same 600 step as soft (#97). No call site uses it (kd#177); Nuxt UI's own components still
+        // reach it, so it keeps its contrast.
         {
           color: 'primary',
           variant: 'subtle',

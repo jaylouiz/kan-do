@@ -144,7 +144,7 @@
         color="neutral"
         variant="ghost"
         block
-        class="justify-start"
+        class="justify-start md:h-auto md:min-h-8"
         :loading="isLoading"
         :disabled="isLoading"
         :aria-busy="isLoading"
