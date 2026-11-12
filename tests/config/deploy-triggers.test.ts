@@ -36,9 +36,9 @@ describe('ci.yml triggers', () => {
     expect(text).not.toContain('pull_request_target')
   })
 
-  it('runs quality and plan on every run and e2e beside quality, behind plan only (kd#187)', () => {
+  it('runs quality on every run; plan, and e2e behind it, on a push to main and by hand, never on a pull request (owner decision 2026-11-12)', () => {
     expect(doc.jobs.quality!.if).toBeUndefined()
-    expect(doc.jobs.plan!.if).toBeUndefined()
+    expect(doc.jobs.plan!.if).toBe("github.event_name != 'pull_request'")
     expect(doc.jobs.e2e!.needs).toBe('plan')
     expect(doc.jobs.e2e!.if).toBe("needs.plan.outputs.run == 'true'")
   })
