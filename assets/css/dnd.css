@@ -154,6 +154,8 @@
        `!important` here would beat the pick-up animation below */
     rotate: var(--dnd-pick-tilt);
     scale: var(--dnd-pick-scale);
+    /* The in-hand shadow grows with `--dnd-lift`: main.css redeclares the token on this element (a token holding
+       `var()` is resolved where it is declared, so the root's copy could never move) */
     opacity: 1 !important;
     filter: none !important;
     mix-blend-mode: normal !important;
@@ -229,6 +231,7 @@
     box-shadow: none !important;
     filter: none !important;
     transition: none !important;
+    translate: none !important; /* no hover lift on the slot: the glide measured it at rest */
   }
 
   .task-wrapper.kando-dnd-landing .task > * {

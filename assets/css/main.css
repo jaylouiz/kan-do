@@ -294,8 +294,7 @@
        in whole-pixel steps, so the shadow jumped while it rose. Keep the two lists in step. */
     --shadow-task: 0 0 0 1px rgb(var(--shadow-color) / 0.07), 0 2px 3px 0 rgb(var(--shadow-color) / 0.1), 0 10px 22px -6px rgb(var(--shadow-color) / 0.2), 0 22px 40px -12px rgb(var(--shadow-color) / 0);
     --shadow-task-hover: 0 0 0 1px rgb(var(--shadow-color) / 0.07), 0 2px 3px 0 rgb(var(--shadow-color) / 0.06), 0 10px 22px -6px rgb(var(--shadow-color) / 0.14), 0 22px 40px -12px rgb(var(--shadow-color) / 0.3);
-    /* In the hand: `--dnd-lift` (registered in dnd.css, 1 at rest) scales the shadow's geometry and depth, so the pick-up can grow it smoothly in WebKit too (kd#181) */
-    --shadow-task-drag-elevated: 0 0 0 1px rgb(var(--shadow-color) / 0.07), 0 calc(26px * var(--dnd-lift, 1)) calc(48px * var(--dnd-lift, 1)) -12px rgb(var(--shadow-color) / calc(0.38 * var(--dnd-lift, 1)));
+    --shadow-task-drag-elevated: 0 0 0 1px rgb(var(--shadow-color) / 0.07), 0 26px 48px -12px rgb(var(--shadow-color) / 0.38); /* in the hand; the pick-up grows it on the preview itself (dnd.css) */
     --shadow-task-lifted: 0 14px 38px color-mix(in oklab, var(--focus-dusk) 20%, transparent); /* the Jetzt card while the focus overlay is on (#394) */
     --shadow-stack-collapsed: drop-shadow(0 1px 1px rgb(var(--shadow-color) / 0.08)) drop-shadow(0 2px 3px rgb(var(--shadow-color) / 0.07));
     --shadow-stack-hover: drop-shadow(0 2px 2px rgb(var(--shadow-color) / 0.09)) drop-shadow(0 5px 8px rgb(var(--shadow-color) / 0.08));
@@ -384,5 +383,14 @@
 @media (--phone) {
   :root {
     --field-h: 2.75rem;
+  }
+}
+
+/* The dragged card's in-hand shadow, scaled by `--dnd-lift` (kd#181, registered and animated in dnd.css). It is
+   redeclared on the preview because a custom property holding `var()` is resolved on the element that declares it:
+   the root's `--shadow-task-drag-elevated` is fixed at lift 1. Keep the numbers in step with that token. */
+@layer components {
+  .kando-dnd-preview {
+    --shadow-task-drag-elevated: 0 0 0 1px rgb(var(--shadow-color) / 0.07), 0 calc(26px * var(--dnd-lift)) calc(48px * var(--dnd-lift)) -12px rgb(var(--shadow-color) / calc(0.38 * var(--dnd-lift)));
   }
 }
