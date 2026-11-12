@@ -33,7 +33,7 @@ immediate: no loading or error state.
         data-private
         data-testid="topic-name-input"
       />
-      <p v-if="nameLocked" :id="gateId" class="flex items-start gap-1.5 text-sm text-muted" data-testid="topic-name-gate">
+      <p v-if="nameLocked" :id="gateId" class="flex items-start gap-1.5 text-body text-muted" data-testid="topic-name-gate">
         <UIcon name="i-ph-cloud" class="mt-0.5 size-4 shrink-0" aria-hidden="true" />
         <span>{{ t('topic.editor.nameGate') }}</span>
       </p>

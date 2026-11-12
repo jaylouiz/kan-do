@@ -40,7 +40,7 @@ stays), a folder that already holds data offers "use the data already there" (th
           <p class="text-body text-default" data-testid="data-folder-confirm">{{ t('settings.data.modal.confirmReplace') }}</p>
         </template>
 
-        <p v-else-if="existing === 'none'" class="flex items-start gap-2 text-sm">
+        <p v-else-if="existing === 'none'" class="flex items-start gap-2 text-body">
           <UIcon name="i-ph-copy" class="mt-0.5 size-4 shrink-0 text-muted" aria-hidden="true" />
           <span>
             <span class="block font-medium text-highlighted">{{ t('settings.data.modal.copyMine') }}</span>

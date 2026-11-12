@@ -34,6 +34,15 @@ describe('design tokens', () => {
     expect(listed).toEqual(roles)
   })
 
+  it('lets text-body replace Nuxt UI\'s text-sm in a theme slot (kd#190)', async () => {
+    const { extendTailwindMerge } = await import('tailwind-merge')
+    const config = readFileSync(resolve(root, 'app.config.ts'), 'utf8')
+    const roles = /text: \[([^\]]*)\]/.exec(config)?.[1]?.match(/[a-z]+/g) ?? []
+    const merge = extendTailwindMerge({ extend: { theme: { text: roles } } })
+    expect(merge('mt-1 text-sm text-muted', 'text-body')).toBe('mt-1 text-muted text-body')
+    expect(merge('text-sm', 'text-label')).toBe('text-label')
+  })
+
   it('reports a misspelt token with its line, and accepts real, runtime and dynamic ones', () => {
     const dir = mkdtempSync(join(tmpdir(), 'design-tokens-'))
     try {

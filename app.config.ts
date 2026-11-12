@@ -214,7 +214,8 @@ export default defineAppConfig({
     },
     contextMenu: {
       slots: {
-        content: 'rounded-lg shadow-(--shadow-overlay)'
+        content: 'rounded-lg shadow-(--shadow-overlay)',
+        item: 'min-h-8'
       }
     },
     inputMenu: {
@@ -239,7 +240,8 @@ export default defineAppConfig({
     dropdownMenu: {
       slots: {
         content: 'z-(--z-popover) min-w-40 rounded-lg shadow-(--shadow-overlay)',
-        item: 'text-sm cursor-pointer'
+        // A row is 32 px (`min-h-8`) whether or not it carries a 20 px icon: its height is explicit, not the 1.3 text line plus padding (kd#190)
+        item: 'min-h-8 text-sm cursor-pointer'
       }
     },
     collapsible: {
@@ -277,6 +279,7 @@ export default defineAppConfig({
     select: {
       slots: {
         content: 'rounded-lg shadow-(--shadow-overlay)',
+        item: 'min-h-8',
         base: [
           'h-(--field-h) disabled:cursor-not-allowed disabled:opacity-50'
         ]
@@ -289,7 +292,7 @@ export default defineAppConfig({
       slots: {
         base: 'h-(--field-h) disabled:opacity-50',
         // The picker's rows keep the `md` item (p-1.5, text-sm) that TaskPropertySelect documents; `lg` would add 2 px
-        item: 'p-1.5',
+        item: 'min-h-8 p-1.5',
         content: 'z-(--z-popover) min-w-40 rounded-lg shadow-(--shadow-overlay)'
       },
       variants: {
