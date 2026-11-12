@@ -8,7 +8,7 @@ import nuxtUiButton from '../../.nuxt/ui/button'
 // (`assets/css/main.css`, Tailwind's theme) and the grounds, shadow colour and fill alphas from the tokens in `main.css` (kd#194), and fails when a role or variant added or changed later drops below AA.
 // Disabled states are exempt (WCAG 1.4.3). Light mode only, like the design checks.
 
-import { FILLS_ON_CANVAS, GROUNDS, SHADOW_COLOR, SHEET_FILL_DEEP, WHITE, rampStep, type Rgb } from './helpers/tokens'
+import { FILLS_ON_CANVAS, GROUNDS, SHADOW_COLOR, SHEET, SHEET_ELEVATED, SHEET_FILL_DEEP, WHITE, rampStep, type Rgb } from './helpers/tokens'
 
 function luminance([r, g, b]: Rgb): number {
   const [lr = 0, lg = 0, lb = 0] = [r, g, b].map((v) => {
@@ -62,8 +62,8 @@ describe('button colour contrast (#97)', () => {
         dimmed: rampStep(neutral, '400'),
       }
       : {
-        default: WHITE,
-        elevated: WHITE,
+        default: SHEET,
+        elevated: SHEET_ELEVATED,
         accented: SHEET_FILL_DEEP,
         inverted: rampStep(neutral, '500'),
       }

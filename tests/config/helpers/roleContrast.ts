@@ -5,7 +5,7 @@
  * for the hover states; this one covers components whose role colours sit on one slot (`root`, `base`) at rest.
  */
 
-import { WHITE, GROUNDS, SHEET_FILL_DEEP, rampStep, type Rgb } from './tokens'
+import { WHITE, GROUNDS, SHEET, SHEET_ELEVATED, SHEET_FILL_DEEP, rampStep, type Rgb } from './tokens'
 export { WHITE, GROUNDS, rampStep, type Rgb } from './tokens'
 export const ROLES = ['primary', 'secondary', 'success', 'info', 'warning', 'error', 'neutral'] as const
 export type Role = (typeof ROLES)[number]
@@ -46,7 +46,7 @@ export function roleContrast(options: { stock: Compound[], app: Compound[], ramp
     const neutral = ramps.neutral!
     const semantic: Record<string, Rgb> = kind === 'text'
       ? { inverted: WHITE, default: rampStep(neutral, '900'), highlighted: rampStep(neutral, '900') }
-      : { default: WHITE, elevated: WHITE, accented: SHEET_FILL_DEEP, inverted: rampStep(neutral, '500') }
+      : { default: SHEET, elevated: SHEET_ELEVATED, accented: SHEET_FILL_DEEP, inverted: rampStep(neutral, '500') }
     if (semantic[name]) return semantic[name]
     const [color, step] = name.split(/-(?=\d+$)/) as [Role, string | undefined]
     if (!(ROLES as readonly string[]).includes(color)) throw new Error(`unknown colour token "${kind}-${name}"`)

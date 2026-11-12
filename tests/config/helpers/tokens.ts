@@ -83,6 +83,7 @@ export function cssColor(name: string): Rgb {
 
 /** The white sheet (`--ui-bg`), the fill inside a sheet (`--ui-bg-muted`) and the paper canvas (`--ui-page-bg`). */
 export const SHEET: Rgb = cssColor('--ui-bg')
+export const SHEET_ELEVATED: Rgb = cssColor('--ui-bg-elevated')
 export const SHEET_FILL: Rgb = cssColor('--ui-bg-muted')
 export const SHEET_FILL_DEEP: Rgb = cssColor('--ui-bg-accented')
 export const PAPER: Rgb = cssColor('--ui-page-bg')
