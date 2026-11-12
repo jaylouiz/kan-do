@@ -10,7 +10,7 @@ paths:
 
 Applies every time you create or change a UI element: lane work and ad-hoc edits alike. A **Pattern** (GLOSSARY.md) is a recurring UI solution to one user job; two elements share one when they do the same job, whatever they look like. You decide alone and never ask the user; the record is how they veto afterwards.
 
-1. **Name the job** in user terms (confirming a destructive action, showing a task's state, adding a task, asking a question about one card).
+1. **Name the job** in user terms (confirming a destructive action, showing a task's state, adding a task, asking a question about one card). A job with a named rule in DESIGN.md "Behaviour" (a confirm or a question is "Ask in place": never a modal) is bound by it before any component is chosen: read that section first.
 2. **Search by job, not by name**, in this order: (a) `npm run ui:find -- <job words>` searches the manifest (derived from the doc blocks, #117; every component's `@description`, `@usage`, `@avoid`; prints name, tier, kind, category, `@usage`, `@avoid`, variants; prefer a `kit` hit, a `feature` hit is a part of one screen and is reused only inside its own feature; read the `@avoid` of a near hit, it names the neighbour); (b) `/ui` (dev route) for how the candidates look and their variants; (c) DESIGN.md "Components" and "Behaviour", `rg -i '@(description|responsibility).*<job words>' components/`, `ls components/<area>`. Try two or three wordings before you conclude there is none; a `new` line names them.
 3. **Decide one outcome per job**:
    - **reuse**: the existing element does it as is; use it.
