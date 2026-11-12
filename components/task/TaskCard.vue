@@ -399,14 +399,20 @@ const openDetails = (event: MouseEvent) => {
     box-shadow: var(--shadow-task-hover);
   }
 
-  /* The lift (kd#181): 2 px up under the pointer, set down again on press. `translate`, not `transform`: dnd-kit
-     and the stack own `transform`. A stack lifts as one (TaskStack); the lit Jetzt card stays put (board-focus-overlay.css). */
+  .board:not(.dragging) .task:not(.task--readonly, .task--draft, .kando-dnd-placeholder, .stacked-task):active {
+    box-shadow: var(--shadow-task);
+  }
+}
+
+/* The lift (kd#181): 2 px up under the pointer, set down again on press. `translate`, not `transform`: dnd-kit
+   and the stack own `transform`. A stack lifts as one (TaskStack); the lit Jetzt card stays put
+   (board-focus-overlay.css). Movement, so not under reduced motion: there the shadow alone answers. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .board:not(.dragging) .task:not(.task--readonly, .task--draft, .kando-dnd-placeholder, .stacked-task):hover {
     translate: 0 -2px;
   }
 
   .board:not(.dragging) .task:not(.task--readonly, .task--draft, .kando-dnd-placeholder, .stacked-task):active {
-    box-shadow: var(--shadow-task);
     translate: 0 0;
   }
 }

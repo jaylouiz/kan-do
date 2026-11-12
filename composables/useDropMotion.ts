@@ -20,6 +20,8 @@ const GLIDE_GRACE_MS = 150
 /** dnd-kit's own marker of an overlay that is running its drop animation (`@dnd-kit/dom`, Feedback) */
 const DROPPING_ATTRIBUTE = 'data-dnd-dropping'
 
+/** Counts landings, so a drop animation that outlived its drop (the same card picked up and dropped again) cannot end the newer one */
+let landingRun = 0
 let fallbackTimer: ReturnType<typeof setTimeout> | undefined
 let setDownTimer: ReturnType<typeof setTimeout> | undefined
 
@@ -65,6 +67,7 @@ export function useDropMotion() {
 
   function land(taskId: string, stack: DraggedStack | null) {
     reset()
+    landingRun += 1
     dragState.value.landingTaskId = taskId
     dragState.value.landingStack = stack
     fallbackTimer = setTimeout(setDown, DND_MOTION.dropMs + GLIDE_GRACE_MS)
@@ -72,6 +75,7 @@ export function useDropMotion() {
 
   const dropAnimation: DropAnimationFunction = async ({ feedbackElement, translate }) => {
     const taskId = dragState.value.landingTaskId
+    const run = landingRun
     if (!taskId) return
     // Vue renders the drop first, so the slot measured is the one the card ends in
     await nextTick()
@@ -93,7 +97,7 @@ export function useDropMotion() {
       feedbackElement.removeAttribute(DROPPING_ATTRIBUTE)
     }
     // A newer drop took over meanwhile: its own animation sets it down
-    if (dragState.value.landingTaskId === taskId) setDown()
+    if (run === landingRun && dragState.value.landingTaskId === taskId) setDown()
   }
 
   return { land, setDown, reset, dropAnimation }
