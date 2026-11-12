@@ -781,5 +781,15 @@
     ],
     "status": "proposed",
     "note": "The command, the section and the dialog say \"App zurücksetzen\" / \"Reset app\"; the effect is described with Löschen / delete (the decided data term). Proposed by the #227 build; the user decides."
+  },
+  {
+    "id": "focus-topic",
+    "concept": "Hiding the cards of every other topic on the board so one stretch of work stays in view (#161)",
+    "de": "Fokus",
+    "en": "focus",
+    "avoidDe": [],
+    "avoidEn": [],
+    "status": "proposed",
+    "note": "Funnel \"Fokus\", pill \"Fokus: <Thema> · n ausgeblendet\", ✕ \"Fokus beenden\". The same word already names the Jetzt focus overlay (settings.focus.*, #394): two features, one word. Term question for the user: keep \"Fokus\" for both, or name this one \"Themenfokus\" / \"Filter\"."
   }
 ]

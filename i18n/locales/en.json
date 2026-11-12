@@ -122,6 +122,15 @@
     "swap": {
       "title": "Task switched",
       "description": "“{running}” is running · “{waiting}” is waiting"
+    },
+    "focus": {
+      "trigger": "Focus",
+      "endNamed": "End focus: {topic}",
+      "chips": "Focus by topic",
+      "chip": "{topic}, {n} task | {topic}, {n} tasks",
+      "pillLead": "Focus:",
+      "hidden": "{n} hidden",
+      "end": "End focus"
     }
   },
   "nav": {

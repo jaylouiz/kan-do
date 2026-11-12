@@ -6,6 +6,7 @@ import type { IColumn, IBoardConfig, SortField, SortDirection } from "~/types/st
 import type { BoardGroupingState, GroupKey } from "~/types/boardGrouping";
 import { POSITION_GAP, getPositionBetween, needsRebalancing, rebalancePositions } from "@/types/taskPosition";
 import { mapHelpers } from "~/utils/mapHelpers";
+import { dayKey, isValidDayKey } from "~/utils/recapDay";
 import { persistOmitFor } from "~/lib/secrets";
 import { useTasksStore } from "~/store/tasks";
 import { normalizeBoardConfig, singleSource } from "~/lib/taskSources";
@@ -35,6 +36,24 @@ export const TIMEBOX_NUDGE_MS = 8000;
  */
 export function sanitizeBoardConfig(raw: unknown): IBoardConfig {
   return normalizeBoardConfig(raw);
+}
+
+/**
+ * The board's topic focus (#161): hides the cards of every other topic in Offen, Wartet and Erledigt (Jetzt is never
+ * filtered). It belongs to one local day: `day` is when it was set, and it ends with that day (`activeFocusTopic`).
+ */
+export interface BoardFocus {
+  topic: string;
+  /** Local day (`YYYY-MM-DD`) the focus was set on */
+  day: string;
+}
+
+/** A persisted `focus` that is not a well-formed `{ topic, day }` reads as no focus (old data has none). */
+export function sanitizeFocus(raw: unknown): BoardFocus | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const { topic, day } = raw as Record<string, unknown>;
+  if (typeof topic !== 'string' || topic.trim() === '' || !isValidDayKey(day)) return null;
+  return { topic, day };
 }
 
 /** Key-order-insensitive JSON form, so two structurally equal configs compare equal. */
@@ -83,6 +102,9 @@ export const useBoardStore = defineStore("board", () => {
     key: null,
   });
   
+  /** The topic focus (#161), persisted; null = no focus. Read it through `activeFocusTopic`, which ends it with its day. */
+  const focus = ref<BoardFocus | null>(null);
+
   // Transient state for scroll persistence
   const scrollPosition = ref({ top: 0, left: 0 });
 
@@ -121,6 +143,12 @@ export const useBoardStore = defineStore("board", () => {
   const isIntegrationConnected = computed(
     () => (id: IntegrationSourceId) => boardConfig.value.sources?.connected.includes(id) ?? false,
   );
+
+  /** The topic the board is focused on right now: null when there is none or it was set on an earlier day. */
+  const activeFocusTopic = computed<string | null>(() => {
+    const current = focus.value;
+    return current && current.day === dayKey(new Date()) ? current.topic : null;
+  });
 
   // Actions
   function updateTaskPosition(taskId: string, newStatus: TaskStatus, oldStatus?: TaskStatus) {
@@ -278,6 +306,20 @@ export const useBoardStore = defineStore("board", () => {
 
   function setGroupingKey(key: GroupKey | null) {
     grouping.value.key = key;
+  }
+
+  /** Focuses the board on one topic for today (#161). */
+  function setFocus(topic: string) {
+    focus.value = { topic, day: dayKey(new Date()) };
+  }
+
+  function clearFocus() {
+    focus.value = null;
+  }
+
+  /** A topic rename or merge (`useTopicManagement`) carries an active focus on `from` over to `to`. */
+  function renameFocusTopic(from: string, to: string) {
+    if (focus.value?.topic === from) focus.value = { ...focus.value, topic: to };
   }
 
   function saveScrollPosition(pos: { top: number; left: number }) {
@@ -491,6 +533,11 @@ export const useBoardStore = defineStore("board", () => {
     boardConfig,
     columns,
     grouping,
+    focus,
+    activeFocusTopic,
+    setFocus,
+    clearFocus,
+    renameFocusTopic,
     scrollPosition,
     confirmingTaskIds,
     timeboxNudgeTaskId,
@@ -534,10 +581,14 @@ export const useBoardStore = defineStore("board", () => {
 }, {
   persist: {
     key: 'board-store',
-    pick: ['boardConfig', 'columns', 'grouping'],
+    pick: ['boardConfig', 'columns', 'grouping', 'focus'],
     // The Todoist token lives in the Keychain on desktop (ADR 007).
     omit: persistOmitFor('board-store'),
-    afterHydrate: (ctx: { store: { boardConfig: IBoardConfig; $persist: () => void } }) => {
+    afterHydrate: (ctx: { store: { boardConfig: IBoardConfig; focus: unknown; $persist: () => void } }) => {
+      // The focus (#161) of older data is missing; a malformed one reads as none. In memory only: the next
+      // mutation persists it (hydration must not write by itself, below). An earlier day's focus stays until then
+      // and `activeFocusTopic` ignores it.
+      ctx.store.focus = sanitizeFocus(ctx.store.focus);
       const hydrated = ctx.store.boardConfig;
       const sanitised = sanitizeBoardConfig(hydrated);
       ctx.store.boardConfig = sanitised;

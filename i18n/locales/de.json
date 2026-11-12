@@ -122,6 +122,15 @@
     "swap": {
       "title": "Aufgabe gewechselt",
       "description": "„{running}“ läuft · „{waiting}“ wartet"
+    },
+    "focus": {
+      "trigger": "Fokus",
+      "endNamed": "Fokus beenden: {topic}",
+      "chips": "Fokus nach Thema",
+      "chip": "{topic}, {n} Aufgabe | {topic}, {n} Aufgaben",
+      "pillLead": "Fokus:",
+      "hidden": "{n} ausgeblendet",
+      "end": "Fokus beenden"
     }
   },
   "nav": {

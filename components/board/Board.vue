@@ -29,6 +29,8 @@
     <!-- Phone page indicator (kd#26): fixed to the viewport above the sliding pages, never interactive -->
     <BoardPageDots :page="activeMobileTab" :offset-px="swipeOffsetPx" :live="isSwiping" />
 
+    <BoardFocusBar />
+
     <div
       class="board"
       :class="{ 'dragging': isDragging, 'swiping': isSwiping }"
@@ -160,6 +162,8 @@ import { useI18n } from "vue-i18n";
 import { useBoardStore } from "~/store/board";
 import { useTasksStore } from "~/store/tasks";
 import { useBoardGrouping } from "~/composables/useBoardGrouping";
+import { useBoardFocus } from "~/composables/useBoardFocus";
+import BoardFocusBar from "~/components/board/BoardFocusBar.vue";
 import { useBoardDndKit } from "~/composables/useBoardDndKit";
 import { useDropMotion } from "~/composables/useDropMotion";
 import { useBoardSwipe } from "~/composables/useBoardSwipe";
@@ -241,7 +245,8 @@ const { effectiveGroupKey: groupingKey } = useBoardGrouping();
 /**
  * Tasks in the Open/Today column.
  */
-const tasksOpen = computed(() => tasksStore.tasksOpen);
+const { applyFocus } = useBoardFocus();
+const tasksOpen = computed(() => applyFocus(tasksStore.tasksOpen));
 
 /**
  * Tasks in the Progress/Doing column.
@@ -251,13 +256,13 @@ const tasksProgress = computed(() => tasksStore.tasksProgress);
 /**
  * Tasks in the Waiting column.
  */
-const tasksWaiting = computed(() => tasksStore.tasksWaiting);
+const tasksWaiting = computed(() => applyFocus(tasksStore.tasksWaiting));
 
 /**
  * Tasks in the Done column (only today's completions).
  * Yesterday's tasks are rendered separately in the archive section.
  */
-const tasksDone = computed(() => tasksStore.tasksDoneToday);
+const tasksDone = computed(() => applyFocus(tasksStore.tasksDoneToday));
 
 // ── Mobile column navigation (transform-based) ───────────────────────────────
 // The board is 300vw wide on mobile. .board-container clips it to 100vw.

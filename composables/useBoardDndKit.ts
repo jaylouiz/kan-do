@@ -9,6 +9,7 @@ import { useTaskSwap } from '~/composables/useTaskSwap'
 import { useStackExpansion } from '~/composables/useStackExpansion'
 import { deriveGroupKeyForTask, getRenderedTaskOrder, isGroupingActiveFor, shouldTaskBeGrouped } from '~/utils/taskGrouping'
 import { useBoardGrouping } from '~/composables/useBoardGrouping'
+import { useBoardFocus } from '~/composables/useBoardFocus'
 import { isSortable } from '@dnd-kit/vue/sortable'
 import { isColumnItemNode } from '~/utils/columnItems'
 
@@ -41,6 +42,7 @@ export function useBoardDndKit() {
   const { swapIntoProgress } = useTaskSwap()
   const stacks = useStackExpansion()
   const { effectiveGroupKey } = useBoardGrouping()
+  const { applyFocus } = useBoardFocus()
 
   function getTasksByStatus(status: TaskStatus) {
     switch (status) {
@@ -55,9 +57,11 @@ export function useBoardDndKit() {
   /**
    * The tasks a column renders. Erledigt shows only today's tasks (earlier days sit in the Gestern
    * note, archived ones nowhere), so its indices refer to `tasksDoneToday`, not to every done task.
+   * A topic focus (#161) hides further cards the same way: the drop slot maps against what is rendered, and the
+   * hidden cards keep their relative order behind the rendered ones when a column is saved.
    */
   function getRenderedTasks(status: TaskStatus) {
-    return status === TaskStatus.Done ? tasksStore.tasksDoneToday : getTasksByStatus(status)
+    return applyFocus(status === TaskStatus.Done ? tasksStore.tasksDoneToday : getTasksByStatus(status))
   }
 
   /** The group key a column renders with, or null when it is not grouped (#135). */

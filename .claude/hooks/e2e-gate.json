@@ -129,6 +129,7 @@
       "paths": [
         "composables/useBoardDndKit.ts",
         "composables/useTaskSwap.ts",
+        "composables/useBoardFocus.ts",
         "composables/useColumnSortable.ts",
         "composables/useDropMotion.ts",
         "composables/useStack*.ts",
@@ -151,6 +152,7 @@
         "jetzt-current-card",
         "jetzt-drag-back",
         "jetzt-swap",
+        "board-focus",
         "dnd-open-column-gap",
         "dnd-visuals",
         "jetzt-vanish",
@@ -896,6 +898,7 @@
         "jetzt-current-card",
         "jetzt-drag-back",
         "jetzt-swap",
+        "board-focus",
         "jetzt-vanish",
         "mixed-board-features",
         "mixed-board-requirements",

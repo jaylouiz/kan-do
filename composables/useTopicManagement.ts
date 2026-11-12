@@ -10,6 +10,7 @@
  */
 import { computed } from 'vue'
 import { useTasksStore } from '~/store/tasks'
+import { useBoardStore } from '~/store/board'
 import { useTrashStore } from '~/store/trash'
 import { useTaskStatisticsStore } from '~/store/taskStatistics'
 import { usePropertyOptionsStore } from '~/store/propertyOptions'
@@ -26,6 +27,7 @@ export function useTopicManagement() {
   const statistics = useTaskStatisticsStore()
   const options = usePropertyOptionsStore()
   const styles = useTopicStylesStore()
+  const boardStore = useBoardStore()
 
   const namesOf = (kind: NameKind): string[] => collectNames(
     kind === 'topic' ? options.getTopicOptions : options.getActivityOptions,
@@ -67,7 +69,10 @@ export function useTopicManagement() {
     trashStore.renameValue(kind, source, target)
     statistics.renameValue(kind, source, target)
     options.renameOption(kind, source, target)
-    if (kind === 'topic') styles.renameStyle(source, target, merged)
+    if (kind === 'topic') {
+      styles.renameStyle(source, target, merged)
+      boardStore.renameFocusTopic(source, target) // an active focus (#161) follows the rename or merge
+    }
     return { ok: true, name: target, merged }
   }
 
