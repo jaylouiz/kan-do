@@ -19,7 +19,9 @@
  * Testing mode (#693, `.claude/testing-mode`, `scripts/testing-mode.mjs`): in `fast` the non-skip, non-full result is
  * tier `fast` = the smoke set + the `map` rules flagged `risk: true` + the changed specs and the specs importing a
  * changed helper + the `E2E-specs:` line; the `design` specs and the label/testid text matches are dropped (also from a
- * style-only PR, which then runs no E2E). `KANDO_TESTING_MODE` in the environment overrides the file (the gate's CLI tests). `quality` (the default, also for a missing or unknown value) is the
+ * style-only PR, which then runs no E2E) except the style fingerprint (kd#230): a change that can move the computed style of a `/ui`
+ * sample (`catalog` in the rules: stylesheets and assets, `app.config.ts`, `nuxt.config.ts`, a component with a catalog entry) adds
+ * `catalog.specs`, style-only PRs included. `KANDO_TESTING_MODE` in the environment overrides the file (the gate's CLI tests). `quality` (the default, also for a missing or unknown value) is the
  * behaviour above, unchanged. `E2E_GATE=full` and an unresolved list still run everything in both modes.
  *
  * CLI (the hook calls it from the worktree that has the PR head, so the PR's own config is used):
@@ -291,8 +293,9 @@ export function selectE2e({ files, body = '', config, existingSpecs, env = {}, m
   const catalogSpecs = (list) => {
     const rule = config.catalog
     if (!fast || !rule) return []
-    const names = cataloguedComponents()
-    const moves = file => matchesAny(file, rule.paths) || (matchesGlob(file, rule.components) && file.endsWith('.vue') && names.has(posix.basename(file, '.vue')))
+    let names = null // read from catalog/ only when a component file asks
+    const isCatalogued = file => (names ??= cataloguedComponents()).has(posix.basename(file, '.vue'))
+    const moves = file => matchesAny(file, rule.paths) || (file.endsWith('.vue') && matchesGlob(file, rule.components) && isCatalogued(file))
     return list.some(moves) ? rule.specs : []
   }
   const resolved = Array.isArray(files) && files.length > 0

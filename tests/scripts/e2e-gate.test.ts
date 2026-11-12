@@ -385,9 +385,25 @@ describe('selectE2e in fast testing mode (#693)', () => {
       expect(fast({ files: ['components/task/TaskCard.vue', 'components/board/BoardPageDots.vue'] }).specs).toContain('ui-catalog')
     })
 
+    it('reads no catalog folder for a file that cannot match, and nothing from a missing one', () => {
+      let reads = 0
+      const run = (files: string[]) => selectE2e({ files, config, existingSpecs, mode: 'fast', cataloguedComponents: () => { reads += 1; return new Set(['TaskCard']) } })
+      expect(run(['server/api/x.ts', 'components/a/Other.vue', 'docs/a.md']).specs).not.toContain('ui-catalog')
+      expect(reads).toBe(1) // only the .vue file asked
+      reads = 0
+      expect(run(['components/a/TaskCard.vue']).specs).toContain('ui-catalog')
+      reads = 0
+      run(['server/api/x.ts', 'assets/css/main.css'])
+      expect(reads).toBe(0)
+      const empty = mkdtempSync(join(tmpdir(), 'kando-gate-nocatalog-'))
+      expect(listCataloguedComponents(empty).size).toBe(0)
+      rmSync(empty, { recursive: true })
+    })
+
     it('adds it for a token sheet or the theme config, and for a style-only PR that the gate used to skip', () => {
       expect(fast({ files: ['assets/css/main.css'] })).toMatchObject({ tier: 'targeted', reason: 'style-only + style fingerprint', specs: fingerprint })
       expect(fast({ files: ['app.config.ts'] }).specs).toContain('ui-catalog')
+      expect(fast({ files: ['nuxt.config.ts'] }).specs).toContain('ui-catalog')
       expect(fast({ files: ['components/task/TaskCard.vue'], styleOnlyVue: ['components/task/TaskCard.vue'] })).toMatchObject({ tier: 'targeted', specs: fingerprint })
       // a changed spec still runs next to it
       expect(fast({ files: ['assets/css/dnd.css', 'tests/e2e/a11y.spec.ts'] }).specs).toEqual(['a11y', ...fingerprint].sort())
