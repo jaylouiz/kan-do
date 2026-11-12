@@ -2,8 +2,8 @@
 @component DayCloseTaskRow
 @kind component
 @category display
-@description One "not done yet" row in the closing step (#98): title, column label, carry-over dots, and the optional triage actions.
-@usage <DayCloseTaskRow :task="task" @smaller="..." /> inside a <ul> (renders an <li>). Not draggable, not a link.
+@description One "not done yet" row in the closing step (#98, a `ListRow` since kd#180): title, column label, carry-over dots, and the optional triage actions.
+@usage <DayCloseTaskRow :task="task" @smaller="..." /> inside a <ul class="divide-y divide-default"> (renders a ListRow, an <li>). Not draggable, not a link.
 @avoid Not a board card (TaskCard) and not draggable or a link; only the "not done yet" rows of the closing step.
 @responsibility
 - Show the column label (Offen, Jetzt, Wartet) and the #99 dots when the card has been carried over
@@ -11,7 +11,7 @@
 - Delete goes through useTaskDeletion (upstream-aware, undo in the row's place, see DayCloseBody); Make smaller is emitted to the host
 -->
 <template>
-  <li class="flex flex-col gap-2" data-testid="day-close-in-flight-row" :data-task-id="task.id">
+  <ListRow class="flex-col items-stretch gap-y-2" data-testid="day-close-in-flight-row" :data-task-id="task.id">
     <div class="flex items-start gap-2 text-sm">
       <span class="min-w-0 flex-1 wrap-break-word text-default" data-private>{{ task.title }}</span>
       <TaskCarryOverDots :day="displayDay" class="mt-0.5 shrink-0" />
@@ -23,10 +23,11 @@
       @smaller="emit('smaller')"
       @delete="deleteTaskWithUndo(task.id)"
     />
-  </li>
+  </ListRow>
 </template>
 
 <script setup lang="ts">
+import ListRow from '~/components/ui/ListRow.vue'
 import { computed } from 'vue'
 import type { Task } from '~/types/task'
 import { getStatusLabel } from '~/utils/taskStatusMappings'

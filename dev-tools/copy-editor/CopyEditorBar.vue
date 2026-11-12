@@ -9,7 +9,7 @@ number of collected edits, and Leave (Esc). Bottom centre on desktop; wraps at 3
   <section
     data-kando-copy-editor
     aria-label="UI copy editor"
-    class="fixed inset-x-4 bottom-4 z-40 mx-auto flex w-fit max-w-full flex-wrap items-center justify-center gap-x-3 gap-y-2 rounded-xl border border-default bg-elevated px-3 py-2 shadow-lg"
+    class="fixed inset-x-4 bottom-4 z-(--z-bar) mx-auto flex w-fit max-w-full flex-wrap items-center justify-center gap-x-3 gap-y-2 rounded-lg border border-default bg-elevated px-3 py-2 shadow-lg"
   >
     <p role="status" class="text-sm text-default">
       {{ message || 'Text selection mode · click any outlined text' }}

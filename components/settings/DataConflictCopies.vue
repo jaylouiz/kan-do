@@ -14,13 +14,13 @@ showing it.
 - "Ablegen" files it away and reports a failure inline
 -->
 <template>
-  <section v-if="conflictCopies.length" aria-labelledby="data-copies-heading" class="space-y-3" data-testid="data-copies">
-    <h2 id="data-copies-heading" class="section-heading">
+  <PageSheet v-if="conflictCopies.length" tag="section" aria-labelledby="data-copies-heading" class="space-y-3" data-testid="data-copies">
+    <SectionHeader id="data-copies-heading" tag="h2">
       {{ t('settings.data.copies.heading') }}
-    </h2>
+    </SectionHeader>
     <p class="text-sm text-muted">{{ t('settings.data.copies.body') }}</p>
     <ul class="divide-y divide-default">
-      <ListRow v-for="copy in conflictCopies" :key="copy.name" density="compact" class="flex-col items-stretch gap-y-2" data-testid="data-copy-row">
+      <ListRow v-for="copy in conflictCopies" :key="copy.name" class="flex-col items-stretch gap-y-2" data-testid="data-copy-row">
         <p class="min-w-0 text-sm break-all text-highlighted">{{ copy.name }}</p>
         <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <p class="text-sm text-muted">
@@ -62,10 +62,12 @@ showing it.
       :description="errorText"
       data-testid="data-copies-error"
     />
-  </section>
+  </PageSheet>
 </template>
 
 <script setup lang="ts">
+import SectionHeader from '~/components/ui/SectionHeader.vue'
+import PageSheet from '~/components/ui/PageSheet.vue'
 import { computed, ref } from 'vue';
 import ListRow from '~/components/ui/ListRow.vue';
 import { useI18n } from 'vue-i18n';

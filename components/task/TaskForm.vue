@@ -42,7 +42,7 @@
         v-if="titleError"
         :id="titleErrorId"
         role="alert"
-        class="px-2.5 pt-1 text-sm text-error-700"
+        class="px-2 pt-1 text-sm text-error-700"
         data-testid="add-task-title-error"
       >
         {{ t('task.form.titleRequired') }}
@@ -154,7 +154,7 @@
 
       <!-- Notes: always visible, no reveal button -->
       <section data-testid="add-task-notes-section" aria-labelledby="add-notes-heading">
-        <SectionHeader id="add-notes-heading" :text="t('task.field.notes')" tag="h3" />
+        <SectionHeader id="add-notes-heading" :text="t('task.field.notes')" tag="h3" size="label" />
         <div @keydown="onNotesKeydown">
           <UTextarea
             v-model="formData.notes"
@@ -169,7 +169,7 @@
 
       <!-- Custom properties (Notion): every configured property is a row -->
       <section v-if="customProperties.length > 0" aria-labelledby="add-custom-heading">
-        <SectionHeader id="add-custom-heading" :text="t('task.field.properties')" tag="h3" class="mb-1" />
+        <SectionHeader id="add-custom-heading" :text="t('task.field.properties')" tag="h3" size="label" class="mb-1" />
         <div class="flex flex-col">
           <TaskPropertyRow
             v-for="prop in customProperties"

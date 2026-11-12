@@ -169,7 +169,7 @@ watch(() => props.isNow, (now) => {
 .chip-slot {
   --chip-h: 1.375rem;
   --chip-h-now: 1.875rem;
-  --chip-radius-now: 0.9375rem; /* half the bar height */
+  --chip-radius-now: 1rem; /* the largest scale radius: at least half the bar height, so the bar reads as a pill */
   --chip-spring: linear(0, 0.032, 0.114, 0.225, 0.35, 0.477, 0.598, 0.707, 0.802, 0.88, 0.942, 0.989, 1.022, 1.044, 1.057, 1.063, 1.063, 1.059, 1.053, 1.045, 1.037, 1.029, 1.022, 1.015, 1.01, 1.005, 1.002, 1, 0.998, 0.997, 0.996, 0.996, 0.996, 0.996, 0.997, 0.997, 0.998, 0.998, 0.999, 0.999, 1);
   --chip-ease: var(--ease-emphasized);
   --chip-duration: 600ms;
@@ -202,7 +202,7 @@ watch(() => props.isNow, (now) => {
   visibility: hidden;
 }
 .chip__sizer-icon { width: 0.8125rem; flex-shrink: 0; }
-.chip__sizer--boxless-now { font-size: var(--text-xs); padding-inline: 0.625rem; }
+.chip__sizer--boxless-now { font-size: var(--text-xs); padding-inline: 0.5rem; }
 
 .chip {
   --chip-track: color-mix(in oklab, var(--ui-color-neutral-100), var(--ui-color-neutral-200)); /* #584 D2: half a step lighter than --ui-bg-muted (neutral-200); a whole step (neutral-100) left the track at 1.05:1 on the card sheet */

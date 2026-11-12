@@ -25,7 +25,7 @@
             v-model="search"
             type="search"
             placeholder="Search components"
-            class="min-h-8 w-full rounded-md border border-default bg-default px-2.5 text-sm text-default placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary"
+            class="min-h-8 w-full rounded-md border border-default bg-default px-2 text-sm text-default placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary"
           >
         </label>
         <div class="flex flex-wrap items-center gap-x-6 gap-y-1" role="group" aria-label="Sample settings">

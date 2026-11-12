@@ -15,34 +15,34 @@
 <template>
   <div class="flex flex-col gap-8" data-testid="day-close-body">
     <section :aria-labelledby="doneHeadingId" data-testid="day-close-done">
-      <h3 :id="doneHeadingId" class="font-display text-headline text-muted">{{ t('dayClose.doneHeading') }}</h3>
+      <SectionHeader :id="doneHeadingId" tag="h3" tone="muted">{{ t('dayClose.doneHeading') }}</SectionHeader>
       <p class="mt-1 text-sm text-toned" data-testid="day-close-recap">{{ recap }}</p>
       <ul
         v-if="done.length > 0"
-        class="mt-3 flex flex-col gap-2"
+        class="mt-3 divide-y divide-default"
         :aria-label="t('dayClose.doneListLabel', { n: done.length }, done.length)"
       >
-        <li
+        <ListRow
           v-for="task in done"
           :key="task.id"
-          class="flex items-start gap-2 text-sm text-toned"
+          class="text-sm text-toned"
           data-testid="day-close-done-row"
         >
-          <UIcon name="i-ph-check" class="mt-0.5 size-4 shrink-0 text-muted" aria-hidden="true" />
+          <UIcon name="i-ph-check" class="size-4 shrink-0 text-muted" aria-hidden="true" />
           <span class="min-w-0 flex-1 wrap-break-word" data-private>{{ task.title }}</span>
           <span v-if="task.timeSpentSeconds > 0" class="shrink-0 text-muted tabular-nums">
             {{ formatDuration(task.timeSpentSeconds, 'spaced') }}
           </span>
-        </li>
+        </ListRow>
       </ul>
     </section>
 
     <section :aria-labelledby="inFlightHeadingId" data-testid="day-close-in-flight">
-      <h3 :id="inFlightHeadingId" class="font-display text-headline text-muted">{{ t('dayClose.inFlightHeading') }}</h3>
+      <SectionHeader :id="inFlightHeadingId" tag="h3" tone="muted">{{ t('dayClose.inFlightHeading') }}</SectionHeader>
       <p v-if="inFlight.length === 0 && rowGaps.length === 0" class="mt-1 text-sm text-toned">{{ t('dayClose.nothingInFlight') }}</p>
       <ul
         v-else
-        class="mt-3 flex flex-col gap-4"
+        class="mt-3 divide-y divide-default"
         :aria-label="t('dayClose.inFlightListLabel', { n: inFlight.length }, inFlight.length)"
       >
         <DayCloseTaskRow
@@ -52,10 +52,10 @@
           @smaller="emit('smaller', task.id)"
         />
         <!-- A delete from this dialog (#422): the board's gap sits behind the modal, so the row answers here, same copy -->
-        <li
+        <ListRow
           v-for="gap in rowGaps"
           :key="gap.taskId"
-          class="flex items-center gap-3 text-sm text-toned"
+          class="text-sm text-toned"
           data-testid="day-close-deleted-row"
           @pointerenter="hold(gap.taskId, 'pointer', true)"
           @pointerleave="hold(gap.taskId, 'pointer', false)"
@@ -67,13 +67,13 @@
           <UButton
             color="neutral"
             variant="soft"
-            class="shrink-0 rounded-full"
+            class="shrink-0"
             :aria-label="t('trash.undoNamed', { title: gap.task.title })"
             @click="undoDelete(gap.taskId)"
           >
             {{ t('common.undo') }}
           </UButton>
-        </li>
+        </ListRow>
       </ul>
       <p v-if="progress.length > 0" class="mt-4 text-sm text-muted" data-testid="day-close-put-back-hint">{{ putBackHint }}</p>
     </section>
@@ -83,6 +83,8 @@
 </template>
 
 <script setup lang="ts">
+import ListRow from '~/components/ui/ListRow.vue'
+import SectionHeader from '~/components/ui/SectionHeader.vue'
 import { ICONS } from '~/lib/icons'
 import { computed, useId } from 'vue'
 import { useI18n } from 'vue-i18n'

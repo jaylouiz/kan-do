@@ -18,7 +18,7 @@
         color="neutral"
         class="group/meta w-full justify-between px-0 hover:bg-transparent"
       >
-        <SectionHeader :text="t('task.detail.metadata')" tag="h3" class="mb-0" />
+        <SectionHeader :text="t('task.detail.metadata')" tag="h3" size="label" class="mb-0" />
         <template #trailing>
           <UIcon
             name="i-ph-caret-down"

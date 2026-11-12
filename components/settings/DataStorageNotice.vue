@@ -28,7 +28,7 @@ once when a conflict appears.
     :icon="notice.icon"
     :title="notice.text"
     :actions="actions"
-    :ui="{ title: 'text-sm font-medium text-default', root: 'py-2.5 ring-0', actions: 'kando-notice-actions flex-wrap' }"
+    :ui="{ title: 'text-sm font-medium text-default', root: 'py-3 ring-0', actions: 'kando-notice-actions flex-wrap' }"
     data-testid="data-storage-notice"
   />
   <!-- Loaded on first use: most sessions never see a conflict, and the modal's module graph is not cheap. -->

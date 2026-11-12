@@ -17,9 +17,10 @@
 
         <StatsTiles :review="review" :unfinished="unfinished" :rhythm="rhythm" :initial-open="initialOpen" @open-task="openTask" />
 
-        <details
+        <PageSheet
           v-if="records.length > 0"
-          class="group rounded-3xl bg-default p-6 shadow-(--shadow-task) md:px-10 md:py-6"
+          tag="details"
+          class="group"
           data-testid="stats-all-tasks"
           @toggle="listOpened = true"
         >
@@ -28,7 +29,7 @@
             <UIcon name="i-ph-caret-down" class="size-4 shrink-0 text-muted group-open:rotate-180" aria-hidden="true" />
           </summary>
           <TasksTable v-if="listOpened" class="mt-4" :tasks="records" :show-completed-date="true" @row-click="handleTaskClick" />
-        </details>
+        </PageSheet>
       </div>
 
       <!-- A task opens in the board's sheet: the child route /statistics/:id (kd#179) -->
@@ -40,6 +41,7 @@
 </template>
 
 <script setup lang="ts">
+import PageSheet from '~/components/ui/PageSheet.vue'
 import { useI18n } from 'vue-i18n';
 import type { TaskCompletionRecord } from '@/store/taskStatistics';
 import { useStatisticsReview } from '~/composables/useStatisticsReview';

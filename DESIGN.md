@@ -188,10 +188,10 @@ Nuxt UI components first, themed in `app.config.ts`; a shared primitive in `comp
 - **Pick one of a few:** `ChoiceChip`, one chip shape at one height (36 px), with an icon alone where the options are symbols; `field` (dashed outline) for the cell that opens a search. Larger options with a description are the one choice card. A toggle that stays on beside others is the chip too.
 - **Edit a value in a label/value row** (task sheet): a select with a chevron when the value opens a list, text on a dotted rule when it is free input. Both are 36 px high and share hover, focus and disabled. A value never wears a chip.
 - **Type into a field:** `UInput`, `USelect`, `UTextarea` at 36 px. Inline editing is the default for task properties; an empty value shows a muted placeholder in place.
-- **Show a list row:** `ListRow`, one density, the row tints on hover; trailing actions follow the button rule.
+- **Show a list row:** `ListRow`, one density (cozy, 44 px at least), a muted tint on hover; trailing actions follow the button rule.
 - **Show a status or count:** a neutral `UBadge` in the label role, one size; priority "Hoch" is the one tinted badge on a card. A topic is muted text with its mark, never a chip.
-- **Head a section:** `SectionHeader` (headline) and `PageHeader` (display); no hand-written heading classes.
-- **Hold content as a surface:** the sheet. `TaskCard` on the board; page sheets take its radius and resting shadow.
+- **Head a section:** `SectionHeader` (roles: hero, display, headline, sub and the 12 px label) and `PageHeader` (the page title); no hand-written heading classes.
+- **Hold content as a surface:** the sheet. `TaskCard` on the board; `PageSheet` for a page (settings section, statistics tile, trash header, welcome) takes its radius and resting shadow. A card in a page (the trash entries) is a sheet already and sits on the canvas.
 - **The task card:** topic first, the title below it, the footer with the timebox chip, source, carried-over dots and priority. The Jetzt card is a regular card: focus comes from the board stepping back, not from the card changing.
 - **The task sheet:** details and the add form are one sheet (a side sheet on desktop, a bottom drawer on a phone), opened the same way from the board and from statistics.
 - **Ask in a dialog:** `AppDialog` in three widths; `ResponsiveOverlay` when it becomes a drawer on a phone. For flows that need the whole stage; one overlay at a time.

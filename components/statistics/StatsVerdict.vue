@@ -12,33 +12,35 @@
 - Drop clauses that have no data (no timeboxed task now, no usual value) instead of showing zeros
 -->
 <template>
-  <section aria-labelledby="stats-q1" class="rounded-3xl bg-primary/10 p-6 md:p-10" data-testid="stats-verdict">
+  <PageSheet tag="section" aria-labelledby="stats-q1" data-testid="stats-verdict">
     <p class="text-sm text-toned">{{ t('statistics.question.q1') }}</p>
     <p v-if="review.state !== 'empty'" class="mt-1 text-sm text-toned">{{ t('statistics.verdict.caption') }}</p>
     <div class="mt-4 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
       <div>
-        <h2 id="stats-q1" class="font-display tracking-display text-4xl leading-(--lh-tight) text-highlighted md:text-5xl" data-testid="stats-verdict-headline">
+        <SectionHeader id="stats-q1" tag="h2" size="hero" data-testid="stats-verdict-headline">
           {{ headline }}
-        </h2>
+        </SectionHeader>
         <p class="mt-4 max-w-md text-pretty text-default" data-testid="stats-verdict-line">{{ line }}</p>
       </div>
       <StatsRing
         v-if="showRing"
         :segments="ringSegments"
         :tick="inTimeboxUsual"
-        :size="132"
+        :size="160"
         :thickness="14"
         :label="ringLabel"
       >
-        <span class="text-3xl leading-(--lh-tight) font-semibold text-highlighted tabular-nums">{{ inTimeboxNow === null ? '–' : `${pct(inTimeboxNow)} %` }}</span>
+        <span class="text-display font-semibold text-highlighted tabular-nums">{{ inTimeboxNow === null ? '–' : `${pct(inTimeboxNow)} %` }}</span>
         <span class="text-xs text-toned">{{ t('statistics.verdict.ring.center') }}</span>
       </StatsRing>
-      <StatsRing v-else-if="review.state === 'empty'" placeholder :size="132" :thickness="14" class="max-md:hidden" data-testid="stats-verdict-placeholder" />
+      <StatsRing v-else-if="review.state === 'empty'" placeholder :size="160" :thickness="14" class="max-md:hidden" data-testid="stats-verdict-placeholder" />
     </div>
-  </section>
+  </PageSheet>
 </template>
 
 <script setup lang="ts">
+import PageSheet from '~/components/ui/PageSheet.vue'
+import SectionHeader from '~/components/ui/SectionHeader.vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useLocaleFormat } from '~/composables/useLocaleFormat'

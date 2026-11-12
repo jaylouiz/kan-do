@@ -1,6 +1,6 @@
 /**
  * Cross-cutting typography utilities (text-2xs, font-display, tracking-display) and the named
- * `section-heading` / `focus-ring` utilities (#556).
+ * `focus-ring` utility (#556).
  * Imported by main.css; lives in the utilities layer exactly as before the split (#43).
  */
 
@@ -78,25 +78,9 @@ html.kando-capture-mask [data-private] ::placeholder {
 }
 html.kando-capture-mask [data-private] {
   background-color: var(--ui-text-highlighted) !important;
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-sm);
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
-}
-
-/*
- * `section-heading` (#556): the page/section heading of the settings, updates and data pages and the
- * What's New dialog: display face, display tracking, headline step, tight leading, highlighted ink.
- * Replaces the five-class string `font-display tracking-display text-headline leading-(--lh-tight)
- * text-highlighted`; values are the ones those classes resolve to. The `id` / `aria-labelledby` wiring
- * stays in each template.
- */
-@utility section-heading {
-  font-family: var(--font-display);
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  font-size: var(--text-headline);
-  line-height: var(--lh-tight);
-  color: var(--ui-text-highlighted);
 }
 
 /*

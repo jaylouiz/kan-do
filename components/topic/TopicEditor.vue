@@ -276,7 +276,7 @@ function onSave() {
   place-items: center;
   width: 1.75rem;
   height: 1.75rem;
-  border-radius: calc(var(--ui-radius) * 0.75);
+  border-radius: var(--radius-sm);
   background: var(--ui-bg-muted);
 }
 

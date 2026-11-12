@@ -24,10 +24,10 @@
       {{ t('onboarding.flow.backToChoice') }}
     </UButton>
     <div>
-      <h2 ref="headingRef" tabindex="-1" class="font-display tracking-display text-3xl leading-(--lh-tight) text-balance text-highlighted outline-none sm:text-4xl">
+      <SectionHeader ref="headingRef" tag="h2" size="display" tabindex="-1" class="text-balance outline-none">
         {{ t('onboarding.flow.local.title') }}
-      </h2>
-      <p class="mt-2 text-base text-default">{{ t('onboarding.flow.local.intro') }}</p>
+      </SectionHeader>
+      <p class="mt-2 text-sm text-default">{{ t('onboarding.flow.local.intro') }}</p>
     </div>
 
     <RadioGroupRoot v-model="pick" class="flex flex-col gap-3" orientation="vertical" :aria-label="t('onboarding.local.howToStart')">
@@ -50,6 +50,7 @@
 </template>
 
 <script setup lang="ts">
+import SectionHeader from '~/components/ui/SectionHeader.vue'
 import { ref, computed } from 'vue';
 import { RadioGroupRoot } from 'reka-ui';
 import ChoiceCard from '~/components/ui/ChoiceCard.vue';
@@ -64,7 +65,7 @@ const emit = defineEmits<{ (e: 'back'): void; (e: 'complete', withSamples: boole
 
 const { t } = useI18n();
 const tasksStore = useTasksStore();
-const headingRef = ref<HTMLElement | null>(null);
+const headingRef = ref<{ $el: HTMLElement } | null>(null);
 const pick = ref<'fresh' | 'samples'>('fresh');
 
 const options = computed(() => [
@@ -72,7 +73,7 @@ const options = computed(() => [
   { key: 'samples' as const, icon: 'i-ph-sparkle', label: t('onboarding.local.startSamples'), hint: t('onboarding.flow.local.samplesHint') },
 ]);
 
-defineExpose({ focusHeading: () => headingRef.value?.focus({ preventScroll: true }) });
+defineExpose({ focusHeading: () => headingRef.value?.$el.focus({ preventScroll: true }) });
 
 function confirm() {
   if (pick.value === 'samples') {

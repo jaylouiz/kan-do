@@ -29,12 +29,12 @@
       </template>
 
       <!-- Main Content -->
-      <div v-if="!isConfigured" class="space-y-4" data-testid="notion-not-configured">
+      <PageSheet v-if="!isConfigured" class="space-y-4" data-testid="notion-not-configured">
         <p class="text-muted">{{ t('notion.settings.notConfigured.message') }}</p>
         <UButton color="neutral" variant="soft" size="lg" to="/settings?tab=sources">
           {{ t('notion.settings.notConfigured.action') }}
         </UButton>
-      </div>
+      </PageSheet>
 
       <UTabs
         v-else
@@ -231,7 +231,8 @@
         </template>
       </UTabs>
 
-      <ul v-if="isDesktop" class="mt-10 max-w-2xl">
+      <PageSheet v-if="isDesktop" class="mt-10 max-w-2xl">
+      <ul>
         <ListRow to="/settings/github" button-testid="settings-subpage-link">
           <span class="flex items-center gap-4">
             <UIcon name="i-ph-key" class="size-5 shrink-0 text-muted" aria-hidden="true" />
@@ -243,12 +244,14 @@
           </span>
         </ListRow>
       </ul>
+      </PageSheet>
 
     </NuxtLayout>
   </div>
 </template>
 
 <script setup lang="ts">
+import PageSheet from '~/components/ui/PageSheet.vue'
 import { ref, computed, nextTick, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useIsDesktop } from '~/composables/useIsDesktop';

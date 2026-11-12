@@ -14,10 +14,10 @@ independent of the data folder and without any credentials. Export writes throug
   on success emits the preview for the confirmation modal
 -->
 <template>
-  <section aria-labelledby="data-transfer-heading" class="space-y-3" data-testid="data-transfer">
-    <h2 id="data-transfer-heading" class="section-heading">
+  <PageSheet tag="section" aria-labelledby="data-transfer-heading" class="space-y-3" data-testid="data-transfer">
+    <SectionHeader id="data-transfer-heading" tag="h2">
       {{ t('settings.data.exportImport.heading') }}
-    </h2>
+    </SectionHeader>
     <p class="text-sm text-muted">{{ t(desktop ? 'settings.data.exportImport.body' : 'settings.data.exportImport.webBody') }}</p>
     <div class="flex flex-wrap gap-2">
       <UButton variant="soft" color="neutral" :loading="busy === 'export'" :disabled="busy !== null" data-testid="data-export" @click="onExport">
@@ -40,10 +40,12 @@ independent of the data folder and without any credentials. Export writes throug
       :description="errorText"
       data-testid="data-transfer-error"
     />
-  </section>
+  </PageSheet>
 </template>
 
 <script setup lang="ts">
+import SectionHeader from '~/components/ui/SectionHeader.vue'
+import PageSheet from '~/components/ui/PageSheet.vue'
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useDataFolder, type ImportPreview } from '~/composables/useDataFolder';

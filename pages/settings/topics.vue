@@ -22,7 +22,7 @@ shared TopicEditor: an inline panel under the row at >=768px, a bottom drawer at
         >
           <template #trailing="{ item }"><span class="text-muted">{{ item.count }}</span></template>
           <template #content>
-            <div class="space-y-6" data-testid="topics-panel">
+            <PageSheet class="space-y-6" data-testid="topics-panel">
               <p v-if="list.length" class="text-sm text-muted">{{ t(kind === 'topic' ? 'settings.topics.introTopics' : 'settings.topics.introActivities') }}</p>
 
               <ul v-if="list.length" class="divide-y divide-default" data-testid="topics-list">
@@ -31,7 +31,6 @@ shared TopicEditor: an inline panel under the row at >=768px, a bottom drawer at
                   :key="name"
                   :ref="(el) => setRowRef(name, el)"
                   action
-                  hover="surface"
                   :expanded="open === name"
                   :label="t('settings.topics.editRow', { name })"
                   button-testid="topics-row-button"
@@ -47,7 +46,7 @@ shared TopicEditor: an inline panel under the row at >=768px, a bottom drawer at
                     <UIcon :name="open === name ? 'i-ph-caret-up' : 'i-ph-pencil-simple'" class="size-4 shrink-0 text-muted" aria-hidden="true" />
                   </span>
                   <template #after>
-                    <div v-if="open === name" class="mb-3 ml-9 w-full max-md:ml-0">
+                    <div v-if="open === name" class="mb-3 ml-9 max-md:ml-0">
                       <TopicEditorHost :key="`${kind}:${name}`" :topic="name" :kind="kind" @close="close" @saved="onSaved" />
                     </div>
                   </template>
@@ -61,7 +60,7 @@ shared TopicEditor: an inline panel under the row at >=768px, a bottom drawer at
               >
                 {{ t(kind === 'topic' ? 'settings.topics.emptyTopics' : 'settings.topics.emptyActivities') }}
               </EmptyState>
-            </div>
+            </PageSheet>
           </template>
         </UTabs>
       </div>
@@ -70,6 +69,7 @@ shared TopicEditor: an inline panel under the row at >=768px, a bottom drawer at
 </template>
 
 <script setup lang="ts">
+import PageSheet from '~/components/ui/PageSheet.vue'
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import TopicMark from '~/components/topic/TopicMark.vue'

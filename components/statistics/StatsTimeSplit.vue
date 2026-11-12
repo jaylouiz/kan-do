@@ -25,7 +25,7 @@
     </ul>
   </div>
   <ul v-else class="divide-y divide-default" data-testid="stats-split-rows">
-    <li v-for="(row, index) in folded" :key="row.key" class="flex items-baseline justify-between gap-4 py-2.5 text-sm">
+    <li v-for="(row, index) in folded" :key="row.key" class="flex items-baseline justify-between gap-4 py-2 text-sm">
       <span class="flex min-w-0 items-center gap-2 text-default">
         <span class="size-3 shrink-0 rounded-full" :style="{ backgroundColor: inkColor(stepOf(row, index)) }" aria-hidden="true" />
         <TopicMark v-if="by === 'topic' && isNamed(row.key)" :topic="row.key" />

@@ -13,7 +13,7 @@
 -->
 <template>
   <div>
-    <h2 class="mb-4 section-heading">{{ t('notion.token.heading') }}</h2>
+    <SectionHeader tag="h2" class="mb-4">{{ t('notion.token.heading') }}</SectionHeader>
     <div v-if="infoMessage" class="mb-4">
       <UAlert
         color="warning"
@@ -57,6 +57,7 @@
 </template>
 
 <script setup lang="ts">
+import SectionHeader from '~/components/ui/SectionHeader.vue'
 import { nextTick, ref, watch } from "vue";
 import ExternalLink from "~/components/ui/ExternalLink.vue";
 import { useI18n } from "vue-i18n";

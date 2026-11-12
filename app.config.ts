@@ -360,7 +360,7 @@ export default defineAppConfig({
       variants: {
         size: {
           xs: { base: 'md:h-6' },
-          md: { base: 'md:h-8' },
+          md: { base: 'md:h-8 px-3' },
           lg: { base: 'md:h-9 max-md:min-h-12' }
         }
       },
@@ -464,9 +464,9 @@ export default defineAppConfig({
     badge: {
       variants: {
         size: {
-          // rem instead of Nuxt UI's px chip sizes so chips follow text zoom (WCAG 1.4.4, #66); sm is the DESIGN.md label step (11px, above the detector's floor)
-          xs: { base: 'text-[0.5rem]/3' },
-          sm: { base: 'text-label/3' }
+          // One badge size (kd#180): `md`, the default, at the 12 px label step, 20 px high. rem instead of Nuxt UI's px chip sizes so chips follow text zoom (WCAG 1.4.4, #66).
+          // The theme cannot delete Nuxt UI's `xs`, `sm`, `lg` and `xl`; no template sets them and the `/ui` matrix leaves them out.
+          md: { base: 'text-xs/3 px-1.5 py-1 rounded-sm' }
         }
       },
       compoundVariants: [

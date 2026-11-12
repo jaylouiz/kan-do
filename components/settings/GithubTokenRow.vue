@@ -12,11 +12,11 @@
 - Keep focus on the field after remove and on the remove button after undo
 -->
 <template>
-  <section :aria-labelledby="headingId" class="space-y-3">
+  <PageSheet tag="section" :aria-labelledby="headingId" class="space-y-3">
     <div class="space-y-1">
-      <h2 :id="headingId" class="section-heading">
+      <SectionHeader :id="headingId" tag="h2">
         {{ t(`settings.github.${key}.title`) }}
-      </h2>
+      </SectionHeader>
       <p class="text-sm text-muted">{{ t(`settings.github.${key}.purpose`) }}</p>
       <p class="text-sm text-muted">{{ t(`settings.github.${key}.access`) }}</p>
     </div>
@@ -133,10 +133,12 @@
     </div>
 
     <p v-if="entry === 'github-feedback'" class="text-sm text-muted">{{ t('settings.github.scopeHelp') }}</p>
-  </section>
+  </PageSheet>
 </template>
 
 <script setup lang="ts">
+import SectionHeader from '~/components/ui/SectionHeader.vue'
+import PageSheet from '~/components/ui/PageSheet.vue'
 import { ICONS } from '~/lib/icons'
 import { computed, nextTick, ref } from 'vue';
 import { useI18n } from 'vue-i18n';

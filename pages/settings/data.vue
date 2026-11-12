@@ -16,10 +16,10 @@ export/import (#224, ADR 011). Mostly text; the path is shown because choosing t
       <div class="space-y-8">
         <DataStorageNotice v-if="desktop" :show-details="false" />
 
-        <section v-if="desktop" aria-labelledby="data-folder-heading" class="space-y-3">
-          <h2 id="data-folder-heading" class="section-heading">
+        <PageSheet v-if="desktop" tag="section" aria-labelledby="data-folder-heading" class="space-y-3">
+          <SectionHeader id="data-folder-heading" tag="h2">
             {{ t('settings.data.folderHeading') }}
-          </h2>
+          </SectionHeader>
           <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
             <p class="min-w-0 font-mono text-sm break-all text-highlighted" :title="state.folder" data-testid="data-folder-path">
               <span aria-hidden="true">{{ shortFolder }}</span>
@@ -37,9 +37,9 @@ export/import (#224, ADR 011). Mostly text; the path is shown because choosing t
           <UButton variant="ghost" color="neutral" icon="i-ph-folder-open" data-testid="data-folder-reveal" @click="onReveal">
             {{ t('settings.data.reveal') }}
           </UButton>
-        </section>
+        </PageSheet>
 
-        <section v-if="desktop && problemText" class="space-y-3" data-testid="data-folder-problem">
+        <PageSheet v-if="desktop && problemText" tag="section" class="space-y-3" data-testid="data-folder-problem">
           <UAlert
             :color="isFailure ? 'error' : 'neutral'"
             variant="subtle"
@@ -62,7 +62,7 @@ export/import (#224, ADR 011). Mostly text; the path is shown because choosing t
               {{ t('settings.data.chooseFolder') }}
             </UButton>
           </div>
-        </section>
+        </PageSheet>
 
         <template v-if="desktop && status !== 'folder-unavailable'">
           <DataBackupList @restore="onRestoreBackup" />
@@ -78,6 +78,8 @@ export/import (#224, ADR 011). Mostly text; the path is shown because choosing t
 </template>
 
 <script setup lang="ts">
+import SectionHeader from '~/components/ui/SectionHeader.vue'
+import PageSheet from '~/components/ui/PageSheet.vue'
 import { computed, nextTick, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import DataBackupList from '~/components/settings/DataBackupList.vue';

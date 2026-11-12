@@ -21,7 +21,7 @@
 <template>
   <span class="task-stack-pill" :data-prop-kind="kind">
     <span class="task-stack-pill__prop" :class="{ 'task-stack-pill__prop--priority': kind === 'priority' }">
-      <task-priority-badge v-if="kind === 'priority'" :priority="Number(groupKey)" size="sm" />
+      <task-priority-badge v-if="kind === 'priority'" :priority="Number(groupKey)" />
       <template v-else>
         <topic-mark v-if="kind === 'topic'" :topic="firstTask?.topic" :task="firstTask" />
         <MiddleEllipsis class="task-stack-pill__text" :text="label" data-private />
@@ -104,7 +104,7 @@ const kind = computed<"topic" | "priority" | "plain">(() => {
 .task-stack-pill__prop {
   min-width: 0;
   max-width: 10rem;
-  padding-inline: 0.625rem 0.5rem;
+  padding-inline: 0.5rem;
 }
 
 .task-stack-pill__text {
@@ -115,7 +115,7 @@ const kind = computed<"topic" | "priority" | "plain">(() => {
 .task-stack-pill__count {
   flex: none;
   gap: 0.25rem;
-  padding-inline: 0.5rem 0.625rem;
+  padding-inline: 0.5rem;
   border-inline-start: 1px solid var(--ui-border-accented);
   font-variant-numeric: tabular-nums;
 }
@@ -133,7 +133,7 @@ const kind = computed<"topic" | "priority" | "plain">(() => {
 
 .task-stack-pill__prop--priority :deep(.priority) {
   height: 1.5rem;
-  padding-inline: 0.625rem;
+  padding-inline: 0.5rem;
   border-radius: 0;
   font-size: inherit;
 }

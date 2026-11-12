@@ -61,7 +61,7 @@ const isWaiting = computed(() => props.status === TaskStatus.Waiting);
      headline, its only use. Static, a decoration without a meaning of its own; the ink on it keeps body contrast. */
   h2.column-header__marked {
     padding-inline: 0.3em;
-    border-radius: var(--radius-xs);
+    border-radius: var(--radius-sm);
     background: linear-gradient(transparent 0 56%, var(--marker) 56% 90%, transparent 90%) no-repeat;
   }
 

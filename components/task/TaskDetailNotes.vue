@@ -18,7 +18,7 @@
     class="task-detail-section"
     data-testid="task-notes"
   >
-    <SectionHeader id="notes-heading" :text="t('task.field.notes')" tag="h3" class="mb-0" />
+    <SectionHeader id="notes-heading" :text="t('task.field.notes')" tag="h3" size="label" class="mb-0" />
 
     <div>
       <InlineEditable
