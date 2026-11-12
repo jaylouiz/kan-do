@@ -4,10 +4,11 @@
  * `buildCommandGroups` is the single source of commands and their `kbds` hints; it is pure so the
  * focused-card / no-card / Jetzt-full cases are unit-testable. Moves go through
  * `useTaskOperations.moveTaskToStatus` (shared WIP guard and completion undo toast).
- * @responsibility Open/close state, focus capture + restore, command groups. No UI.
+ * @responsibility Open/close state, focus capture + restore, command groups. No UI. Page-independent: mounted once in
+ * app.vue (#224); card groups exist only while a card holds keyboard focus (the board), dialog commands go to the board first.
  */
 import { ICONS } from '~/lib/icons'
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { deleteLabelKey } from '~/lib/taskSources'
 import type { CommandPaletteGroup, CommandPaletteItem } from '@nuxt/ui'
@@ -34,13 +35,19 @@ import { useFeedback } from '~/composables/useFeedback'
 import { useWhatsNew } from '~/composables/useWhatsNew'
 import { isTauri } from '~/utils/isTauri'
 import { paletteExtensionGroups } from '~/lib/paletteExtensions'
+import { openOnBoard } from '~/lib/nativeMenu'
+import { useAppReset } from '~/composables/useAppReset'
 
 type Translate = (key: string, ...args: unknown[]) => string
 
 export interface PaletteActions {
   addTask: () => void
+  /** The board (`/tasks`, "Heute"). */
+  openToday: () => void
   openStatistics: () => void
+  openTrash: () => void
   openSettings: () => void
+  /** From any page: goes to the board first, where the dialog is mounted (#224). */
   openDayClose: () => void
   /** Desktop only: absent on web, where there is no Keychain and no GitHub settings page. */
   openGithubSettings?: () => void
@@ -52,7 +59,9 @@ export interface PaletteActions {
   checkForUpdates?: () => void
   /** Desktop only: the version and updates page (#225). */
   openUpdates?: () => void
-  /** Desktop only: the in-app feedback dialog (#227). */
+  /** Goes to Daten & Speicher with the confirmation of "App zurücksetzen" open (kd#227); nothing is erased by the command. */
+  resetApp: () => void
+  /** Desktop only: the in-app feedback dialog (#227); from any page, via the board (#224). */
   sendFeedback?: () => void
   /** Desktop only: re-opens "What's new" (#226). */
   openWhatsNew?: () => void
@@ -140,7 +149,9 @@ export function buildCommandGroups({ t, task, canMove, moveTargets = [], actions
 
   const globalItems: CommandPaletteItem[] = [
     { id: 'add', label: t('commandPalette.addTask'), icon: 'i-ph-plus', onSelect: actions.addTask },
+    { id: 'today', label: t('commandPalette.openToday'), icon: 'i-ph-kanban', onSelect: actions.openToday },
     { id: 'statistics', label: t('commandPalette.openStatistics'), icon: 'i-ph-chart-bar', onSelect: actions.openStatistics },
+    { id: 'trash', label: t('commandPalette.openTrash'), icon: ICONS.delete, onSelect: actions.openTrash },
     { id: 'settings', label: t('commandPalette.openSettings'), icon: 'i-ph-gear', onSelect: actions.openSettings },
     { id: 'day-close', label: t('commandPalette.dayClose'), icon: 'i-ph-sun-horizon', onSelect: actions.openDayClose },
   ]
@@ -165,6 +176,7 @@ export function buildCommandGroups({ t, task, canMove, moveTargets = [], actions
   if (actions.openWhatsNew) {
     globalItems.push({ id: 'whats-new', label: t('commandPalette.openWhatsNew'), icon: 'i-ph-sparkle', onSelect: actions.openWhatsNew })
   }
+  globalItems.push({ id: 'reset-app', label: t('commandPalette.resetApp'), icon: 'i-ph-eraser', onSelect: actions.resetApp })
   groups.push({ id: 'global', label: t('commandPalette.groupGlobal'), items: globalItems })
 
   // Global commands sit right under the move rows so they stay above the fold; the long list comes last
@@ -207,7 +219,7 @@ export function closeCommandPalette(): void {
   isOpen.value = false
 }
 
-export function useCommandPalette(handlers: Pick<PaletteActions, 'openStatistics' | 'openSettings'>) {
+export function useCommandPalette() {
   const { t } = useI18n()
   const tasksStore = useTasksStore()
   const { moveTaskToStatus, canMoveToStatus } = useTaskOperations()
@@ -220,6 +232,7 @@ export function useCommandPalette(handlers: Pick<PaletteActions, 'openStatistics
   const appUpdater = useAppUpdater()
   const feedback = isTauri() ? useFeedback() : null
   const whatsNew = useWhatsNew()
+  const appReset = useAppReset()
 
   /** Called after the close animation: returns focus to the card unless a command navigated away. */
   function restoreFocus(): void {
@@ -238,6 +251,11 @@ export function useCommandPalette(handlers: Pick<PaletteActions, 'openStatistics
     focusedTaskId.value = null
   }
 
+  /** After the palette has left: board first, then `open` (the dialogs live on the board page). */
+  const onBoardAfterLeave = (open: () => void) => () => {
+    void openOnBoard({ navigate: path => navigateTo(path), afterRender: () => nextTick() }, open)
+  }
+
   /** Every command closes the palette; focus returns afterwards unless the command navigates. */
   const run = (fn: () => void, { navigates = false } = {}) => () => {
     skipFocusRestore = navigates
@@ -247,11 +265,14 @@ export function useCommandPalette(handlers: Pick<PaletteActions, 'openStatistics
 
   const actions: PaletteActions = {
     addTask: run(() => { void navigateTo('/tasks/add') }, { navigates: true }),
-    openStatistics: run(handlers.openStatistics, { navigates: true }),
-    openSettings: run(handlers.openSettings, { navigates: true }),
+    openToday: run(() => { void navigateTo('/tasks') }, { navigates: true }),
+    openStatistics: run(() => { void navigateTo('/statistics') }, { navigates: true }),
+    openTrash: run(() => { void navigateTo('/trash') }, { navigates: true }),
+    openSettings: run(() => { void navigateTo('/settings') }, { navigates: true }),
     // The dialog opens only after the palette has left, so two dialogs never overlap and focus
-    // falls back to the board instead of the closed palette.
-    openDayClose: run(() => { afterLeave = dayClose.open }, { navigates: true }),
+    // falls back to the board instead of the closed palette. It is mounted by the board page, so a
+    // command from another page goes there first (#224, the macOS menu does the same).
+    openDayClose: run(() => { afterLeave = onBoardAfterLeave(dayClose.open) }, { navigates: true }),
     ...(isTauri()
       ? {
           openGithubSettings: run(() => { void navigateTo('/settings/github') }, { navigates: true }),
@@ -259,11 +280,13 @@ export function useCommandPalette(handlers: Pick<PaletteActions, 'openStatistics
           // The check (and the dialog or page it leads to) starts only after the palette has left.
           checkForUpdates: run(() => { afterLeave = () => { void appUpdater.checkManually() } }, { navigates: true }),
           openUpdates: run(() => { void navigateTo('/settings/updates') }, { navigates: true }),
-          // Same after-leave pattern as day-close: the dialog opens once the palette is gone.
-          sendFeedback: run(() => { afterLeave = () => feedback?.open() }, { navigates: true }),
+          // Same board-first, after-leave pattern as day-close: the dialog opens once the palette is gone.
+          sendFeedback: run(() => { afterLeave = onBoardAfterLeave(() => feedback?.open()) }, { navigates: true }),
           openWhatsNew: run(() => { afterLeave = () => { void whatsNew.openReopen() } }, { navigates: true }),
         }
       : { openDataTransfer: run(() => { void navigateTo('/settings/data') }, { navigates: true }) }),
+    // The confirmation is asked in place on the data page, with the export section right above it: go there with the question open
+    resetApp: run(() => { appReset.open(); void navigateTo('/settings/data') }, { navigates: true }),
     openDetails: id => run(() => { void navigateTo(`/tasks/${id}`) }, { navigates: true })(),
     moveTo: (id, status) => run(() => { void moveTaskToStatus(id, status) })(),
     setTimebox: (id, seconds) => run(() => tasksStore.updateTask(id, { timeBoxSeconds: seconds }))(),

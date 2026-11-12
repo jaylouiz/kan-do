@@ -42,6 +42,7 @@ import { useTasksStore } from '~/store/tasks'
 import { useBoardStore } from '~/store/board'
 import { useIntegrationHealthStore } from '~/store/integrationHealth'
 import { mapHelpers } from '~/utils/mapHelpers'
+import { freezeWrites, resetDataStorage } from '~/lib/dataStorage'
 /* eslint-enable import/first */
 
 const networkError = () => Object.assign(new Error('Network error'), { statusCode: 0 })
@@ -89,6 +90,20 @@ describe('pending-sync marker sequences (#319)', () => {
     expect(notion.updateTask).toHaveBeenLastCalledWith(expect.objectContaining({ id: 'n1', status: TaskStatus.Progress }))
     expect(tasksStore.task('n1')?.pendingSync).toBeUndefined()
     expect(isSavePending(tasksStore.task('n1')!)).toBe(false)
+  })
+
+  it('after an app reset (writes frozen) the unload sync pushes nothing upstream (kd#227)', async () => {
+    notion.updateTask.mockRejectedValueOnce(networkError())
+    await useTaskSync().updateTaskStatus({ taskId: 'n1', status: TaskStatus.Progress })
+    expect(notion.updateTask).toHaveBeenCalledTimes(1)
+
+    freezeWrites()
+    try {
+      await useTaskSync().syncPendingChanges()
+      expect(notion.updateTask).toHaveBeenCalledTimes(1) // the erased state must not reach Notion
+    } finally {
+      resetDataStorage()
+    }
   })
 
   it('a healthy sync never shows the cloud, not even while the write is in flight', async () => {

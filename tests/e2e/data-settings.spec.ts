@@ -282,3 +282,157 @@ test.describe('Data folder (desktop)', () => {
     })
   })
 })
+
+/** kd#227: "App zurücksetzen" in Daten & Speicher and in the command palette (web: localStorage, desktop: the stubbed IPC). */
+const resetPanel = (page: Page) => page.getByTestId('reset-panel')
+const palette = (page: Page) => page.getByRole('dialog', { name: 'Befehlspalette' })
+const ALL_ENTRIES = { 'notion-token': 'n', 'todoist-token': 't', 'github-updates': 'u', 'github-feedback': 'f' }
+
+test.describe('App reset (web)', () => {
+  test.beforeEach(async ({ context }) => {
+    await seedLocalBoard(context, undefined, undefined, undefined, { once: true })
+    await context.addInitScript(() => {
+      if (sessionStorage.getItem('e2e-reset-seeded')) return
+      sessionStorage.setItem('e2e-reset-seeded', '1')
+      localStorage.setItem('statistics-backfill-state', '{"done":true}')
+      localStorage.setItem('kando-locale', 'de')
+    })
+  })
+
+  test('the section asks in place, names the consequences, focus starts on Abbrechen; Enter and Esc cancel', async ({ page }) => {
+    await page.goto('/settings/data')
+    await page.getByTestId('data-reset-open').click()
+    await expect(resetPanel(page)).toBeVisible()
+    await expect(page.getByTestId('reset-erased')).toContainText('Gelöscht werden')
+    await expect(page.getByTestId('reset-note')).toContainText('Änderungen, die noch nicht synchronisiert sind')
+    await expect(page.getByTestId('reset-note')).toContainText('lässt sich nicht rückgängig machen')
+    await expect(page.getByRole('dialog')).toHaveCount(0) // never a modal (DESIGN.md: irreversible actions confirm in place)
+    await expect(page.getByTestId('reset-cancel')).toBeFocused()
+    await page.keyboard.press('Enter')
+    await expect(resetPanel(page)).toBeHidden()
+    await expect(page.getByTestId('data-reset-open')).toBeFocused()
+    await page.getByTestId('data-reset-open').click()
+    await expect(page.getByTestId('reset-cancel')).toBeFocused()
+    await page.keyboard.press('Escape')
+    await expect(resetPanel(page)).toBeHidden()
+    await expect(page.getByTestId('data-reset-open')).toBeFocused()
+    expect(await page.evaluate(() => localStorage.getItem('tasks-store'))).toContain('seed-open-1')
+  })
+
+  test('confirming erases the data, tokens and backfill marker, keeps the language and lands on the welcome page', async ({ page }) => {
+    await page.goto('/settings/data')
+    await page.evaluate(() => {
+      const board = JSON.parse(localStorage.getItem('board-store') as string)
+      board.boardConfig = { ...board.boardConfig, todoistApiToken: 'secret-token' }
+      localStorage.setItem('board-store', JSON.stringify(board))
+    })
+    await page.getByTestId('data-reset-open').click()
+    await page.getByTestId('reset-confirm').click()
+    await expect(page).toHaveURL(/\/welcome$/)
+    await expect(page.getByTestId('welcome-photo')).toBeAttached()
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('tasks-store') ?? '')).not.toContain('seed-open-1')
+    expect(await page.evaluate(() => localStorage.getItem('board-store') ?? '')).not.toContain('secret-token')
+    expect(await page.evaluate(() => localStorage.getItem('statistics-backfill-state'))).toBeNull()
+    expect(await page.evaluate(() => localStorage.getItem('kando-locale'))).toBe('de')
+  })
+
+  test('from the palette on another page: goes to Daten & Speicher with the question open; Enter changes nothing', async ({ page }) => {
+    await page.goto('/statistics')
+    await expect(page.getByTestId('app-nav')).toBeVisible()
+    await page.keyboard.press('ControlOrMeta+k')
+    await expect(palette(page)).toBeVisible()
+    await page.keyboard.type('zurücksetzen')
+    await expect(palette(page).locator('[role="option"][data-highlighted]')).toHaveText(/App zurücksetzen/)
+    await page.keyboard.press('Enter')
+    await expect(page).toHaveURL(/\/settings\/data$/)
+    await expect(resetPanel(page)).toBeVisible()
+    await expect(page.getByTestId('reset-cancel')).toBeFocused()
+    await page.keyboard.press('Enter') // a repeated Enter from the palette must not confirm
+    await expect(resetPanel(page)).toBeHidden()
+    expect(await page.evaluate(() => localStorage.getItem('tasks-store'))).toContain('seed-open-1')
+  })
+})
+
+test.describe('App reset (desktop)', () => {
+  const openReset = async (page: Page) => {
+    await page.getByTestId('data-reset-open').click()
+    await expect(resetPanel(page)).toBeVisible()
+  }
+
+  test('keeps a pre-restore backup, empties the data file, deletes every Keychain entry and lands on the welcome page', async ({ context, page }) => {
+    await installTauriStub(context, { data: { envelope: BOARD_ENVELOPE() }, entries: ALL_ENTRIES })
+    await page.goto('/settings/data')
+    await expect(page.getByRole('heading', { name: 'Datenordner', level: 2 })).toBeVisible()
+    await openReset(page)
+    await expect(page.getByTestId('reset-kept')).toContainText('legt die App eine Sicherung an')
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    await page.getByTestId('reset-confirm').click()
+    await expect(page).toHaveURL(/\/welcome$/)
+    await expect(page.getByTestId('welcome-photo')).toBeAttached()
+    const state = await stubState(page)
+    expect(JSON.stringify(state.data.envelope)).not.toContain('tasks-store')
+    expect(JSON.stringify(state.data.backups)).toContain('pre-restore')
+    expect(state.entries).toEqual({})
+  })
+
+  test('a failed backup erases nothing and says so', async ({ context, page }) => {
+    await installTauriStub(context, { data: { envelope: BOARD_ENVELOPE(), failBackup: true }, entries: ALL_ENTRIES })
+    await page.goto('/settings/data')
+    await expect(page.getByRole('heading', { name: 'Datenordner', level: 2 })).toBeVisible()
+    await openReset(page)
+    await page.getByTestId('reset-confirm').click()
+    await expect(page.getByTestId('reset-failure')).toContainText('Es wurde nichts gelöscht')
+    await expect(page).toHaveURL(/\/settings\/data$/)
+    const state = await stubState(page)
+    expect(JSON.stringify(state.data.envelope)).toContain('tasks-store')
+    expect(Object.keys(state.entries)).toHaveLength(4)
+    await expect(page.getByTestId('reset-confirm')).toBeEnabled()
+  })
+
+  test('a refused Keychain keeps the dialog open, names the tokens and the retry finishes', async ({ context, page }) => {
+    await installTauriStub(context, { data: { envelope: BOARD_ENVELOPE() }, entries: ALL_ENTRIES, keychainError: true })
+    await page.goto('/settings/data')
+    await expect(page.getByRole('heading', { name: 'Datenordner', level: 2 })).toBeVisible()
+    await openReset(page)
+    await page.getByTestId('reset-confirm').click()
+    await expect(page.getByTestId('reset-failure')).toContainText('Notion, Todoist, GitHub')
+    await expect(page).toHaveURL(/\/settings\/data$/)
+    expect(JSON.stringify((await stubState(page)).data.envelope)).not.toContain('tasks-store') // the data is already gone
+    await expect(page.getByTestId('reset-confirm')).toHaveText('Erneut versuchen')
+
+    await page.evaluate(() => { (window as unknown as { __tauriStub: { keychainError: boolean } }).__tauriStub.keychainError = false })
+    await page.getByTestId('reset-confirm').click()
+    await expect(page).toHaveURL(/\/welcome$/)
+    expect((await stubState(page)).entries).toEqual({})
+  })
+
+  test('cancelling after a refused Keychain reloads from the erased data instead of leaving the frozen old board', async ({ context, page }) => {
+    await installTauriStub(context, { data: { envelope: BOARD_ENVELOPE() }, entries: ALL_ENTRIES, keychainError: true })
+    await page.goto('/settings/data')
+    await expect(page.getByRole('heading', { name: 'Datenordner', level: 2 })).toBeVisible()
+    await openReset(page)
+    await page.getByTestId('reset-confirm').click()
+    await expect(page.getByTestId('reset-failure')).toBeVisible()
+    await page.getByTestId('reset-cancel').click()
+    await expect(page).toHaveURL(/\/settings\/data$/)
+    await expect(page.getByTestId('data-reset-open')).toBeVisible() // a fresh page life: the question is closed, nothing frozen
+    expect(JSON.stringify((await stubState(page)).data.envelope)).not.toContain('tasks-store')
+  })
+
+  test('is off, with the reason, while the data folder is unavailable', async ({ context, page }) => {
+    await installTauriStub(context, { data: { status: 'folder-unavailable', envelope: BOARD_ENVELOPE() } })
+    await page.goto('/settings/data')
+    await expect(page.getByRole('heading', { name: 'Datenordner', level: 2 })).toBeVisible()
+    await expect(page.getByTestId('data-reset-open')).toBeDisabled()
+    await expect(page.getByTestId('data-reset-blocked')).toContainText('Datenordner ist nicht erreichbar')
+  })
+
+  test('has no serious a11y violations on the section and its open question', async ({ context, page }) => {
+    await installTauriStub(context, { data: { envelope: BOARD_ENVELOPE() } })
+    await page.goto('/settings/data')
+    await expect(page.getByRole('heading', { name: 'Datenordner', level: 2 })).toBeVisible()
+    await expectNoSeriousA11yViolations(page)
+    await openReset(page)
+    await expectNoSeriousA11yViolations(page)
+  })
+})

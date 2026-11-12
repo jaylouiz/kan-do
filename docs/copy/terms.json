@@ -755,5 +755,21 @@
     ],
     "status": "proposed",
     "note": "Same wording as the Statistik table column (statistics.table.completedAt). Follows the decided task state erledigt / done (column-done). The Notion setup names Notion's own property and is not this row."
+  },
+  {
+    "id": "reset-app",
+    "concept": "Erase everything the user created or connected and start again as on a first launch (kd#227)",
+    "de": "zurücksetzen",
+    "en": "reset",
+    "avoidDe": [
+      "Werkseinstellungen",
+      "Alles löschen"
+    ],
+    "avoidEn": [
+      "factory reset",
+      "wipe"
+    ],
+    "status": "proposed",
+    "note": "The command, the section and the dialog say \"App zurücksetzen\" / \"Reset app\"; the effect is described with Löschen / delete (the decided data term). Proposed by the #227 build; the user decides."
   }
 ]

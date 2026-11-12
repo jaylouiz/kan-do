@@ -1016,6 +1016,28 @@
         "failedQuota": "Der Import konnte nicht abgeschlossen werden: Im Browser ist kein Platz mehr. Es wurde nichts verändert.",
         "failedSafety": "Die Sicherung konnte nicht heruntergeladen werden. Es wurde nichts verändert. Entferne das Häkchen, um ohne Sicherung zu importieren.",
         "failedWrite": "Der Import konnte nicht abgeschlossen werden: Die Daten konnten nicht geschrieben werden. Es wurde nichts verändert."
+      },
+      "reset": {
+        "heading": "App zurücksetzen",
+        "body": "Löscht alle Aufgaben, Einstellungen, die Statistik und alle Verbindungen. Danach startet die App wie beim ersten Mal.",
+        "action": "App zurücksetzen…",
+        "erased": "Gelöscht werden {n} Aufgabe, der Papierkorb, die Statistik, die Einstellungen, alle Verbindungen und die gespeicherten Tokens (Notion, Todoist, GitHub). | Gelöscht werden {n} Aufgaben, der Papierkorb, die Statistik, die Einstellungen, alle Verbindungen und die gespeicherten Tokens (Notion, Todoist, GitHub).",
+        "upstream": "Deine Aufgaben in Notion bleiben unberührt.",
+        "unsynced": "Änderungen, die noch nicht synchronisiert sind, gehen verloren.",
+        "kept": "Die Sprache und der Speicherort der Daten bleiben erhalten.",
+        "noteDesktop": "Vorher legt die App eine Sicherung an. Du findest sie unter Einstellungen → Daten & Speicher → Sicherungen.",
+        "noteWeb": "Das lässt sich nicht rückgängig machen. Exportiere die Daten vorher, wenn du sie behalten möchtest.",
+        "confirm": "App zurücksetzen",
+        "working": "Wird zurückgesetzt…",
+        "retry": "Erneut versuchen",
+        "errorBackup": "Die Sicherung konnte nicht angelegt werden. Es wurde nichts gelöscht.",
+        "errorWrite": "Die Daten konnten nicht zurückgesetzt werden. Es wurde nichts verändert. Versuche es erneut.",
+        "errorTokens": "Die Tokens für {entries} konnten nicht aus dem Schlüsselbund gelöscht werden. Die Daten sind bereits gelöscht. Versuche es erneut.",
+        "blocked": {
+          "conflict": "Zurücksetzen ist erst möglich, wenn du bei dem Konflikt eine Version gewählt hast.",
+          "newer-schema": "Die Daten stammen aus einer neueren App-Version. Aktualisiere die App, bevor du sie zurücksetzt.",
+          "unavailable": "Der Datenordner ist nicht erreichbar. Zurücksetzen ist erst möglich, wenn er wieder da ist."
+        }
       }
     },
     "updates": {
@@ -1216,7 +1238,7 @@
     "hintNavigate": "navigieren",
     "hintRun": "ausführen",
     "hintClose": "schließen",
-    "groupGlobal": "Board",
+    "groupGlobal": "App",
     "groupCard": "Aufgabe",
     "groupMove": "Verschieben: {title}",
     "groupSource": "Verbindung",
@@ -1226,8 +1248,11 @@
     "setPriority": "Priorität: {priority}",
     "setTimebox": "Timebox: {minutes} Min.",
     "addTask": "Aufgabe hinzufügen",
+    "openToday": "Heute öffnen",
     "openStatistics": "Statistik öffnen",
+    "openTrash": "Papierkorb öffnen",
     "openSettings": "Einstellungen öffnen",
+    "resetApp": "App zurücksetzen…",
     "noCardHint": "Mit Tab eine Aufgabe fokussieren, dann erscheinen ihre Befehle.",
     "dayClose": "Tag abschließen",
     "openGithubAccess": "GitHub-Zugriff",

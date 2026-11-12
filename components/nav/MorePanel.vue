@@ -6,21 +6,20 @@
 @usage Rendered inside the UPopover of AppNav; reads stores and composables only, no props
 @avoid Only the popover behind AppNav's ⋯; the places (Heute, Statistik) are the pill's segments, not rows here.
 @responsibility
-- Order on the board: Ansicht (Karten stapeln + group-by chips) -> Tag abschließen -> Papierkorb (n), Einstellungen, App-Update -> sync footer
+- Order on the board: Befehle (desktop) -> Ansicht (Karten stapeln + group-by chips) -> Tag abschließen -> Papierkorb (n), Einstellungen, App-Update -> sync footer
 - Ansicht and Tag abschließen exist only while the board is the current place; the rest and the sync footer on every page
 - The page the pill shows as its third segment (#583: Einstellungen on /settings*, Papierkorb on /trash*) is not listed here; the row returns when the page leaves the pill. App-Update stays on /settings/updates (a different page). The panel closes on every route change, so a row never appears or disappears while it is open
 - App-Update only in the desktop app (`isTauri()`, absent in the web build, never disabled)
 - Sync footer: a failing source shows its worst problem (title, hint, "Verbindung reparieren") above "Jetzt synchronisieren" + last sync; silent while every source is healthy
 - While a sync runs (manual or background) the row's second line reads "Wird synchronisiert…" (spinner from the button's `loading`), so the accessible name carries the state, and a sibling `role="status"` announces it (#647)
-- Board, desktop only: "Befehle" with the palette shortcut hint opens the command palette (U7 of kd#17: the hint was tooltip-only; the palette has no phone entry). AppNav closes the panel and returns focus to ⋯ first, like `dayClose`
+- Desktop only, on every page with the bar (#224): "Befehle" with the palette shortcut hint opens the command palette (U7 of kd#17: the hint was tooltip-only; the palette has no phone entry), always the first row. AppNav closes the panel and returns focus to ⋯ first, like `dayClose`
 - Keyboard: ↑/↓ move focus to the previous/next enabled control (clamped, no wrap), Home/End to the first/last; Tab order and roles stay (a popover, not role=menu)
 - Emits `close` when a navigation row is chosen and `dayClose` for "Tag abschließen": AppNav closes the panel and returns focus to ⋯ first, then opens the dialog
 - Sync status (moved from DESIGN.md, kd#176): a source that cannot sync puts a status dot on ⋯ (error for a rejected token, else warning; the 700 step, and ⋯'s accessible name says "Verbindungsproblem"), and this panel names the worst problem above the resync row with the fix; never a dialog on its own. A healthy sync is silent: no dot, no extra line
 -->
 <template>
   <div ref="panelEl" class="more-panel w-72 max-w-full p-2" data-testid="more-panel" @keydown="onKeydown">
-    <template v-if="onBoard">
-      <template v-if="!isPhone">
+    <template v-if="!isPhone">
       <UButton
         icon="i-ph-command"
         color="neutral"
@@ -37,7 +36,8 @@
         </span>
       </UButton>
       <USeparator class="my-1" />
-      </template>
+    </template>
+    <template v-if="onBoard">
       <section :aria-labelledby="viewHeadingId" class="space-y-3 p-2">
         <h2 :id="viewHeadingId" class="text-xs font-medium text-muted">{{ t('nav.view') }}</h2>
         <UFormField :help="t('board.sync.stackHelp')">

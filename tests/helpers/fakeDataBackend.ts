@@ -171,6 +171,8 @@ export function createFakeDataBackend(options: FakeOptions = {}): FakeDataBacken
     },
     async importApply(contents) {
       fake.calls.push('importApply')
+      // The replace takes a mandatory `pre-restore` backup first (Rust): without it nothing is replaced
+      if (options.failBackup) throw new DataError('backup_failed', { message: 'disk full' })
       fake.imported = contents
       current = { ...current, status: 'ok' }
       return current

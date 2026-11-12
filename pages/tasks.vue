@@ -4,7 +4,7 @@
 @usage Erreichbar unter /tasks, zeigt Board, Setup- und Statistik-Modal
 @responsibility
 - Lädt und aktualisiert Aufgaben periodisch
-- Hosts the task sheet (`TaskSheetHost`, kd#179) for /tasks/:id and /tasks/add; the palette leads to Statistik and „Einstellungen“
+- Hosts the task sheet (`TaskSheetHost`, kd#179) for /tasks/:id and /tasks/add; the command palette (mounted in app.vue since #224) opens its dialogs from here
 - Sync, Ansicht und Tag abschließen laufen über die App-Leiste (Mehr-Panel, #470), nicht über das Board
 -->
 <template>
@@ -21,7 +21,6 @@
     <NewDayRecap />
     <FeedbackDialog v-if="isDesktopApp" />
     <ElementPickerBar v-if="isDesktopApp" />
-    <CommandPalette @open-statistics="handleOpenStatistics" @open-settings="handleOpenSettings" />
 
     <!-- Sync Warning Modal -->
     <SyncWarningModal
@@ -53,7 +52,6 @@ import { useTaskMove } from "~/composables/useTaskMove";
 import { usePropertyOptionsSync } from "~/composables/usePropertyOptionsSync";
 import SyncWarningModal from "~/components/sync/SyncWarningModal.vue";
 import TaskSheetHost from "~/components/task/TaskSheetHost.vue";
-import CommandPalette from "~/components/CommandPalette.vue";
 import DayCloseDialog from "~/components/board/DayCloseDialog.vue";
 import NewDayRecap from "~/components/recap/NewDayRecap.vue";
 import { useNewDayRecap } from "~/composables/useNewDayRecap";
@@ -130,18 +128,6 @@ const handleVisibilityChange = () => {
     }
     startAutoRefresh();
   }
-};
-
-/** The command palette's "Statistik öffnen" goes to the statistics page (`/statistics`). */
-const handleOpenStatistics = () => {
-  void navigateTo('/statistics');
-};
-
-/**
- * The command palette's "Einstellungen" opens the Einstellungen page (`/settings`, #324, #394); the bar's Mehr panel has its own row.
- */
-const handleOpenSettings = () => {
-  void navigateTo('/settings');
 };
 
 definePageMeta({});
