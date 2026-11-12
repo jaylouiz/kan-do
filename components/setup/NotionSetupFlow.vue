@@ -34,7 +34,6 @@
       <UButton
         color="neutral"
         variant="ghost"
-        :icon="ICONS.back"
         class="-ml-2 min-h-11 self-start"
         data-testid="setup-back"
         @click="goBack"
@@ -91,7 +90,6 @@
 </template>
 
 <script setup lang="ts">
-import { ICONS } from '~/lib/icons'
 import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue';
 import { useI18n } from 'vue-i18n';
 import SetupRail from '~/components/setup/SetupRail.vue';

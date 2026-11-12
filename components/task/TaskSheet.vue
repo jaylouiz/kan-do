@@ -7,6 +7,7 @@
 @avoid Only hosts the nested task routes; other overlays use ResponsiveOverlay directly.
 @responsibility
 - Hosted by ResponsiveOverlay: a slideover (side right) at >=768px and a bottom drawer below; the shell owns the breakpoint, the frozen variant and the open/close echo guard
+- Close: the slideover shows the shell's close button in its top end corner (kd#201: a mouse user finds the way out; the detail header clears it with end padding, `TaskDetailContent`); the drawer has none, a swipe and the dimmed page close it. Escape and an outside press close both as before
 - Focus on open (the drawer: ResponsiveOverlay moves it in, #566), focus trap and focus return come from reka's FocusScope
 - Detail route: ignores an outside pointer-down in the first moments after it opened: the second click of a double-click on a card lands on the overlay and must not dismiss the sheet (kd#25)
 - Keeps Escape inside an active inline editor (and the topic editor, #430) from closing the sheet
@@ -19,7 +20,6 @@
     :open="open"
     :title="title"
     desktop="slideover"
-    :close-button="false"
     :content-props="contentProps"
     :desktop-ui="desktopUi"
     :mobile-ui="mobileUi"
@@ -81,8 +81,12 @@ defineSlots<{
 
 // The sheet header is the display face at medium weight (DESIGN.md): it labels the add-task sheet. The task's own title is set in TaskDetailContent.
 const titleClass = computed(() => (props.hideTitle ? 'sr-only' : 'font-display text-lg font-medium tracking-display text-highlighted'));
-/** Detail route: the header would only hold the visually hidden title, so it takes no space. */
-const headerClass = computed(() => (props.hideTitle ? 'sr-only' : undefined));
+/**
+ * Detail route: the header holds only the visually hidden title, so it takes no space. It is not `sr-only` on the
+ * slideover: the shell's close button lives inside the header and `sr-only` would clip it (kd#201). The close button is
+ * absolutely positioned in the corner, so a zero-height header still shows it.
+ */
+const headerClass = computed(() => (props.hideTitle ? 'h-0 min-h-0 border-0 p-0' : undefined));
 const bodyClass = computed(() => (props.flushBody ? 'p-0 sm:p-0 min-h-0 overflow-y-auto overscroll-contain' : 'min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6'));
 /**
  * Desktop detail: the hosted content owns its scrolling (rows scroll, the metadata is pinned to the
@@ -174,7 +178,7 @@ const onCloseAutoFocus = (event: Event) => {
 
 /**
  * Detail route: focus the sheet itself instead of the first control (the inline title),
- * so opening does not drop straight into an edit trigger with a focus ring. Tab starts at the title.
+ * so opening does not drop straight into an edit trigger with a focus ring. The first Tab stop is the shell's close button (desktop), then the title.
  * The add route keeps the default, its form focuses the title field.
  */
 const onOpenAutoFocus = (event: Event) => {

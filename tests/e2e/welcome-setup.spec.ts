@@ -25,7 +25,7 @@ test('welcome asks one question with two equal rows, no filled button and no Tod
   expect(boxes[0]!.height).toBeGreaterThanOrEqual(64)
   expect(boxes[0]!.height).toBe(boxes[1]!.height)
   expect(boxes[0]!.width).toBe(boxes[1]!.width)
-  for (const row of [nowhere, notion]) await expect(row).not.toHaveClass(/bg-(primary|inverted)/)
+  for (const row of [nowhere, notion]) await expect(row).toHaveCSS('background-color', 'rgb(255, 255, 255)') // a go-on answer is never filled (a checked radio card is, kd#200)
   await expect(page.locator('main button.bg-primary')).toHaveCount(0)
 })
 

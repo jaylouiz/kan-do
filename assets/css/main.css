@@ -236,7 +236,7 @@
     /* --- Motion: shared durations and curves (#70) ---
      * The values used across files. A component's own choreography (a spring, a nudge, the nav's 420 ms timeline)
      * keeps its numbers in its CSS and doc block, or in the named properties below (`--dnd-reorder-duration` ...). */
-    --duration-fast: 150ms; /* colour, background and opacity changes of a control */
+    --duration-fast: 150ms; /* colour, background and scale changes of a control (opacity only where a component declares it) */
     --duration-base: 200ms; /* fades and state washes */
     --duration-slow: 300ms; /* a surface changing size or position */
     --ease-standard: cubic-bezier(0.4, 0, 0.2, 1); /* things that move or change in place (equals Tailwind's ease-in-out) */
@@ -318,9 +318,10 @@
   :is(button, [role='button'], [role='tab'], [role='radio'], [role='checkbox'], [role='switch'], [role='menuitem'], [role='option'], summary, a[href], label[for]):not(:disabled, [aria-disabled='true']) {
     cursor: pointer;
   }
-  /* A state change takes the fast duration. */
+  /* A state change takes the fast duration. Opacity is not in the list: the disabled look snaps, and a control that
+   * fades declares its own transition (the app bar, the mobile nav, the add slot do). */
   :is(button, [role='button'], [role='tab'], a[href]) {
-    transition-property: color, background-color, border-color, opacity, scale;
+    transition-property: color, background-color, border-color, scale;
     transition-duration: var(--duration-fast);
     transition-timing-function: var(--ease-standard);
   }
@@ -351,6 +352,13 @@
     color: var(--ui-text);
     background: var(--ui-page-bg);
   }
+}
+
+/* The disabled look does not stack: a disabled-looking element inside another one (a disabled button in an
+ * `aria-disabled` wrapper) stays at the one 50 % instead of 25 %. Unlayered, so it also beats a theme's own
+ * `disabled:opacity-50` utility on the inner element. A `fieldset:disabled` is no ancestor here: it does not dim itself. */
+:is(:is(button, input, select, textarea):disabled, [aria-disabled='true']) :is(:is(button, input, select, textarea):disabled, [aria-disabled='true']) {
+  opacity: 1;
 }
 
 @media (--phone) {

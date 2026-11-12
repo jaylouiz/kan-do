@@ -9,7 +9,7 @@
 - Explains that tasks stay on this device and other connections come later
 - Two radio cards (empty board, sample board): `ChoiceCard`s with a `value` inside reka-ui's RadioGroup (the primitive under Nuxt UI's URadioGroup, whose card variant cannot carry the icon and the answer-row look): arrow keys select, one Tab stop (roving tabindex) and one "Los geht's" confirmation; nothing happens on the pick alone
 - Seeds the task store (empty, or the shared demo board of #527 with carry-over and topic styles), then emits `complete`
-- Back returns to the choice
+- Back returns to the choice: a text button, no arrow (DESIGN.md "Chrome"; the welcome page has no app bar to lead back)
 - Pattern: first-run setup, diverged from the modal wizard; the radio cards are the welcome page's answer rows (ChoiceCard)
 -->
 <template>
@@ -17,7 +17,6 @@
     <UButton
       color="neutral"
       variant="ghost"
-      :icon="ICONS.back"
       class="-ml-2 min-h-11 self-start"
       data-testid="setup-back"
       @click="emit('back')"
@@ -51,7 +50,6 @@
 </template>
 
 <script setup lang="ts">
-import { ICONS } from '~/lib/icons'
 import { ref, computed } from 'vue';
 import { RadioGroupRoot } from 'reka-ui';
 import ChoiceCard from '~/components/ui/ChoiceCard.vue';

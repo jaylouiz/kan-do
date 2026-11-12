@@ -57,3 +57,71 @@ test.describe('Modal Style Validation', () => {
     });
   }
 });
+
+// The foundations of DESIGN.md "States" and "Type" that the review of redesign slice 1 left open (kd#195):
+// the disabled look does not stack, raw controls do not fade on a state change, Fraunces is a woff2.
+
+test.describe('state language and fonts (kd#195)', () => {
+  test.beforeEach(async ({ context }) => {
+    await seedLocalBoard(context)
+  })
+
+  test('a disabled element inside another disabled-looking element stays at 50 %, not 25 %', async ({ page }) => {
+    await page.goto('/tasks')
+    await expect(page.locator('.task-wrapper').first()).toBeVisible()
+    const opacities = await page.evaluate(() => {
+      const host = document.createElement('div')
+      host.innerHTML = [
+        '<button id="lone" disabled>lone</button>',
+        '<div id="wrap" aria-disabled="true"><button id="nested" disabled>nested</button></div>',
+        '<fieldset disabled><input id="fs" /></fieldset>',
+      ].join('')
+      document.body.append(host)
+      // The effective opacity: the product of the element's own and its ancestors' computed values
+      const effective = (id: string) => {
+        let value = 1
+        for (let el: Element | null = host.querySelector(`#${id}`); el; el = el.parentElement) value *= Number(getComputedStyle(el).opacity)
+        return value
+      }
+      const result = { lone: effective('lone'), wrap: effective('wrap'), nested: effective('nested'), fieldset: effective('fs') }
+      host.remove()
+      return result
+    })
+    expect(opacities).toEqual({ lone: 0.5, wrap: 0.5, nested: 0.5, fieldset: 0.5 })
+  })
+
+  test('a raw button and a link do not transition opacity (the disabled look snaps)', async ({ page }) => {
+    await page.goto('/tasks')
+    await expect(page.locator('.task-wrapper').first()).toBeVisible()
+    const properties = await page.evaluate(() => {
+      const host = document.createElement('div')
+      host.innerHTML = '<button id="b">b</button><a id="a" href="#x">a</a><div id="r" role="button" tabindex="0">r</div>'
+      document.body.append(host)
+      const read = (id: string) => getComputedStyle(host.querySelector(`#${id}`)!).transitionProperty
+      const result = { button: read('b'), link: read('a'), role: read('r') }
+      host.remove()
+      return result
+    })
+    for (const value of Object.values(properties)) {
+      expect(value).toContain('background-color')
+      expect(value).not.toContain('opacity')
+    }
+  })
+
+  test('Fraunces comes from a woff2 file and the headings use it', async ({ page }) => {
+    const fonts: { url: string; status: number; type: string }[] = []
+    page.on('response', (response) => {
+      if (/fraunces/i.test(response.url()) || /\.woff2?($|\?)/.test(response.url())) {
+        fonts.push({ url: response.url(), status: response.status(), type: response.headers()['content-type'] ?? '' })
+      }
+    })
+    await page.goto('/tasks')
+    await expect(page.locator('h2').first()).toBeVisible()
+    // Ask for the face outright: the load proves the file is served and decodes, whatever the page happens to render
+    expect(await page.evaluate(async () => (await document.fonts.load('500 36px Fraunces')).length)).toBeGreaterThan(0)
+    await expect.poll(() => page.evaluate(() => [...document.fonts].some((face) => face.family.includes('Fraunces') && face.status === 'loaded'))).toBe(true)
+    const fraunces = fonts.filter((font) => /fraunces/i.test(font.url) || font.url.endsWith('.woff2'))
+    expect(fraunces.length).toBeGreaterThan(0)
+    expect(fraunces.every((font) => font.status === 200 && !/\.ttf/i.test(font.url))).toBe(true)
+  })
+})

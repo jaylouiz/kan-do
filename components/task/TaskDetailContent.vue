@@ -26,11 +26,12 @@
   `useTaskSync.setCompletedDay` (statistics and the board's today / before-today split follow at once). The row is
   conditional, so the six-row guard above still counts the always-visible rows. A task whose connection holds no
   completion date says "Gilt nur in Kan-Do." beside the value
+- Close clearance (kd#201): on desktop the slideover's close button sits at the top end corner (`top-4 end-4`, 32 px), so the scroll region starts below it (`md:mt-14`) and scrolled rows never run under the control; change both together
 - Property rows (moved from DESIGN.md, kd#176): a quiet label column and the value as its own control, a soft select with a chevron when it opens a list (`TaskPropertySelect`), an editable label on a faint dotted rule when it is free input (`InlineEditable`, `PropertyValueTrigger`). Every row keeps its place whether set or not ("Auswählen…", "+ hinzufügen"); six standard rows, the last one "Aufgewendete Zeit"; no per-row icons, dividers or chips, and no separate time block or progress ring on the sheet
 -->
 
 <template>
-  <div v-if="isError" class="px-6 py-8" data-testid="task-not-found">
+  <div v-if="isError" class="px-6 py-8 md:pe-16" data-testid="task-not-found">
     <h2 class="section-heading">{{ t('task.notFoundTitle') }}</h2>
     <p class="mt-1 text-sm text-muted">{{ t('task.notFoundMessage') }}</p>
   </div>
@@ -38,7 +39,7 @@
   <div v-else-if="task" class="task-detail-content flex flex-col md:min-h-0 md:flex-1">
 
     <!-- Everything but the pinned metadata: one scroll region on desktop, plain flow on mobile -->
-    <div class="flex flex-col md:min-h-0 md:flex-1 md:overflow-y-auto md:overscroll-contain" data-testid="task-detail-scroll">
+    <div class="flex flex-col md:mt-14 md:min-h-0 md:flex-1 md:overflow-y-auto md:overscroll-contain" data-testid="task-detail-scroll">
 
     <!-- Carried-over triage (#99): only for Offen/Jetzt cards past the threshold -->
     <TaskCarryOverTriage
