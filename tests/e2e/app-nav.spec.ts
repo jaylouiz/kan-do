@@ -500,8 +500,13 @@ for (const { label, size } of VIEWPORTS) {
 
       await page.keyboard.press('Enter')
       await expect(panel).toBeVisible()
-      // Opening moves focus inside; the tab order is the row order (no Papierkorb row: it is in the bar)
+      // Opening moves focus inside; the tab order is the row order (no Papierkorb row: it is in the bar).
+      // At 1280 "Befehle" leads on every page (kd#224); a phone has no keyboard, so no such row.
       await expect(panel.getByTestId('more-trash')).toHaveCount(0)
+      if (label === '1280') {
+        await expect(panel.getByTestId('more-commands')).toBeFocused()
+        await page.keyboard.press('Tab')
+      }
       await expect(panel.getByTestId('more-settings')).toBeFocused()
       await page.keyboard.press('Tab')
       await expect(panel.getByTestId('more-sync')).toBeFocused()

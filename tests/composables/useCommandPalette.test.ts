@@ -8,7 +8,7 @@ vi.mock('nuxt/app', () => ({ navigateTo: vi.fn() }))
 
 const t = (key: string, ...args: unknown[]) => `${key}${args.length ? JSON.stringify(args[0]) : ''}`
 const actions = (): PaletteActions => ({
-  addTask: vi.fn(), openStatistics: vi.fn(), openSettings: vi.fn(), openDayClose: vi.fn(), openDetails: vi.fn(),
+  addTask: vi.fn(), openToday: vi.fn(), openStatistics: vi.fn(), openTrash: vi.fn(), openSettings: vi.fn(), openDayClose: vi.fn(), openDetails: vi.fn(),
   moveTo: vi.fn(), setTimebox: vi.fn(), setPriority: vi.fn(), deleteTask: vi.fn(), moveToSource: vi.fn(),
 })
 const task = { id: 'a', title: 'Alpha', status: TaskStatus.Open, priority: 1, timeBoxSeconds: null } as unknown as Task
@@ -20,7 +20,7 @@ describe('buildCommandGroups', () => {
   it('without a focused card only global commands exist', () => {
     const groups = buildCommandGroups({ t, task: null, canMove: allow, actions: actions() })
     expect(groups.map(g => g.id)).toEqual(['global'])
-    expect(items(groups).map(i => (i as { id: string }).id)).toEqual(['add', 'statistics', 'settings', 'day-close'])
+    expect(items(groups).map(i => (i as { id: string }).id)).toEqual(['add', 'today', 'statistics', 'trash', 'settings', 'day-close'])
   })
 
   it('lists "GitHub-Zugriff" only when the desktop action exists', () => {

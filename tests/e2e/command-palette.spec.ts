@@ -163,3 +163,79 @@ test.describe('Command palette', () => {
     await expect(page).toHaveURL(/\/tasks\/[^/]+$/)
   })
 })
+
+/** Issue kd#224: the palette is app-wide (hotkey and ⋯ row on every page with an app bar), card commands stay on the board. */
+test.describe('Command palette off the board (kd#224)', () => {
+  test.beforeEach(async ({ context }) => {
+    await seedLocalBoard(context)
+  })
+
+  for (const path of ['/statistics', '/settings', '/settings/data', '/trash']) {
+    test(`Ctrl+K opens it on ${path} with app commands and no card commands`, async ({ page }) => {
+      await page.goto(path)
+      await expect(page.getByTestId('app-nav')).toBeVisible()
+      await page.keyboard.press('ControlOrMeta+k')
+      await expect(palette(page)).toBeVisible()
+      await expect(palette(page).getByRole('option', { name: 'Heute öffnen' })).toBeVisible()
+      await expect(palette(page).getByRole('option', { name: 'Statistik öffnen' })).toBeVisible()
+      await expect(palette(page).getByRole('option', { name: 'Papierkorb öffnen' })).toBeVisible()
+      await expect(palette(page).getByText('Verschieben nach Erledigt')).toHaveCount(0)
+      // the "focus a task with Tab" hint belongs to the board, the only place a card can have focus
+      await expect(palette(page).getByText('Mit Tab eine Aufgabe fokussieren')).toHaveCount(0)
+      await page.keyboard.press('Escape')
+      await expect(palette(page)).toBeHidden()
+    })
+  }
+
+  test('the ⋯ panel offers Befehle off the board, as its first row, and the tooltip teaches the shortcut', async ({ page }) => {
+    await page.goto('/statistics')
+    await moreButton(page).hover()
+    await expect(page.getByRole('tooltip')).toContainText('Befehle')
+    await moreButton(page).click()
+    const row = morePanel(page).getByTestId('more-commands')
+    await expect(row).toBeVisible()
+    await expect(morePanel(page).getByRole('button').first()).toHaveAttribute('data-testid', 'more-commands')
+    await row.click()
+    await expect(palette(page)).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(palette(page)).toBeHidden()
+    await expect(moreButton(page)).toBeFocused()
+  })
+
+  test('navigation commands lead from one page to another', async ({ page }) => {
+    await page.goto('/statistics')
+    await expect(page.getByTestId('app-nav')).toBeVisible()
+    await page.keyboard.press('ControlOrMeta+k')
+    await expect(palette(page)).toBeVisible()
+    await page.keyboard.type('Papierkorb')
+    await expect(palette(page).locator('[role="option"][data-highlighted]')).toHaveText(/Papierkorb öffnen/)
+    await page.keyboard.press('Enter')
+    await expect(page).toHaveURL(/\/trash/)
+    await expect(palette(page)).toBeHidden() // the leaving palette still counts as an open dialog
+    await expect(page.getByTestId('app-nav')).toBeVisible()
+    await page.keyboard.press('ControlOrMeta+k')
+    await expect(palette(page)).toBeVisible()
+    await page.keyboard.type('Heute')
+    await expect(palette(page).locator('[role="option"][data-highlighted]')).toHaveText(/Heute öffnen/)
+    await page.keyboard.press('Enter')
+    await expect(page).toHaveURL(/\/tasks$/)
+  })
+
+  test('Tag abschließen from Statistik goes to the board and opens the dialog there', async ({ page }) => {
+    await page.goto('/statistics')
+    await expect(page.getByTestId('app-nav')).toBeVisible()
+    await page.keyboard.press('ControlOrMeta+k')
+    await expect(palette(page)).toBeVisible()
+    await page.keyboard.type('abschließen')
+    await page.keyboard.press('Enter')
+    await expect(page).toHaveURL(/\/tasks$/)
+    await expect(page.getByRole('dialog', { name: 'Tag abschließen' })).toBeVisible()
+  })
+
+  test('there is no palette on the welcome page (no app bar)', async ({ page }) => {
+    await page.goto('/welcome')
+    await expect(page.getByTestId('welcome-photo')).toBeAttached()
+    await page.keyboard.press('ControlOrMeta+k')
+    await expect(palette(page)).toHaveCount(0)
+  })
+})

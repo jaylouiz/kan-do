@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { navigateTo } from 'nuxt/app'
 import { setActivePinia, createPinia } from 'pinia'
 import { useCommandPalette } from '~/composables/useCommandPalette'
 import { resetFeedbackState, useFeedback } from '~/composables/useFeedback'
@@ -21,13 +22,14 @@ const setDesktop = (on: boolean) => {
   else delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__
 }
 const globalItems = () => {
-  const palette = useCommandPalette({ openStatistics: vi.fn(), openSettings: vi.fn() })
+  const palette = useCommandPalette()
   return { palette, items: palette.groups.value.find(g => g.id === 'global')!.items as Item[] }
 }
 
 describe('command palette: send feedback (desktop only)', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+    vi.mocked(navigateTo).mockClear()
     resetFeedbackState()
     document.body.innerHTML = ''
   })
@@ -38,7 +40,7 @@ describe('command palette: send feedback (desktop only)', () => {
     expect(globalItems().items.map(i => i.id)).not.toContain('send-feedback')
   })
 
-  it('desktop closes the palette first and opens the dialog only after the palette has left', () => {
+  it('desktop closes the palette first and opens the dialog only after the palette has left', async () => {
     setDesktop(true)
     const { palette, items } = globalItems()
     const feedback = useFeedback()
@@ -48,6 +50,8 @@ describe('command palette: send feedback (desktop only)', () => {
     expect(feedback.isOpen.value).toBe(false) // never modal on modal
 
     palette.restoreFocus() // the palette's after:leave
-    expect(feedback.isOpen.value).toBe(true)
+    // From any page (#224): the board first, where the dialog is mounted
+    await vi.waitFor(() => expect(feedback.isOpen.value).toBe(true))
+    expect(navigateTo).toHaveBeenCalledWith('/tasks')
   })
 })
