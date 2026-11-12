@@ -509,8 +509,8 @@ export default defineAppConfig({
         variant: {
           task: {
             root: 'bg-elevated',
-            body: 'px-3 pt-2 pb-1 sm:pt-3 sm:pb-1',
-            footer: 'px-3 pt-1 pb-2 sm:pt-2 sm:pb-3',
+            body: 'px-3 pt-2 pb-1 sm:px-3 sm:pt-3 sm:pb-1',
+            footer: 'px-3 pt-1 pb-2 sm:px-3 sm:pt-2 sm:pb-3',
           }
         }
       }

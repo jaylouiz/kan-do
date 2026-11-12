@@ -226,9 +226,9 @@
     /* --- Task Card: Muted State (Waiting/Inactive) --- */
     /* Filter-based visual state for tasks that are waiting or not actively in focus */
     --task-muted-filter-grayscale: 100%; /* Full desaturation for clear visual distinction */
-    --task-muted-filter-brightness: 0.97; /* Slight brightness reduction for subdued appearance */
+    --task-muted-filter-brightness: 0.945; /* Slight brightness reduction for subdued appearance; low enough that the sepia after it does not clip on white */
     --task-muted-filter-contrast: 1; /* Reduced contrast for softer, less prominent appearance */
-    --task-muted-filter-sepia: 14%; /* kd#181: a full greyscale reads cool on the paper; a little sepia after it keeps the grey warm */
+    --task-muted-filter-sepia: 10%; /* kd#181: after greyscale and brightness, so the white sheet lands on a warm paper grey (about the sheet fill) instead of a cool one */
     --task-muted-transition-duration: var(--duration-base); /* Smooth transition when entering/exiting muted state */
     --task-muted-transition-easing: var(--ease-emphasized); /* Ease-out for natural feel */
 

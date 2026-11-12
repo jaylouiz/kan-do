@@ -73,7 +73,7 @@
       <UIcon
         v-if="!isEditing && showEditIcon"
         name="i-ph-pencil-simple"
-        class="ml-1.5 size-3.5  text-muted opacity-40 transition-opacity group-hover:opacity-70"
+        class="ml-1.5 size-4 text-muted opacity-40 transition-opacity group-hover:opacity-70"
       />
     </div>
 

@@ -230,9 +230,11 @@ What a check already guarantees is not repeated above. `npm run verify` runs the
 | No new raw `<button>`, no visual identity in a call-site `ui` prop | `tests/config/ratchets.test.ts` |
 | A Pattern line for every new or changed UI element | `tests/config/pattern-check.test.ts`, `.claude/rules/ui-patterns.md` |
 | The rendered look: computed-style fingerprint of `/ui`, pixel baselines, Impeccable scan | `tests/e2e/` (`visual-regression`, `design-detect`, the `/ui` specs) |
+| Line heights from the size tokens (no `leading-*`, no hand-written line height), the icon size scale, no shadow on a control | `tests/config/design-lock-in.test.ts` |
+| One solid green button per view | `tests/e2e/design-detect.spec.ts` (counted on every scanned surface) |
+| `aria-current="page"` on exactly one control per route | `tests/e2e/app-nav.spec.ts` |
+| The board's display rules: one sheet shape, one heading, one list row, one badge size, the closed radius scale | `tests/config/display-layout.test.ts` |
 | One term per concept, both languages, plurals | `docs/copy/terms.json`, `npm run i18n:check`, ESLint `no-raw-text` |
-
-Stated above and not yet checked (step 6 adds a guard or the rule goes): the line heights come from the size tokens only; the icon size scale; one solid green button per view; `aria-current` on exactly one control; a control casts no shadow.
 
 ## App icon
 

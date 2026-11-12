@@ -532,8 +532,8 @@ const openDetails = (event: MouseEvent) => {
 .task.muted,
 .task-waiting {
   filter: grayscale(var(--task-muted-filter-grayscale))
-    sepia(var(--task-muted-filter-sepia))
     brightness(var(--task-muted-filter-brightness))
+    sepia(var(--task-muted-filter-sepia))
     contrast(var(--task-muted-filter-contrast));
   /* Same colour and shadow easing as the `.task` base rule: this list replaces it, so leaving them out made the hover
      shadow of a Wartet card snap instead of ease (#147) */
@@ -594,6 +594,7 @@ const openDetails = (event: MouseEvent) => {
 .task-title-text {
   margin: 0;
   line-height: var(--lh-snug);
+  text-wrap: pretty; /* no one-word last line (backlog U19) */
   word-wrap: break-word;
   overflow-wrap: break-word;
   display: -webkit-box;

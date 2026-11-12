@@ -1,22 +1,22 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-02T00:00:00+00:00",
+  "generatedAt": "2026-11-12T00:00:00+00:00",
   "title": "Design System: Kan-Do",
   "extensions": {
     "colorMeta": {
-      "done-teal": {
-        "role": "tertiary",
-        "displayName": "Done Teal",
-        "canonical": "#4CBDA8",
+      "primary": {
+        "role": "primary",
+        "displayName": "Forest Green",
+        "canonical": "oklch(0.47 0.092 152)",
         "tonalRamp": [
-          "#1F4D46",
-          "#29645B",
-          "#337F72",
-          "#3DA08E",
-          "#4CBDA8",
-          "#7BD7C3",
-          "#A6E4D6",
-          "#E9F8F4"
+          "oklch(0.25 0.044 152)",
+          "oklch(0.30 0.056 152)",
+          "oklch(0.36 0.070 152)",
+          "oklch(0.41 0.082 152)",
+          "oklch(0.47 0.092 152)",
+          "oklch(0.66 0.10 152)",
+          "oklch(0.885 0.055 152)",
+          "oklch(0.972 0.016 152)"
         ]
       },
       "warning-orange": {
@@ -52,79 +52,75 @@
       "paper": {
         "role": "neutral",
         "displayName": "Paper",
-        "canonical": "#F5F5F4",
+        "canonical": "oklch(0.953 0.013 86)",
         "tonalRamp": [
-          "#1C1917",
-          "#292524",
-          "#44403C",
-          "#57534E",
-          "#78716C",
-          "#A8A29E",
-          "#E7E5E4",
-          "#FAFAF9"
+          "oklch(0.19 0.012 70)",
+          "oklch(0.27 0.016 74)",
+          "oklch(0.42 0.024 80)",
+          "oklch(0.52 0.025 80)",
+          "oklch(0.70 0.025 82)",
+          "oklch(0.84 0.02 84)",
+          "oklch(0.895 0.016 84)",
+          "oklch(0.953 0.013 86)"
         ]
       },
-      "primary": {
-        "role": "primary",
-        "displayName": "Desk Ink",
-        "canonical": "oklch(0.52 0.090 255)",
-        "tonalRamp": [
-          "oklch(0.19 0.036 255)",
-          "oklch(0.26 0.050 255)",
-          "oklch(0.32 0.063 255)",
-          "oklch(0.39 0.076 255)",
-          "oklch(0.45 0.085 255)",
-          "oklch(0.52 0.090 255)",
-          "oklch(0.66 0.085 255)",
-          "oklch(0.86 0.050 255)"
-        ]
+      "marker-yellow": {
+        "role": "tertiary",
+        "displayName": "Marker Yellow",
+        "canonical": "oklch(0.91 0.145 97)"
       },
       "focus-dusk": {
         "role": "tertiary",
         "displayName": "Focus Dusk",
-        "canonical": "oklch(0.27 0.04 65)",
-        "tonalRamp": [
-          "oklch(0.15 0.04 65)",
-          "oklch(0.27 0.04 65)",
-          "oklch(0.38 0.04 65)",
-          "oklch(0.5 0.04 65)",
-          "oklch(0.62 0.04 65)",
-          "oklch(0.74 0.04 65)",
-          "oklch(0.86 0.04 65)",
-          "oklch(0.95 0.04 65)"
-        ]
+        "canonical": "oklch(0.27 0.04 65)"
       }
     },
     "typographyMeta": {
       "display": {
         "displayName": "Display",
-        "purpose": "Column names and hero; Figtree 600, tracking -0.015em, muted, centred."
+        "purpose": "Column names and page titles; Fraunces 500, 36 px, tracking -0.02em."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section headings on a sheet and in a dialog, the title of a task in its sheet; Fraunces 500, 22 px."
+      },
+      "subhead": {
+        "displayName": "Subhead",
+        "purpose": "Dialog titles, sub-headings, the wordmark; Fraunces 500, 18 px."
       },
       "title": {
         "displayName": "Card title",
-        "purpose": "Task titles, clamped to 4 lines."
+        "purpose": "Task titles on cards; Figtree 400, 15 px (16 on a phone)."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Notes, descriptions, dialog and settings copy; Figtree 400, 14 px at line height 1.55 (`text-body`)."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Badges, chips, counts, property labels, hints; Figtree 500, 12 px."
       }
     },
     "shadows": [
       {
         "name": "task",
         "value": "var(--shadow-task)",
-        "purpose": "Sheet at rest: every task card."
+        "purpose": "Rest: cards, page sheets, stacks."
       },
       {
         "name": "task-hover",
         "value": "var(--shadow-task-hover)",
-        "purpose": "Sheet hovered: pointer over a draggable card."
+        "purpose": "Raised: a card under the pointer (it also lifts 2 px)."
       },
       {
         "name": "task-drag-elevated",
         "value": "var(--shadow-task-drag-elevated)",
-        "purpose": "Sheet in hand: the drag overlay only."
+        "purpose": "In hand: the dragged card; grows with the pick-up through `--dnd-lift`."
       },
       {
         "name": "task-lifted",
         "value": "var(--shadow-task-lifted)",
-        "purpose": "Sheet in the lamp: the Jetzt card while the focus overlay is on (Focus Dusk tint)."
+        "purpose": "The Jetzt card while the focus overlay is on (Focus Dusk tint)."
       },
       {
         "name": "stack-collapsed",
@@ -139,24 +135,34 @@
       {
         "name": "overlay",
         "value": "var(--shadow-overlay)",
-        "purpose": "Modal content: soft downward shadow on a hairline ring."
+        "purpose": "Dialogs, menus, popovers, toasts."
       }
     ],
     "motion": [
       {
+        "name": "duration-fast",
+        "value": "150ms",
+        "purpose": "A control changing colour, a press, a card lifting, the pick-up of a dragged card."
+      },
+      {
+        "name": "duration-base",
+        "value": "200ms",
+        "purpose": "Fades, washes, neighbours making room, the drop glide and the set-down."
+      },
+      {
+        "name": "duration-slow",
+        "value": "300ms",
+        "purpose": "A surface changing size or position."
+      },
+      {
         "name": "ease-standard",
         "value": "cubic-bezier(0.4, 0, 0.2, 1)",
-        "purpose": "Reorder and stack transitions (220ms)."
+        "purpose": "Things that change in place."
       },
       {
-        "name": "task-transform",
-        "value": "160ms ease-out",
-        "purpose": "Card scale/rotate feedback."
-      },
-      {
-        "name": "muted",
-        "value": "200ms cubic-bezier(0.2, 0, 0, 1)",
-        "purpose": "Entering/leaving the waiting/muted state."
+        "name": "ease-emphasized",
+        "value": "cubic-bezier(0.2, 0, 0, 1)",
+        "purpose": "Things that arrive and settle."
       }
     ],
     "breakpoints": [
@@ -179,119 +185,119 @@
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "The one ink action per view.",
+      "description": "The one solid green action of a surface, 36 px.",
       "html": "<button class=\"ds-btn-primary\">Speichern</button>",
-      "css": ".ds-btn-primary{background:oklch(0.52 0.090 255);color:#fff;padding:6px 12px;border:none;border-radius:8px;font:500 14px/20px Figtree,system-ui,sans-serif;transition:background .16s}.ds-btn-primary:hover{background:oklch(0.45 0.085 255)}.ds-btn-primary:focus-visible{outline:2px solid oklch(0.52 0.090 255);outline-offset:2px}"
+      "css": ".ds-btn-primary{height:36px;background:oklch(0.47 0.092 152);color:#fff;padding:0 14px;border:none;border-radius:12px;font:500 14px/1.3 Figtree,system-ui,sans-serif;cursor:pointer;transition:background .15s,scale .15s}.ds-btn-primary:hover{background:oklch(0.41 0.082 152)}.ds-btn-primary:active{scale:.97}.ds-btn-primary:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in oklab,oklch(0.47 0.092 152) 25%,transparent)}"
     },
     {
       "name": "Soft Button",
       "kind": "button",
       "refersTo": "button-soft",
-      "description": "Secondary actions such as add task.",
+      "description": "A neutral action that stands on its own, and the one main action of a row; 32 px. Ghost is the same without a resting fill.",
       "html": "<button class=\"ds-btn-soft\">Aufgabe hinzufügen</button>",
-      "css": ".ds-btn-soft{background:oklch(0.93 0.027 255);color:oklch(0.45 0.085 255);padding:6px 12px;border:none;border-radius:8px;font:500 14px/20px Figtree,system-ui,sans-serif}.ds-btn-soft:hover{background:oklch(0.86 0.050 255)}.ds-btn-soft:focus-visible{outline:3px solid oklch(0.52 0.090 255 / .25)}"
+      "css": ".ds-btn-soft{height:32px;background:rgb(70 48 20 / 0.07);color:oklch(0.19 0.012 70);padding:0 12px;border:none;border-radius:12px;font:500 14px/1.3 Figtree,system-ui,sans-serif;cursor:pointer;transition:background .15s,scale .15s}.ds-btn-soft:hover{background:rgb(70 48 20 / .13)}.ds-btn-soft:active{scale:.97}"
     },
     {
       "name": "Task Card",
       "kind": "card",
       "refersTo": "task-card",
-      "description": "A sheet on the desk.",
-      "html": "<div class=\"ds-task\"><p class=\"ds-task-title\">Review schreiben</p><p class=\"ds-task-topic\">Backend</p><span class=\"ds-badge\">Entwicklung</span></div>",
-      "css": ".ds-task{width:288px;height:132px;box-sizing:border-box;padding:12px;background:#FAFAF9;border:2px solid #fff;border-radius:16px;box-shadow:1px 2px 4px 2px rgba(15,23,42,.05),0 1px 2px rgba(15,23,42,.04);font-family:Figtree,system-ui,sans-serif;display:flex;flex-direction:column;transition:box-shadow .16s}.ds-task:hover{box-shadow:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -2px rgba(0,0,0,.05)}.ds-task-title{margin:0;font-size:15px;line-height:1.3;color:#1C1917}.ds-task-topic{margin:2px 0 0;font-size:14px;color:#57534E}.ds-badge{margin-top:auto;align-self:flex-start;background:#E7E5E4;color:#1C1917;font:500 11px/16px Figtree,sans-serif;padding:0 6px;border-radius:4px}"
+      "description": "A white sheet on the paper desk; lifts 2 px on hover and sets down on press.",
+      "html": "<div class=\"ds-task\"><p class=\"ds-task-topic\">Backend</p><p class=\"ds-task-title\">Review schreiben</p><span class=\"ds-badge\">30 min</span></div>",
+      "css": ".ds-task{width:288px;height:132px;box-sizing:border-box;padding:12px;background:#fff;border-radius:16px;box-shadow:0 0 0 1px rgb(70 48 20 / .07),0 2px 3px rgb(70 48 20 / .1),0 10px 22px -6px rgb(70 48 20 / .2);font-family:Figtree,system-ui,sans-serif;display:flex;flex-direction:column;cursor:pointer;transition:box-shadow .15s,translate .15s}.ds-task:hover{box-shadow:0 0 0 1px rgb(70 48 20 / .07),0 2px 3px rgb(70 48 20 / .06),0 10px 22px -6px rgb(70 48 20 / .14),0 22px 40px -12px rgb(70 48 20 / .3);translate:0 -2px}.ds-task:active{box-shadow:0 0 0 1px rgb(70 48 20 / .07),0 2px 3px rgb(70 48 20 / .1),0 10px 22px -6px rgb(70 48 20 / .2);translate:0 0}.ds-task-topic{margin:0;font-size:14px;line-height:1.3;color:oklch(0.42 0.024 80)}.ds-task-title{margin:2px 0 0;font-size:15px;line-height:1.3;color:oklch(0.19 0.012 70)}.ds-badge{margin-top:auto;align-self:flex-start;background:oklch(0.895 0.016 84);color:oklch(0.19 0.012 70);font:500 12px/1.3 Figtree,system-ui,sans-serif;padding:2px 8px;border-radius:8px}"
     },
     {
       "name": "Column Header",
       "kind": "custom",
-      "description": "Display-role tab naming a column.",
-      "html": "<h2 class=\"ds-col\">Offen</h2>",
-      "css": ".ds-col{font:600 36px/1.15 Figtree,system-ui,sans-serif;letter-spacing:-.015em;color:#78716C;text-align:center;margin:0}"
+      "description": "Display role naming a column; the Jetzt headline carries the one marker stroke.",
+      "html": "<h2 class=\"ds-col\"><span class=\"ds-mark\">Jetzt</span></h2>",
+      "css": ".ds-col{font:500 36px/1.15 Fraunces,ui-serif,Georgia,serif;letter-spacing:-0.02em;color:oklch(0.19 0.012 70);text-align:center;margin:0}.ds-mark{background:linear-gradient(transparent 55%,oklch(0.91 0.145 97) 55%,oklch(0.91 0.145 97) 90%,transparent 90%)}"
     },
     {
-      "name": "Task Sheet",
-      "kind": "custom",
-      "refersTo": "task-card",
-      "description": "Right-hand slideover for task details; the board behind it dims under a 40% dark neutral scrim (neutral-900/40) so the bright sheet keeps contrast. No close button.",
-      "html": "<div class=\"ds-sheet-stage\"><div class=\"ds-sheet-scrim\"></div><aside class=\"ds-sheet\"><h2 class=\"ds-sheet-title\">Konzept ausarbeiten</h2><p class=\"ds-sheet-meta\">Design</p></aside></div>",
-      "css": ".ds-sheet-stage{position:relative;height:160px;width:320px;background:#F5F5F4;overflow:hidden;border-radius:8px}.ds-sheet-scrim{position:absolute;inset:0;background:rgba(28,25,23,.4)}.ds-sheet{position:absolute;top:0;right:0;bottom:0;width:60%;background:#FAFAF9;padding:16px}.ds-sheet-title{margin:0;font:600 18px/1.15 Figtree,system-ui,sans-serif;color:#1C1917}.ds-sheet-meta{margin:6px 0 0;font:400 14px/1.55 Figtree,system-ui,sans-serif;color:#68625C}"
+      "name": "Page Sheet",
+      "kind": "card",
+      "description": "The one page surface (settings section, statistics tile): white, 16 px radius, the cards' resting shadow, a headline naming it. Never a sheet on a sheet.",
+      "html": "<section class=\"ds-sheet\"><h3>Darstellung</h3><p>Wie das Board Aufgaben gruppiert und sortiert.</p></section>",
+      "css": ".ds-sheet{background:#fff;border-radius:16px;padding:24px;box-shadow:0 0 0 1px rgb(70 48 20 / .07),0 2px 3px rgb(70 48 20 / .1),0 10px 22px -6px rgb(70 48 20 / .2);font-family:Figtree,system-ui,sans-serif}.ds-sheet h3{font:500 22px/1.15 Fraunces,ui-serif,Georgia,serif;letter-spacing:-0.02em;margin:0 0 8px;color:oklch(0.19 0.012 70)}.ds-sheet p{font-size:14px;line-height:1.55;margin:0;color:oklch(0.42 0.024 80)}"
     },
     {
       "name": "App Bar",
       "kind": "navigation",
       "refersTo": "app-bar-pill",
-      "description": "One pill with the brand and the two places, plus a third segment while on a page behind ⋯ (#583); the selected segment sits on one raised chip that glides between them. ⋯ is never selected. No ink fill. Top on desktop, floating at the bottom on a phone.",
-      "html": "<div class=\"ds-bar\"><span class=\"ds-brand\">kan-do</span><span>Heute</span><span>Statistik</span><span class=\"ds-sel\">Einstellungen</span></div>",
-      "css": ".ds-bar{display:inline-flex;align-items:center;height:36px;padding:2px;border-radius:9999px;background:#E7E5E4;font:500 14px/1 Figtree,system-ui,sans-serif;color:#57534E}.ds-bar span{padding:0 14px;display:inline-flex;align-items:center;height:100%;border-radius:9999px}.ds-brand{font:600 18px/1 Figtree,system-ui,sans-serif;color:#1C1917;padding:0 10px 0 8px!important}.ds-sel{background:#FAFAF9;color:#1C1917;box-shadow:0 1px 2px rgba(0,0,0,.08)}"
+      "description": "One flat white pill with the brand and the places; the selected place is a fill, never a shadow of its own. Top on desktop, floating at the bottom on a phone. The pill is the one control-like element that casts a shadow.",
+      "html": "<div class=\"ds-bar\"><span class=\"ds-sel\">Heute</span><span>Statistik</span></div>",
+      "css": ".ds-bar{display:inline-flex;align-items:center;height:36px;padding:2px;border-radius:9999px;background:#fff;box-shadow:0 0 0 1px rgb(70 48 20 / .07),0 2px 3px rgb(70 48 20 / .1),0 10px 22px -6px rgb(70 48 20 / .2);font:500 14px/1 Figtree,system-ui,sans-serif;color:oklch(0.42 0.024 80)}.ds-bar span{padding:0 16px;height:32px;display:inline-flex;align-items:center;border-radius:9999px}.ds-bar .ds-sel{background:rgb(70 48 20 / .09);color:oklch(0.19 0.012 70)}"
     }
   ],
   "narrative": {
-    "northStar": "The Quiet Desk",
-    "overview": "A tidy desk under a good lamp. One sheet is in front of you, the rest is stacked neatly to the side, and nothing on the desk asks for attention it hasn't earned. Kan-Do is a working tool (Operate mode): the board is scanned many times a day in short glances, so calm comes from restraint, predictability and generous space, not from decoration.\n\nThe desk is warm, not austere. Calm comes from generous composition (few things per screen, large confident headings, space between groups), friendly rounded warmth (warm paper neutrals, soft radii, one approachable sans), flows that happen in place (a question asked on the card, a value edited in its row) and small physical motion that explains what just happened. Airbnb is the positive reference for all four. Trello (rainbow labels, gamified clutter) and Notion (dense, technical, information overload) are the anti-references: no dense toolbars, no sidebar overload, no modal on modal.",
+    "northStar": "Paper Desk",
+    "overview": "A warm paper desk with white sheets on it. Everything you read, enter or edit lies on a sheet; the desk itself stays empty and calm. Kan-Do is a working tool that is glanced at many times a day, so the columns, the cards and the one running task stand clearly apart, and nothing asks for attention it has not earned.",
     "keyCharacteristics": [
-      "Warm paper page, bright card sheets, one quiet ink accent.",
-      "One typeface; type and space compose the page, not boxes, lines or fills.",
-      "Flat by default; soft, ambient shadows only on things you can pick up.",
+      "A warm neutral canvas, never a saturated one; colour comes in small doses.",
+      "White sheets lifted by one warm shadow, one level only: never a sheet on a sheet.",
+      "One muted forest green for action and for done; orange for attention, red for what is destructive or failed.",
+      "A serif (Fraunces) for headings, the sans (Figtree) for everything read and operated.",
       "Questions are asked in place; reversible actions act at once and offer undo.",
       "Motion is small and physical and explains a state change.",
-      "Light only for now (`colorMode: false`); dark mode would be a new feature, designed from scratch."
+      "Light only."
     ],
     "rules": [
       {
         "name": "The One Lamp Rule",
-        "body": "Ink is the only accent. If more than one element per view is ink-filled, one of them is wrong.",
+        "body": "One solid green button per view. Marks, selected options, links and the focus ring are green without being a fill.",
         "section": "colors"
       },
       {
         "name": "The Status Is Not Decoration Rule",
-        "body": "Teal means done, orange means attention, raspberry means destructive or failed. They never appear for emphasis, branding or variety. Integration brand colours (Todoist red, Notion black) do not appear in the UI; sources are shown in neutral ink. A topic's own hue lives on its mark only (The Topic Mark Rule).",
+        "body": "Green means action or done, orange attention, red destructive or failed. None of them appears for emphasis, branding or variety; integration brand colours do not appear at all.",
         "section": "colors"
       },
       {
         "name": "The Topic Mark Rule",
-        "body": "A topic may carry a hue and a symbol on its mark only: a small dot or glyph before the name. The name stays neutral muted text. Never a coloured chip, label, card, stack, column or surface, and never a hue on a name in a list or table. One mark per topic, from the nine `--topic-*` tokens; no mark at all for a topic with neither hue nor symbol. This is the one place where hue encodes the user's own category rather than status (decision D2, #430/#431).",
+        "body": "A topic carries its hue and symbol on its mark only: a small dot or glyph before the name. Never a coloured chip, card, column or surface, never a hue on a name, and no topic hue in a chart.",
+        "section": "colors"
+      },
+      {
+        "name": "The Marker Rule",
+        "body": "A stroke of yellow text marker through the lower half of a word is an allowed decoration in slight, intentional use. It is static, carries no meaning of its own and appears once per view at most. Today's only use: the Jetzt headline.",
         "section": "colors"
       },
       {
         "name": "The Frozen Primary Rule",
-        "body": "The primary palette (Ink, hue 255) changes only by a decision recorded here (the user's, or an agent's marked `agent-decided` on its issue), never as a side effect of a feature.",
+        "body": "The primary palette (forest green, hue 152) changes only by a recorded decision, never as a side effect of a feature.",
         "section": "colors"
       },
       {
         "name": "The Receding Text Rule",
-        "body": "Waiting cards, done titles and placeholders step down through a token colour, never through `opacity` on text, and text keeps body contrast. Status text sits on its own wash in the deep step of its colour. A deliberate exception (today: the Jetzt focus overlay dimming the rest of the board, and the muted content of a collapsed stack's front card) is a recorded decision: it is reversible or purely a signal, documented with its component, and exempted narrowly in the a11y test.",
+        "body": "Waiting cards, done titles and placeholders step down through a token colour, never through opacity on text, and keep body contrast.",
         "section": "colors"
       },
       {
         "name": "The One Role Rule",
-        "body": "`font-display` (Figtree 600) is only for display and headline roles (headings and numerals; never labels, tab names, prompts or plain sentences). Body, labels and card titles stay at 400-500.",
+        "body": "The display face is for headings only. Numerals, labels, tab names, prompts and sentences stay in the sans, at 400 to 500 (600 for a key figure).",
         "section": "typography"
       },
       {
-        "name": "The Three Line-Heights Rule",
-        "body": "`--lh-tight` for display text, `--lh-snug` for compact UI, `--lh-body` for reading. No other line-heights.",
-        "section": "typography"
-      },
-      {
-        "name": "The Only Cards Float Rule",
-        "body": "Cards carry the custom shadows. The named exceptions are the desktop task sheet (cast toward the board) and modals (a hairline ring plus a soft downward shadow, so a dialog separates by its surface, not by a stronger scrim). Popovers, dropdowns and menus keep Nuxt UI defaults; nothing else gets a shadow. Waiting cards sink through greyscale and a toned title, not through shadow changes.",
+        "name": "The Sheets Cast Shadows Rule",
+        "body": "A shadow belongs to a sheet: a surface lifted off the canvas that holds content. A control never casts one; a selected tab or place is a fill. The one named exception is the app bar's nav pill.",
         "section": "elevation"
       }
     ],
     "dos": [
       "**Do** follow the styling priority: (1) Nuxt UI semantic tokens (`text-muted`, `bg-elevated`, `text-primary`) → (2) baseline overrides in `assets/css/main.css` → (3) custom domain tokens in `assets/css/main.css`.",
       "**Do** put component overrides in `app.config.ts → ui.<component>` and verify slot names via the Nuxt UI MCP `get-component-metadata` or `.nuxt/ui/<component>.ts`.",
-      "**Do** use `bg-page` for the page and board surface, `bg-elevated` for sheets.",
-      "**Do** compose pages with type and space: a display heading and a gap before a box, a line or a tint.",
-      "**Do** ask small questions in place, and offer undo for anything reversible.",
-      "**Do** aim for WCAG 2.2 AA (text 4.5:1, non-text 3:1); `tests/e2e/a11y.spec.ts` checks it.",
-      "**Do** use Phosphor icons (`ph:` / `i-ph-*`)."
+      "**Do** use `bg-page` for the canvas and a white sheet (`PageSheet`, the card, the task sheet, a dialog, a menu) for everything read, entered or edited.",
+      "**Do** name each sheet with a heading in the display face (`SectionHeader`, `PageHeader`).",
+      "**Do** take a line height from the size token of the role (`text-body` for reading text) and a duration from the three duration tokens.",
+      "**Do** ask small questions in place, on the card or the row they belong to, and offer undo for reversible actions."
     ],
     "donts": [
       "**Don't** use raw Tailwind palette classes (`text-gray-600`, `bg-red-500`) or arbitrary hex/px values; ESLint warns on them.",
-      "**Don't** use ink for more than one filled element per view, or status colours for emphasis.",
+      "**Don't** put more than one solid green button in a view, or use status colours for emphasis.",
+      "**Don't** put a shadow on a control, a sheet on a sheet, or a card in a card.",
       "**Don't** add confirmation dialogs for reversible actions, or a dialog for a question that belongs to one card.",
-      "**Don't** nest cards, stack modals, or add toolbars to the board.",
+      "**Don't** stack modals or add toolbars to the board.",
       "**Don't** animate for decoration, loop, or run board transitions during a drag.",
-      "**Don't** set body text in the display role (600) or add a second display typeface."
+      "**Don't** set numerals, labels or sentences in the display face, write a `leading-*` class, or use an icon size outside 12, 16, 20 and 24 px."
     ]
   }
 }

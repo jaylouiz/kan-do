@@ -262,8 +262,8 @@ function getCardStyles(index: number): Record<string, string> {
 /** The wash tones with a muted or waiting front card, like the card's own filter (TaskCard.vue) */
 .task-stack__pill-layer--toned::before {
   filter: grayscale(var(--task-muted-filter-grayscale))
-    sepia(var(--task-muted-filter-sepia))
     brightness(var(--task-muted-filter-brightness))
+    sepia(var(--task-muted-filter-sepia))
     contrast(var(--task-muted-filter-contrast));
 }
 
