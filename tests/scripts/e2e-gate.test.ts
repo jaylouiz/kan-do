@@ -391,7 +391,10 @@ describe('selectE2e in fast testing mode (#693)', () => {
       expect(run(['server/api/x.ts', 'components/a/Other.vue', 'docs/a.md']).specs).not.toContain('ui-catalog')
       expect(reads).toBe(1) // only the .vue file asked
       reads = 0
-      expect(run(['components/a/TaskCard.vue']).specs).toContain('ui-catalog')
+      expect(run(['components/a/TaskCard.vue', 'components/a/Other.vue']).specs).toContain('ui-catalog')
+      expect(reads).toBe(1)
+      expect(run(['components/a/Other.vue', 'components/a/Another.vue']).specs).not.toContain('ui-catalog') // one read per selection, however many files
+      expect(reads).toBe(2)
       reads = 0
       run(['server/api/x.ts', 'assets/css/main.css'])
       expect(reads).toBe(0)
@@ -403,7 +406,7 @@ describe('selectE2e in fast testing mode (#693)', () => {
     it('adds it for a token sheet or the theme config, and for a style-only PR that the gate used to skip', () => {
       expect(fast({ files: ['assets/css/main.css'] })).toMatchObject({ tier: 'targeted', reason: 'style-only + style fingerprint', specs: fingerprint })
       expect(fast({ files: ['app.config.ts'] }).specs).toContain('ui-catalog')
-      expect(fast({ files: ['nuxt.config.ts'] }).specs).toContain('ui-catalog')
+      expect(fast({ files: ['assets/img/desk.jpg'] }).specs).not.toContain('ui-catalog')
       expect(fast({ files: ['components/task/TaskCard.vue'], styleOnlyVue: ['components/task/TaskCard.vue'] })).toMatchObject({ tier: 'targeted', specs: fingerprint })
       // a changed spec still runs next to it
       expect(fast({ files: ['assets/css/dnd.css', 'tests/e2e/a11y.spec.ts'] }).specs).toEqual(['a11y', ...fingerprint].sort())

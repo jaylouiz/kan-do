@@ -20,7 +20,7 @@
  * tier `fast` = the smoke set + the `map` rules flagged `risk: true` + the changed specs and the specs importing a
  * changed helper + the `E2E-specs:` line; the `design` specs and the label/testid text matches are dropped (also from a
  * style-only PR, which then runs no E2E) except the style fingerprint (kd#230): a change that can move the computed style of a `/ui`
- * sample (`catalog` in the rules: stylesheets and assets, `app.config.ts`, `nuxt.config.ts`, a component with a catalog entry) adds
+ * sample (`catalog` in the rules: stylesheets, `app.config.ts`, a component with a catalog entry) adds
  * `catalog.specs`, style-only PRs included. `KANDO_TESTING_MODE` in the environment overrides the file (the gate's CLI tests). `quality` (the default, also for a missing or unknown value) is the
  * behaviour above, unchanged. `E2E_GATE=full` and an unresolved list still run everything in both modes.
  *
@@ -290,11 +290,12 @@ export function selectE2e({ files, body = '', config, existingSpecs, env = {}, m
    * with a catalog entry (`components` glob, the entry's file name `catalog/<category>/<Name>.catalog.ts` names the component).
    * Quality mode has it through `design`.
    */
+  let names = null // read from catalog/ once per selection, and only when a component file asks
+  const catalogued = () => (names ??= cataloguedComponents())
   const catalogSpecs = (list) => {
     const rule = config.catalog
     if (!fast || !rule) return []
-    let names = null // read from catalog/ only when a component file asks
-    const isCatalogued = file => (names ??= cataloguedComponents()).has(posix.basename(file, '.vue'))
+    const isCatalogued = file => catalogued().has(posix.basename(file, '.vue'))
     const moves = file => matchesAny(file, rule.paths) || (file.endsWith('.vue') && matchesGlob(file, rule.components) && isCatalogued(file))
     return list.some(moves) ? rule.specs : []
   }
