@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
  * The project's testing mode (#693): `fast` (pre-stable, verification only where importance or the likelihood of a
- * finding is high) or `quality` (the full requirements). One word in the tracked file `.claude/testing-mode`; a
- * missing file, an empty file or any other value reads as `quality`, so a typo can only make the checks stricter.
- * Read by the pre-merge E2E gate (`scripts/e2e-gate.mjs`), the Stop hook (`.claude/hooks/verify.sh` reads the same
- * file in shell), `npm run release` and the workflow skills. Switching it is a one-way item of the profile.
+ * finding is high) or `quality` (the full requirements). One word in the file `.claude/testing-mode` (not committed; a
+ * linked worktree without its own file reads the main checkout's, `mainCheckoutOf`); a missing file, an empty file or any other value reads as `quality`, so a typo can only make the checks stricter.
+ * Read by the pre-merge E2E gate (`scripts/e2e-gate.mjs`), the Stop hook (`.claude/hooks/verify.sh` and
+ * `.githooks/pre-push` call this script), `npm run release` and the workflow skills. Switching it is a one-way item of the profile.
  *
  * CLI: `node scripts/testing-mode.mjs [root]` prints the mode of a checkout.
  */
@@ -28,10 +28,31 @@ export function parseTestingMode(text) {
  */
 export function readTestingMode(root = ROOT, env = {}) {
   if (env.KANDO_TESTING_MODE !== undefined) return parseTestingMode(env.KANDO_TESTING_MODE)
+  for (const checkout of [root, mainCheckoutOf(root)]) {
+    if (!checkout) continue
+    try {
+      return parseTestingMode(readFileSync(join(checkout, MODE_FILE), 'utf8'))
+    } catch {
+      // no file in this checkout: try the next one
+    }
+  }
+  return 'quality'
+}
+
+/**
+ * The main checkout a linked worktree belongs to, or null for the main checkout itself and for a folder that is no
+ * checkout. The mode file is not committed, so a new worktree has none: it follows the main checkout's mode (kd#222;
+ * without this every worktree ran in `quality` while the owner had chosen `fast`). A worktree's own file still wins.
+ * Read from the worktree's `.git` pointer file (`gitdir: <main>/.git/worktrees/<name>`), no subprocess.
+ * @param {string} root @returns {string | null}
+ */
+export function mainCheckoutOf(root) {
   try {
-    return parseTestingMode(readFileSync(join(root, MODE_FILE), 'utf8'))
+    const gitDir = readFileSync(join(root, '.git'), 'utf8').match(/^gitdir:\s*(.+?)\s*$/m)?.[1]
+    const main = gitDir?.match(/^(.*)[\\/]\.git[\\/]worktrees[\\/][^\\/]+$/)?.[1]
+    return main ?? null
   } catch {
-    return 'quality'
+    return null // `.git` is a directory (the main checkout) or missing
   }
 }
 

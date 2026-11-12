@@ -134,7 +134,11 @@ for (const { name, viewport, touch } of [
       await expect(step(page)).toHaveAttribute('data-step', 'activity')
       // "Alle Optionen": the list (popover on desktop, drawer at 390 px) has every value; a pick continues
       await page.getByTestId('new-card-more').click()
-      await page.getByRole('group', { name: 'Aktivität?' }).last().getByRole('button').last().click()
+      // Wait for the list itself: `.last()` on the groups named "Aktivität?" resolves at once, and before the list is
+      // there it is the group inside the card, whose last button is not a value (kd#221, failed under load)
+      const all = page.getByTestId('new-card-more-list')
+      await expect(all).toBeVisible()
+      await all.getByRole('button').last().click()
       await expect(step(page)).toHaveAttribute('data-step', 'timebox')
       await page.getByTestId('new-card-options').getByRole('button', { name: /30 min/ }).click()
       await expect(step(page)).toHaveAttribute('data-step', 'notes')

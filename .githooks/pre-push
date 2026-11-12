@@ -19,7 +19,7 @@ case "$(git branch --show-current)" in proto/*) exit 0 ;; esac
 [ -d node_modules ] || exit 0
 [ -d .nuxt ] || npx nuxt prepare >/dev/null 2>&1
 
-if [ "$(tr -d '[:space:]' 2>/dev/null <.claude/testing-mode)" != fast ]; then
+if [ "$(node scripts/testing-mode.mjs "$PWD" 2>/dev/null)" != fast ]; then
   echo "pre-push: testing mode quality, running npm run verify" >&2
   exec npm run verify
 fi

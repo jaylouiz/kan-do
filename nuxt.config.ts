@@ -11,6 +11,8 @@ const packageJson = fs.readFileSync('./package.json', 'utf8')
 const version = JSON.parse(packageJson).version || 0
 
 const isDev = process.env.NODE_ENV !== 'production'
+/** This checkout's own `.claude` folder as a watcher glob (see `ignore` below: root-anchored, a worktree lives inside one). */
+const CLAUDE_DIR = `${fileURLToPath(new URL('./.claude', import.meta.url))}/**`
 
 // Live copy editor (#59): in `nuxt dev`, and in the E2E build (scripts/e2e-server.mjs sets the flag so the specs can
 // drive it). Every other build gets `false`, which drops `dev-tools/copy-editor/` from the bundle.
@@ -164,8 +166,13 @@ export default defineNuxtConfig({
   // empty (the first version of this setting did, #576). The watcher-only options do not reach Nuxt's
   // watcher: it sets its own `ignored` after spreading `watchers.chokidar` (overriding it), and the Vite and Nitro
   // watchers are separate ones.
+  //
+  // `/.claude` holds the agents' worktrees (`.claude/worktrees/<name>`: full copies of the repo with their own `.nuxt`
+  // and `.e2e-build`, about 13,000 files with four of them): `nuxt dev` in the main checkout died with
+  // `EMFILE: too many open files, watch`. Root-anchored on purpose, here and in the Nitro and Vite lists
+  // (`CLAUDE_DIR`): a worktree's own path contains `.claude`, so `**/.claude/**` would ignore everything there.
   ...(isDev
-    ? { ignore: ['/src-tauri', '/dist', '/.e2e-build', '/tests/e2e/playwright-report', '/.playwright-mcp'] }
+    ? { ignore: ['/src-tauri', '/dist', '/.e2e-build', '/tests/e2e/playwright-report', '/.playwright-mcp', '/.claude'] }
     : {}),
 
   // Nitro preset: environment-first with fallbacks
@@ -173,7 +180,7 @@ export default defineNuxtConfig({
     ? {
         // watchOptions is still honoured by Nitro but missing from Nuxt 4.5's narrowed type
         watchOptions: {
-          ignored: ['**/node_modules/**', '**/.git/**', '**/.output/**', '**/dist/**', '**/.e2e-build/**'],
+          ignored: ['**/node_modules/**', '**/.git/**', '**/.output/**', '**/dist/**', '**/.e2e-build/**', CLAUDE_DIR],
         },
         // Dev-only routes of the live copy editor (#59): registered here, outside `server/api`, so no build scans them in.
         handlers: [
@@ -250,7 +257,7 @@ export default defineNuxtConfig({
     server: {
       watch: {
         // Exclude directories that don't need hot-reload watching to reduce open file descriptors
-        ignored: ['**/node_modules/**', '**/.git/**', '**/.output/**', '**/dist/**', '**/.e2e-build/**', '**/tests/e2e/snapshots/**'],
+        ignored: ['**/node_modules/**', '**/.git/**', '**/.output/**', '**/dist/**', '**/.e2e-build/**', '**/tests/e2e/snapshots/**', CLAUDE_DIR],
       },
     },
     define: {
