@@ -35,8 +35,8 @@ export const STACK_LAYER_ATTR = 'data-stack-motion-layer'
 /** The collapsed face shows the front card and at most two peek layers (TaskStack.vue) */
 const MAX_PEEK_LAYERS = 2
 const MAX_CLONES = 8
-const DEFAULT_DURATION_MS = 220
-const DEFAULT_FADE_MS = 160
+const DEFAULT_DURATION_MS = 200
+const DEFAULT_FADE_MS = 150
 const DEFAULT_EASING = 'cubic-bezier(0.4, 0, 0.2, 1)'
 const DEFAULT_OFFSET_PX = 4
 /** z-index of the travelling pill (above the cards and clones) and of the wash clone (above the folding cards) */

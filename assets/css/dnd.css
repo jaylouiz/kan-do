@@ -5,6 +5,14 @@
  * Imported by main.css; components layer (#43).
  */
 
+/* The pick-up grows the in-hand shadow through this number (kd#181): WebKit, the desktop app's engine, steps a
+   shadow's geometry when the box-shadow itself is animated, but interpolates a registered number smoothly. */
+@property --dnd-lift {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+
 @layer components {
   /* ========================================
    * DRAG & DROP GLOBAL STYLES (@dnd-kit/vue)
@@ -26,7 +34,7 @@
 
   .board.dragging .task-wrapper.kando-dnd-dragged .task,
   .board.dragging .task-wrapper[data-dnd-dragging] .task {
-    background-color: color-mix(in srgb, var(--ui-text-muted) 14%, transparent) !important;
+    background-color: var(--dnd-slot-bg) !important;
     opacity: 1 !important;
     box-shadow: none !important;
     transform: none !important;
@@ -112,7 +120,7 @@
 
   .board.dragging .task-stack.kando-dnd-dragged .stacked-task--top.task,
   .board.dragging .task-stack[data-dnd-dragging] .stacked-task--top.task {
-    background-color: color-mix(in srgb, var(--ui-text-muted) 14%, transparent) !important;
+    background-color: var(--dnd-slot-bg) !important;
     opacity: 1 !important;
     box-shadow: none !important;
     transform: none !important;
@@ -142,7 +150,12 @@
    * Rendered by Board.vue > DragOverlay > TaskCard with .kando-dnd-preview class.
    */
   .kando-dnd-preview {
-    transform: rotate(2deg) !important;
+    /* Individual `rotate` and `scale` (kd#181): `transform` and `translate` belong to dnd-kit's overlay, and an
+       `!important` here would beat the pick-up animation below */
+    rotate: var(--dnd-pick-tilt);
+    scale: var(--dnd-pick-scale);
+    /* The in-hand shadow grows with `--dnd-lift`: main.css redeclares the token on this element (a token holding
+       `var()` is resolved where it is declared, so the root's copy could never move) */
     opacity: 1 !important;
     filter: none !important;
     mix-blend-mode: normal !important;
@@ -177,6 +190,56 @@
 
   .kando-dnd-preview.task-stack .task-stack__cards {
     filter: var(--shadow-stack-hover) !important;
+  }
+
+  /* ========================================
+   * PICK-UP, LANDING AND SET-DOWN (kd#181, useDropMotion)
+   * Picked up, the preview rises out of the card's resting pose: straight and flat, then the tilt, 2 % more size
+   * and the in-hand shadow. Dropped, it glides to its slot (dnd-kit's drop animation) while the real card holds
+   * the slot (`kando-dnd-landing`), and then that card is set down: tilt, size and shadow return to rest.
+   * Off under reduced motion; the classes are then harmless.
+   * ======================================== */
+  @keyframes kando-dnd-pick-up {
+    from { --dnd-lift: 0.2; scale: 1; rotate: 0deg; }
+  }
+
+  @keyframes kando-dnd-set-down {
+    from { scale: var(--dnd-pick-scale); rotate: var(--dnd-pick-tilt); box-shadow: var(--shadow-task-drag-elevated); }
+  }
+
+  @keyframes kando-dnd-set-down-stack {
+    from { scale: var(--dnd-pick-scale); rotate: var(--dnd-pick-tilt); }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .kando-dnd-preview {
+      animation: kando-dnd-pick-up var(--dnd-pick-duration) var(--ease-emphasized) backwards;
+    }
+
+    .task-wrapper.kando-dnd-set-down .task {
+      animation: kando-dnd-set-down var(--dnd-set-down-duration) var(--ease-emphasized) backwards;
+    }
+
+    .task-stack.kando-dnd-set-down {
+      animation: kando-dnd-set-down-stack var(--dnd-set-down-duration) var(--ease-emphasized) backwards;
+    }
+  }
+
+  /* While the preview glides in, the real card is the slot it lands on: the placeholder's look, without `.board.dragging` */
+  .task-wrapper.kando-dnd-landing .task {
+    background-color: var(--dnd-slot-bg) !important;
+    box-shadow: none !important;
+    filter: none !important;
+    transition: none !important;
+    translate: none !important; /* no hover lift on the slot: the glide measured it at rest */
+  }
+
+  .task-wrapper.kando-dnd-landing .task > * {
+    visibility: hidden !important;
+  }
+
+  .task-stack.kando-dnd-landing {
+    visibility: hidden;
   }
 
   /* ========================================
@@ -215,8 +278,8 @@
   }
 
   .kando-long-press-active .task {
-    animation: kando-long-press-pulse 750ms ease-out forwards;
-    transform: scale(0.98);
-    transition: transform var(--duration-fast) ease;
+    animation: kando-long-press-pulse 750ms var(--ease-standard) forwards; /* 750 ms is the long-press delay itself (useLongPress) */
+    scale: 0.98;
+    transition: scale var(--duration-fast) var(--ease-standard);
   }
 }

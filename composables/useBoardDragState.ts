@@ -23,6 +23,12 @@ export interface DragState {
   hoverTargetStatus: TaskStatus | null
   /** True when drop is blocked by WIP limit (Progress column full) */
   isDropBlocked: boolean
+  /** After a drop, while the floating preview glides to its slot (kd#181, `useDropMotion`): the card it lands on */
+  landingTaskId: string | null
+  /** The stack the gliding preview shows; null for a single card */
+  landingStack: DraggedStack | null
+  /** The card that is being set down right after the glide; cleared after one animation */
+  setDownTaskId: string | null
 }
 
 // Global drag state to allow communication between column instances
@@ -33,6 +39,9 @@ const dragState = ref<DragState>({
   sourceStatus: null,
   hoverTargetStatus: null,
   isDropBlocked: false,
+  landingTaskId: null,
+  landingStack: null,
+  setDownTaskId: null,
 })
 
 export function useBoardDragState() {

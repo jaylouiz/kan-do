@@ -16,7 +16,7 @@
 - Erledigt footer: the "Tag abschließen" CTA while something is done today
 -->
 <template>
-  <DragDropProvider :plugins="dndPlugins" :sensors="dndSensors" @drag-start="onDragStart" @drag-over="onDragOver" @drag-end="onDragEnd">
+  <DragDropProvider :plugins="dndPlugins" :sensors="dndSensors" @drag-start="handleDragStart" @drag-over="onDragOver" @drag-end="handleDragEnd">
   <div
     class="board-container"
     :data-sheet-task-id="spotlightTaskId ?? undefined"
@@ -127,8 +127,8 @@
   </div>
 
   <!-- Drag overlay: renders a floating task card clone while dragging -->
-  <DragOverlay :drop-animation="{ duration: 150, easing: 'ease-out' }">
-    <template v-if="dragState.draggedTaskId" #default>
+  <DragOverlay :drop-animation="dropAnimation">
+    <template v-if="previewTaskId" #default>
       <!-- A whole stack (#150): its collapsed face as it rests, not only the front card -->
       <task-stack
         v-if="draggingStack"
@@ -161,6 +161,7 @@ import { useBoardStore } from "~/store/board";
 import { useTasksStore } from "~/store/tasks";
 import { useBoardGrouping } from "~/composables/useBoardGrouping";
 import { useBoardDndKit } from "~/composables/useBoardDndKit";
+import { useDropMotion } from "~/composables/useDropMotion";
 import { useBoardSwipe } from "~/composables/useBoardSwipe";
 import { useEdgeIndicatorTop } from "~/composables/useEdgeIndicatorTop";
 import { useBoardAnnouncements } from "~/composables/useBoardAnnouncements";
@@ -200,15 +201,32 @@ const { spotlightTaskId } = useSheetSpotlight();
 const { onDragStart, onDragOver, onDragEnd, refreshDroppableShapes } = useBoardDndKit();
 const { plugins: dndPlugins, sensors: dndSensors } = useBoardAnnouncements();
 
+// The end of a drag as motion (kd#181): the preview outlives the drag by its glide to the slot, then the card is
+// set down. `handleDragEnd` reads the dragged ids before `onDragEnd` clears them; visuals only.
+const { land, reset: resetDropMotion, dropAnimation } = useDropMotion();
+function handleDragStart(event: Parameters<typeof onDragStart>[0]) {
+  resetDropMotion();
+  onDragStart(event);
+}
+function handleDragEnd(event: Parameters<typeof onDragEnd>[0]) {
+  const { draggedTaskId, draggedStack } = dragState.value;
+  onDragEnd(event);
+  if (draggedTaskId) land(draggedTaskId, draggedStack);
+}
+onBeforeUnmount(resetDropMotion);
+
+/** The card the overlay shows: the dragged one, then the one gliding to its slot */
+const previewTaskId = computed(() => dragState.value.draggedTaskId ?? dragState.value.landingTaskId);
+
 const draggingTask = computed(() =>
-  dragState.value.draggedTaskId
-    ? (tasksStore.task(dragState.value.draggedTaskId) ?? null)
+  previewTaskId.value
+    ? (tasksStore.task(previewTaskId.value) ?? null)
     : null
 );
 
 /** The members of the dragged stack as they were at drag start; ones that are gone are left out */
 const draggingStack = computed(() => {
-  const stack = dragState.value.draggedStack;
+  const stack = dragState.value.draggedStack ?? dragState.value.landingStack;
   if (!stack) return null;
   const tasks = stack.taskIds.flatMap((id) => tasksStore.task(id) ?? []);
   return tasks.length > 0 ? { key: stack.key, label: stack.label, tasks } : null;

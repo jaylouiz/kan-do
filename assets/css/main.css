@@ -216,7 +216,7 @@
     --done-wash: var(--ui-color-success-100); /* Erledigt drop zone */
     --done-note-wash: color-mix(in oklab, var(--ui-color-success-100) 70%, var(--ui-color-success-50)); /* Yesterday note (#57): no outline, so darker than the confirmation wash, still short of the drop wash */
     --done-confirm-wash: var(--ui-color-success-50); /* in-card confirmation layer: the calmer of the compared washes */
-    --done-wash-duration: 200ms; /* drop wash fade in/out */
+    --done-wash-duration: var(--duration-base); /* drop wash fade in/out */
     /* in-card confirmation length: --done-confirm-duration, set on the layer from DONE_CONFIRMATION_MS (store/board.ts) */
 
     /* --- Task Card: Progress State Background --- */
@@ -226,17 +226,18 @@
     /* --- Task Card: Muted State (Waiting/Inactive) --- */
     /* Filter-based visual state for tasks that are waiting or not actively in focus */
     --task-muted-filter-grayscale: 100%; /* Full desaturation for clear visual distinction */
-    --task-muted-filter-brightness: 0.97; /* Slight brightness reduction for subdued appearance */
+    --task-muted-filter-brightness: 0.945; /* Slight brightness reduction for subdued appearance; low enough that the sepia after it does not clip on white */
     --task-muted-filter-contrast: 1; /* Reduced contrast for softer, less prominent appearance */
-    --task-muted-transition-duration: 200ms; /* Smooth transition when entering/exiting muted state */
-    --task-muted-transition-easing: cubic-bezier(0.2, 0, 0, 1); /* Ease-out for natural feel */
+    --task-muted-filter-sepia: 10%; /* kd#181: after greyscale and brightness, so the white sheet lands on a warm paper grey (about the sheet fill) instead of a cool one */
+    --task-muted-transition-duration: var(--duration-base); /* Smooth transition when entering/exiting muted state */
+    --task-muted-transition-easing: var(--ease-emphasized); /* Ease-out for natural feel */
 
     /* --- Task sheet spotlight (#96): other cards fade while a task sheet is open --- */
     --sheet-fade-opacity: 0.55;
     /* Shared board scrim (#123); #127 reuses it for modals. */
     --overlay-scrim: rgb(var(--shadow-color) / 0.17);
-    --sheet-fade-duration: 200ms;
-    --sheet-fade-easing: cubic-bezier(0.2, 0, 0, 1);
+    --sheet-fade-duration: var(--duration-base);
+    --sheet-fade-easing: var(--ease-emphasized);
 
     /* --- Motion: shared durations and curves (#70) ---
      * The values used across files. A component's own choreography (a spring, a nudge, the nav's 420 ms timeline)
@@ -262,18 +263,25 @@
     /* --- Drag & Drop: Animation Timings --- */
     /* Synchronized with the DnD layer (useColumnDragAndDrop). */
     /* Note: DnD handles position/transform; CSS transitions handle visual properties only. */
-    --dnd-reorder-duration: 220ms;
+    --dnd-reorder-duration: var(--duration-base); /* neighbours make room; mirrored in JS by DND_MOTION (composables/useColumnSortable.ts) */
+    /* Pick-up and set-down of a dragged card (kd#181, dnd.css): it rises out of its resting pose and is set down again */
+    --dnd-pick-scale: 1.02;
+    --dnd-pick-tilt: 2deg;
+    --dnd-pick-duration: var(--duration-fast);
+    --dnd-set-down-duration: var(--duration-base);
+    /* The slot a dragged card leaves or will land in, and the empty-column ghost: a warm fill on the canvas */
+    --dnd-slot-bg: var(--fill-on-canvas-hover);
     
     /* Stack-specific transitions (hover effects, expand/collapse) */
-    --stack-transition-duration: 220ms;
-    --stack-transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
+    --stack-transition-duration: var(--duration-base);
+    --stack-transition-easing: var(--ease-standard);
     
     /* Task card visual transforms (scale, rotate effects during interaction) */
-    --task-transform-duration: 160ms;
+    --task-transform-duration: var(--duration-fast);
     /* Add slot (#125): the soft surface (and the Jetzt slot) appears quickly on hover/focus */
-    --add-slot-reveal-duration: 120ms;
+    --add-slot-reveal-duration: var(--duration-fast);
     /* Offen add slot (#466): the soft surface grows from label-wide into the card shape on hover/focus */
-    --add-slot-grow-duration: 160ms;
+    --add-slot-grow-duration: var(--duration-fast);
 
     /* --- Elevation (DESIGN.md "Elevation"): one warm shadow colour at four steps --- */
     /* A shadow belongs to a sheet; a control never casts one (The Sheets Cast Shadows Rule). */
@@ -286,7 +294,7 @@
        in whole-pixel steps, so the shadow jumped while it rose. Keep the two lists in step. */
     --shadow-task: 0 0 0 1px rgb(var(--shadow-color) / 0.07), 0 2px 3px 0 rgb(var(--shadow-color) / 0.1), 0 10px 22px -6px rgb(var(--shadow-color) / 0.2), 0 22px 40px -12px rgb(var(--shadow-color) / 0);
     --shadow-task-hover: 0 0 0 1px rgb(var(--shadow-color) / 0.07), 0 2px 3px 0 rgb(var(--shadow-color) / 0.06), 0 10px 22px -6px rgb(var(--shadow-color) / 0.14), 0 22px 40px -12px rgb(var(--shadow-color) / 0.3);
-    --shadow-task-drag-elevated: 0 0 0 1px rgb(var(--shadow-color) / 0.07), 0 26px 48px -12px rgb(var(--shadow-color) / 0.38);
+    --shadow-task-drag-elevated: 0 0 0 1px rgb(var(--shadow-color) / 0.07), 0 26px 48px -12px rgb(var(--shadow-color) / 0.38); /* in the hand; the pick-up grows it on the preview itself (dnd.css) */
     --shadow-task-lifted: 0 14px 38px color-mix(in oklab, var(--focus-dusk) 20%, transparent); /* the Jetzt card while the focus overlay is on (#394) */
     --shadow-stack-collapsed: drop-shadow(0 1px 1px rgb(var(--shadow-color) / 0.08)) drop-shadow(0 2px 3px rgb(var(--shadow-color) / 0.07));
     --shadow-stack-hover: drop-shadow(0 2px 2px rgb(var(--shadow-color) / 0.09)) drop-shadow(0 5px 8px rgb(var(--shadow-color) / 0.08));
@@ -375,5 +383,14 @@
 @media (--phone) {
   :root {
     --field-h: 2.75rem;
+  }
+}
+
+/* The dragged card's in-hand shadow, scaled by `--dnd-lift` (kd#181, registered and animated in dnd.css). It is
+   redeclared on the preview because a custom property holding `var()` is resolved on the element that declares it:
+   the root's `--shadow-task-drag-elevated` is fixed at lift 1. Keep the numbers in step with that token. */
+@layer components {
+  .kando-dnd-preview {
+    --shadow-task-drag-elevated: 0 0 0 1px rgb(var(--shadow-color) / 0.07), 0 calc(26px * var(--dnd-lift)) calc(48px * var(--dnd-lift)) -12px rgb(var(--shadow-color) / calc(0.38 * var(--dnd-lift)));
   }
 }

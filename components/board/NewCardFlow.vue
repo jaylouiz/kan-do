@@ -1009,7 +1009,7 @@ onBeforeUnmount(() => {
 .ncf-fwd-leave-active,
 .ncf-back-enter-active,
 .ncf-back-leave-active {
-  transition: opacity 140ms var(--ncf-ease), transform 140ms var(--ncf-ease);
+  transition: opacity var(--duration-fast) var(--ncf-ease), transform var(--duration-fast) var(--ncf-ease);
 }
 
 .ncf-fwd-enter-from,

@@ -49,7 +49,7 @@
             :class="index <= current ? 'bg-inverted text-inverted' : 'bg-accented text-muted'"
             aria-hidden="true"
           >
-            <UIcon v-if="index < current" name="i-ph-check-bold" class="size-3.5" />
+            <UIcon v-if="index < current" name="i-ph-check-bold" class="size-3" />
             <template v-else>{{ index + 1 }}</template>
           </span>
           <span class="text-sm" :class="index === current ? 'font-semibold text-highlighted' : index < current ? 'text-default' : 'text-muted'">

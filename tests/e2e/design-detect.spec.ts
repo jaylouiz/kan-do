@@ -181,12 +181,37 @@ for (const { label, viewport, ...rest } of VIEWPORTS) {
           expect(primary.map(format), `Impeccable primary findings on ${surface.name} at ${label}`).toEqual([])
           const gone = known.filter(k => !findings.some(f => isKnown(f, k)))
           expect(gone.map(k => `#${k.issue} ${k.rule} ${k.snippet}`), 'known findings that no longer occur: remove them from KNOWN_FINDINGS').toEqual([])
+
+          // The One Lamp Rule (DESIGN.md, kd#182): at most one solid green button in a view
+          const lamps = await solidPrimaryButtons(page)
+          expect(lamps.length, `solid primary buttons on ${surface.name} at ${label}: ${lamps.join(' | ')}`).toBeLessThanOrEqual(1)
         }
         finally {
           await context.close()
         }
       })
     }
+  })
+}
+
+/**
+ * The visible buttons and links filled with the primary colour, by their text. Read from the rendered page, because
+ * only there is it known what stands on screen together. A fill is compared with the resolved `--ui-primary`.
+ */
+function solidPrimaryButtons(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const probe = document.createElement('div')
+    probe.style.backgroundColor = 'var(--ui-primary)'
+    document.body.append(probe)
+    const primary = getComputedStyle(probe).backgroundColor
+    probe.remove()
+    return [...document.querySelectorAll<HTMLElement>('button, a, [role="button"]')]
+      .filter((el) => {
+        const box = el.getBoundingClientRect()
+        const onScreen = box.width > 0 && box.height > 0 && box.bottom > 0 && box.top < innerHeight && box.right > 0 && box.left < innerWidth
+        return onScreen && el.checkVisibility({ opacityProperty: true, visibilityProperty: true }) && getComputedStyle(el).backgroundColor === primary
+      })
+      .map(el => (el.textContent ?? '').trim() || el.getAttribute('aria-label') || el.tagName)
   })
 }
 

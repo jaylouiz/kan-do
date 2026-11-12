@@ -87,7 +87,7 @@ const isWaiting = computed(() => props.status === TaskStatus.Waiting);
     letter-spacing: -0.02em;
     line-height: var(--lh-tight);
     color: var(--ui-text);
-    transition: opacity 100ms ease-out;
+    transition: opacity var(--duration-fast) var(--ease-standard);
     transform: translateY(0vh);
     /* The colour follows the Erledigt drop wash (#124, BoardColumn) */
     transition:

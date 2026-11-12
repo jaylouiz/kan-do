@@ -11,12 +11,12 @@ The living plan for getting from today's UI to a redesigned one that follows the
 
 *As of 2026-11-12. Update this block whenever a slice changes state.*
 
-**Steps 0 to 4 are done, and step 5 has merged slices 1 to 5 and slice 1b (kd#190, PR 212).** Slices 2, 3 and 4 (kd#177, kd#178, kd#179; PRs 197, 198, 199) are on `main`: two button heights with soft and ghost by rule, 36 px fields with one choice chip and one card picker, one task sheet for the board and statistics, the title scale and list rows as links. Slice 1 (kd#176, PR 193, merged 2026-11-11) puts Paper Desk on `main` wherever tokens and the theme reach: the paper canvas, white sheets with the warm shadow, forest green, Fraunces headings, the marker on Jetzt, the flat app bar pills and the state language. `DESIGN.md` is the approved new text; `docs/design/DESIGN.next.md` is gone. Old variants still exist and keep working until their slice merges them.
+**The redesign is built: steps 0 to 6 are done.** Slice 6 (the board, kd#181) and the lock-in (kd#182) were built together in one PR (one set of baselines, one review, one full E2E run). Paper Desk is on `main` everywhere: the paper canvas, white sheets with the warm shadow, forest green, Fraunces headings, the marker on Jetzt, two button heights, 36 px fields, one task sheet, one list row, one page sheet, and a board whose cards lift, are picked up, glide and are set down in the one state language. The rules `DESIGN.md` states are checked ("Guards" there); the result against the starting numbers is under "Goal".
 
-**Do next**, in this order:
-1. kd#181 (slice 6, the board) alone: it is `needs-spec` and unblocked, slices 1 to 5 and 1b are on `main`. Then kd#182 (lock-in).
-2. The owner's look at the screenshots of slice 5 (PR 211) and slice 1b (PR 212: board, task sheet with multi-line notes, a settings page, a dialog; 1280 and 390 px) is still open; both merged green after an independent review.
-3. Side findings of slices 1 to 4: kd#195, kd#200 and kd#201 are merged (PR 210; see the change log, 2026-11-12); kd#191, kd#192 and kd#213 (no `USelect` sample on `/ui`) wait in the `inbox` for triage. None blocks a slice.
+**Do next:**
+1. The owner's feel-check of drag and motion, which no screenshot shows: in the desktop app (`npm run tauri:dev`) and on a real phone. Look for: the card lifting under the pointer, the pick-up (it starts straight and flat, then tilts and grows), the glide to the slot after release, the set-down. The pick-up shadow is the part most likely to differ in the desktop app's engine.
+2. The owner's look at the screenshots of slice 5 (PR 211), slice 1b (PR 212) and slice 6 (the PR of kd#181).
+3. `inbox` holds kd#191, kd#192, kd#213 and kd#218 for triage.
 
 **Read before building** (a slice's issue links them too):
 
@@ -28,9 +28,9 @@ The living plan for getting from today's UI to a redesigned one that follows the
 | The measurements and the rule review behind both | `docs/design/redesign-gap-audit.md` |
 | The prototype, reference only (rebuild properly, never merge or cherry-pick) | branch `proto/1-visual-redesign`, commit `968c1861`; `PORT=<free port> npm run dev`, then `/tasks?seed=demo&variant=a&type=1&btn=both&drag=1` |
 
-**Type roles in the code (slice 1b, kd#190):** interface text (`--text-sm`) and label text (`--text-xs`, `--text-label`, 12 px) carry 1.3 in their size tokens, reading text is the one `text-body` utility (1.55), and a control's height is explicit everywhere (tabs now too). Still ahead of the code: the phone steps of the type table (15 px body and interface, 16 px title), which no slice owns yet. The detector's sidecar `.impeccable/design.json` still describes the old palette; it is refreshed in the lock-in (kd#182).
+**Still ahead of the code:** the phone steps of the type table (15 px body and interface, 16 px title), which no slice owned; they need their own issue if the owner still wants them.
 
-**Open for the owner:** nothing that blocks a slice. One optional question from the review of slice 3: should the 44 px floor of fields also hold on touch screens at desktop width (a tablet), not only on a phone? Today it is phone only, as decided. Coming up in step 5: a look at each slice's screenshots, and one check of drag and motion in the desktop app (`npm run tauri:dev`) and on a real phone after slice 6.
+**Open for the owner:** the feel-check above. One optional question from the review of slice 3: should the 44 px floor of fields also hold on touch screens at desktop width (a tablet), not only on a phone? Today it is phone only, as decided.
 
 **Known limits of the prototype** (so nobody copies them): it overrides the app from one stylesheet outside the layers; its soft-or-ghost rule is approximated in CSS and shows a row's main action as ghost, where the decision is soft; its set-down after a drop watches a class change. The slices build each of these properly.
 
@@ -45,6 +45,16 @@ A redesigned UI that
 
 **Measure of success: deletion.** The redesign ends with fewer variants and fewer written rules than it started with. Starting numbers (2026-11-11): 110 component files, `DESIGN.md` 373 lines (the Components section alone 84), 37 guard tests in `tests/config/`.
 
+**Result (2026-11-12, after the lock-in):**
+
+| Measure | Start | End | Read |
+|---|---|---|---|
+| `DESIGN.md` | 373 lines (Components 84) | 241 lines (Components 22) | a third shorter; component detail lives in doc blocks, checked rules are named once under "Guards" |
+| Component files | 110 | 112 | not fewer files: `PageSheet`, `ChoiceCard` and `SectionHeader` were added as the one implementation of a job, `TaskDetailModal` and `SettingsSubpageLink` went. The deletion is in variants: button sizes 4 to 2 with `subtle` folded into soft, `ChoiceChip` shapes 5 to 1, `ListRow` densities 3 to 1, field heights to one token, two card pickers to one, two task views to one sheet, heading classes to one component, badge sizes to one, radii to 8, 12 and 16 px, the board's seven own durations to the three tokens |
+| Guard tests in `tests/config/` | 37 | 37 files | the count is the same because guards were merged and removed along the way (the glass and the ink-ring guards went with their rules); new: `display-layout`, `field-size`, `design-lock-in`, and the one-solid-button count in the rendered scan |
+| Rules stated and checked by nothing | 5 | 0 | all five have a guard (`DESIGN.md` "Guards") |
+
+
 ## Status
 
 | Step | What | Status | Who decides |
@@ -54,8 +64,8 @@ A redesigned UI that
 | 2 | Rule review of `DESIGN.md` | **done** 2026-11-11 ("Step 2: rule review of `DESIGN.md`" in `docs/design/redesign-gap-audit.md`; four challenged rules answered by the owner) | owner, per challenged rule |
 | 3 | Visual direction on the cleaned kit | **done** 2026-11-11: Paper Desk with Fraunces and the yellow marker on the Jetzt headline (`## UX decision` in the body of kd#1; prototype branch `proto/1-visual-redesign`, the pick at commit `15b65260`, with the switches of step 4 at `968c1861`) | owner |
 | 4 | System definition: foundations and the rewritten `DESIGN.md` | **done** 2026-11-11: `docs/design/redesign-system.md` and `docs/design/DESIGN.next.md`, approved by the owner; kd#1 is the epic with one sub-issue per slice | owner approves |
-| 5 | Migration in slices | **running**: kd#175, slices 1 to 5 and 1b (kd#176 to kd#180, kd#190) merged, two sub-issues to go: kd#181, kd#182 (table under "Step 5") | agents; owner feel-checks |
-| 6 | Lock-in: guards, baselines, canvas | not started (kd#182, after all slices) | agents |
+| 5 | Migration in slices | **done** 2026-11-12: kd#175, slices 1 to 6 and 1b (kd#176 to kd#181, kd#190) | agents; owner feel-checks |
+| 6 | Lock-in: guards, baselines, canvas | **done** 2026-11-12 (kd#182, in the PR of kd#181) | agents |
 
 What to do next is in "Where we are" at the top.
 
@@ -206,8 +216,8 @@ Each slice is a sub-issue of the epic kd#1 with its scope, acceptance criteria a
 | kd#190 | 1b Interface type roles: line heights in the size tokens, `text-body`, 12 px label | 1, 2, 3 (alone while it re-records baselines) | merged 2026-11-12 (PR 212) |
 | kd#179 | 4 Navigation, overlays and notices: one task sheet, titles | 1 | merged 2026-11-12 (PR 199) |
 | kd#180 | 5 Display and layout: page sheets, one list row, headings, badges | 1, 2 | merged 2026-11-12 (PR 211) |
-| kd#181 | 6 The board: card hover and press, drag motion, stacks, focus overlay, add slot | 1 to 5 (last and alone) | needs-spec |
-| kd#182 | 7 Lock-in (step 6) | 1 to 6, 1b | needs-spec |
+| kd#181 | 6 The board: card hover and press, drag motion, stacks, focus overlay, add slot | 1 to 5 (last and alone) | built 2026-11-12, one PR with kd#182 |
+| kd#182 | 7 Lock-in (step 6) | 1 to 6, 1b | built 2026-11-12, in the PR of kd#181 |
 
 State is the issue's lane (`needs-spec`, `ready`), then `in build`, `PR <n>` and `merged <date>`.
 
@@ -232,9 +242,11 @@ Rules for all slices:
 Tracked as kd#182, after all look slices.
 
 - Lower the ratchet baselines to the new counts; add a guard for each rule that `DESIGN.md` "Guards" lists as stated but not yet checked (line heights from the size tokens only, the icon size scale, one solid green button per view, `aria-current` on exactly one control, no shadow on a control), or drop the rule with a reason.
-- Re-shoot the FigCraft category frames from `/ui`.
+- ~~Re-shoot the FigCraft category frames from `/ui`.~~ Dropped by the owner, 2026-11-12.
 - Close or drop the remaining rows of `docs/design/backlog.md`.
 - Compare with the starting numbers under "Goal" and write the result here.
+
+**Done 2026-11-12:** the guards (`tests/config/design-lock-in.test.ts`: line heights, icon sizes, no shadow on a control; the one-solid-button count in `tests/e2e/design-detect.spec.ts`; `aria-current` was already guarded by `tests/e2e/app-nav.spec.ts`), the ratchet baselines (the motion baseline went down with slice 6; `raw-button` and `ui-prop` already fail on slack, so they were at their counts), the detector's sidecar `.impeccable/design.json` (rewritten from `DESIGN.md` by hand), the backlog (closed as a work list) and the result under "Goal". **Dropped by the owner (2026-11-12):** re-shooting the FigCraft category frames; they are not needed as documentation, `/ui` is the record of the kit.
 
 ## Who does what
 
@@ -279,3 +291,4 @@ In short: measuring, tracing, prototyping, rewriting and migrating can be done b
 - 2026-11-12: slice 5 built (kd#180). `PageSheet` (`components/ui/PageSheet.vue`) is the one page surface: 16 px radius, the cards' resting shadow, 24 px padding (32 px from `md`); settings sections and sub-pages, the Notion settings sections, the statistics verdict, tiles and the all-tasks disclosure, the trash header and the topics panel sit on it, never a sheet on a sheet (the trash entries stay the board's cards on the canvas). The welcome sheet takes the same radius (16 px) and shadow. `StatsTile`'s two tones and the verdict's wash are gone. `ListRow` has one density (`min-h-11 py-2`, 44 px) and one hover (`bg-muted`, because `bg-elevated` is white and invisible on a sheet); `DayCloseTaskRow`, the done and deleted rows of the end-of-day dialog and the "more sources" rows are `ListRow`s. `SectionHeader` is the one heading with a closed `size` (`hero`, `display`, `headline`, `sub`, `label`); the `section-heading` utility and the hand-written `font-display` strings are deleted (the column header, the wordmark, the task sheet's title and `/ui` keep their own). One badge size (`md` at 12 px, 20 px high) and `TaskPriorityBadge` without a `size` prop. The radius scale is closed at 8, 12 and 16 px: the 4 px marker and mask corners, the 6 px topic symbol well, the 15 px progress bar chip and the 24, 32 and 48 px surfaces moved; paddings of 10 and 14 px moved (`md` buttons to 12 px, the app bar places to 16 px, stack pill and progress chip to 8 px). Left for kd#181: the board card's own padding (`px-2.5` in the `card` theme) and the 2 px particles of the completion burst. `tests/config/display-layout.test.ts` holds the deleted looks at zero. Next: kd#190 alone, then kd#181, then kd#182.
 - 2026-11-12: slice 1b built (kd#190). The interface and label roles carry their line height in the size tokens: `--text-sm` and `--text-xs` 1.3, `--text-label` is 12 px / 1.3 (11 px is gone, also the `text-2xs` utility and the 11 px of the sort control, the stack pill, the carry-over dots and the progress chip, which had a 12 px step on a phone only), and reading text is the one `text-body` utility (`@utility`, 14 px / 1.55; `text-body` is also the `description` slot of the modal, slideover, drawer and alert themes). About 70 `<p>` of settings, statistics, dialog and empty-state copy moved from `text-sm` to `text-body`. Specify measured on `/ui` (726 samples, both widths) that buttons, fields, selects, chips and list rows already kept their height from slices 2, 3 and 5; only the tabs trigger followed its text line (now `h-6` to `h-9` in the `tabs` theme). What still changes height is content: alerts, tables, textareas, notes and wrapped labels get shorter by design (listed in the PR). Hand-written line heights of 1rem, 1.25rem, 1.5rem and 1.75rem became `var(--lh-snug)` with an explicit row height where the box depended on them; the timebox nudge keeps 1.25rem (its rows sit at fixed offsets: `timebox-nudge.spec.ts` hovers the centre of the card). What stays are `var(--lh-*)` next to a scoped `font-size: var(--text-*)` (CSS cannot read the token's line height), `line-height: 1` on single-line boxes of fixed height, and the closing line of the end-of-day dialog. Not done: the phone steps of the type table (15 px and 16 px), see "Where we are". 66 visual baselines and 19 `/ui` fingerprint files re-recorded (only `line-height` and three `font-size` values moved in the fingerprint).
 - 2026-11-12: slice 5 (PR 211) and slice 1b (PR 212) merged, one after the other, each alone while it re-recorded baselines; the side findings kd#195, kd#200 and kd#201 merged before them (PR 210). Each of the three got an independent review and one fix round. What the reviews caught: in slice 5 rows of 80 px, a 36 px overflow of the topics editor and a 56 px row density in `DESIGN.md` beyond the owner's decision (now cozy, 44 px); in slice 1b a `USelect` list row 1.8 px short, which no check saw because `/ui` has no `USelect` sample (kd#213). Next is slice 6 (kd#181), alone.
+- 2026-11-12: slice 6 and the lock-in built together (kd#181, kd#182, one PR; the owner asked for batches to save merge and E2E rounds, so both were specified in one run and share one set of baselines and one full E2E gate). Slice 6: a card lifts 2 px on hover and sets down on press (`translate`); the pick-up, the glide and the set-down are real now. Specify assumed the drop already glided; measured in the running app it did not (the preview vanished at release, because its content was bound to the drag state that `onDragEnd` clears), so the slice added `useDropMotion`: the preview outlives the drag by its glide, the real card holds the slot, and the end of dnd-kit's drop animation triggers the set-down (no class watching; unit-tested). No store or drop logic changed. The drop slot and the empty-column ghost take `--dnd-slot-bg`, waiting cards a warm paper grey (the greyscale filter gained a brightness and sepia step), the board's seven own durations point to the three tokens (220 to 200 ms, 160 and 120 to 150 ms), and card titles wrap without a one-word last line (backlog U19). Lock-in: the five unchecked rules of `DESIGN.md` have guards, two odd icon sizes moved onto the scale, the sidecar and the backlog are closed, the result is under "Goal". Baselines: 19 phone shots moved (the card's side padding is 12 px on a phone too; it was 10 px); the desktop shots stayed inside the pixel tolerance. Dropped by the owner: the FigCraft frames. Not done: the desktop-app check of the pick-up shadow (the owner's feel-check). The code review found that the pick-up shadow never grew (a token holding `var()` resolves at the root, so the animated number never reached it); the token is now redeclared on the preview and the growth is measured frame by frame (5 to 26 px). Found and corrected while building: the card padding doubled on desktop for one run (the theme needs its `sm:` override), caught on the re-recorded baselines.

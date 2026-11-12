@@ -30,10 +30,10 @@
   <div
     ref="element"
     class="task-stack"
-    :class="{
+    :class="[{
       'task-stack--preview': preview,
       'kando-dnd-dragged': isDragging,
-    }"
+    }, preview ? null : dropMotionClasses]"
     :style="{ '--stack-layers': layers }"
     :data-stack-key="preview ? undefined : stackKey"
     :data-stack-size="tasks.length"
@@ -86,6 +86,7 @@
 import { computed, ref, useId } from "vue";
 import { useI18n } from "vue-i18n";
 import { useColumnSortable } from "~/composables/useColumnSortable";
+import { useDropMotionClasses } from "~/composables/useDropMotion";
 import TaskCard from "~/components/task/TaskCard.vue";
 import TaskStackPill from "~/components/task/TaskStackPill.vue";
 import { TaskStatus } from "~/types/taskStatus";
@@ -171,6 +172,7 @@ const sortable = props.preview
     { data: stackData, handle: control },
   );
 const isDragging = computed(() => sortable?.isDragging.value ?? false);
+const dropMotionClasses = useDropMotionClasses(() => topCardId.value);
 
 function getCardClasses(index: number): Record<string, boolean> {
   return {
@@ -261,6 +263,7 @@ function getCardStyles(index: number): Record<string, string> {
 .task-stack__pill-layer--toned::before {
   filter: grayscale(var(--task-muted-filter-grayscale))
     brightness(var(--task-muted-filter-brightness))
+    sepia(var(--task-muted-filter-sepia))
     contrast(var(--task-muted-filter-contrast));
 }
 

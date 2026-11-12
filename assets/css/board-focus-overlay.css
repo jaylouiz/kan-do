@@ -62,7 +62,7 @@
   inset: 0;
   opacity: 0;
   /* Out is snappy (the pointer moved: the user wants to look), in is slow (a lamp warming up) */
-  transition: opacity 120ms ease-out;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 .is-leaving > .focus-overlay__tint,
 .is-leaving > .focus-overlay__blur {
@@ -99,6 +99,7 @@
    plain card with the regular shadow. The drag placeholder (a `.task` of the same wrapper) keeps its own look. */
 .board[data-focus-lit] #column-progress .task[data-current]:not(.kando-dnd-placeholder) {
   box-shadow: var(--shadow-task-lifted);
+  translate: none; /* no hover lift or press on the lit card (kd#181): it already stands off the paper */
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -108,7 +109,7 @@
   .is-on > .focus-overlay__blur,
   .is-leaving > .focus-overlay__tint,
   .is-leaving > .focus-overlay__blur {
-    transition-duration: 120ms;
+    transition-duration: var(--duration-fast);
   }
 }
 

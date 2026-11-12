@@ -115,7 +115,7 @@ const showGhost = computed(() =>
   /* Shrinks on narrow columns (mobile) without overflowing; capped like the dropped card (#234) */
   max-width: min(var(--task-card-max-width), 100%);
   margin: 0 auto;
-  background-color: color-mix(in srgb, var(--ui-text-muted) 14%, transparent);
+  background-color: var(--dnd-slot-bg);
   border-radius: var(--task-card-radius);
 }
 

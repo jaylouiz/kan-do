@@ -114,7 +114,7 @@ onBeforeUnmount(() => clearTimeout(timer))
   top: calc(50% - 5px);
   width: 10px;
   height: 10px;
-  border-radius: calc(var(--ui-radius) / 4); /* a hair of rounding on the 6 x 12 px rectangles and 10 px dots */
+  border-radius: calc(var(--ui-radius) / 4); /* a hair of rounding on the 6 x 12 px rectangles and 10 px dots: a recorded exception to the closed radius scale (kd#181), a particle is decoration, not a surface */
   background-color: var(--completion-burst-tint);
   opacity: 0;
   animation: completion-burst-fly 900ms cubic-bezier(0.15, 0.7, 0.3, 1) var(--delay) 1 both;

@@ -131,7 +131,7 @@ const caption = useStackCaption(() => props.label, () => props.count);
 
 @media (prefers-reduced-motion: no-preference) {
   .task-stack-header__close {
-    transition: background-color 120ms ease;
+    transition: background-color var(--duration-fast) var(--ease-standard);
   }
 }
 </style>

@@ -237,11 +237,11 @@ test.describe('desktop, mouse', () => {
     await expect(waiting.locator('.task')).toHaveCSS('outline-width', '3px')
   })
 
-  test('prefers-reduced-motion: the fades are 120 ms', async ({ page }) => {
+  test('prefers-reduced-motion: the fades take the fast duration (150 ms)', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' })
     await openBoard(page)
     await expectOn(page)
-    await expect(overlay(page).locator('.focus-overlay__tint')).toHaveCSS('transition-duration', '0.12s')
+    await expect(overlay(page).locator('.focus-overlay__tint')).toHaveCSS('transition-duration', '0.15s')
   })
 
   test('a card leaving Jetzt takes the overlay and the layer rules with it', async ({ page }) => {
