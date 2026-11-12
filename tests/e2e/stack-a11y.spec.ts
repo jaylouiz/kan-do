@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
 import { seedLocalBoard, type SeedTask } from './helpers/seed'
-import { settleAnimations, settleStack } from './helpers/settle'
+import { settleAnimations, settleDropMotion, settleStack } from './helpers/settle'
 import { callTasksStore, fullTask } from './helpers/store'
 
 /**
@@ -176,6 +176,9 @@ test('Esc stays with a keyboard drag and with the sheet; the stack stays open', 
   await page.keyboard.press('Escape')
   await expect(stack(page)).toHaveCount(1)
   await expect(control(page)).toBeFocused()
+  // dnd-kit gives the dragged card focus back one frame after the cancelled drag's drop motion: let it run out first,
+  // or on a slow machine it lands after the Enter below and takes focus from a1 (kd#231)
+  await settleDropMotion(page)
   await control(page).press('Enter')
   await expect(member(page, 'a1')).toBeFocused()
   await settleStack(page)

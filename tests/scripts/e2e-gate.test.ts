@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join, resolve, matchesGlob } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
-  bodySpecNames, fastReleaseSpecs, changedTextStrings, isStyleOnlyVue, listSpecs, localeStrings, parsePr, readE2eSources, selectE2e, specsImportingHelpers, specsMentioning,
+  bodySpecNames, fastReleaseSpecs, changedTextStrings, isStyleOnlyVue, listCataloguedComponents, listSpecs, localeStrings, parsePr, readE2eSources, selectE2e, specsImportingHelpers, specsMentioning,
   testIdStrings, vueStyleJudge,
 } from '../../scripts/e2e-gate.mjs'
 import {
@@ -15,7 +15,7 @@ import {
 // checked-in rules in step with the tree.
 
 const root = resolve(__dirname, '../..')
-interface Config { smoke: string[], design?: { paths: string[], specs: string[] }, map: { paths: string[], specs: string[] }[] }
+interface Config { smoke: string[], design?: { paths: string[], specs: string[] }, catalog?: { paths: string[], components: string, specs: string[] }, map: { paths: string[], specs: string[] }[] }
 const config = JSON.parse(readFileSync(resolve(root, '.claude/hooks/e2e-gate.json'), 'utf8')) as Config
 const existingSpecs = listSpecs(root)
 /** One file per glob of the former `full` list (#446): none of them selects the whole suite any more. */
@@ -363,13 +363,66 @@ describe('selectE2e in fast testing mode (#693)', () => {
       specsImportingHelper: helpers => specsImportingHelpers(helpers, e2eSources),
       changedStrings: () => ({ strings: ['Offen'], failed: [] }),
       specsMentioning: strings => specsMentioning(strings, e2eSources),
+      cataloguedComponents: () => listCataloguedComponents(root),
     })
 
-  it('runs smoke only for a non-risk component: no design specs, no label/testid match', () => {
-    const result = fast({ files: ['components/settings/DataBackupList.vue'] })
+  it('runs smoke only for a non-risk, uncatalogued file: no design specs, no label/testid match', () => {
+    const result = fast({ files: ['utils/middleEllipsis.ts'] })
     expect(result).toMatchObject({ tier: 'fast', specs: [...config.smoke].sort(), byText: [] })
     expect(result.specs).not.toContain('design-detect')
     expect(fast({ files: ['components/settings/DataBackupList.vue'], mode: 'quality' }).specs).toEqual(expect.arrayContaining(config.design!.specs))
+  })
+
+  // kd#230: PR 228 changed `--shadow-task` and the style of TaskCard, BoardPageDots and PageSheet; fast mode ran 37 specs, not ui-catalog
+  describe('the style fingerprint (kd#230)', () => {
+    const fingerprint = config.catalog!.specs
+    const withFingerprint = [...config.smoke, ...fingerprint].sort()
+
+    it('adds ui-catalog, and no other design spec, for a changed catalogued component', () => {
+      const result = fast({ files: ['components/settings/DataBackupList.vue'] })
+      expect(result).toMatchObject({ tier: 'fast', specs: withFingerprint })
+      expect(result.specs).not.toContain('design-detect')
+      expect(fast({ files: ['components/task/TaskCard.vue', 'components/board/BoardPageDots.vue'] }).specs).toContain('ui-catalog')
+    })
+
+    it('reads no catalog folder for a file that cannot match, and nothing from a missing one', () => {
+      let reads = 0
+      const run = (files: string[]) => selectE2e({ files, config, existingSpecs, mode: 'fast', cataloguedComponents: () => { reads += 1; return new Set(['TaskCard']) } })
+      expect(run(['server/api/x.ts', 'components/a/Other.vue', 'docs/a.md']).specs).not.toContain('ui-catalog')
+      expect(reads).toBe(1) // only the .vue file asked
+      reads = 0
+      expect(run(['components/a/TaskCard.vue', 'components/a/Other.vue']).specs).toContain('ui-catalog')
+      expect(reads).toBe(1)
+      expect(run(['components/a/Other.vue', 'components/a/Another.vue']).specs).not.toContain('ui-catalog') // one read per selection, however many files
+      expect(reads).toBe(2)
+      reads = 0
+      run(['server/api/x.ts', 'assets/css/main.css'])
+      expect(reads).toBe(0)
+      const empty = mkdtempSync(join(tmpdir(), 'kando-gate-nocatalog-'))
+      expect(listCataloguedComponents(empty).size).toBe(0)
+      rmSync(empty, { recursive: true })
+    })
+
+    it('adds it for a token sheet or the theme config, and for a style-only PR that the gate used to skip', () => {
+      expect(fast({ files: ['assets/css/main.css'] })).toMatchObject({ tier: 'targeted', reason: 'style-only + style fingerprint', specs: fingerprint })
+      expect(fast({ files: ['app.config.ts'] }).specs).toContain('ui-catalog')
+      expect(fast({ files: ['assets/img/desk.svg'] }).specs).not.toContain('ui-catalog')
+      expect(fast({ files: ['components/task/TaskCard.vue'], styleOnlyVue: ['components/task/TaskCard.vue'] })).toMatchObject({ tier: 'targeted', specs: fingerprint })
+      // a changed spec still runs next to it
+      expect(fast({ files: ['assets/css/dnd.css', 'tests/e2e/a11y.spec.ts'] }).specs).toEqual(['a11y', ...fingerprint].sort())
+    })
+
+    it('does not add it for a component without a catalog entry, a composable, a lib file or docs', () => {
+      expect(listCataloguedComponents(root).has('Board')).toBe(true)
+      expect(listCataloguedComponents(root).has('NoSuchComponent')).toBe(false)
+      expect(fast({ files: ['components/a/NoSuchComponent.vue'], styleOnlyVue: ['components/a/NoSuchComponent.vue'] }).tier).toBe('style')
+      expect(fast({ files: ['composables/useFeedback.ts', 'lib/taskDates.ts'] }).specs).not.toContain('ui-catalog')
+      expect(fast({ files: ['docs/design/backlog.md'] }).tier).toBe('skip')
+    })
+
+    it('leaves quality mode as it was: the design set carries the fingerprint', () => {
+      expect(fast({ files: ['assets/css/main.css'], mode: 'quality' })).toMatchObject({ reason: 'style-only + design scan', specs: config.design!.specs.toSorted() })
+    })
   })
 
   it('still runs the mapped specs of a risk-area file', () => {
@@ -389,10 +442,11 @@ describe('selectE2e in fast testing mode (#693)', () => {
     expect(fast({ files: ['utils/middleEllipsis.ts'] }).unmapped).toEqual(select({ files: ['utils/middleEllipsis.ts'] }).unmapped)
   })
 
-  it('runs no E2E for a style-only PR, not even the design scan', () => {
-    expect(fast({ files: ['assets/css/dnd.css'] })).toMatchObject({ tier: 'style', specs: [] })
-    expect(fast({ files: ['components/a/B.vue'], styleOnlyVue: ['components/a/B.vue'] }).tier).toBe('style')
-    expect(fast({ files: ['assets/css/dnd.css', 'tests/e2e/a11y.spec.ts'] }).specs).toEqual(['a11y'])
+  it('runs no E2E for a style-only PR outside the style fingerprint, not even the design scan', () => {
+    expect(fast({ files: ['assets/css/dnd.css'] }).specs).toEqual(['ui-catalog']) // the fingerprint, kd#230; nothing else
+    expect(fast({ files: ['components/a/B.vue'], styleOnlyVue: ['components/a/B.vue'] })).toMatchObject({ tier: 'style', specs: [] })
+    expect(fast({ files: ['tests/e2e/snapshots/visual-regression.spec.ts/board.png'] })).toMatchObject({ tier: 'style', specs: [] })
+    expect(fast({ files: ['components/a/B.vue', 'tests/e2e/a11y.spec.ts'], styleOnlyVue: ['components/a/B.vue'] }).specs).toEqual(['a11y'])
   })
 
   it('keeps docs-only skip, E2E_GATE=full and the unresolved-list fallback', () => {
