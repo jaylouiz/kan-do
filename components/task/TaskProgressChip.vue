@@ -177,7 +177,7 @@ watch(() => props.isNow, (now) => {
   --chip-fill-duration: 700ms;
   --chip-radius: var(--ui-radius); /* the sibling UBadge radius */
   --chip-pad: 0.4375rem;
-  --chip-text: 0.6875rem; /* Label step */
+  --chip-text: var(--text-label); /* Label step */
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -222,7 +222,7 @@ watch(() => props.isNow, (now) => {
   color: var(--ui-text-highlighted);
   font-size: var(--chip-text);
   font-weight: 500;
-  line-height: 1rem;
+  line-height: var(--lh-snug);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
   overflow: hidden;
@@ -298,7 +298,6 @@ watch(() => props.isNow, (now) => {
 @keyframes chip-pop { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
 
 @media (--phone) {
-  .chip-slot { --chip-text: 0.75rem; }
   .chip--now { font-size: var(--text-title); } /* title step */
   .chip--now.chip--boxless,
   .chip__sizer--boxless-now { font-size: var(--text-sm); }

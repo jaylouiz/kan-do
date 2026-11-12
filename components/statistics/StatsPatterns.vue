@@ -13,7 +13,7 @@
 <template>
   <div>
     <SectionHeader tag="h3" size="sub">{{ t('statistics.patterns.heading') }}</SectionHeader>
-    <p v-if="patterns.length === 0" class="mt-3 text-sm text-muted">{{ emptyText }}</p>
+    <p v-if="patterns.length === 0" class="mt-3 text-body text-muted">{{ emptyText }}</p>
     <ul v-else class="mt-3 divide-y divide-default" data-testid="stats-patterns">
       <li v-for="pattern in shown" :key="pattern.id" class="py-3">
         <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
@@ -30,8 +30,8 @@
             :style="barStyle(pattern)"
           />
         </div>
-        <p class="mt-2 text-sm text-default">{{ pattern.deviation > 0 ? t('statistics.patterns.longer', { pct: pct(pattern) }) : t('statistics.patterns.shorter', { pct: pct(pattern) }) }}</p>
-        <p class="text-sm text-muted">{{ pattern.deviation > 0 ? t('statistics.patterns.nextLonger', { pct: pct(pattern) }) : t('statistics.patterns.nextShorter', { pct: pct(pattern) }) }}</p>
+        <p class="mt-2 text-body text-default">{{ pattern.deviation > 0 ? t('statistics.patterns.longer', { pct: pct(pattern) }) : t('statistics.patterns.shorter', { pct: pct(pattern) }) }}</p>
+        <p class="text-body text-muted">{{ pattern.deviation > 0 ? t('statistics.patterns.nextLonger', { pct: pct(pattern) }) : t('statistics.patterns.nextShorter', { pct: pct(pattern) }) }}</p>
       </li>
     </ul>
     <UButton

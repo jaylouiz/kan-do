@@ -38,7 +38,7 @@
       
       <!-- Show empty state -->
       <div v-else class="text-toned">
-        <p class="text-sm">{{ t('notion.database.empty') }}</p>
+        <p class="text-body">{{ t('notion.database.empty') }}</p>
         <p class="mt-1 text-xs text-toned">{{ t('notion.database.emptyHint') }}</p>
       </div>
     </UFormField>

@@ -33,11 +33,11 @@ immediate: no loading or error state.
         data-private
         data-testid="topic-name-input"
       />
-      <p v-if="nameLocked" :id="gateId" class="flex items-start gap-1.5 text-sm text-muted" data-testid="topic-name-gate">
+      <p v-if="nameLocked" :id="gateId" class="flex items-start gap-1.5 text-body text-muted" data-testid="topic-name-gate">
         <UIcon name="i-ph-cloud" class="mt-0.5 size-4 shrink-0" aria-hidden="true" />
         <span>{{ t('topic.editor.nameGate') }}</span>
       </p>
-      <p v-else-if="mergeWith" class="text-sm text-muted" role="status" data-testid="topic-merge-note" data-private>
+      <p v-else-if="mergeWith" class="text-body text-muted" role="status" data-testid="topic-merge-note" data-private>
         {{ t(kind === 'topic' ? 'topic.editor.mergeTopic' : 'topic.editor.mergeActivity', { name: mergeWith }) }}
       </p>
     </div>
@@ -61,13 +61,13 @@ immediate: no loading or error state.
             <span v-else class="topic-swatch__dot topic-swatch__dot--none"><UIcon name="i-ph-prohibit" class="size-3" /></span>
           </template>
         </SwatchRadioGroup>
-        <p v-if="notionHue && hue === null" class="text-sm text-muted" data-testid="topic-color-hint">
+        <p v-if="notionHue && hue === null" class="text-body text-muted" data-testid="topic-color-hint">
           {{ t('topic.editor.colorInherited', { hue: hueLabel(notionHue) }) }}
         </p>
-        <p v-else-if="inheritedHue && hue === null" class="text-sm text-muted" data-testid="topic-color-hint">
+        <p v-else-if="inheritedHue && hue === null" class="text-body text-muted" data-testid="topic-color-hint">
           {{ t('topic.editor.colorInheritedFromTasks', { hue: hueLabel(inheritedHue) }) }}
         </p>
-        <p v-else-if="notionHue && hue !== notionHue" class="text-sm text-muted" data-testid="topic-color-hint">
+        <p v-else-if="notionHue && hue !== notionHue" class="text-body text-muted" data-testid="topic-color-hint">
           {{ t('topic.editor.colorLocalOnly', { hue: hueLabel(notionHue) }) }}
         </p>
       </fieldset>
@@ -117,7 +117,7 @@ immediate: no loading or error state.
       </div>
     </template>
 
-    <p class="text-sm text-muted" data-testid="topic-editor-count">{{ countLine }}</p>
+    <p class="text-body text-muted" data-testid="topic-editor-count">{{ countLine }}</p>
 
     <div ref="actionsRow" class="flex scroll-mb-4 items-center justify-end gap-2">
       <UButton type="button" color="neutral" variant="soft" :label="t('topic.editor.cancel')" data-testid="topic-cancel" @click="emit('close')" />

@@ -18,12 +18,12 @@ showing it.
     <SectionHeader id="data-copies-heading" tag="h2">
       {{ t('settings.data.copies.heading') }}
     </SectionHeader>
-    <p class="text-sm text-muted">{{ t('settings.data.copies.body') }}</p>
+    <p class="text-body text-muted">{{ t('settings.data.copies.body') }}</p>
     <ul class="divide-y divide-default">
       <ListRow v-for="copy in conflictCopies" :key="copy.name" class="flex-col items-stretch gap-y-2" data-testid="data-copy-row">
         <p class="min-w-0 text-sm break-all text-highlighted">{{ copy.name }}</p>
         <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-          <p class="text-sm text-muted">
+          <p class="text-body text-muted">
             <span class="tabular-nums">{{ formatDateTime(copy.writtenAt, 'mediumDateShortTime') }}</span>
             <template v-if="copy.taskCount !== null">
               <span class="px-1.5" aria-hidden="true">·</span>{{ t('settings.data.backups.tasks', { n: copy.taskCount }, copy.taskCount) }}

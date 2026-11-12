@@ -30,7 +30,7 @@ Standalone so the closing step (#98) can list it under "still open". Renders not
         <TaskCarryOverDots :day="displayDay" decorative />
         <h3 :id="headingId" class="text-sm font-medium text-highlighted">{{ title }}</h3>
       </div>
-      <p class="mt-1 text-sm text-muted">{{ t('task.carryOver.nudgeHint') }}</p>
+      <p class="mt-1 text-body text-muted">{{ t('task.carryOver.nudgeHint') }}</p>
     </template>
     <div class="flex flex-wrap items-center gap-2" :class="{ 'mt-3': !compact }">
       <UButton

@@ -41,13 +41,13 @@ Speicher, and on desktop Updates and GitHub-Zugriff).
           class="space-y-6"
           :data-testid="`settings-panel-${tab}`"
         >
-          <p class="text-sm text-muted" data-testid="settings-tab-lead">{{ t(`settings.tabs.lead.${tab === 'manage' && !isDesktop ? 'manageWeb' : tab}`) }}</p>
+          <p class="text-body text-muted" data-testid="settings-tab-lead">{{ t(`settings.tabs.lead.${tab === 'manage' && !isDesktop ? 'manageWeb' : tab}`) }}</p>
 
           <PageSheet v-if="tab === 'board'" data-testid="focus-settings">
             <div class="flex items-center gap-4">
               <div class="min-w-0 flex-1">
                 <label id="focus-label" class="block text-default" for="focus-switch">{{ t('settings.focus.label') }}</label>
-                <p id="focus-help" class="text-sm text-muted">{{ t('settings.focus.help') }}</p>
+                <p id="focus-help" class="text-body text-muted">{{ t('settings.focus.help') }}</p>
               </div>
               <USwitch
                 id="focus-switch"
@@ -65,7 +65,7 @@ Speicher, and on desktop Updates and GitHub-Zugriff).
               <SectionHeader id="sources-connected-heading" tag="h2">
                 {{ t('sources.page.connectedHeading') }}
               </SectionHeader>
-              <p class="text-sm text-muted" data-testid="sources-lead">
+              <p class="text-body text-muted" data-testid="sources-lead">
                 {{ t('sources.page.lead') }} {{ t('sources.page.help') }}
               </p>
               <ul class="divide-y divide-default pt-2" data-testid="sources-connected">

@@ -47,7 +47,7 @@
   >
     <template #body>
       <div class="space-y-4">
-        <p class="text-sm text-muted">
+        <p class="text-body text-muted">
           {{ t('task.contextMenu.customPrompt') }}
         </p>
         <div class="flex items-center gap-3">

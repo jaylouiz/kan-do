@@ -27,10 +27,20 @@ describe('design tokens', () => {
   })
 
   it('tells tailwind-merge every type role of main.css, so a text-<role> class replaces Nuxt UI\'s own size (#70)', async () => {
-    const roles = [...readFileSync(resolve(root, 'assets/css/main.css'), 'utf8').matchAll(/^\s*--text-([a-z]+):/gm)].map(m => m[1]).sort()
+    // `body` is the one role that is a utility (`@utility text-body`, utilities.css) and not a size token
+    const roles = [...readFileSync(resolve(root, 'assets/css/main.css'), 'utf8').matchAll(/^\s*--text-([a-z]+):/gm)].map(m => m[1]).concat('body').sort()
     const config = readFileSync(resolve(root, 'app.config.ts'), 'utf8')
     const listed = /text: \[([^\]]*)\]/.exec(config)?.[1]?.match(/[a-z]+/g)?.sort()
     expect(listed).toEqual(roles)
+  })
+
+  it('lets text-body replace Nuxt UI\'s text-sm in a theme slot (kd#190)', async () => {
+    const { extendTailwindMerge } = await import('tailwind-merge')
+    const config = readFileSync(resolve(root, 'app.config.ts'), 'utf8')
+    const roles = /text: \[([^\]]*)\]/.exec(config)?.[1]?.match(/[a-z]+/g) ?? []
+    const merge = extendTailwindMerge({ extend: { theme: { text: roles } } })
+    expect(merge('mt-1 text-sm text-muted', 'text-body')).toBe('mt-1 text-muted text-body')
+    expect(merge('text-sm', 'text-label')).toBe('text-label')
   })
 
   it('reports a misspelt token with its line, and accepts real, runtime and dynamic ones', () => {
@@ -56,9 +66,17 @@ describe('design tokens', () => {
 
   it('knows the project-defined utilities and leaves component classes to the lint rule\'s ignore', () => {
     const classes = projectCssClasses(root) as string[]
-    expect(classes).toEqual(expect.arrayContaining(['font-display', 'text-2xs', 'tracking-display']))
+    expect(classes).toEqual(expect.arrayContaining(['font-display', 'tracking-display']))
     const nonUtility = new RegExp(NON_UTILITY_CLASS)
     expect(['task-card', 'is-on', 'more-panel'].every(c => nonUtility.test(c))).toBe(true)
     expect(['text-muted-foreground', 'hover:bg-elevate', 'border-border', '!px-safe'].some(c => nonUtility.test(c))).toBe(false)
+  })
+  it('every size token in use has an explicit line height (no calc default), and the lg select row keeps 36 px (kd#190)', () => {
+    const css = readFileSync(join(root, 'assets/css/main.css'), 'utf8')
+    for (const size of ['5xl', 'lg', '2xl', 'base', 'sm', 'xs', 'display', 'headline', 'title', 'label']) {
+      expect(css, `--text-${size}--line-height`).toMatch(new RegExp(`--text-${size}--line-height:`))
+    }
+    const config = readFileSync(join(root, 'app.config.ts'), 'utf8')
+    expect(config).toMatch(/select: \{[^]*?item: 'min-h-9'/)
   })
 })

@@ -22,17 +22,22 @@
 
   /* The type roles of DESIGN.md "Type" (#70): a font-size reads a role, and the heading roles carry their line
    * height in the size token, so no heading writes a `leading-*` class. Hero is `--text-5xl`, subhead `--text-lg`.
-   * The roles of interface text (`--text-sm`, `--text-xs`, `--text-label`) get theirs in slice 1b (kd#190): a
-   * control's height still follows from their line today. */
+   * Interface text (`--text-sm`) and label text (`--text-xs`, `--text-label`) carry 1.3 the same way (kd#190); reading text
+   * is the `text-body` utility (utilities.css). A control's height never follows from these lines: it is explicit. */
   --text-5xl--line-height: var(--lh-tight); /* hero: the statistics verdict, the welcome headline */
   --text-display: 2.25rem; /* column names, page titles */
   --text-display--line-height: var(--lh-tight);
   --text-headline: 1.375rem; /* section headings */
   --text-headline--line-height: var(--lh-tight);
   --text-lg--line-height: var(--lh-snug); /* subhead: dialog titles, sub-headings */
+  --text-2xl--line-height: var(--lh-tight); /* not a role: the figures in the statistics rings */
   --text-title: 0.9375rem; /* card title */
   --text-title--line-height: var(--lh-snug);
-  --text-label: 0.6875rem; /* badges, counts, chips */
+  --text-base--line-height: 1.5; /* explicit, same as Tailwind's calc default: no pixel moves */
+  --text-sm--line-height: var(--lh-snug); /* interface text: buttons, fields, rows, tabs, card meta */
+  --text-xs--line-height: var(--lh-snug);
+  --text-label: 0.75rem; /* label: badges, chips, counts, property labels, hints */
+  --text-label--line-height: var(--lh-snug);
   --text-brand: 1.125rem; /* the app-bar wordmark */
 
   /* Collapsible animations (keyframes ship with Nuxt UI) — `animate-collapsible-down/up`. */

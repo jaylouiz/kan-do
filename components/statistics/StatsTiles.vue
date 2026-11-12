@@ -59,12 +59,12 @@
         <div v-else-if="review.split.taskCount > 0 || unfinishedLine">
           <template v-if="review.split.taskCount > 0">
             <UTabs v-model="by" :items="byItems" :content="false" size="sm" :aria-label="t('statistics.split.by')" />
-            <p class="mt-4 text-sm text-default">{{ t('statistics.split.caption', { time: formatDuration(review.split.seconds, 'spaced') }) }}</p>
-            <p v-if="review.split.unplannedShare !== null" class="mt-1 text-sm text-default">
+            <p class="mt-4 text-body text-default">{{ t('statistics.split.caption', { time: formatDuration(review.split.seconds, 'spaced') }) }}</p>
+            <p v-if="review.split.unplannedShare !== null" class="mt-1 text-body text-default">
               {{ t('statistics.split.unplanned', { share: Math.round(review.split.unplannedShare) }) }}
             </p>
           </template>
-          <p v-if="unfinishedLine" class="text-sm text-muted" :class="review.split.taskCount > 0 ? 'mt-1' : ''" data-testid="stats-unfinished">{{ unfinishedLine }}</p>
+          <p v-if="unfinishedLine" class="text-body text-muted" :class="review.split.taskCount > 0 ? 'mt-1' : ''" data-testid="stats-unfinished">{{ unfinishedLine }}</p>
           <StatsTimeSplit v-if="review.split.taskCount > 0" class="mt-3" :split="review.split" :by="by" mode="rows" />
         </div>
       </template>

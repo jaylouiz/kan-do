@@ -267,7 +267,7 @@ const onBarEnd = (event: AnimationEvent) => {
 .nudge__question {
   margin: 0;
   font-size: var(--text-title);
-  line-height: 1.25rem;
+  line-height: 1.25rem; /* explicit: the layer's rows sit at fixed offsets in the 132 px card (kd#190 exception, not the 1.3 of the title role) */
   font-weight: 500;
   color: var(--ui-text-highlighted);
   text-align: center;

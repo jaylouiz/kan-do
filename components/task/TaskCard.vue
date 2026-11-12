@@ -639,8 +639,7 @@ const openDetails = (event: MouseEvent) => {
   /* Footer chips (timebox, priority): Nuxt UI sets their size per utility class, so the
      scoped rule reaches the child root through :deep */
   .task-footer :deep([data-slot="base"]) {
-    font-size: var(--text-xs);
-    line-height: 1rem;
+    min-height: 1.5rem;
   }
 
   .task-title-text {

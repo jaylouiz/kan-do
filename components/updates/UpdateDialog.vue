@@ -26,7 +26,7 @@ current version, says that data is backed up first and the app restarts, and ins
     <template #body>
       <div v-if="update" class="space-y-3">
         <template v-if="notes">
-          <p id="update-notes-label" class="text-sm text-default" data-testid="update-notes-label">
+          <p id="update-notes-label" class="text-body text-default" data-testid="update-notes-label">
             {{ t('updates.dialog.sinceVersion', { version: update.currentVersion }) }}
           </p>
           <ul aria-labelledby="update-notes-label" class="list-disc space-y-1.5 pl-5 text-sm text-default" data-testid="update-notes">
@@ -35,10 +35,10 @@ current version, says that data is backed up first and the app restarts, and ins
             </li>
           </ul>
         </template>
-        <p v-else class="text-sm text-default" data-testid="update-current">
+        <p v-else class="text-body text-default" data-testid="update-current">
           {{ t('updates.dialog.current', { version: update.currentVersion }) }}
         </p>
-        <p class="text-sm text-muted">{{ t('updates.dialog.backupNote') }}</p>
+        <p class="text-body text-muted">{{ t('updates.dialog.backupNote') }}</p>
         <UAlert
           v-if="failureText"
           :color="failureColor"

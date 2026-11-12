@@ -850,7 +850,7 @@ onBeforeUnmount(() => {
   grid-column: 2;
   text-align: center;
   font-size: var(--text-title);
-  line-height: 1.25rem;
+  line-height: var(--lh-snug);
   font-weight: 500;
   color: var(--ui-text-highlighted);
   text-wrap: balance;

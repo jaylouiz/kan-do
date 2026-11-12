@@ -55,7 +55,7 @@ withDefaults(
   color: var(--ui-primary);
   font-size: var(--text-sm);
   font-weight: 500;
-  line-height: 1rem;
+  line-height: var(--lh-snug);
   white-space: nowrap;
 }
 

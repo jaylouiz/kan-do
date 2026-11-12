@@ -21,8 +21,8 @@ event, the page owns the single confirmation modal.
     <SectionHeader id="data-backups-heading" tag="h2">
       {{ t('settings.data.backups.heading') }}
     </SectionHeader>
-    <p class="text-sm text-muted">{{ t('settings.data.backups.lead') }}</p>
-    <p v-if="restoreBlock" class="text-sm text-muted" data-testid="data-restore-blocked">
+    <p class="text-body text-muted">{{ t('settings.data.backups.lead') }}</p>
+    <p v-if="restoreBlock" class="text-body text-muted" data-testid="data-restore-blocked">
       {{ t(`settings.data.restoreBlocked.${restoreBlock}`) }}
     </p>
 
@@ -50,7 +50,7 @@ event, the page owns the single confirmation modal.
       data-testid="data-backup-error"
     />
 
-    <p v-if="backupsLoad === 'loading'" class="text-sm text-muted" data-testid="data-backups-loading">
+    <p v-if="backupsLoad === 'loading'" class="text-body text-muted" data-testid="data-backups-loading">
       {{ t('settings.data.backups.loading') }}
     </p>
     <div v-else-if="backupsLoad === 'error'" class="flex flex-wrap items-center gap-x-3 gap-y-1" data-testid="data-backups-failed">
@@ -69,7 +69,7 @@ event, the page owns the single confirmation modal.
         data-testid="data-backup-row"
         :data-kind="entry.kind"
       >
-        <p class="min-w-0 text-sm text-default">
+        <p class="min-w-0 text-body text-default">
           <span class="text-highlighted tabular-nums">{{ formatDateTime(entry.ts, 'mediumDateShortTime') }}</span>
           <span class="px-1.5 text-muted" aria-hidden="true">·</span>
           <span>{{ t(`settings.data.backups.kind.${entry.kind}`) }}</span>

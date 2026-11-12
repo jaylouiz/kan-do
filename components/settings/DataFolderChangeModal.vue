@@ -22,7 +22,7 @@ stays), a folder that already holds data offers "use the data already there" (th
     <template #body>
       <div v-if="choice" class="space-y-4">
         <div class="space-y-1">
-          <p class="text-sm text-muted">{{ t('settings.data.modal.target') }}</p>
+          <p class="text-body text-muted">{{ t('settings.data.modal.target') }}</p>
           <p class="font-mono text-sm break-all text-highlighted" data-testid="data-folder-target">{{ choice.folder }}</p>
         </div>
 
@@ -37,10 +37,10 @@ stays), a folder that already holds data offers "use the data already there" (th
         />
 
         <template v-else-if="step === 'confirm'">
-          <p class="text-sm text-default" data-testid="data-folder-confirm">{{ t('settings.data.modal.confirmReplace') }}</p>
+          <p class="text-body text-default" data-testid="data-folder-confirm">{{ t('settings.data.modal.confirmReplace') }}</p>
         </template>
 
-        <p v-else-if="existing === 'none'" class="flex items-start gap-2 text-sm">
+        <p v-else-if="existing === 'none'" class="flex items-start gap-2 text-body">
           <UIcon name="i-ph-copy" class="mt-0.5 size-4 shrink-0 text-muted" aria-hidden="true" />
           <span>
             <span class="block font-medium text-highlighted">{{ t('settings.data.modal.copyMine') }}</span>
@@ -49,8 +49,8 @@ stays), a folder that already holds data offers "use the data already there" (th
         </p>
 
         <template v-else>
-          <p class="text-sm text-default">{{ hasDataText }}</p>
-          <p v-if="existing === 'newer-schema'" class="text-sm text-muted">{{ t('settings.data.modal.newerSchema') }}</p>
+          <p class="text-body text-default">{{ hasDataText }}</p>
+          <p v-if="existing === 'newer-schema'" class="text-body text-muted">{{ t('settings.data.modal.newerSchema') }}</p>
           <URadioGroup
             v-else
             v-model="mode"

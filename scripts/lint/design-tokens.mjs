@@ -305,7 +305,7 @@ export const SCALE_ALLOWLIST = {
 
 const BASELINE_FILE = 'scripts/lint/literal-baseline.json'
 const TEXT_STEPS = {
-  '0.6875rem': '--text-label', '11px': '--text-label', '0.75rem': '--text-xs', '12px': '--text-xs', '0.875rem': '--text-sm', '14px': '--text-sm',
+  '0.75rem': '--text-label', '12px': '--text-label', '0.875rem': '--text-sm', '14px': '--text-sm',
   '0.9375rem': '--text-title', '15px': '--text-title', '1rem': '--text-base', '16px': '--text-base', '1.125rem': '--text-brand', '18px': '--text-brand',
   '1.25rem': '--text-xl', '20px': '--text-xl', '1.375rem': '--text-headline', '22px': '--text-headline', '1.5rem': '--text-2xl', '24px': '--text-2xl',
   '1.875rem': '--text-3xl', '30px': '--text-3xl', '2.25rem': '--text-display', '36px': '--text-display',

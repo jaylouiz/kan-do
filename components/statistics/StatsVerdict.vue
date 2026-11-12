@@ -13,8 +13,8 @@
 -->
 <template>
   <PageSheet tag="section" aria-labelledby="stats-q1" data-testid="stats-verdict">
-    <p class="text-sm text-toned">{{ t('statistics.question.q1') }}</p>
-    <p v-if="review.state !== 'empty'" class="mt-1 text-sm text-toned">{{ t('statistics.verdict.caption') }}</p>
+    <p class="text-body text-toned">{{ t('statistics.question.q1') }}</p>
+    <p v-if="review.state !== 'empty'" class="mt-1 text-body text-toned">{{ t('statistics.verdict.caption') }}</p>
     <div class="mt-4 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
       <div>
         <SectionHeader id="stats-q1" tag="h2" size="hero" data-testid="stats-verdict-headline">

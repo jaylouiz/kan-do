@@ -18,7 +18,7 @@ independent of the data folder and without any credentials. Export writes throug
     <SectionHeader id="data-transfer-heading" tag="h2">
       {{ t('settings.data.exportImport.heading') }}
     </SectionHeader>
-    <p class="text-sm text-muted">{{ t(desktop ? 'settings.data.exportImport.body' : 'settings.data.exportImport.webBody') }}</p>
+    <p class="text-body text-muted">{{ t(desktop ? 'settings.data.exportImport.body' : 'settings.data.exportImport.webBody') }}</p>
     <div class="flex flex-wrap gap-2">
       <UButton variant="soft" color="neutral" :loading="busy === 'export'" :disabled="busy !== null" data-testid="data-export" @click="onExport">
         {{ t(desktop ? 'settings.data.exportImport.export' : 'settings.data.exportImport.webExport') }}
@@ -27,10 +27,10 @@ independent of the data folder and without any credentials. Export writes throug
         {{ t('settings.data.exportImport.import') }}
       </UButton>
     </div>
-    <p v-if="restoreBlock" class="text-sm text-muted" data-testid="data-import-blocked">
+    <p v-if="restoreBlock" class="text-body text-muted" data-testid="data-import-blocked">
       {{ t(`settings.data.restoreBlocked.${restoreBlock}`) }}
     </p>
-    <p v-if="doneText" class="text-sm text-default" role="status" data-testid="data-transfer-done">{{ doneText }}</p>
+    <p v-if="doneText" class="text-body text-default" role="status" data-testid="data-transfer-done">{{ doneText }}</p>
     <UAlert
       v-if="errorText"
       color="error"

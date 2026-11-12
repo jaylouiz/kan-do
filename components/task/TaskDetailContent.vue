@@ -33,7 +33,7 @@
 <template>
   <div v-if="isError" class="px-6 py-8 md:pe-16" data-testid="task-not-found">
     <SectionHeader tag="h2">{{ t('task.notFoundTitle') }}</SectionHeader>
-    <p class="mt-1 text-sm text-muted">{{ t('task.notFoundMessage') }}</p>
+    <p class="mt-1 text-body text-muted">{{ t('task.notFoundMessage') }}</p>
   </div>
 
   <div v-else-if="task" class="task-detail-content flex flex-col md:min-h-0 md:flex-1">
@@ -70,7 +70,7 @@
             @save="(val) => handleTitleSave(val as string)"
             @cancel="isSmallerStep = false"
           />
-          <p v-if="isSmallerStep" :id="smallerHintId" class="mt-1 text-sm text-muted" data-testid="carry-over-smaller-hint">
+          <p v-if="isSmallerStep" :id="smallerHintId" class="mt-1 text-body text-muted" data-testid="carry-over-smaller-hint">
             {{ t('task.carryOver.smallerHint') }}
           </p>
           <p

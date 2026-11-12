@@ -23,7 +23,7 @@
       <div class="flex items-center justify-between" :class="{ 'mx-auto max-w-2xl': narrow }">
         <div>
           <h1 class="font-display text-display tracking-display text-highlighted">{{ title }}</h1>
-          <p v-if="description" class="mt-0.5 text-sm text-muted">{{ description }}</p>
+          <p v-if="description" class="mt-0.5 text-body text-muted">{{ description }}</p>
         </div>
         <div v-if="$slots.actions" class="flex items-center gap-2">
           <slot name="actions" />

@@ -58,7 +58,7 @@ optional element, optional screenshot, automatic context line), the annotate ste
 
         <div class="flex flex-col gap-2">
           <div v-if="draft.element" class="flex items-center justify-between gap-3 rounded-lg bg-muted px-3 py-2" data-testid="feedback-element">
-            <p class="min-w-0 text-sm">
+            <p class="min-w-0 text-body">
               <span class="font-medium">{{ t('feedback.elementLabel') }}:</span>
               <span class="ml-1 text-toned">{{ elementName }}</span>
               <span class="block truncate font-mono text-xs text-toned">{{ draft.element.selector }}</span>
@@ -133,7 +133,7 @@ optional element, optional screenshot, automatic context line), the annotate ste
           />
         </div>
 
-        <p class="text-sm text-toned" data-testid="feedback-public-note">
+        <p class="text-body text-toned" data-testid="feedback-public-note">
           {{ t('feedback.public') }}
           <template v-if="fallbackKnown">{{ t('feedback.publicAccount') }}</template>
         </p>
@@ -149,7 +149,7 @@ optional element, optional screenshot, automatic context line), the annotate ste
       <FeedbackAnnotator v-else-if="step === 'annotate'" />
 
       <div v-else class="flex flex-col gap-5" data-testid="feedback-review">
-        <p ref="introRef" tabindex="-1" class="text-sm text-toned outline-none" data-testid="feedback-review-intro">{{ t(canSend ? 'feedback.review.intro' : 'feedback.review.introBrowser', { repo: FEEDBACK_REPO }) }}</p>
+        <p ref="introRef" tabindex="-1" class="text-body text-toned outline-none" data-testid="feedback-review-intro">{{ t(canSend ? 'feedback.review.intro' : 'feedback.review.introBrowser', { repo: FEEDBACK_REPO }) }}</p>
 
         <fieldset class="flex flex-col gap-2">
           <legend class="mb-1 text-sm font-medium">{{ t('feedback.review.contextHeading') }}</legend>
@@ -190,12 +190,12 @@ v-if="logTail" v-model="draft.include.log" :label="t('feedback.review.itemLog')"
         <section v-if="flat && draft.include.screenshot" class="flex flex-col gap-2" data-testid="feedback-review-image">
           <h3 class="text-sm font-medium">{{ t('feedback.screenshot.label') }}</h3>
           <FeedbackImage :bitmap="flat.bitmap" :label="t('feedback.screenshot.previewFinal')" max-height-class="max-h-72" />
-          <p class="text-sm text-toned" data-testid="feedback-delivery">{{ deliveryText }}</p>
+          <p class="text-body text-toned" data-testid="feedback-delivery">{{ deliveryText }}</p>
         </section>
 
         <section>
           <h3 class="mb-1 text-sm font-medium">{{ t('feedback.review.previewHeading') }}</h3>
-          <p class="mb-2 text-sm text-toned">{{ draft.title.trim() }}</p>
+          <p class="mb-2 text-body text-toned">{{ draft.title.trim() }}</p>
           <!-- tabindex: a scrollable region must be reachable by keyboard -->
           <pre
             role="region"
@@ -207,14 +207,14 @@ v-if="logTail" v-model="draft.include.log" :label="t('feedback.review.itemLog')"
         </section>
 
         <!-- Without a token the intro already names the browser path; only a refused token needs its own line -->
-        <p v-if="tokenState === 'rejected'" class="text-sm text-toned" data-testid="feedback-fallback-note">
+        <p v-if="tokenState === 'rejected'" class="text-body text-toned" data-testid="feedback-fallback-note">
           {{ t('feedback.fallback.rejected') }}
           <ULink to="/settings/github" class="underline" @click="close">{{ t('feedback.fallback.accessLink') }}</ULink>
         </p>
-        <p v-if="fallbackKnown && prefilled.trimmed.length" class="text-sm text-toned" data-testid="feedback-trimmed-note">
+        <p v-if="fallbackKnown && prefilled.trimmed.length" class="text-body text-toned" data-testid="feedback-trimmed-note">
           {{ t('feedback.fallback.trimmed', { parts: trimmedParts }) }}
         </p>
-        <p v-if="fallbackKnown && prefilled.overflow" class="text-sm text-toned">{{ t('feedback.fallback.overflow') }}</p>
+        <p v-if="fallbackKnown && prefilled.overflow" class="text-body text-toned">{{ t('feedback.fallback.overflow') }}</p>
 
         <UAlert
           v-if="problem"
@@ -238,7 +238,7 @@ v-if="logTail" v-model="draft.include.log" :label="t('feedback.review.itemLog')"
           :description="t('feedback.problem.clipboardFailed')"
           data-testid="feedback-clipboard-failed"
         />
-        <p v-if="sending" class="text-sm text-muted" role="status">{{ sendingText }}</p>
+        <p v-if="sending" class="text-body text-muted" role="status">{{ sendingText }}</p>
       </div>
     </template>
 

@@ -58,7 +58,7 @@
           </span>
         </li>
       </ol>
-      <p v-if="help" class="mt-6 border-t border-default pt-4 text-sm text-muted" aria-live="polite">{{ help }}</p>
+      <p v-if="help" class="mt-6 border-t border-default pt-4 text-body text-muted" aria-live="polite">{{ help }}</p>
     </div>
   </div>
 </template>

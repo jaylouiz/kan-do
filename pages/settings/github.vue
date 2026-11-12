@@ -11,7 +11,7 @@
 <template>
   <NuxtLayout name="sub-page">
     <div class="space-y-10">
-      <p v-if="tokens.keychainUnavailable.value" class="text-sm text-muted" role="status" data-testid="github-keychain-unavailable">
+      <p v-if="tokens.keychainUnavailable.value" class="text-body text-muted" role="status" data-testid="github-keychain-unavailable">
         {{ t('settings.github.keychainUnavailable') }}
       </p>
       <template v-else-if="tokens.loaded.value">

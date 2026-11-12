@@ -17,8 +17,8 @@
       <SectionHeader :id="headingId" tag="h2">
         {{ t(`settings.github.${key}.title`) }}
       </SectionHeader>
-      <p class="text-sm text-muted">{{ t(`settings.github.${key}.purpose`) }}</p>
-      <p class="text-sm text-muted">{{ t(`settings.github.${key}.access`) }}</p>
+      <p class="text-body text-muted">{{ t(`settings.github.${key}.purpose`) }}</p>
+      <p class="text-body text-muted">{{ t(`settings.github.${key}.access`) }}</p>
     </div>
 
     <!-- Saved -->
@@ -93,7 +93,7 @@
     <!-- Empty, checking and rejected share the field -->
     <div v-else class="space-y-3" :data-testid="state === 'rejected' ? 'github-token-rejected' : 'github-token-empty'">
       <template v-if="state === 'rejected'">
-        <p class="text-sm" role="status">
+        <p class="text-body" role="status">
           <span class="font-mono text-muted" aria-hidden="true">{{ masked }}</span>
           <span class="sr-only">{{ t('settings.github.savedAria', { last4: row.last4 ?? '' }) }}</span>
         </p>
@@ -132,7 +132,7 @@
       </form>
     </div>
 
-    <p v-if="entry === 'github-feedback'" class="text-sm text-muted">{{ t('settings.github.scopeHelp') }}</p>
+    <p v-if="entry === 'github-feedback'" class="text-body text-muted">{{ t('settings.github.scopeHelp') }}</p>
   </PageSheet>
 </template>
 
