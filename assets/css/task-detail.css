@@ -139,7 +139,7 @@ button[data-slot='base'].task-property-value[aria-haspopup='listbox']:focus-visi
 .task-notes-markdown a:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-sm);
 }
 
 .task-notes-markdown blockquote {

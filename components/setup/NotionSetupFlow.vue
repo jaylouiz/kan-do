@@ -26,7 +26,7 @@
       <span class="flex size-16 items-center justify-center rounded-full bg-inverted">
         <UIcon name="i-ph-check-bold" class="size-8 text-inverted" aria-hidden="true" />
       </span>
-      <p class="font-display tracking-display text-3xl text-highlighted">{{ t('onboarding.flow.notion.connected') }}</p>
+      <SectionHeader tag="p" size="display">{{ t('onboarding.flow.notion.connected') }}</SectionHeader>
       <p class="text-sm text-muted">{{ t('onboarding.flow.notion.loading') }}</p>
     </div>
 
@@ -90,6 +90,7 @@
 </template>
 
 <script setup lang="ts">
+import SectionHeader from '~/components/ui/SectionHeader.vue'
 import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue';
 import { useI18n } from 'vue-i18n';
 import SetupRail from '~/components/setup/SetupRail.vue';

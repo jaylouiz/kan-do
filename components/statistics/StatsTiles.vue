@@ -25,7 +25,6 @@
       :question="t(`statistics.question.q${n}`)"
       :line="lines[n]"
       :open="isOpen(n)"
-      :tone="n === 3 ? 'elevated' : 'default'"
       :toggleable="n !== 3 || review.hasTimeboxes"
       @toggle="toggle(n)"
     >

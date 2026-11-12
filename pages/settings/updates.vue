@@ -14,10 +14,10 @@ UpdateDialog.
   <div>
     <NuxtLayout name="sub-page">
     <div class="space-y-10">
-      <section aria-labelledby="updates-version-heading" class="space-y-3">
-        <h2 id="updates-version-heading" class="section-heading">
+      <PageSheet tag="section" aria-labelledby="updates-version-heading" class="space-y-3">
+        <SectionHeader id="updates-version-heading" tag="h2">
           {{ t('settings.updates.versionHeading') }}
-        </h2>
+        </SectionHeader>
         <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <p class="font-mono text-sm text-highlighted" data-testid="updates-version">
             {{ t('settings.updates.versionLine', { version: state.appVersion ?? '…' }) }}
@@ -51,12 +51,12 @@ UpdateDialog.
         >
           {{ t('settings.updates.details') }}
         </UButton>
-      </section>
+      </PageSheet>
 
-      <section aria-labelledby="updates-access-heading" class="space-y-3">
-        <h2 id="updates-access-heading" class="section-heading">
+      <PageSheet tag="section" aria-labelledby="updates-access-heading" class="space-y-3">
+        <SectionHeader id="updates-access-heading" tag="h2">
           {{ t('settings.updates.accessHeading') }}
-        </h2>
+        </SectionHeader>
         <p class="text-sm text-muted">{{ t('settings.updates.accessBody') }}</p>
         <UButton
           v-if="offersGithubLink"
@@ -68,25 +68,27 @@ UpdateDialog.
         >
           {{ t('settings.updates.openGithub') }}
         </UButton>
-      </section>
+      </PageSheet>
 
-      <section aria-labelledby="updates-log-heading" class="space-y-3">
-        <h2 id="updates-log-heading" class="section-heading">
+      <PageSheet tag="section" aria-labelledby="updates-log-heading" class="space-y-3">
+        <SectionHeader id="updates-log-heading" tag="h2">
           {{ t('settings.updates.logHeading') }}
-        </h2>
+        </SectionHeader>
         <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <p class="min-w-0 font-mono text-sm break-all text-highlighted" data-testid="updates-log-path">{{ logPath }}</p>
           <UButton variant="ghost" color="neutral" icon="i-ph-folder-open" data-testid="updates-log-reveal" @click="onRevealLog">
             {{ t('settings.updates.revealLog') }}
           </UButton>
         </div>
-      </section>
+      </PageSheet>
     </div>
   </NuxtLayout>
   </div>
 </template>
 
 <script setup lang="ts">
+import SectionHeader from '~/components/ui/SectionHeader.vue'
+import PageSheet from '~/components/ui/PageSheet.vue'
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAppUpdater } from '~/composables/useAppUpdater';

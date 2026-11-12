@@ -15,7 +15,7 @@
   <div>
     <NuxtLayout name="sub-page">
       <div class="space-y-10" data-testid="trash-page">
-        <section aria-labelledby="trash-heading" class="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <PageSheet tag="section" aria-labelledby="trash-heading" class="flex flex-wrap items-center gap-x-4 gap-y-2">
           <h2 id="trash-heading" ref="headingEl" tabindex="-1" class="sr-only">{{ t('trash.listHeading') }}</h2>
           <EmptyState v-if="count === 0" icon="i-ph-trash-light" :subline="t('trash.emptyHint')" data-testid="trash-empty-state">
             {{ t('trash.empty') }}
@@ -35,10 +35,10 @@
               {{ t('trash.emptyTrash') }}
             </UButton>
           </div>
-        </section>
+        </PageSheet>
 
         <section v-for="group in groups" :key="group.group" class="space-y-4" :data-testid="`trash-group-${group.group}`">
-          <h3 class="section-heading">{{ t(`trash.groups.${group.group}`) }}</h3>
+          <SectionHeader tag="h3">{{ t(`trash.groups.${group.group}`) }}</SectionHeader>
           <div class="trash-grid">
             <TrashEntryRow
               v-for="entry in group.entries"
@@ -56,6 +56,8 @@
 </template>
 
 <script setup lang="ts">
+import PageSheet from '~/components/ui/PageSheet.vue'
+import SectionHeader from '~/components/ui/SectionHeader.vue'
 import { nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import EmptyState from '~/components/ui/EmptyState.vue'

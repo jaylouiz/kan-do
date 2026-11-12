@@ -22,9 +22,9 @@ changes size, so nothing on the page moves while it is looked at.
 <template>
   <section class="recap-deck-group" :aria-labelledby="headingId">
     <header class="recap-deck__heading" :class="{ 'sr-only': hideHeading }">
-      <h2 :id="headingId" class="font-display text-headline text-muted" data-testid="recap-deck-label">
+      <SectionHeader :id="headingId" tag="h2" tone="muted" data-testid="recap-deck-label">
         {{ label }}
-      </h2>
+      </SectionHeader>
     </header>
 
     <div
@@ -89,6 +89,7 @@ changes size, so nothing on the page moves while it is looked at.
 </template>
 
 <script setup lang="ts">
+import SectionHeader from '~/components/ui/SectionHeader.vue'
 import { ICONS } from '~/lib/icons'
 import { computed, ref, useId } from 'vue'
 import { useI18n } from 'vue-i18n'

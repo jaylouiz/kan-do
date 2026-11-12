@@ -37,12 +37,12 @@
       <DataStorageNotice />
     </div>
     <div
-      class="welcome-sheet relative mt-40 w-full rounded-t-2xl bg-default px-6 pt-6 shadow-(--shadow-task) transition-[max-width] duration-(--duration-slow) ease-out motion-reduce:transition-none sm:mt-0 sm:rounded-2xl sm:px-10 sm:pt-10"
+      class="welcome-sheet relative mt-40 w-full rounded-t-lg bg-default px-6 pt-6 shadow-(--shadow-task) transition-[max-width] duration-(--duration-slow) ease-out motion-reduce:transition-none sm:mt-0 sm:rounded-lg sm:px-8 sm:pt-8"
       :class="flow === 'notion' ? 'sm:max-w-3xl' : 'sm:max-w-lg'"
     >
       <header class="mb-8">
-        <p class="font-display tracking-display text-4xl leading-(--lh-tight) text-highlighted sm:text-5xl">{{ t('nav.brand') }}</p>
-        <p class="mt-2 text-base text-default">{{ t('onboarding.page.tagline') }}</p>
+        <SectionHeader tag="p" size="hero">{{ t('nav.brand') }}</SectionHeader>
+        <p class="mt-2 text-sm text-default">{{ t('onboarding.page.tagline') }}</p>
       </header>
       <!-- One Transition for the whole content: start screen and setup swap as a single block and the block's height
            follows (setup-body), so nothing animates element by element (#43) -->
@@ -61,9 +61,9 @@
               @complete="handleNotionSetupComplete"
             />
             <template v-else>
-        <h1 class="font-display tracking-display text-3xl leading-(--lh-tight) text-balance text-highlighted sm:text-4xl">
+        <SectionHeader tag="h1" size="display" class="text-balance">
           {{ t('onboarding.page.title') }}
-        </h1>
+        </SectionHeader>
         <div class="mt-8 flex flex-col gap-3">
           <ChoiceCard
             v-for="choice in choices"
@@ -90,6 +90,7 @@
 </template>
 
 <script setup lang="ts">
+import SectionHeader from '~/components/ui/SectionHeader.vue'
 import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ChoiceCard from '~/components/ui/ChoiceCard.vue';

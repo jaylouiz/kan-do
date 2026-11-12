@@ -11,7 +11,7 @@
 -->
 <template>
   <div>
-    <h3 class="font-display text-lg text-highlighted">{{ t('statistics.outliers.heading') }}</h3>
+    <SectionHeader tag="h3" size="sub">{{ t('statistics.outliers.heading') }}</SectionHeader>
     <EmptyNote v-if="outliers.length === 0" class="mt-3">{{ t('statistics.outliers.empty') }}</EmptyNote>
     <ul v-else class="mt-3 divide-y divide-default" data-testid="stats-outliers">
       <ListRow
@@ -32,6 +32,7 @@
 </template>
 
 <script setup lang="ts">
+import SectionHeader from '~/components/ui/SectionHeader.vue'
 import { useI18n } from 'vue-i18n'
 import EmptyNote from '~/components/ui/EmptyNote.vue'
 import ListRow from '~/components/ui/ListRow.vue'

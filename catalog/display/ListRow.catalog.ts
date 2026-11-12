@@ -6,8 +6,7 @@ export default {
   source: 'app',
   alternatives: ['SourceRow', 'TasksTable'],
   variants: [
-    { id: 'static-roomy', props: { density: 'roomy' }, slot: { $t: 'sources.row.default' } },
-    { id: 'static-compact', props: { density: 'compact' }, slot: { $t: 'sources.row.default' } },
+    { id: 'static', slot: { $t: 'sources.row.default' } },
     { id: 'action', props: { action: true }, slot: { $t: 'common.save' } },
     { id: 'link', props: { to: '/settings' }, slot: { $t: 'nav.settings' } },
   ],

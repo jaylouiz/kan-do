@@ -24,9 +24,9 @@ version since the last one seen, newest first. Opened by the "Was ist neu" butto
     <template #body>
       <div class="max-h-96 space-y-6 overflow-y-auto" tabindex="0" data-testid="whats-new-body">
         <section v-for="entry in state.entries" :key="entry.version" class="space-y-2" :aria-labelledby="`whats-new-${entry.version}`">
-          <h3 :id="`whats-new-${entry.version}`" class="section-heading">
+          <SectionHeader :id="`whats-new-${entry.version}`" tag="h3" size="sub">
             {{ t('whatsNew.version', { version: entry.version }) }}
-          </h3>
+          </SectionHeader>
           <ul class="list-disc space-y-1.5 pl-5 text-sm text-default">
             <li v-for="(bullet, index) in entry.bullets" :key="`${index}-${bullet.title}`">
               <strong class="font-semibold text-highlighted">{{ bullet.title }}</strong> {{ bullet.text }}
@@ -48,6 +48,7 @@ version since the last one seen, newest first. Opened by the "Was ist neu" butto
 </template>
 
 <script setup lang="ts">
+import SectionHeader from '~/components/ui/SectionHeader.vue'
 import AppDialog from '~/components/ui/AppDialog.vue';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';

@@ -2,17 +2,17 @@
 @component TaskPriorityBadge
 @kind primitive
 @category display
-@description Visual indicator for task priority level (low, regular, high; #617)
+@description Visual indicator for task priority level (low, regular, high; #617): one badge size, the UBadge default
 @usage Used within task cards to display priority status
 @avoid Only the three priority levels on a card; statuses are columns, not badges.
 @responsibility
 - Displays appropriate priority indicator based on task priority level
 - Done cards show no priority badge (#124, TaskCard)
+- One size (the UBadge `md`, 12 px text) and one neutral look; only High is tinted (the warning wash), so "Hoch" is the one tinted badge on a card (kd#180)
 -->
 <template>
   <UTooltip :text="t('task.priorityTooltip')">
     <UBadge
-      :size="size"
       variant="soft"
       color="neutral"
       :icon="priorityIcon"
@@ -36,16 +36,11 @@ const { t } = useI18n();
 /**
  * Props
  * @prop {number|string} priority Task priority level (1-3; no priority reads as Normal, a stored 4 as High)
- * @prop {string=} size Badge size
  */
-const props = withDefaults(defineProps<{
+const props = defineProps<{
   /** Task priority level (number 1-3) */
   priority: number | string;
-  /** Size of the badge (xs, sm, md, lg) */
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-}>(), {
-  size: 'sm',
-});
+}>();
 
 /**
  * The level 1-3 (no priority reads as Normal, #653)

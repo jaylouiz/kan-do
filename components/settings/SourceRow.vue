@@ -17,7 +17,6 @@
 -->
 <template>
   <ListRow
-    density="roomy"
     class="gap-y-3"
     :data-testid="`source-row-${row.id}`"
   >
@@ -28,8 +27,7 @@
         <UBadge
           v-if="row.isDefault"
           color="neutral"
-          variant="subtle"
-          size="sm"
+          variant="soft"
           :data-testid="`source-default-${row.id}`"
         >
           {{ t('sources.row.default') }}

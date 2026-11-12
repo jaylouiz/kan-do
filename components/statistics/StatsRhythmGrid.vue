@@ -12,7 +12,7 @@
 -->
 <template>
   <div role="img" :aria-label="label" data-testid="stats-rhythm-grid">
-    <div class="grid gap-x-0.5 gap-y-0.5" :style="{ gridTemplateColumns: `2rem repeat(${RHYTHM.hours}, minmax(0, 1fr))` }" aria-hidden="true">
+    <div class="grid gap-0.5 " :style="{ gridTemplateColumns: `2rem repeat(${RHYTHM.hours}, minmax(0, 1fr))` }" aria-hidden="true">
       <span />
       <span
         v-for="index in RHYTHM.hours"
@@ -24,7 +24,7 @@
         <span
           v-for="(value, index) in row"
           :key="index"
-          class="aspect-square rounded-xs md:aspect-auto md:h-6"
+          class="aspect-square rounded-sm md:aspect-auto md:h-6"
           :class="value > 0 ? '' : 'bg-muted'"
           :style="value > 0 ? { backgroundColor: inkColor(step(value)) } : {}"
           data-testid="stats-rhythm-cell"
@@ -33,8 +33,8 @@
     </div>
     <div class="mt-3 flex items-center justify-end gap-2 text-xs text-muted" aria-hidden="true">
       <span>{{ t('statistics.rhythm.less') }}</span>
-      <span class="size-3 rounded-xs bg-muted" />
-      <span v-for="s in [4, 3, 2, 1, 0]" :key="s" class="size-3 rounded-xs" :style="{ backgroundColor: inkColor(s) }" />
+      <span class="size-3 rounded-sm bg-muted" />
+      <span v-for="s in [4, 3, 2, 1, 0]" :key="s" class="size-3 rounded-sm" :style="{ backgroundColor: inkColor(s) }" />
       <span>{{ t('statistics.rhythm.more') }}</span>
     </div>
   </div>

@@ -12,7 +12,7 @@
 -->
 <template>
   <div>
-    <h3 class="font-display text-lg text-highlighted">{{ t('statistics.patterns.heading') }}</h3>
+    <SectionHeader tag="h3" size="sub">{{ t('statistics.patterns.heading') }}</SectionHeader>
     <p v-if="patterns.length === 0" class="mt-3 text-sm text-muted">{{ emptyText }}</p>
     <ul v-else class="mt-3 divide-y divide-default" data-testid="stats-patterns">
       <li v-for="pattern in shown" :key="pattern.id" class="py-3">
@@ -47,6 +47,7 @@
 </template>
 
 <script setup lang="ts">
+import SectionHeader from '~/components/ui/SectionHeader.vue'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { inkColor } from '~/lib/inkRamp'

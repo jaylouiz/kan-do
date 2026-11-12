@@ -169,7 +169,7 @@
     align-items: center;
     justify-content: center;
     height: 100%;
-    padding-inline: 0.875rem;
+    padding-inline: 1rem;
     border-radius: 9999px;
     font-size: var(--text-sm);
     font-weight: 500;
@@ -205,7 +205,7 @@
 
   /* The label sets the natural width of the segment */
   .app-nav-third-label {
-    padding-inline: 0.875rem;
+    padding-inline: 1rem;
     white-space: nowrap;
   }
 

@@ -11,10 +11,10 @@
 - Shows loading state during save operations
 -->
 <template>
-  <div class="space-y-6">
+  <PageSheet class="space-y-6">
     <!-- Section Header -->
     <div class="pb-2">
-      <h2 class="section-heading">{{ title }}</h2>
+      <SectionHeader tag="h2">{{ title }}</SectionHeader>
       <p v-if="description" class="mt-1 text-sm text-muted">{{ description }}</p>
     </div>
 
@@ -44,10 +44,12 @@
         {{ resolvedSaveLabel }}
       </UButton>
     </div>
-  </div>
+  </PageSheet>
 </template>
 
 <script setup lang="ts">
+import SectionHeader from '~/components/ui/SectionHeader.vue'
+import PageSheet from '~/components/ui/PageSheet.vue'
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 

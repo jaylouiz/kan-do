@@ -13,7 +13,7 @@
 -->
 <template>
   <ul class="divide-y divide-default text-sm" data-testid="stats-week-list">
-    <li v-for="(week, index) in rows" :key="week.start.getTime()" class="flex flex-col gap-1 py-2.5 md:flex-row md:items-baseline md:justify-between md:gap-6">
+    <li v-for="(week, index) in rows" :key="week.start.getTime()" class="flex flex-col gap-1 py-2 md:flex-row md:items-baseline md:justify-between md:gap-6">
       <span class="text-default">{{ index === 0 ? t('statistics.trend.table.current') : range(week) }}</span>
       <span class="text-muted tabular-nums">
         {{ t('statistics.patterns.sample', { n: week.tasks }, week.tasks) }}

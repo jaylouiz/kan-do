@@ -32,7 +32,7 @@
 
 <template>
   <div v-if="isError" class="px-6 py-8 md:pe-16" data-testid="task-not-found">
-    <h2 class="section-heading">{{ t('task.notFoundTitle') }}</h2>
+    <SectionHeader tag="h2">{{ t('task.notFoundTitle') }}</SectionHeader>
     <p class="mt-1 text-sm text-muted">{{ t('task.notFoundMessage') }}</p>
   </div>
 
@@ -268,7 +268,7 @@
 
       <!-- 3. Custom (Notion) properties: one quiet heading, rows in the same grammar -->
       <section v-if="hasCustom" aria-labelledby="custom-heading" class="task-detail-section">
-        <SectionHeader id="custom-heading" :text="t('task.field.properties')" tag="h3" class="mb-0" />
+        <SectionHeader id="custom-heading" :text="t('task.field.properties')" tag="h3" size="label" class="mb-0" />
         <TaskDetailCustomFields
           :key="task.id"
           :custom-list="customList"

@@ -25,7 +25,7 @@
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-2">
             <span class="truncate text-sm font-medium">{{ prop.name }}</span>
-            <UBadge color="neutral" variant="subtle" size="xs">{{ prop.type }}</UBadge>
+            <UBadge color="neutral" variant="soft">{{ prop.type }}</UBadge>
           </div>
           <div class="mt-1 truncate text-xs text-muted">{{ t('notion.customProps.keyLabel', { key: customSelections[prop.name]?.key }) }}</div>
         </div>

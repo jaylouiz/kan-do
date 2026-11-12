@@ -17,10 +17,10 @@ event, the page owns the single confirmation modal.
   or an unavailable folder; on in a corrupt file, where restoring is the way out
 -->
 <template>
-  <section aria-labelledby="data-backups-heading" class="space-y-3" data-testid="data-backups">
-    <h2 id="data-backups-heading" class="section-heading">
+  <PageSheet tag="section" aria-labelledby="data-backups-heading" class="space-y-3" data-testid="data-backups">
+    <SectionHeader id="data-backups-heading" tag="h2">
       {{ t('settings.data.backups.heading') }}
-    </h2>
+    </SectionHeader>
     <p class="text-sm text-muted">{{ t('settings.data.backups.lead') }}</p>
     <p v-if="restoreBlock" class="text-sm text-muted" data-testid="data-restore-blocked">
       {{ t(`settings.data.restoreBlocked.${restoreBlock}`) }}
@@ -65,7 +65,6 @@ event, the page owns the single confirmation modal.
       <ListRow
         v-for="entry in visible"
         :key="entry.name"
-        density="compact"
         class="justify-between gap-y-1"
         data-testid="data-backup-row"
         :data-kind="entry.kind"
@@ -115,10 +114,12 @@ event, the page owns the single confirmation modal.
     >
       {{ showAll ? t('settings.data.backups.showLess') : t('settings.data.backups.showAll', { n: backups.length }) }}
     </UButton>
-  </section>
+  </PageSheet>
 </template>
 
 <script setup lang="ts">
+import SectionHeader from '~/components/ui/SectionHeader.vue'
+import PageSheet from '~/components/ui/PageSheet.vue'
 import ListRow from '~/components/ui/ListRow.vue'
 import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';

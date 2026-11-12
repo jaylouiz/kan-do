@@ -43,8 +43,8 @@ Speicher, and on desktop Updates and GitHub-Zugriff).
         >
           <p class="text-sm text-muted" data-testid="settings-tab-lead">{{ t(`settings.tabs.lead.${tab === 'manage' && !isDesktop ? 'manageWeb' : tab}`) }}</p>
 
-          <div v-if="tab === 'board'" class="space-y-1" data-testid="focus-settings">
-            <div class="flex items-center gap-4 py-4">
+          <PageSheet v-if="tab === 'board'" data-testid="focus-settings">
+            <div class="flex items-center gap-4">
               <div class="min-w-0 flex-1">
                 <label id="focus-label" class="block text-default" for="focus-switch">{{ t('settings.focus.label') }}</label>
                 <p id="focus-help" class="text-sm text-muted">{{ t('settings.focus.help') }}</p>
@@ -58,13 +58,13 @@ Speicher, and on desktop Updates and GitHub-Zugriff).
                 @update:model-value="settingsStore.setFocusEnabled"
               />
             </div>
-          </div>
+          </PageSheet>
 
           <template v-else-if="tab === 'sources'">
-            <section aria-labelledby="sources-connected-heading" class="space-y-1">
-              <h2 id="sources-connected-heading" class="section-heading">
+            <PageSheet tag="section" aria-labelledby="sources-connected-heading" class="space-y-1">
+              <SectionHeader id="sources-connected-heading" tag="h2">
                 {{ t('sources.page.connectedHeading') }}
-              </h2>
+              </SectionHeader>
               <p class="text-sm text-muted" data-testid="sources-lead">
                 {{ t('sources.page.lead') }} {{ t('sources.page.help') }}
               </p>
@@ -79,17 +79,17 @@ Speicher, and on desktop Updates and GitHub-Zugriff).
                   @disconnect="onDisconnect"
                 />
               </ul>
-            </section>
+            </PageSheet>
 
-            <section aria-labelledby="sources-more-heading" class="space-y-1">
-              <h2 id="sources-more-heading" class="section-heading">
+            <PageSheet tag="section" aria-labelledby="sources-more-heading" class="space-y-1">
+              <SectionHeader id="sources-more-heading" tag="h2">
                 {{ t('sources.page.moreHeading') }}
-              </h2>
+              </SectionHeader>
               <ul class="divide-y divide-default" data-testid="sources-more">
-                <li
+                <ListRow
                   v-for="row in more"
                   :key="row.id"
-                  class="flex flex-wrap items-center gap-x-4 gap-y-3 py-4"
+                  class="gap-y-3"
                   :data-testid="`source-more-${row.id}`"
                 >
                   <UIcon :name="row.icon" class="size-5 shrink-0 text-muted" aria-hidden="true" />
@@ -106,12 +106,13 @@ Speicher, and on desktop Updates and GitHub-Zugriff).
                     {{ t('sources.row.connect') }}
                   </UButton>
                   <span v-else class="text-sm text-muted">{{ t('sources.page.soon') }}</span>
-                </li>
+                </ListRow>
               </ul>
-            </section>
+            </PageSheet>
           </template>
 
-          <ul v-else class="divide-y divide-default" data-testid="settings-subpages">
+          <PageSheet v-else>
+          <ul class="divide-y divide-default" data-testid="settings-subpages">
             <ListRow v-for="link in manageLinks" :key="link.to" :to="link.to" button-testid="settings-subpage-link">
               <span class="flex items-center gap-4">
                 <UIcon :name="link.icon" class="size-5 shrink-0 text-muted" aria-hidden="true" />
@@ -123,6 +124,7 @@ Speicher, and on desktop Updates and GitHub-Zugriff).
               </span>
             </ListRow>
           </ul>
+          </PageSheet>
         </section>
       </div>
 
@@ -136,6 +138,8 @@ Speicher, and on desktop Updates and GitHub-Zugriff).
 </template>
 
 <script setup lang="ts">
+import SectionHeader from '~/components/ui/SectionHeader.vue'
+import PageSheet from '~/components/ui/PageSheet.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { navigateTo } from 'nuxt/app'
