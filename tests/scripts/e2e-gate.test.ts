@@ -406,7 +406,7 @@ describe('selectE2e in fast testing mode (#693)', () => {
     it('adds it for a token sheet or the theme config, and for a style-only PR that the gate used to skip', () => {
       expect(fast({ files: ['assets/css/main.css'] })).toMatchObject({ tier: 'targeted', reason: 'style-only + style fingerprint', specs: fingerprint })
       expect(fast({ files: ['app.config.ts'] }).specs).toContain('ui-catalog')
-      expect(fast({ files: ['assets/img/desk.jpg'] }).specs).not.toContain('ui-catalog')
+      expect(fast({ files: ['assets/img/desk.svg'] }).specs).not.toContain('ui-catalog')
       expect(fast({ files: ['components/task/TaskCard.vue'], styleOnlyVue: ['components/task/TaskCard.vue'] })).toMatchObject({ tier: 'targeted', specs: fingerprint })
       // a changed spec still runs next to it
       expect(fast({ files: ['assets/css/dnd.css', 'tests/e2e/a11y.spec.ts'] }).specs).toEqual(['a11y', ...fingerprint].sort())
