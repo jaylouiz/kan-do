@@ -406,6 +406,19 @@ test.describe('App reset (desktop)', () => {
     expect((await stubState(page)).entries).toEqual({})
   })
 
+  test('cancelling after a refused Keychain reloads from the erased data instead of leaving the frozen old board', async ({ context, page }) => {
+    await installTauriStub(context, { data: { envelope: BOARD_ENVELOPE() }, entries: ALL_ENTRIES, keychainError: true })
+    await page.goto('/settings/data')
+    await expect(page.getByRole('heading', { name: 'Datenordner', level: 2 })).toBeVisible()
+    await openReset(page)
+    await page.getByTestId('reset-confirm').click()
+    await expect(page.getByTestId('reset-failure')).toBeVisible()
+    await page.getByTestId('reset-cancel').click()
+    await expect(page).toHaveURL(/\/settings\/data$/)
+    await expect(page.getByTestId('data-reset-open')).toBeVisible() // a fresh page life: the question is closed, nothing frozen
+    expect(JSON.stringify((await stubState(page)).data.envelope)).not.toContain('tasks-store')
+  })
+
   test('is off, with the reason, while the data folder is unavailable', async ({ context, page }) => {
     await installTauriStub(context, { data: { status: 'folder-unavailable', envelope: BOARD_ENVELOPE() } })
     await page.goto('/settings/data')

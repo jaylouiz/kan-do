@@ -139,6 +139,29 @@ describe('app reset on desktop', () => {
     expect(events.at(-1)).toBe('reload:/welcome')
   })
 
+  it('cancelling after a refused Keychain deletion reloads the app: the frozen old state never stays on screen', async () => {
+    await desktop()
+    removeSecret.mockImplementation(async () => { throw new Error('keychain') })
+    const reset = useAppReset()
+    await reset.confirm()
+    expect(reset.failure.value?.kind).toBe('tokens')
+    expect(events).not.toContain('reload:')
+
+    // Writes are frozen and the data file is already empty: the only consistent way out is to boot from it
+    reset.close()
+    expect(events.at(-1)).toBe('reload:') // plain reload of the current page, not /welcome
+    expect(reset.isOpen.value).toBe(false)
+  })
+
+  it('cancelling before anything was replaced does not reload', async () => {
+    await desktop({ failBackup: true })
+    const reset = useAppReset()
+    await reset.confirm()
+    reset.close()
+    expect(events).not.toContain('reload:')
+    expect(reset.isOpen.value).toBe(false)
+  })
+
   it('after a completed run the dialog stays busy while the page leaves: a second confirm does nothing', async () => {
     await desktop()
     const reset = useAppReset()

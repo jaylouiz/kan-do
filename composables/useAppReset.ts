@@ -8,7 +8,9 @@
  *   backup first and aborts without erasing when it fails), freeze writes, then delete every Keychain entry
  * - Web: freeze writes, remove every persisted key (tokens included) with the rollback of `commitReplace`
  * - Reload onto `/welcome`, only when nothing is left behind; a failed Keychain deletion keeps the question open
- *   (the secrets bootstrap would put a lingering token back into the stores and skip the welcome flow)
+ *   (the secrets bootstrap would put a lingering token back into the stores and skip the welcome flow). Closing it
+ *   then (Abbrechen, Esc, leaving the page) reloads the current page from the already replaced file: the frozen
+ *   old state must never stay on screen (edits dropped, Notion pushes still going out)
  * - Idempotent: the replace of the data file runs once, a retry after a Keychain failure only repeats the deletions
  * - Never during a data state that blocks replacing the file (conflict, newer schema, folder unavailable)
  */
@@ -111,6 +113,12 @@ export function useAppReset() {
   function close(): void {
     if (busy.value) return
     isOpen.value = false
+    // The data file is already replaced and writes are frozen (a refused Keychain deletion): the page still shows the old
+    // state and would drop every edit. Booting from the replaced file is the only way back to a working app.
+    if (dataReplaced) {
+      busy.value = true // the page is leaving: no second confirm, no second reload
+      reloadApp()
+    }
   }
 
   async function confirm(): Promise<void> {

@@ -11,7 +11,7 @@ that it cannot be undone (web), then "App zurücksetzen" and "Abbrechen". The ex
 - Question: focus moves to "Abbrechen" (Enter, a repeated Enter from the palette included, cancels); Esc and "Abbrechen" hand focus back to the opening button
 - "App zurücksetzen" is the only destructive control (error colour); it is disabled while working and the question cannot be cancelled then
 - Stays open and says why when the reset did not complete: backup failed (nothing erased), data not writable (nothing changed), Keychain refused (data already erased:
-  names the tokens, "Erneut versuchen" repeats the deletions only)
+  names the tokens, "Erneut versuchen" repeats the deletions only); "Abbrechen" then reloads the page from the already erased file (writes are frozen, the old state must not stay on screen)
 - While a desktop data state (conflict, newer schema, unavailable folder) blocks replacing the data the button is off and the reason shows (same rule as import)
 - Leaving the page drops an open question: coming back shows the button again
 - Pattern: confirmation of an irreversible action, aligned with the trash's in-place "Papierkorb leeren" (a section sheet instead of the flat note: the action is app-wide, not a row)
