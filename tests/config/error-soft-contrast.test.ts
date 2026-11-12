@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { cssColor } from './helpers/tokens'
 
 // #594: Nuxt UI's `error`/`soft` text is the base raspberry-500, ~4.0:1 on its own 10% tint (below WCAG AA for small
 // text). One compound variant in `app.config.ts` sets the 700 step app-wide, like `primary`/`soft`; call sites carry
@@ -10,7 +11,8 @@ const root = resolve(__dirname, '../..')
 const css = readFileSync(resolve(root, 'assets/css/main.css'), 'utf8')
 const config = readFileSync(resolve(root, 'app.config.ts'), 'utf8')
 
-const SHEET = '#FFFFFF'
+/** The sheet the soft button sits on: `--ui-bg`, read from main.css (kd#194). */
+const SHEET = cssColor('--ui-bg')
 
 function step(n: number): string {
   const hex = css.match(new RegExp(`--color-custom-raspberry-${n}:\\s*(#[0-9A-Fa-f]{6})`))?.[1]
@@ -39,7 +41,7 @@ function contrast(a: number[], b: number[]): number {
 /** `error` at 10% over the sheet: what `bg-error/10` paints behind the soft button. */
 function tint(): number[] {
   const base = rgb(step(500))
-  const sheet = rgb(SHEET)
+  const sheet = SHEET
   return sheet.map((s, i) => Math.round(s * 0.9 + base[i]! * 0.1))
 }
 

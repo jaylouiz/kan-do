@@ -1,63 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
 import nuxtUiButton from '../../.nuxt/ui/button'
 
 // #97: every colour role x variant of UButton meets WCAG AA (4.5:1 text) at rest, and a solid fill also on
 // hover/press. The `/ui` matrix showed `secondary`, `success`, `info`, `warning` (and error ghost/subtle/link) far
 // below it, while the app renders none of them on a button, so no screen test could see it. This test reads the merged
 // theme (Nuxt UI's `.nuxt/ui/button.ts` plus `app.config.ts`, the way the `/ui` catalog does) and the colour ramps
-// (`assets/css/main.css`, Tailwind's theme), and fails when a role or variant added or changed later drops below AA.
+// (`assets/css/main.css`, Tailwind's theme) and the grounds, shadow colour and fill alphas from the tokens in `main.css` (kd#194), and fails when a role or variant added or changed later drops below AA.
 // Disabled states are exempt (WCAG 1.4.3). Light mode only, like the design checks.
 
-const root = resolve(__dirname, '../..')
-const mainCss = readFileSync(resolve(root, 'assets/css/main.css'), 'utf8')
-const tailwindCss = readFileSync(resolve(root, 'node_modules/tailwindcss/theme.css'), 'utf8')
-
-type Rgb = [number, number, number]
-
-const WHITE: Rgb = [255, 255, 255]
-/** The grounds a button sits on: the white sheet, the fill inside a sheet (`--ui-bg-muted`) and the paper canvas (`--ui-page-bg`, neutral-100). */
-const GROUNDS: Array<[string, Rgb]> = [
-  ['white', WHITE],
-  ['sheet fill #f6f3ed', [246, 243, 237]],
-  ['paper #f3efe6', [243, 239, 230]],
-]
-
-function oklchToRgb(l: number, c: number, hDeg: number): Rgb {
-  const h = (hDeg * Math.PI) / 180
-  const a = Math.cos(h) * c
-  const b = Math.sin(h) * c
-  const l_ = (l + 0.3963377774 * a + 0.2158037573 * b) ** 3
-  const m_ = (l - 0.1055613458 * a - 0.0638541728 * b) ** 3
-  const s_ = (l - 0.0894841775 * a - 1.291485548 * b) ** 3
-  const lin = [
-    4.0767416621 * l_ - 3.3077115913 * m_ + 0.2309699292 * s_,
-    -1.2684380046 * l_ + 2.6097574011 * m_ - 0.3413193965 * s_,
-    -0.0041960863 * l_ - 0.7034186147 * m_ + 1.707614701 * s_,
-  ]
-  const enc = (v: number) => {
-    const x = Math.min(1, Math.max(0, v))
-    return 255 * (x <= 0.0031308 ? 12.92 * x : 1.055 * x ** (1 / 2.4) - 0.055)
-  }
-  return [enc(lin[0]!), enc(lin[1]!), enc(lin[2]!)]
-}
-
-function parseColor(value: string): Rgb {
-  const hex = value.match(/^#([0-9a-f]{6})$/i)?.[1]
-  if (hex) return [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16)) as Rgb
-  const ok = value.match(/^oklch\(\s*([\d.]+)(%?)\s+([\d.]+)\s+([\d.]+)\s*\)$/)
-  if (ok) return oklchToRgb(Number(ok[1]) / (ok[2] ? 100 : 1), Number(ok[3]), Number(ok[4]))
-  throw new Error(`unsupported colour: ${value}`)
-}
-
-/** `--color-<ramp>-<step>` declarations of the project's own palettes first, Tailwind's default theme second. */
-function rampStep(ramp: string, step: string): Rgb {
-  const source = ramp.startsWith('custom-') ? mainCss : tailwindCss
-  const value = source.match(new RegExp(`--color-${ramp}-${step}:\\s*([^;]+);`))?.[1]?.trim()
-  if (!value) throw new Error(`ramp ${ramp}-${step} not found`)
-  return parseColor(value)
-}
+import { FILLS_ON_CANVAS, GROUNDS, SHADOW_COLOR, SHEET_FILL_DEEP, WHITE, rampStep, type Rgb } from './helpers/tokens'
 
 function luminance([r, g, b]: Rgb): number {
   const [lr = 0, lg = 0, lb = 0] = [r, g, b].map((v) => {
@@ -76,10 +27,6 @@ function contrast(a: Rgb, b: Rgb): number {
 function over(fg: Rgb, alpha: number, ground: Rgb): Rgb {
   return fg.map((v, i) => v * alpha + ground[i]! * (1 - alpha)) as Rgb
 }
-
-/** The fills that sit on the canvas (`assets/css/main.css`): the shadow colour at 7 % and at 13 % over whatever lies below. */
-const SHADOW_COLOR: Rgb = [70, 48, 20]
-const FILLS_ON_CANVAS: Record<string, number> = { '(--fill-on-canvas)': 0.07, '(--fill-on-canvas-hover)': 0.13 }
 
 const COLORS = ['primary', 'secondary', 'success', 'info', 'warning', 'error', 'neutral'] as const
 const VARIANTS = ['solid', 'outline', 'soft', 'subtle', 'ghost', 'link'] as const
@@ -117,7 +64,7 @@ describe('button colour contrast (#97)', () => {
       : {
         default: WHITE,
         elevated: WHITE,
-        accented: [240, 236, 228],
+        accented: SHEET_FILL_DEEP,
         inverted: rampStep(neutral, '500'),
       }
     if (semantic[name]) return semantic[name]
