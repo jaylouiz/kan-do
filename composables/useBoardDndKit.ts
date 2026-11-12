@@ -4,7 +4,8 @@ import { useBoardDragState, type DraggedStack } from '~/composables/useBoardDrag
 import { useTaskSync } from '~/composables/useTaskSync'
 import { useCompletionUndo } from '~/composables/useCompletionUndo'
 import { TaskStatus } from '~/types/taskStatus'
-import { checkWipMove } from '~/utils/wipGuard'
+import { canSwapIntoProgress, checkWipMove } from '~/utils/wipGuard'
+import { useTaskSwap } from '~/composables/useTaskSwap'
 import { useStackExpansion } from '~/composables/useStackExpansion'
 import { deriveGroupKeyForTask, getRenderedTaskOrder, isGroupingActiveFor, shouldTaskBeGrouped } from '~/utils/taskGrouping'
 import { useBoardGrouping } from '~/composables/useBoardGrouping'
@@ -19,7 +20,9 @@ import { isColumnItemNode } from '~/utils/columnItems'
  * - Update global drag state (isDragging, draggedTaskId, draggedStack)
  * - On dragEnd: persist reorder to the board store; route cross-column transfers through
  *   `useTaskSync().updateTaskStatus` (completedAt, statistics, upstream sync)
- * - Enforce WIP limit on Progress column via dragOver prevention
+ * - Enforce WIP limit on Progress column via dragOver prevention; a single card from Offen or Wartet over
+ *   a Jetzt that holds one task is not refused but marks that card as the swap target (`swapTaskId`, #162),
+ *   and the drop swaps through `useTaskSwap`
  * - Flag a card dropped into Erledigt for the in-card done confirmation (#124); reduced motion
  *   hides the layer in CSS (TaskCard), so the flag is set either way. No completion toast on this
  *   path (#136): the card and the drop announcement confirm it, undo is the reverse drag
@@ -35,6 +38,7 @@ export function useBoardDndKit() {
   const { dragState } = useBoardDragState()
   const { updateTaskStatus, updateTaskStatuses, handleSyncError } = useTaskSync()
   const { captureCompletionSnapshots, notifyCompletedBlock } = useCompletionUndo()
+  const { swapIntoProgress } = useTaskSwap()
   const stacks = useStackExpansion()
   const { effectiveGroupKey } = useBoardGrouping()
 
@@ -283,12 +287,15 @@ export function useBoardDndKit() {
     dragState.value.sourceStatus = (source.group as TaskStatus) ?? null
     dragState.value.hoverTargetStatus = null
     dragState.value.isDropBlocked = false
+    dragState.value.swapTaskId = null
   }
 
   function onDragOver(event: { operation: { source: unknown; target: unknown }; preventDefault: () => void }) {
     const source = event.operation.source
     const target = event.operation.target
 
+    // The swap state (#162) lasts only while the pointer is over Jetzt: no target at all ends it too
+    if (!target) dragState.value.swapTaskId = null
     if (!isSortable(source as never) || !target) return
 
     // Resolve target column status from sortable group or ColumnDropZone data
@@ -306,6 +313,7 @@ export function useBoardDndKit() {
     // Reset drop-blocked when not hovering Progress
     if (targetGroup !== TaskStatus.Progress) {
       dragState.value.isDropBlocked = false
+      dragState.value.swapTaskId = null
       return
     }
 
@@ -316,8 +324,25 @@ export function useBoardDndKit() {
     const sourceGroup = (initialGroup ?? group) as TaskStatus | undefined
     if (sourceGroup === TaskStatus.Progress) {
       dragState.value.isDropBlocked = false
+      dragState.value.swapTaskId = null
       return // reorder within progress is fine
     }
+
+    // A single card over a Jetzt that holds one other task swaps instead of being refused (#162): the
+    // running card shows the swap state, the drop is decided in onDragEnd. The card still must not move
+    // into Jetzt, so the drag-over stays prevented.
+    const dragged = dragStack ?? readStack(source)
+    if (canSwapIntoProgress({
+      incomingStatus: (sourceGroup ?? TaskStatus.Open) as TaskStatus,
+      progressCount: tasksStore.tasksProgress.length,
+      taskCount: dragged?.taskIds.length ?? 1,
+    })) {
+      dragState.value.swapTaskId = tasksStore.tasksProgress[0]?.id ?? null
+      dragState.value.isDropBlocked = false
+      event.preventDefault()
+      return
+    }
+    dragState.value.swapTaskId = null
 
     const verdict = checkWipMove({
       currentStatus: (sourceGroup ?? TaskStatus.Open) as TaskStatus,
@@ -334,6 +359,8 @@ export function useBoardDndKit() {
   }
 
   function onDragEnd(event: { canceled: boolean; operation: { source: unknown; target: unknown } }) {
+    const swapOnDrop = Boolean(dragState.value.swapTaskId) && !event.canceled
+    dragState.value.swapTaskId = null
     dragState.value.isDragging = false
     dragState.value.draggedTaskId = null
     dragState.value.draggedStack = null
@@ -398,6 +425,13 @@ export function useBoardDndKit() {
       ? block.taskIds.filter(taskId => tasksStore.task(taskId)?.status === srcStatus)
       : [String(id)]
     if (ids.length === 0) return
+
+    // Dropped on the running card (#162): swap. The store decides again at the drop (Jetzt may have
+    // emptied or changed meanwhile); when it no longer swaps, the drop goes on as an ordinary move.
+    if (swapOnDrop && srcStatus !== TaskStatus.Progress && !block && swapIntoProgress(ids[0]!)) {
+      if (import.meta.dev) console.log('[DnD] swap', { taskId: ids[0], from: srcStatus })
+      return
+    }
 
     // WIP limit is enforced in onDragOver, but the target resolved above can differ from the last
     // hover (drop-zone override, stale group). Re-check so Jetzt never ends up with two tasks. A

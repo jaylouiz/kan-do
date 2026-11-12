@@ -30,7 +30,9 @@
       "cancelled": "Move canceled. “{title}” stays in column {column}.",
       "stackRoleDescription": "Draggable stack",
       "stackInstructions": "Press Enter to open the stack. Press Space to pick up the whole stack, arrow keys to move it, Space to drop, Escape to cancel.",
-      "pickedUpStack": "Picked up stack “{title}” in column {column}, position {position}. It moves with all its tasks."
+      "pickedUpStack": "Picked up stack “{title}” in column {column}, position {position}. It moves with all its tasks.",
+      "swapOver": "“{title}” over “{running}” in Now. Dropping switches them: “{running}” moves to Waiting.",
+      "swapped": "“{title}” dropped in Now. “{running}” moved to Waiting."
     },
     "quickAdd": {
       "label": "New task",
@@ -116,6 +118,10 @@
     "wip": {
       "refusedTitle": "This task cannot be moved",
       "refusedReason": "Now holds at most one task. Move the current one to Waiting or Done first."
+    },
+    "swap": {
+      "title": "Task switched",
+      "description": "“{running}” is running · “{waiting}” is waiting"
     }
   },
   "nav": {

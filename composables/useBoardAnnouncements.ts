@@ -4,6 +4,7 @@ import { useTasksStore } from '~/store/tasks'
 import { translate } from '~/lib/i18n'
 import { stackAccessibleName } from '~/utils/stackAccessibleName'
 import { TaskStatus } from '~/types/taskStatus'
+import { canSwapIntoProgress } from '~/utils/wipGuard'
 
 /** Minimal shapes of the dnd-kit entities the announcements read (avoids `any`). */
 interface AnnouncedStack { key: string, label: string, taskIds: string[] }
@@ -30,6 +31,8 @@ const COLUMN_KEYS: Partial<Record<TaskStatus, string>> = {
  * - a press on a stack's control needs the delay and distance dnd-kit asks for a drag off a handle
  *   (taken from `PointerSensor.defaults`): the control is a handle, which dnd-kit would start
  *   dragging at once for a mouse, and a plain click must still expand
+ * - a single card over a Jetzt that holds one task announces the swap (#162): the drop switches them and
+ *   the running task moves to Wartet; the drop then names both
  * Announcements are pure reads; store updates stay in `useBoardDndKit().onDragEnd`.
  */
 export function useBoardAnnouncements() {
@@ -60,6 +63,24 @@ export function useBoardAnnouncements() {
     return { column: columnName(entity.data?.taskStatus), position: 1 }
   }
 
+  /**
+   * The running task a drop of `source` on `target` would swap out (#162), by the same rule the drag uses
+   * (`canSwapIntoProgress`, read from the store); null for any other hover.
+   */
+  function swapPartnerTitle(source: AnnouncedEntity, target: AnnouncedEntity): string | null {
+    if (!isSortable(source as never) || source.data?.stack) return null
+    const targetStatus = isSortable(target as never)
+      ? (target as unknown as { group: TaskStatus }).group
+      : target.data?.taskStatus
+    if (targetStatus !== TaskStatus.Progress) return null
+    const { initialGroup } = source as unknown as { initialGroup: TaskStatus }
+    const running = tasksStore.tasksProgress
+    if (!canSwapIntoProgress({ incomingStatus: initialGroup, progressCount: running.length })) return null
+    return running[0]?.title ?? null
+  }
+  /** The running task named by the last swap announcement of this drag; the drop names it again. */
+  let swapAnnounced: string | null = null
+
   const announcements = {
     dragstart({ operation: { source } }: AnnouncementEvent) {
       if (!source) return undefined
@@ -68,12 +89,18 @@ export function useBoardAnnouncements() {
       return translate(key, { title: title(source), column, position })
     },
     dragover({ operation: { source, target } }: AnnouncementEvent) {
+      swapAnnounced = null
       if (!source || !target || source.id === target.id) return undefined
+      swapAnnounced = swapPartnerTitle(source, target)
+      if (swapAnnounced !== null) return translate('board.dnd.swapOver', { title: title(source), running: swapAnnounced })
       const { column, position } = where(target)
       return translate('board.dnd.movedTo', { title: title(source), column, position })
     },
     dragend({ operation: { source }, canceled }: AnnouncementEvent) {
+      const swapped = swapAnnounced
+      swapAnnounced = null
       if (!source) return undefined
+      if (swapped !== null && !canceled) return translate('board.dnd.swapped', { title: title(source), running: swapped })
       if (canceled) {
         const initial = isSortable(source as never)
           ? columnName((source as unknown as { initialGroup: TaskStatus }).initialGroup)

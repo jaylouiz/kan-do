@@ -76,6 +76,7 @@
         "statistics-page",
         "grouped-dnd",
         "jetzt-drag-back",
+        "jetzt-swap",
         "sync-warning",
         "add-task-source",
         "focus-overlay"
@@ -127,6 +128,7 @@
       "risk": true,
       "paths": [
         "composables/useBoardDndKit.ts",
+        "composables/useTaskSwap.ts",
         "composables/useColumnSortable.ts",
         "composables/useDropMotion.ts",
         "composables/useStack*.ts",
@@ -148,6 +150,7 @@
         "sorting",
         "jetzt-current-card",
         "jetzt-drag-back",
+        "jetzt-swap",
         "dnd-open-column-gap",
         "dnd-visuals",
         "jetzt-vanish",
@@ -891,6 +894,7 @@
         "grouped-dnd",
         "jetzt-current-card",
         "jetzt-drag-back",
+        "jetzt-swap",
         "jetzt-vanish",
         "mixed-board-features",
         "mixed-board-requirements",

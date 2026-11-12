@@ -755,5 +755,15 @@
     ],
     "status": "proposed",
     "note": "Same wording as the Statistik table column (statistics.table.completedAt). Follows the decided task state erledigt / done (column-done). The Notion setup names Notion's own property and is not this row."
+  },
+  {
+    "id": "swap-task",
+    "concept": "Putting another task into Jetzt while one runs: the running task goes to Wartet, the other runs (#162)",
+    "de": "wechseln",
+    "en": "switch",
+    "avoidDe": [],
+    "avoidEn": [],
+    "status": "proposed",
+    "note": "Toast \"Aufgabe gewechselt\" / \"Task switched\" and the keyboard live region. The code and the issue say swap; the UI does not (de \"tauschen\" would read as exchanging data). Not the Jetzt focus overlay."
   }
 ]

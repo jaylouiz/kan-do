@@ -23,6 +23,12 @@ export interface DragState {
   hoverTargetStatus: TaskStatus | null
   /** True when drop is blocked by WIP limit (Progress column full) */
   isDropBlocked: boolean
+  /**
+   * The running Jetzt task a drop would swap out (#162): set while a single card from Offen or Wartet hovers
+   * Jetzt and Jetzt holds exactly one task; that card shows the swap state. Cleared as soon as the hover
+   * ends, and at the end of the drag.
+   */
+  swapTaskId: string | null
   /** After a drop, while the floating preview glides to its slot (kd#181, `useDropMotion`): the card it lands on */
   landingTaskId: string | null
   /** The stack the gliding preview shows; null for a single card */
@@ -39,6 +45,7 @@ const dragState = ref<DragState>({
   sourceStatus: null,
   hoverTargetStatus: null,
   isDropBlocked: false,
+  swapTaskId: null,
   landingTaskId: null,
   landingStack: null,
   setDownTaskId: null,

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { TaskStatus } from '~/types/taskStatus'
-import { checkWipMove } from '~/utils/wipGuard'
+import { canSwapIntoProgress, checkWipMove } from '~/utils/wipGuard'
 
 describe('checkWipMove', () => {
   it('refuses a second task into Jetzt', () => {
@@ -30,5 +30,18 @@ describe('checkWipMove', () => {
   })
   it('never restricts other columns', () => {
     expect(checkWipMove({ currentStatus: TaskStatus.Open, targetStatus: TaskStatus.Done, progressCount: 1 }).allowed).toBe(true)
+  })
+})
+
+describe('canSwapIntoProgress (#162)', () => {
+  it.each([
+    [TaskStatus.Open, 1, 1, true],
+    [TaskStatus.Waiting, 1, 1, true],
+    [TaskStatus.Done, 1, 1, false], // Erledigt stays refused
+    [TaskStatus.Progress, 1, 1, false], // the running card itself
+    [TaskStatus.Open, 0, 1, false], // empty Jetzt is an ordinary move
+    [TaskStatus.Open, 1, 2, false], // a stack never swaps
+  ])('from %s with %s in Jetzt and %s moving: %s', (incomingStatus, progressCount, taskCount, expected) => {
+    expect(canSwapIntoProgress({ incomingStatus, progressCount, taskCount })).toBe(expected)
   })
 })
