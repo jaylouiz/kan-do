@@ -15,11 +15,26 @@
 # - proto/<n>-* branches (throwaway design prototypes, never merged) go once issue #<n> is closed;
 #   those of open issues stay as the Design record. Never merged, so instead of a merge check a
 #   local tip missing from origin (unpushed commits) is skipped and reported.
-# - the main checkout, the current directory's worktree and `main` itself are never touched
+# - the main checkout and `main` itself are never touched, nor a worktree somebody works in (kd#203): the
+#   caller's own working directory (taken before the cd to the project root) or that of a running `claude` process
 # - every failure is non-fatal; the hook never blocks a session
 
 DRY_RUN=0
 [ "${1:-}" = "--dry-run" ] && DRY_RUN=1
+
+# Directories in use, one per line: where the caller stood, and the cwd of every running claude session. A session
+# whose working directory disappears can run no further command.
+IN_USE="$(pwd -P)"
+pids="$(pgrep -x claude 2>/dev/null | paste -sd, -)"
+[ -n "$pids" ] && IN_USE="$IN_USE
+$(lsof -a -d cwd -p "$pids" -Fn 2>/dev/null | sed -n 's/^n//p')"
+in_use() { # $1 = real path of a worktree: true when a directory in use is that path or lies below it
+  local d
+  while IFS= read -r d; do
+    case "$d/" in "$1"/*) return 0 ;; esac
+  done <<< "$IN_USE"
+  return 1
+}
 
 ROOT="${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel 2>/dev/null)}"
 [ -n "$ROOT" ] || exit 0
@@ -67,6 +82,9 @@ free_worktree() {
   wt_real="$(cd "$wt" 2>/dev/null && pwd -P)"
   if [ "$wt" = "$MAIN_WT" ] || [ "$wt_real" = "$HERE" ]; then
     skipped+=("$branch (checked out here)"); return 1
+  fi
+  if [ -n "$wt_real" ] && in_use "$wt_real"; then
+    skipped+=("$branch (a session works in $wt)"); return 1
   fi
   if [ -d "$wt" ]; then
     dirty="$(git -C "$wt" status --porcelain 2>/dev/null)"

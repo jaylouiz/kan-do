@@ -49,6 +49,27 @@ describe('guard-commands hook', () => {
     expect(sandboxStep).toContain('io.github.jaylouiz.kan-do.sandbox-')
   })
 
+  // kd#203: built from parts so this file never reads as the chain itself.
+  const rmCall = ['rm', 'node_modules/node_modules'].join(' ')
+  it.each([
+    [`${rmCall} && git checkout -- package-lock.json`],
+    [`git add -A; ${['rm', '-rf dist'].join(' ')}`],
+    [`cd wt && /bin/${rmCall}\ngit status`],
+  ])('blocks rm chained with a git command: %s', (command) => {
+    const result = hook(command)
+    expect(result.status).toBe(2)
+    expect(result.stderr).toContain('as its own call')
+  })
+
+  it.each([
+    [rmCall],
+    ['git rm --cached notes.md && git status'],
+    [`git commit -m "${rmCall} && git checkout is blocked"`],
+    ['npm run format && git status'],
+  ])('lets rm alone, git rm and a message naming the chain pass: %s', (command) => {
+    expect(hook(command).status).toBe(0)
+  })
+
   it.each([
     [nuxtKill, 'port'],
     ['pkill nuxt', 'port'],

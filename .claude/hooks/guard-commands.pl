@@ -8,9 +8,18 @@
   $c =~ s/^[ \t]*#.*$//gm;
   $c =~ s/('[^']*'|"(?:\\.|[^"\\])*")/$neutral->($1)/ge;
   my $sandbox = qr/\\?"identifier\\?"\s*:\s*\\?"(?:io\.github\.jaylouiz|com\.julius)\.kan-do\.sandbox(?:-[\w\$\{\}]+)?\\?"/;
-  for my $s (split /&&|\|\||[;&|\n]/, $c) {
+  my @segs = map {
+    my $s = $_;
     $s =~ s/^\s*(?:(?:\$\(|[({!])\s*)*//;
     $s =~ s/^(?:(?:then|do|else|time|sudo|exec|command|nohup|env)\s+|[A-Za-z_]\w*=\S*\s+)*//;
+    $s;
+  } split /&&|\|\||[;&|\n]/, $c;
+  # kd#203: `rm` and a git command in one call stop an unattended worker at a permission dialog (a written rule broken twice).
+  if ((grep { /^(?:\S*\/)?rm\s/ } @segs) && (grep { /^(?:\S*\/)?git\s/ } @segs)) {
+    print "never chain `rm` with a git command (the pair stops an unattended worker at a permission dialog): run `rm <one path>` as its own call, then the git command as a second call";
+    next;
+  }
+  for my $s (@segs) {
     if ($s =~ /^(?:\S*\/)?pkill\b.*nuxt/) {
       print "never pkill nuxt (it kills the user's :3000 server too): stop your own server by its port's PID, `lsof -ti tcp:<port> -sTCP:LISTEN | xargs kill`"; last;
     }
