@@ -1031,6 +1031,24 @@ test.describe('task sheet close button (kd#201)', () => {
       await expect(card).toBeFocused()
     })
 
+    test('a scrolled sheet never runs content under the close button', async ({ page }) => {
+      await page.goto('/tasks/seed-open-1')
+      const dialog = page.getByRole('dialog')
+      await expect(dialog).toBeVisible()
+      await settleAnimations(page)
+      const scroll = dialog.getByTestId('task-detail-scroll')
+      await scroll.evaluate((el) => {
+        const filler = document.createElement('div')
+        filler.style.height = '1500px'
+        el.appendChild(filler)
+        el.scrollTop = 300
+      })
+      const closeBox = (await dialog.getByRole('button', { name: /^(Schließen|Close)$/ }).boundingBox())!
+      const scrollBox = (await scroll.boundingBox())!
+      // The scroll region starts below the control, so nothing scrolled can pass under it
+      expect(scrollBox.y).toBeGreaterThanOrEqual(closeBox.y + closeBox.height)
+    })
+
     test('the add sheet has the same close button, and Escape still closes it', async ({ page }) => {
       await page.goto('/tasks/add')
       const dialog = page.getByRole('dialog')

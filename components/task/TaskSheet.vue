@@ -178,7 +178,7 @@ const onCloseAutoFocus = (event: Event) => {
 
 /**
  * Detail route: focus the sheet itself instead of the first control (the inline title),
- * so opening does not drop straight into an edit trigger with a focus ring. Tab starts at the title.
+ * so opening does not drop straight into an edit trigger with a focus ring. The first Tab stop is the shell's close button (desktop), then the title.
  * The add route keeps the default, its form focuses the title field.
  */
 const onOpenAutoFocus = (event: Event) => {

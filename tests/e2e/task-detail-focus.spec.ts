@@ -67,9 +67,10 @@ test.describe('desktop slideover', () => {
     await expect(page.locator(CARD).first()).toBeFocused()
   })
 
-  test('has no close button; Escape and the overlay are the ways out', async ({ page }) => {
+  test('has the shell close button on desktop, and it closes the sheet (kd#201)', async ({ page }) => {
     const dialog = await openFromCard(page)
-    await expect(dialog.getByRole('button', { name: 'Schließen' })).toHaveCount(0)
+    await dialog.getByRole('button', { name: 'Schließen' }).click()
+    await expect(page).toHaveURL(/\/tasks$/)
   })
 
   test('overlay click closes the sheet', async ({ page }) => {

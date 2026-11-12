@@ -7,7 +7,7 @@
 @avoid Not for a pick among a few short words (ChoiceChip), not for an action in a row (UButton) and not for an option inside a list (the select menu's item). A card that opens something never carries a filled look: no answer is the primary one; the wash is the checked state of a radio card only.
 @responsibility
 - Render one native `<button>`, or a reka `RadioGroupItem` (a button with `role="radio"`) when `value` is set; the host owns the group (arrow keys, one Tab stop) and the meaning of a click
-- One shell: 64 px minimum, 12 px corners (the radius of buttons and fields, DESIGN.md "Radius"), a hairline border that darkens on hover; a radio card that is checked is a fill, the primary wash with a primary border and mark and ink text (DESIGN.md "States": selected is a fill; The One Lamp Rule: green without a solid fill, the one solid green stays the confirm button). Only a checked radio card is filled: no go-on answer is
+- One shell: 64 px minimum, 12 px corners (the radius of buttons and fields, DESIGN.md "Radius"), a hairline border that darkens on hover; a radio card that is checked is a fill, the primary wash with a primary border and mark and ink text (DESIGN.md "States": selected is a fill; The One Lamp Rule: green without a solid fill, the one solid green stays the confirm button). Only a checked radio card is filled: no go-on answer is filled
 - The mark at the end is the only difference between the two: the go-on arrow (an answer that opens something), the radio dot (an answer that waits for a confirmation)
 - Visible focus halo (`focus-ring`); the press, the hand cursor and the disabled look come from the base layer (DESIGN.md "States")
 -->
