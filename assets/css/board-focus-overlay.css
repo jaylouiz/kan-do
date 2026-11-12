@@ -15,7 +15,9 @@
  *   of it, the pool shows through below). A classic document scroll bar lies outside the viewport box and cannot be
  *   dimmed, so while the overlay is lit its colours step back into the dusk (`scrollbar-color`, below).
  * - Phone: the floating nav pill stays above the overlay (the board stays below 40); on the phone it is the anchor
- *   that shows there is a way out of the focus. The overlay stays `absolute` over the board.
+ *   that shows there is a way out of the focus. The overlay stays `absolute` over the board. The page dots stay above
+ *   it too (kd#207).
+ * - The bar's and the dots' paper veils fade out while the overlay is lit (bottom of this file), so the dusk is whole.
  * With the setting off or nothing in Jetzt there is no `data-focus` and none of this applies.
  *
  * The Jetzt card's raised shadow follows the overlay being visible (`data-focus-lit`, set by Board.vue from the
@@ -31,6 +33,12 @@
 }
 .board[data-focus] #column-waiting {
   z-index: 1;
+}
+
+/* The lamp warming up: the overlay's fade-in, and the paper veils that fade out with it (bottom of this file) */
+:root {
+  --focus-in-duration: 1100ms;
+  --focus-in-ease: cubic-bezier(0.3, 0, 0, 1);
 }
 
 .focus-overlay {
@@ -72,7 +80,7 @@
 .is-on > .focus-overlay__tint,
 .is-on > .focus-overlay__blur {
   opacity: 1;
-  transition: opacity 1100ms cubic-bezier(0.3, 0, 0, 1);
+  transition: opacity var(--focus-in-duration) var(--focus-in-ease);
 }
 
 /* A little dim already in the middle, then an eased (smoothstep-like) fall-off to the full dusk at the rim */
@@ -99,7 +107,6 @@
    plain card with the regular shadow. The drag placeholder (a `.task` of the same wrapper) keeps its own look. */
 .board[data-focus-lit] #column-progress .task[data-current]:not(.kando-dnd-placeholder) {
   box-shadow: var(--shadow-task-lifted);
-  translate: none; /* no hover lift or press on the lit card (kd#181): it already stands off the paper */
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -122,8 +129,84 @@
   }
 }
 
-/* Phone page dots (kd#26): normally above the pages, in focus mode below the overlay so they are dimmed with the board (the dots
-   are rendered before .board, so a non-raised z-index puts them under its stacking context, overlay included) */
-.board-container:has(.board[data-focus]) .page-dots {
-  z-index: 0;
+/* The paper veils step back with the board (kd#207). The app bar's veil (app-nav.css) and the phone page dots' veil
+   (BoardPageDots) are bright bands of page colour that let cards dissolve under the bar and the dots. Over a dimmed
+   board they would cut a light stripe through the dusk, or through the task sheet's scrim, so they fade out while the
+   overlay is lit and while a sheet is open: in with the lamp's slow warm-up, back with its snap. The pills and the dots
+   themselves stay as they are, above the dusk: they are the way out and the place marker. */
+html:has(.board[data-focus-lit]) .app-nav::before,
+.board-container:has(.board[data-focus-lit]) .page-dots::before {
+  opacity: 0;
+  transition: opacity var(--focus-in-duration) var(--focus-in-ease);
+}
+
+/* On the dusk the resting dots' light border tone would vanish: they take a share of the muted ink instead */
+.board-container:has(.board[data-focus-lit]) .page-dot {
+  background: color-mix(in oklab, var(--ui-text-muted) calc(45% + var(--w) * 55%), transparent);
+}
+
+html:has(.board-container[data-sheet-task-id]) .app-nav::before,
+.board-container[data-sheet-task-id] .page-dots::before {
+  opacity: 0;
+  transition: opacity var(--sheet-fade-duration) var(--sheet-fade-easing);
+}
+
+@media (--desktop) {
+  /* No fade set on the desktop veil elsewhere (the phone's is the drag fade): the way back takes the overlay's snap */
+  .app-nav::before {
+    transition: opacity var(--duration-fast) var(--ease-standard);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:has(.board[data-focus-lit]) .app-nav::before,
+  .board-container:has(.board[data-focus-lit]) .page-dots::before,
+  html:has(.board-container[data-sheet-task-id]) .app-nav::before,
+  .board-container[data-sheet-task-id] .page-dots::before {
+    transition-duration: var(--duration-fast);
+  }
+}
+
+/* The phone browser's own bars join the dusk (kd#207; checked in the iOS 27 simulator, Safari). Safari colours its
+   bottom toolbar from the root background and the status bar from a fixed element that touches the top edge with a
+   solid `background-color` (a gradient is not read), which here is the page dots' strip. Without this both bars stay
+   paper-bright and cut the dimmed board off with a hard edge. The two tones follow the overlay where it meets each
+   bar: light at the top (the lamp is near), the full dusk at the bottom rim. The board paints its own paper, so the
+   root colour shows only in the bars and in the overscroll. The strip's lower edge is masked soft, so it does not
+   end in a line where the pool's gradient goes on. Browsers that colour their bars otherwise ignore all of it. */
+@media (--phone) {
+  html,
+  .page-dots {
+    transition: background-color var(--duration-fast) var(--ease-standard);
+  }
+
+  html:has(.board[data-focus-lit]),
+  html:has(.board[data-focus-lit]) body {
+    background-color: color-mix(in oklab, var(--focus-dusk) 40%, var(--ui-page-bg));
+  }
+
+  .board-container:has(.board[data-focus-lit]) .page-dots {
+    background-color: color-mix(in oklab, var(--focus-dusk) 15%, var(--ui-page-bg));
+    mask-image: linear-gradient(black calc(100% - 0.75rem), transparent);
+  }
+
+  html:has(.board[data-focus-lit]),
+  .board-container:has(.board[data-focus-lit]) .page-dots {
+    transition: background-color var(--focus-in-duration) var(--focus-in-ease);
+  }
+
+  /* An open task sheet dims the board with the flat scrim (sheet.css): the strip, and with it the status bar, takes
+     the same tone over the paper, so the scrim does not stop at a bright bar */
+  .board-container[data-sheet-task-id] .page-dots {
+    background-color: var(--overlay-scrim-on-page);
+  }
+}
+
+@media (--phone) and (prefers-reduced-motion: reduce) {
+  html,
+  .page-dots,
+  html:has(.board[data-focus-lit]),
+  .board-container:has(.board[data-focus-lit]) .page-dots {
+    transition-duration: var(--duration-fast);
+  }
 }

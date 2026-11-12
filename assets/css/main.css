@@ -222,6 +222,8 @@
     /* --- Task Card: Progress State Background --- */
     /* Custom token for in-progress task cards - uses elevated background for consistency */
     --task-card-progress-bg: var(--ui-bg-elevated);
+    /* A card under the pointer or a finger (kd#225): its sheet one step darker, the fill a row takes on hover */
+    --task-card-hover-bg: var(--ui-bg-muted);
 
     /* --- Task Card: Muted State (Waiting/Inactive) --- */
     /* Filter-based visual state for tasks that are waiting or not actively in focus */
@@ -236,6 +238,9 @@
     --sheet-fade-opacity: 0.55;
     /* Shared board scrim (#123); #127 reuses it for modals. */
     --overlay-scrim: rgb(var(--shadow-color) / 0.17);
+    /* The same scrim as an opaque tone on the paper: for a surface a browser reads a solid colour from (the phone's
+       page dots strip, which colours the status bar; board-focus-overlay.css). Keep the share in step. */
+    --overlay-scrim-on-page: color-mix(in srgb, rgb(var(--shadow-color)) 17%, var(--ui-page-bg));
     --sheet-fade-duration: var(--duration-base);
     --sheet-fade-easing: var(--ease-emphasized);
 
@@ -289,11 +294,9 @@
     --shadow-sheet: -18px 0 44px -6px rgb(var(--shadow-color) / 0.26), -2px 0 8px rgb(var(--shadow-color) / 0.12);
     /* Dialogs, menus, popovers and toasts. */
     --shadow-overlay: 0 22px 50px -8px rgb(var(--shadow-color) / 0.32), 0 3px 10px rgb(var(--shadow-color) / 0.14);
-    /* Resting and raised card shadow share one list of four layers with the same geometry (kd#128): the hover
-       transition then fades alphas only. Interpolating a geometry (blur, spread) is drawn by WebKit (the desktop app)
-       in whole-pixel steps, so the shadow jumped while it rose. Keep the two lists in step. */
-    --shadow-task: 0 0 0 1px rgb(var(--shadow-color) / 0.07), 0 2px 3px 0 rgb(var(--shadow-color) / 0.1), 0 10px 22px -6px rgb(var(--shadow-color) / 0.2), 0 22px 40px -12px rgb(var(--shadow-color) / 0);
-    --shadow-task-hover: 0 0 0 1px rgb(var(--shadow-color) / 0.07), 0 2px 3px 0 rgb(var(--shadow-color) / 0.06), 0 10px 22px -6px rgb(var(--shadow-color) / 0.14), 0 22px 40px -12px rgb(var(--shadow-color) / 0.3);
+    /* The card's one resting shadow. Hover changes the sheet's fill, never the shadow (kd#225), so nothing interpolates
+       a shadow geometry: WebKit (the desktop app) draws that in whole-pixel steps (kd#128). */
+    --shadow-task: 0 0 0 1px rgb(var(--shadow-color) / 0.07), 0 2px 3px 0 rgb(var(--shadow-color) / 0.1), 0 10px 22px -6px rgb(var(--shadow-color) / 0.2);
     --shadow-task-drag-elevated: 0 0 0 1px rgb(var(--shadow-color) / 0.07), 0 26px 48px -12px rgb(var(--shadow-color) / 0.38); /* in the hand; the pick-up grows it on the preview itself (dnd.css) */
     --shadow-task-lifted: 0 14px 38px color-mix(in oklab, var(--focus-dusk) 20%, transparent); /* the Jetzt card while the focus overlay is on (#394) */
     --shadow-stack-collapsed: drop-shadow(0 1px 1px rgb(var(--shadow-color) / 0.08)) drop-shadow(0 2px 3px rgb(var(--shadow-color) / 0.07));
@@ -340,8 +343,9 @@
   }
   /* Press: the control gives 3 %. Individual `scale`, so a `transform` stays untouched. A task card, a stack and
    * what sits in them answer a press as a sheet (slice 6 of the redesign, kd#181), not as a control. `.no-press` opts
-   * a control out where the press leads into editing in place (InlineEditable's trigger), so the text never jumps. */
-  :is(button, [role='button'], [role='tab']):not(:disabled, [aria-disabled='true'], .task, .task *, .task-stack, .task-stack *, .no-press):active {
+   * a control out where the press leads into editing in place (InlineEditable's trigger), so the text never jumps.
+   * A select's trigger is a field that happens to be a button: a field holds still when it is clicked (kd#225). */
+  :is(button, [role='button'], [role='tab']):not(:disabled, [aria-disabled='true'], [role='combobox'], [aria-haspopup='listbox'], .task, .task *, .task-stack, .task-stack *, .no-press):active {
     scale: 0.97;
   }
   /* Disabled: 50 %, `not-allowed`. */

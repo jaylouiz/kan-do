@@ -225,13 +225,20 @@
     }
   }
 
+  /* The card takes the slot's place in one frame (kd#225): without this its own transitions start as the slot look
+     leaves, so the fill faded up from the slot grey under the content that is already visible, and the set-down ended
+     on a shadow still fading in from none (WebKit dipped to no shadow and came back: a flash on every drop).
+     Outside the motion query: under reduced motion the card simply is there. */
+  .task-wrapper.kando-dnd-set-down .task {
+    transition: none !important;
+  }
+
   /* While the preview glides in, the real card is the slot it lands on: the placeholder's look, without `.board.dragging` */
   .task-wrapper.kando-dnd-landing .task {
     background-color: var(--dnd-slot-bg) !important;
     box-shadow: none !important;
     filter: none !important;
     transition: none !important;
-    translate: none !important; /* no hover lift on the slot: the glide measured it at rest */
   }
 
   .task-wrapper.kando-dnd-landing .task > * {

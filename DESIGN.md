@@ -133,12 +133,11 @@ Sheets share one shape: card, page sheet, task sheet, dialog and menu all take 1
 
 ### Elevation
 
-One shadow colour (`--shadow-color`, a warm brown) at four steps.
+One shadow colour (`--shadow-color`, a warm brown) at three steps.
 
 | Step | Token | On |
 |---|---|---|
 | Rest | `--shadow-task` | cards, page sheets (settings sections, statistics tiles), stacks |
-| Raised | `--shadow-task-hover` | a card under the pointer |
 | In hand | `--shadow-task-drag-elevated` | the dragged card |
 | Overlay | `--shadow-overlay`, `--shadow-sheet` | dialogs, menus, popovers, toasts; the task sheet (cast toward the board) |
 
@@ -148,7 +147,7 @@ One shadow colour (`--shadow-color`, a warm brown) at four steps.
 
 | Token | Value | For |
 |---|---|---|
-| `--duration-fast` | 150 ms | a control changing colour, a press, a card lifting |
+| `--duration-fast` | 150 ms | a control or a card changing colour, a press |
 | `--duration-base` | 200 ms | fades, washes, a card settling, neighbours making room |
 | `--duration-slow` | 300 ms | a surface changing size or position |
 | `--ease-standard` | `cubic-bezier(0.4, 0, 0.2, 1)` | things that change in place |
@@ -164,12 +163,12 @@ One answer per state, on every control, whoever built it.
 |---|---|
 | Pressable | the hand cursor |
 | Hover | the fill one step darker (a ghost control gains the fill); a text control darkens its text or rule |
-| Press | the control gives 3 % (`scale: 0.97`) |
+| Press | the control gives 3 % (`scale: 0.97`); a field holds still, a select's trigger included |
 | Focus | Nuxt UI's halo: 3 px at 25 % of the role colour, no offset (`focus-ring`, `--focus-ring-*`); a field keeps its 1 px inner ring. Accepted trade-off (owner, 2026-11-11): below the 3:1 of WCAG 1.4.11 on the page |
 | Disabled | 50 % opacity, `not-allowed`, no hover answer |
 | Loading | the disabled look plus a spinner; the control is locked |
 | Selected | a fill (chip, switch, checkbox, tab, place); never a shadow |
-| Card | lifts 2 px on hover with the raised shadow, sets down on press |
+| Card | its sheet one step darker (`--task-card-hover-bg`) on hover and while pressed, on touch too; it never moves and its shadow stays (owner, 2026-11-12) |
 | Drag | the card rises out of its resting pose (2 % larger, the 2 degree tilt, the in-hand shadow, 150 ms), neighbours make room in 200 ms, the drop glides 200 ms and the card is set down in 200 ms |
 
 ## Layout
@@ -184,9 +183,9 @@ One answer per state, on every control, whoever built it.
 
 Nuxt UI components first, themed in `app.config.ts`; a shared primitive in `components/ui/` from three call sites on; custom components for the board domain. One line per user job; how each looks, with every variant and state, is on `/ui`.
 
-- **Trigger an action:** `UButton`. Solid green for the one main action of a surface (36 px). Soft for a neutral action that stands on its own and for the one main action of a row. Ghost for further actions inside a row, card, menu or toolbar and for every icon-only button. Link inside running text. Two heights, 32 and 36 px; no `outline`, `subtle`, `xs` or `xl`. Dialog footers: neutral cancel first, main action last.
+- **Trigger an action:** `UButton`. Solid green for the one main action of a surface (36 px). Soft for a neutral action that stands on its own and for the main action of a row; a row of two actions may show both soft, from three on one is soft and the others are ghost (owner, 2026-11-12). Ghost for further actions inside a row, card, menu or toolbar and for an icon-only button, except the destructive one of such a pair, which is soft in the error tone so it is told apart at a glance. Link inside running text. Two heights, 32 and 36 px; no `outline`, `subtle`, `xs` or `xl`. Dialog footers: neutral cancel first, main action last.
 - **Pick one of a few:** `ChoiceChip`, one chip shape at one height (36 px), with an icon alone where the options are symbols; `field` (dashed outline) for the cell that opens a search. Larger options with a description are the one choice card. A toggle that stays on beside others is the chip too.
-- **Edit a value in a label/value row** (task sheet): a select with a chevron when the value opens a list, text on a dotted rule when it is free input. Both are 36 px high and share hover, focus and disabled. A value never wears a chip.
+- **Edit a value in a label/value row** (task sheet): a select with a chevron when the value opens a list, text on a dotted rule when it is free input, which turns into a field with the select's fill and radius while it is edited. Both are 36 px high and share hover, focus and disabled. A value never wears a chip.
 - **Type into a field:** `UInput`, `USelect`, `UTextarea` at 36 px. Inline editing is the default for task properties; an empty value shows a muted placeholder in place.
 - **Show a list row:** `ListRow`, one density (cozy, 44 px at least), a muted tint on hover; trailing actions follow the button rule.
 - **Show a status or count:** a neutral `UBadge` in the label role, one size; priority "Hoch" is the one tinted badge on a card. A topic is muted text with its mark, never a chip.

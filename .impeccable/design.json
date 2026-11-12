@@ -108,11 +108,6 @@
         "purpose": "Rest: cards, page sheets, stacks."
       },
       {
-        "name": "task-hover",
-        "value": "var(--shadow-task-hover)",
-        "purpose": "Raised: a card under the pointer (it also lifts 2 px)."
-      },
-      {
         "name": "task-drag-elevated",
         "value": "var(--shadow-task-drag-elevated)",
         "purpose": "In hand: the dragged card; grows with the pick-up through `--dnd-lift`."
@@ -142,7 +137,7 @@
       {
         "name": "duration-fast",
         "value": "150ms",
-        "purpose": "A control changing colour, a press, a card lifting, the pick-up of a dragged card."
+        "purpose": "A control or a card changing colour, a press, the pick-up of a dragged card."
       },
       {
         "name": "duration-base",
@@ -201,9 +196,9 @@
       "name": "Task Card",
       "kind": "card",
       "refersTo": "task-card",
-      "description": "A white sheet on the paper desk; lifts 2 px on hover and sets down on press.",
+      "description": "A white sheet on the paper desk; its fill turns one step darker on hover and while pressed, it never moves.",
       "html": "<div class=\"ds-task\"><p class=\"ds-task-topic\">Backend</p><p class=\"ds-task-title\">Review schreiben</p><span class=\"ds-badge\">30 min</span></div>",
-      "css": ".ds-task{width:288px;height:132px;box-sizing:border-box;padding:12px;background:#fff;border-radius:16px;box-shadow:0 0 0 1px rgb(70 48 20 / .07),0 2px 3px rgb(70 48 20 / .1),0 10px 22px -6px rgb(70 48 20 / .2);font-family:Figtree,system-ui,sans-serif;display:flex;flex-direction:column;cursor:pointer;transition:box-shadow .15s,translate .15s}.ds-task:hover{box-shadow:0 0 0 1px rgb(70 48 20 / .07),0 2px 3px rgb(70 48 20 / .06),0 10px 22px -6px rgb(70 48 20 / .14),0 22px 40px -12px rgb(70 48 20 / .3);translate:0 -2px}.ds-task:active{box-shadow:0 0 0 1px rgb(70 48 20 / .07),0 2px 3px rgb(70 48 20 / .1),0 10px 22px -6px rgb(70 48 20 / .2);translate:0 0}.ds-task-topic{margin:0;font-size:14px;line-height:1.3;color:oklch(0.42 0.024 80)}.ds-task-title{margin:2px 0 0;font-size:15px;line-height:1.3;color:oklch(0.19 0.012 70)}.ds-badge{margin-top:auto;align-self:flex-start;background:oklch(0.895 0.016 84);color:oklch(0.19 0.012 70);font:500 12px/1.3 Figtree,system-ui,sans-serif;padding:2px 8px;border-radius:8px}"
+      "css": ".ds-task{width:288px;height:132px;box-sizing:border-box;padding:12px;background:#fff;border-radius:16px;box-shadow:0 0 0 1px rgb(70 48 20 / .07),0 2px 3px rgb(70 48 20 / .1),0 10px 22px -6px rgb(70 48 20 / .2);font-family:Figtree,system-ui,sans-serif;display:flex;flex-direction:column;cursor:pointer;transition:box-shadow .15s,translate .15s}.ds-task:hover,.ds-task:active{background:oklch(0.966 0.009 86)}.ds-task-topic{margin:0;font-size:14px;line-height:1.3;color:oklch(0.42 0.024 80)}.ds-task-title{margin:2px 0 0;font-size:15px;line-height:1.3;color:oklch(0.19 0.012 70)}.ds-badge{margin-top:auto;align-self:flex-start;background:oklch(0.895 0.016 84);color:oklch(0.19 0.012 70);font:500 12px/1.3 Figtree,system-ui,sans-serif;padding:2px 8px;border-radius:8px}"
     },
     {
       "name": "Column Header",

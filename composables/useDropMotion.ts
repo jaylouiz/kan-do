@@ -37,6 +37,8 @@ function prefersReducedMotion(): boolean {
  * 2. `dropAnimation` is dnd-kit's drop animation: it glides the preview onto the card's rendered slot, then calls
  *    `setDown`. Its end is the signal that the preview is gone, so nothing watches class changes.
  * 3. `setDown` marks the card for one set-down animation (`kando-dnd-set-down`) and clears the mark after its length.
+ *    The mark also switches the card's own transitions off (kd#225): leaving the slot look would otherwise fade its
+ *    fill up from the slot grey under the visible content and, in WebKit, dip the shadow to nothing and back.
  *
  * `reset` (a new drag starts) drops both marks at once.
  */
@@ -57,7 +59,8 @@ export function useDropMotion() {
     dragState.value.landingTaskId = null
     dragState.value.landingStack = null
     if (!taskId) return
-    if (prefersReducedMotion()) return
+    // Also under reduced motion: the mark keeps the card's own transitions off while it takes the slot's place
+    // (dnd.css); the set-down animation itself is the part that reduced motion drops, in CSS
     dragState.value.setDownTaskId = taskId
     clearTimeout(setDownTimer)
     setDownTimer = setTimeout(() => {

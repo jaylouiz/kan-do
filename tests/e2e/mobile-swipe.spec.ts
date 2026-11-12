@@ -79,7 +79,7 @@ test.describe('Mobile swipe axis lock', () => {
     const top = await dots.evaluate(el => el.getBoundingClientRect().top);
     expect(top).toBe(0);
     // Veiled and above the cards (pointer-events: none hides it from elementsFromPoint, so read the style)
-    const style = await dots.evaluate(el => ({ position: getComputedStyle(el).position, z: getComputedStyle(el).zIndex, bg: getComputedStyle(el).backgroundImage }));
+    const style = await dots.evaluate(el => ({ position: getComputedStyle(el).position, z: getComputedStyle(el).zIndex, bg: getComputedStyle(el, '::before').backgroundImage }));
     expect(style.position).toBe('fixed');
     expect(Number(style.z)).toBeGreaterThan(1);
     expect(style.bg).toContain('linear-gradient');
@@ -201,30 +201,32 @@ test.describe('Page dots on desktop (kd#26)', () => {
   });
 });
 
-test.describe('Page dots under the focus overlay (kd#26)', () => {
+test.describe('Page dots under the focus overlay (kd#26, kd#207)', () => {
   test.use({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
-  test('the overlay paints above the dots, so they are dimmed with the board', async ({ context, page }) => {
+  test('the dots stay above the lit overlay; only their paper veil steps back', async ({ context, page }) => {
     await seedLocalBoard(context, SEED_TASKS, {}, undefined, { focus: true });
     await page.goto('/tasks');
     await showColumnPage(page, 1);
-    await expect(page.locator('.board')).toHaveAttribute('data-focus', '');
-    // Rendered before .board with the z-index dropped, so the board's stacking context (overlay inside) paints over the dots
-    const order = await page.evaluate(() => {
-      const dots = document.querySelector('[data-testid="page-dots"]')!;
-      const board = document.querySelector('.board')!;
-      return { before: !!(dots.compareDocumentPosition(board) & Node.DOCUMENT_POSITION_FOLLOWING), z: getComputedStyle(dots).zIndex };
-    });
-    expect(order).toEqual({ before: true, z: '0' });
-    // Paint check: pointer-events none hides both layers from hit-testing, so compare the pixels of the dots with and
-    // without the overlay; if the overlay paints over them they differ (a stacking regression makes them identical)
-    const box = (await page.getByTestId('page-dots').boundingBox())!;
-    const clip = { x: box.x, y: box.y, width: box.width, height: box.height };
+    await expect(page.locator('.board')).toHaveAttribute('data-focus-lit', '');
     await expect(page.locator('.focus-overlay.is-on')).toBeAttached();
-    await expect.poll(() => page.evaluate(() => getComputedStyle(document.querySelector('.focus-overlay__tint')!).opacity)).toBe('1');
-    const withOverlay = await page.screenshot({ clip, animations: 'disabled' });
-    await page.addStyleTag({ content: '.focus-overlay { display: none !important; }' });
-    const withoutOverlay = await page.screenshot({ clip, animations: 'disabled' });
-    expect(withOverlay.equals(withoutOverlay)).toBe(false);
+    const dots = page.getByTestId('page-dots');
+    // Above the board's stacking context (the overlay lives in it): the dots are not dimmed away (kd#207 reverses kd#26)
+    expect(Number(await dots.evaluate(el => getComputedStyle(el).zIndex))).toBeGreaterThan(1);
+    // The bright band of page colour is what fades, so no light stripe cuts through the dusk
+    await expect.poll(() => dots.evaluate(el => getComputedStyle(el, '::before').opacity)).toBe('0');
+    // The resting dots keep a tone that shows on the dusk, the active one is the full muted ink
+    const tones = await dots.evaluate(el => [...el.querySelectorAll('.page-dot')].map(dot => getComputedStyle(dot).backgroundColor));
+    expect(new Set(tones).size).toBe(2);
+    expect(tones.every(tone => !/, 0\)$| \/ 0\)$/.test(tone))).toBe(true);
+  });
+
+  test('without the overlay the veil is there', async ({ context, page }) => {
+    await seedLocalBoard(context, SEED_TASKS);
+    await page.goto('/tasks');
+    await showColumnPage(page, 1);
+    await expect(page.locator('.board')).not.toHaveAttribute('data-focus-lit', '');
+    await expect(page.getByTestId('page-dots')).toHaveCSS('z-index', '5');
+    expect(await page.getByTestId('page-dots').evaluate(el => getComputedStyle(el, '::before').opacity)).toBe('1');
   });
 });
 

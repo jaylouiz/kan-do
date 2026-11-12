@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { hover, pickUp } from './helpers/dnd';
 
 test.describe('Drag and Drop Visuals (@dnd-kit/vue)', () => {
   test.beforeEach(async ({ page }) => {
@@ -104,5 +105,46 @@ test.describe('Drag and Drop Visuals (@dnd-kit/vue)', () => {
 
     await expect(openItems).toHaveCount(1);
     await expect(waitingItems).toHaveCount(2);
+  });
+
+  // kd#225: the dropped card flashed. Leaving the slot look started the card's own transitions, so its fill faded up
+  // from the slot grey under the content that was already visible (and WebKit dipped the shadow to none and back).
+  test('a dropped card takes the slot in one frame: its fill never fades up from the slot grey', async ({ page }) => {
+    const card = page.locator('#column-open-list .task-wrapper').first();
+    const id = await card.getAttribute('data-task-id');
+    await pickUp(page, card);
+    await hover(page, page.locator('#column-waiting-list .task-wrapper').first());
+
+    // Sample the card every frame from the release on: once its content shows, the fill must be a card fill
+    await page.evaluate((taskId) => {
+      const resolve = (token: string) => {
+        const probe = document.createElement('div');
+        probe.style.backgroundColor = `var(${token})`;
+        document.body.append(probe);
+        const value = getComputedStyle(probe).backgroundColor;
+        probe.remove();
+        return value;
+      };
+      const allowed = [resolve('--ui-bg-elevated'), resolve('--task-card-hover-bg')];
+      const seen = { frames: 0, wrong: [] as string[] };
+      (window as unknown as { __dropFill: typeof seen }).__dropFill = seen;
+      const start = performance.now();
+      const tick = () => {
+        const face = document.querySelector(`.board .task-wrapper[data-task-id="${taskId}"] .task`);
+        const content = face?.firstElementChild;
+        if (face && content && getComputedStyle(content).visibility === 'visible') {
+          seen.frames += 1;
+          const fill = getComputedStyle(face).backgroundColor;
+          if (!allowed.includes(fill)) seen.wrong.push(fill);
+        }
+        if (performance.now() - start < 1200) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }, id);
+    await page.mouse.up();
+
+    await expect.poll(() => page.evaluate(() => (window as unknown as { __dropFill: { frames: number } }).__dropFill.frames)).toBeGreaterThan(20);
+    const seen = await page.evaluate(() => (window as unknown as { __dropFill: { wrong: string[] } }).__dropFill);
+    expect(seen.wrong).toEqual([]);
   });
 });
