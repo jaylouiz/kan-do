@@ -28,6 +28,7 @@ const OFFEN = [
   task({ id: 'open-2', title: 'Dokumentation lesen', status: 0 }),
 ]
 const WARTET = task({ id: 'wait-1', title: 'Blocker klären', status: 2 })
+const ERLEDIGT = task({ id: 'done-1', title: 'Rechnung schreiben', status: 3, completedAt: NOW })
 
 const card = (page: Page, id: string) => page.locator(`.task-wrapper[data-task-id="${id}"]`)
 const list = (page: Page, column: 'open' | 'progress' | 'waiting' | 'done') => page.locator(`#column-${column}-list`)
@@ -114,18 +115,20 @@ for (const target of [
 }
 
 test.describe('WIP limit on Jetzt (#372)', () => {
-  test('a different card still cannot be dropped into an occupied Jetzt', async ({ context, page }) => {
-    await seedLocalBoard(context, [...OFFEN, JETZT, WARTET])
+  // A single card from Offen or Wartet over the running card swaps since #162 (jetzt-swap.spec.ts); a card from
+  // Erledigt is still refused
+  test('a card from Erledigt still cannot be dropped into an occupied Jetzt', async ({ context, page }) => {
+    await seedLocalBoard(context, [...OFFEN, JETZT, WARTET, ERLEDIGT])
     await gotoBoard(page)
 
-    await pickUp(page, card(page, 'open-1'))
+    await pickUp(page, card(page, ERLEDIGT.id))
     await hover(page, card(page, JETZT.id))
     await expect(ghosts(page)).toHaveCount(0)
     await hover(page, zone(page, 'progress'))
     await expect(ghosts(page)).toHaveCount(0)
     await page.mouse.up()
 
-    await expect.poll(() => ids(page, 'open')).toEqual(['open-1', 'open-2'])
+    await expect.poll(() => ids(page, 'done')).toEqual([ERLEDIGT.id])
     expect(await ids(page, 'progress')).toEqual([JETZT.id])
     await expect(placeholders(page)).toHaveCount(0)
   })

@@ -30,7 +30,9 @@
       "cancelled": "Verschieben abgebrochen. „{title}“ bleibt in Spalte {column}.",
       "stackRoleDescription": "Verschiebbarer Stapel",
       "stackInstructions": "Enter öffnet den Stapel. Leertaste hebt den ganzen Stapel auf, Pfeiltasten verschieben ihn, Leertaste legt ab, Escape bricht ab.",
-      "pickedUpStack": "Stapel „{title}“ in Spalte {column}, Position {position} aufgenommen. Er wird mit allen Aufgaben verschoben."
+      "pickedUpStack": "Stapel „{title}“ in Spalte {column}, Position {position} aufgenommen. Er wird mit allen Aufgaben verschoben.",
+      "swapOver": "„{title}“ über „{running}“ in Jetzt. Beim Ablegen wechseln beide: „{running}“ geht nach Wartet.",
+      "swapped": "„{title}“ in Jetzt abgelegt. „{running}“ ist nach Wartet verschoben."
     },
     "quickAdd": {
       "label": "Neue Aufgabe",
@@ -116,6 +118,19 @@
     "wip": {
       "refusedTitle": "Verschieben nicht möglich",
       "refusedReason": "In Jetzt liegt höchstens eine Aufgabe. Verschiebe die aktuelle nach Wartet oder Erledigt."
+    },
+    "swap": {
+      "title": "Aufgabe gewechselt",
+      "description": "„{running}“ läuft · „{waiting}“ wartet"
+    },
+    "focus": {
+      "trigger": "Fokus",
+      "endNamed": "Fokus beenden: {topic}",
+      "chips": "Fokus nach Thema",
+      "chip": "{topic}, {n} Aufgabe | {topic}, {n} Aufgaben",
+      "pillLead": "Fokus:",
+      "hidden": "{n} ausgeblendet",
+      "end": "Fokus beenden"
     }
   },
   "nav": {

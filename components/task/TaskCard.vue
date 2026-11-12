@@ -28,7 +28,7 @@
   turns one step darker (`--task-card-hover-bg`) under a hovering pointer and while pressed, on touch too; it never
   moves and its shadow stays (kd#225, replaces the 2 px lift of kd#181); a collapsed stack's cards never open
 - End of a drag (kd#181, `useDropMotion`, dnd.css): the floating preview glides to the slot, then the card is set down
-- Provides drag-and-drop styling
+- Provides drag-and-drop styling; the running Jetzt card takes the swap state (`task--swap-target`, dnd.css) while a card hovers it (#162)
 - `readonly` (#422): the card of a trash entry. Same face, but no task id on the DOM (board selectors never match it), no
   open gesture and no pointer cursor; a card that came back from an undo plays its grow-back (`task--returning`)
 - No activity badge on the card: the activity is for grouping and statistics, the task sheet shows it. Cards and stacks in a column sit `--task-list-gap` (0.75rem) apart
@@ -36,7 +36,7 @@
 <template>
   <UCard
     class="task"
-    :class="[taskClass, { muted, 'task--draft': draft, 'task--confirming': isConfirming, 'task--celebrating': burstPlaying, 'task--nudged': isNudged, 'task--readonly': readonly, 'task--returning': isTaskReturning(task.id) }]"
+    :class="[taskClass, { muted, 'task--draft': draft, 'task--confirming': isConfirming, 'task--celebrating': burstPlaying, 'task--nudged': isNudged, 'task--readonly': readonly, 'task--swap-target': isSwapTarget, 'task--returning': isTaskReturning(task.id) }]"
     :data-task-id="readonly ? undefined : task.id"
     :data-current="isCurrent ? '' : undefined"
     :data-sheet-active="spotlightTaskId === task.id ? '' : undefined"
@@ -246,6 +246,8 @@ watch(isDone, (done) => {
 const confirmStyle = { "--done-confirm-duration": `${DONE_CONFIRMATION_MS}ms` };
 
 const isInProgress = computed(() => props.task.status === TaskStatus.Progress);
+/** The running card a dragged card would swap out (#162): it shows the swap state while the drop would swap */
+const isSwapTarget = computed(() => !props.preview && dragState.value.swapTaskId === props.task.id);
 /** A card in Jetzt, except the floating drag preview: the focus overlay measures it (`data-current`) and its chip is the Jetzt bar (#388) */
 const isCurrent = computed(() => isInProgress.value && !props.preview && !props.draft);
 /** The nudge layer (#389) is up on this Jetzt card: its own content steps back (hidden, still in the DOM) */

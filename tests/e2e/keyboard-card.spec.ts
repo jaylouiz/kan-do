@@ -45,8 +45,9 @@ test.describe('Keyboard: board cards', () => {
     await expect(live).not.toContainText(first.id);
 
     await page.keyboard.press('ArrowRight');
-    await expect(live).toContainText('verschoben', { timeout: 5000 });
-    await expect(live).toContainText('Spalte Jetzt');
+    // The seeded Jetzt holds a task, so the card is over it: the swap announcement (#162) names both cards
+    await expect(live).toContainText('Beim Ablegen wechseln beide', { timeout: 5000 });
+    await expect(live).toContainText('in Jetzt');
 
     await page.keyboard.press('Space');
     await expect(live).toContainText('abgelegt');

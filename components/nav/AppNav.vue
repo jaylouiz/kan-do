@@ -15,6 +15,7 @@
 - A failing source puts a status dot on ⋯ (error for broken, else warning) and the accessible name says so; the panel explains it
 - Tag abschließen: closes the panel, returns focus to ⋯, then opens the dialog, so the dialog's return target is ⋯ and not a removed row
 - Phone: fades out and ignores pointers while a card is dragged (no drop target is covered); the pills and the veil fade
+- The topic focus funnel (#161, BoardFocusTrigger) sits right of ⋯ on the board route only, outside the group's flow (`.app-nav-focus`), so the pills do not re-centre when it appears
 - Desktop ⋯ tooltip "Mehr · Befehle ⌘K" on every page (the palette is mounted once in app.vue, #224); no tooltip on touch
 -->
 <template>
@@ -101,6 +102,11 @@
           <MorePanel @close="open = false" @day-close="closeAndOpenDayClose" @commands="closeAndOpenCommands" />
         </template>
       </UPopover>
+
+      <!-- The topic focus funnel (#161): beside the group, so the pills stay centred whether it shows or not -->
+      <div v-if="currentPlace === 'board'" class="app-nav-focus">
+        <BoardFocusTrigger />
+      </div>
     </div>
   </nav>
 </template>
@@ -111,6 +117,7 @@ import { useI18n } from 'vue-i18n'
 import { useMediaQuery } from '@vueuse/core'
 import { openCommandPalette } from '~/composables/useCommandPalette'
 import MorePanel from '~/components/nav/MorePanel.vue'
+import BoardFocusTrigger from '~/components/board/BoardFocusTrigger.vue'
 import { useAppNav, useLiveRoute, type ThirdItem } from '~/composables/useAppNav'
 import { useNavIndicator } from '~/composables/useNavIndicator'
 import { cssTimeMs } from '~/lib/navSpring'

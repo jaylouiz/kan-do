@@ -302,7 +302,7 @@ test('a reorder inside an expanded group persists after a reload', async ({ page
   await expect.poll(() => order(list(page, 'open'))).toEqual(['u1', 'a2', 'a3', 'a1', 'b1'])
 })
 
-test('a member cannot be dropped into an occupied Jetzt', async ({ context, page }) => {
+test('a member is an ordinary card: dropped on the running card it swaps with it (#162)', async ({ context, page }) => {
   await seedLocalBoard(context, [...OPEN, ...WAITING, task({ id: 'p1', title: 'Review schreiben', status: 1 })], {}, GROUP_BY_TOPIC)
   await gotoBoard(page)
   await expandDesign(page)
@@ -312,8 +312,9 @@ test('a member cannot be dropped into an occupied Jetzt', async ({ context, page
   await page.mouse.up()
 
   await expect(list(page, 'progress').locator('.task-wrapper')).toHaveCount(1)
-  await expect(list(page, 'progress').locator('.task-wrapper[data-task-id="p1"]')).toBeVisible()
-  await expect.poll(() => order(list(page, 'open'))).toEqual(['u1', 'a1', 'a2', 'a3', 'b1'])
+  await expect(list(page, 'progress').locator('.task-wrapper[data-task-id="a1"]')).toBeVisible()
+  await expect(list(page, 'waiting').locator('.task-wrapper[data-task-id="p1"]')).toBeVisible()
+  await expect.poll(() => order(list(page, 'open'))).toEqual(['u1', 'a2', 'a3', 'b1'])
   await expect(page.locator('.kando-dnd-dragged')).toHaveCount(0)
 })
 

@@ -101,6 +101,18 @@
     pointer-events: auto;
   }
 
+  /* The focus funnel (#161) hangs off the group's right edge: out of the flow, so the pills keep their centre */
+  .app-nav-group {
+    position: relative;
+  }
+
+  .app-nav-focus {
+    position: absolute;
+    top: 50%;
+    left: calc(100% + var(--nav-group-gap));
+    translate: 0 -50%;
+  }
+
   .app-nav-pill {
     display: flex;
     align-items: center;
@@ -280,7 +292,8 @@
       transition: opacity var(--duration-fast) ease;
     }
 
-    .app-nav-more {
+    .app-nav-more,
+    .app-nav-focus {
       transition: color var(--duration-fast) ease, background-color var(--duration-fast) ease, opacity var(--duration-fast) ease;
     }
 
@@ -351,6 +364,7 @@
     /* While a card is dragged the bar fades out and takes no pointer, so no drop target is covered */
     .app-nav.is-dragging .app-nav-pill,
     .app-nav.is-dragging .app-nav-more,
+    .app-nav.is-dragging .app-nav-focus,
     .app-nav.is-dragging::before {
       opacity: 0;
     }

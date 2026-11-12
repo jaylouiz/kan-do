@@ -485,7 +485,9 @@ test.describe('Ghost / Placeholder Reliability', () => {
 });
 
 test.describe('WIP limit on drop (Jetzt holds one task)', () => {
-  test('dropping on an occupied Jetzt column keeps the card where it was', async ({ page, baseURL }) => {
+  // A single card dropped on the running card swaps with it since #162 (details: jetzt-swap.spec.ts): Jetzt still
+  // holds exactly one task, the former occupant moved to Wartet
+  test('dropping on an occupied Jetzt column swaps the two: Jetzt still holds one task', async ({ page, baseURL }) => {
     await seedBoard(page, baseURL, [
       { id: 'open-1', title: 'Open 1', status: 0, priority: 1, timeSpentSeconds: 0, custom: {} },
       { id: 'prog-1', title: 'Progress 1', status: 1, priority: 1, timeSpentSeconds: 0, custom: {} },
@@ -509,6 +511,7 @@ test.describe('WIP limit on drop (Jetzt holds one task)', () => {
     await page.waitForTimeout(400);
 
     await expect(page.locator('#column-progress-list .task-wrapper')).toHaveCount(1);
-    await expect(page.locator('#column-open-list .task-wrapper[data-task-id="open-1"]')).toHaveCount(1);
+    await expect(page.locator('#column-progress-list .task-wrapper[data-task-id="open-1"]')).toHaveCount(1);
+    await expect(page.locator('#column-waiting-list .task-wrapper[data-task-id="prog-1"]')).toHaveCount(1);
   });
 });

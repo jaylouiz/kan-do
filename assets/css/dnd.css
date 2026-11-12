@@ -266,6 +266,29 @@
   }
 
   /* ========================================
+   * SWAP STATE OF THE RUNNING JETZT CARD (#162)
+   * A single card from Offen or Wartet hovers a Jetzt that holds one task: dropping swaps them, and the
+   * running card says so itself (TaskCard sets `task--swap-target` from the drag state, no new element). The
+   * dragged card's overlay covers this card's own box, so the signal sits partly outside it: a dashed
+   * 3px primary ring at 6px offset and a soft glow, plus the card's tint and its content at half strength.
+   * The dash and the dimming carry it without colour. Colours and shadow need !important against the card
+   * variant and the card's scoped shadow; it fades in over --duration-fast and leaves at once; nothing moves, so reduced motion needs no variant.
+   * ======================================== */
+  .board.dragging .task.task--swap-target {
+    background-color: color-mix(in oklab, var(--ui-bg) 84%, var(--ui-primary)) !important;
+    outline: 3px dashed var(--ui-primary);
+    outline-offset: 6px;
+    box-shadow:
+      0 0 0 10px color-mix(in oklab, var(--ui-primary) 16%, transparent),
+      0 8px 28px color-mix(in oklab, var(--ui-primary) 35%, transparent) !important;
+  }
+
+  .board.dragging .task.task--swap-target > * {
+    opacity: 0.5;
+    transition: opacity var(--duration-fast) var(--ease-standard);
+  }
+
+  /* ========================================
    * Mobile: prevent iOS long-press callout on task cards
    * (saves image / copy link popup that appears on long press)
    * ======================================== */

@@ -69,6 +69,43 @@ test.describe('board menu: stacking (kd#178)', () => {
   })
 })
 
+test.describe('topic focus (#161)', () => {
+  const NOW = new Date().toISOString()
+  const withTopic = (task: SeedTask, topic: string): SeedTask => ({ ...task, topic, updatedAt: NOW })
+  const tasks = SEED_TASKS.map((task, i) => withTopic(task, i % 2 === 0 ? 'Baustelle' : 'Büro'))
+
+  test('the funnel at rest and with the chip row open (1280)', async ({ context, page }) => {
+    await seedLocalBoard(context, tasks)
+    await gotoBoard(page)
+    await expect(page.getByTestId('focus-trigger')).toMatchAriaSnapshot({ name: 'focus-trigger-rest-1280.aria.yml' })
+    await page.getByTestId('focus-trigger').click()
+    await expect(page.getByTestId('focus-bar')).toMatchAriaSnapshot({ name: 'focus-chips-1280.aria.yml' })
+  })
+
+  test('a focus is on: the pill and the funnel that ends it (1280)', async ({ context, page }) => {
+    await seedLocalBoard(context, tasks)
+    await gotoBoard(page)
+    await page.getByTestId('focus-trigger').click()
+    await page.getByTestId('focus-chip').first().click()
+    await expect(page.getByTestId('focus-bar')).toMatchAriaSnapshot({ name: 'focus-pill-1280.aria.yml' })
+    await expect(page.getByTestId('focus-trigger')).toMatchAriaSnapshot({ name: 'focus-trigger-active-1280.aria.yml' })
+  })
+})
+
+test.describe('swap on the running card (#162)', () => {
+  test('a keyboard drag over the running card announces the swap (1280)', async ({ context, page }) => {
+    await seedLocalBoard(context)
+    await gotoBoard(page)
+    await page.locator('.task-wrapper[data-task-id="seed-open-1"]').focus()
+    await page.keyboard.press('Space')
+    await page.keyboard.press('ArrowRight')
+    const live = page.locator('body > [aria-live]')
+    await expect(live).toContainText('Beim Ablegen wechseln beide')
+    await expect(live).toMatchAriaSnapshot({ name: 'swap-announcement-1280.aria.yml' })
+    await page.keyboard.press('Escape')
+  })
+})
+
 test.describe('error states', () => {
   test('Notion unreachable: the Mehr panel names the problem', async ({ context, page }) => {
     await seedMixedBoard(context)

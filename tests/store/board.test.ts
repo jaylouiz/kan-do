@@ -68,7 +68,7 @@ describe('board store hydration wiring', () => {
     localStorage.removeItem('board-store')
   })
 
-  it('persists only boardConfig, columns and grouping (not transient state)', async () => {
+  it('persists only boardConfig, columns, grouping and focus (not transient state)', async () => {
     const { createPinia, setActivePinia } = await import('pinia')
     const { createApp } = await import('vue')
     const { nextTick } = await import('vue')
@@ -84,7 +84,7 @@ describe('board store hydration wiring', () => {
     store.grouping = { enabled: true, key: null }
     await nextTick()
     const saved = JSON.parse(localStorage.getItem('board-store') ?? '{}') as Record<string, unknown>
-    expect(Object.keys(saved).sort()).toEqual(['boardConfig', 'columns', 'grouping'])
+    expect(Object.keys(saved).sort()).toEqual(['boardConfig', 'columns', 'focus', 'grouping'])
     expect('scrollPosition' in saved).toBe(false)
     expect('confirmingTaskIds' in saved).toBe(false)
     localStorage.removeItem('board-store')
