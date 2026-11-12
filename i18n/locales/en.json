@@ -1022,6 +1022,28 @@
         "failedQuota": "The import could not be completed: this browser has no room left. Nothing was changed.",
         "failedSafety": "The safety copy could not be downloaded. Nothing was changed. Untick the box to import without it.",
         "failedWrite": "The import could not be completed: the data could not be written. Nothing was changed."
+      },
+      "reset": {
+        "heading": "Reset app",
+        "body": "Deletes all tasks, settings, statistics and connections. Afterwards the app starts over as on the first launch.",
+        "action": "Reset app…",
+        "erased": "This deletes {n} task, the trash, the statistics, the settings, all connections and the stored tokens (Notion, Todoist, GitHub). | This deletes {n} tasks, the trash, the statistics, the settings, all connections and the stored tokens (Notion, Todoist, GitHub).",
+        "upstream": "Your tasks in Notion are not touched.",
+        "unsynced": "Changes that have not been synced yet are lost.",
+        "kept": "The language and the location of the data are kept.",
+        "noteDesktop": "The app creates a backup first. You find it under Settings → Data & storage → Backups.",
+        "noteWeb": "This cannot be undone. Export your data first if you want to keep it.",
+        "confirm": "Reset app",
+        "working": "Resetting…",
+        "retry": "Try again",
+        "errorBackup": "The backup could not be created. Nothing was deleted.",
+        "errorWrite": "The data could not be reset. Nothing was changed. Try again.",
+        "errorTokens": "The tokens for {entries} could not be deleted from the Keychain. The data is already deleted. Try again.",
+        "blocked": {
+          "conflict": "Resetting is only possible once you have chosen a version for the conflict.",
+          "newer-schema": "The data comes from a newer app version. Update the app before you reset it.",
+          "unavailable": "The data folder is not reachable. Resetting is only possible once it is back."
+        }
       }
     },
     "updates": {
@@ -1222,7 +1244,7 @@
     "hintNavigate": "navigate",
     "hintRun": "run",
     "hintClose": "close",
-    "groupGlobal": "Board",
+    "groupGlobal": "App",
     "groupCard": "Task",
     "groupMove": "Move: {title}",
     "groupSource": "Connection",
@@ -1232,8 +1254,11 @@
     "setPriority": "Priority: {priority}",
     "setTimebox": "Timebox: {minutes} min",
     "addTask": "Add task",
+    "openToday": "Open today",
     "openStatistics": "Open statistics",
+    "openTrash": "Open trash",
     "openSettings": "Open settings",
+    "resetApp": "Reset app…",
     "noCardHint": "Focus a task with Tab to see its commands.",
     "dayClose": "Close the day",
     "openGithubAccess": "GitHub access",

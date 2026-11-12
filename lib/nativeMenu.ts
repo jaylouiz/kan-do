@@ -59,6 +59,16 @@ export interface MenuDeps {
 }
 
 /**
+ * Runs `open` on the board: goes to `/tasks` first and waits for the render, because the day-close and feedback
+ * dialogs are mounted by `pages/tasks.vue`. Shared by the menu bar and the command palette (#224).
+ */
+export async function openOnBoard(deps: Pick<MenuDeps, 'navigate' | 'afterRender'>, open: () => void): Promise<void> {
+  await deps.navigate('/tasks')
+  await deps.afterRender()
+  open()
+}
+
+/**
  * Handler per custom item. Items that open a dialog do nothing while another dialog is open. The day-close and
  * feedback dialogs are mounted by `pages/tasks.vue`, so those items go to the board first.
  */
@@ -68,11 +78,7 @@ export function menuActionHandlers(deps: MenuDeps): Record<MenuActionId, () => P
     if (deps.dialogOpen()) return
     await run()
   }
-  const onBoard = (open: () => void) => dialog(async () => {
-    await deps.navigate('/tasks')
-    await deps.afterRender()
-    open()
-  })
+  const onBoard = (open: () => void) => dialog(() => openOnBoard(deps, open))
   return {
     'app.settings': go('/settings'),
     // A child route of the board: an open day-close, recap or palette dialog would stay mounted under the sheet.

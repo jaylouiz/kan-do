@@ -4,7 +4,7 @@
 @usage Always rendered as the top-level component; contains <NuxtPage /> to display the current route
 @responsibility
 - Mount the global app bar once (#470, ADR 017), before the page
-- Mount the update and what's-new dialogs once on desktop (#225, #226)
+- Mount the command palette once, while the app bar shows (#224), and the update and what's-new dialogs once on desktop (#225, #226)
 - Provide Nuxt UI app context and the window drag strip for Tauri (#614): the title bar is an overlay, so the
   app bar row doubles as the window's grab area (`.titlebar`, desktop shell only; under a full-screen layer
   `plugins/desktop-shell.client.ts` takes over)
@@ -35,6 +35,8 @@
       />
     </NuxtLayout>
     <component :is="CopyEditorHost" v-if="CopyEditorHost" />
+    <!-- The command palette on every page with an app bar (#224); `useCommandPalette` holds the state, so one instance only -->
+    <CommandPalette v-if="showsBar" />
     <UpdateDialog v-if="updaterAvailable" />
     <WhatsNewDialog v-if="updaterAvailable" />
   </UApp>
@@ -44,6 +46,8 @@
 import { defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 import AppNav from "~/components/nav/AppNav.vue";
+import CommandPalette from "~/components/CommandPalette.vue";
+import { useAppNav } from "~/composables/useAppNav";
 import UpdateDialog from "~/components/updates/UpdateDialog.vue";
 import WhatsNewDialog from "~/components/updates/WhatsNewDialog.vue";
 import { useAppUpdater } from "~/composables/useAppUpdater";
@@ -59,6 +63,8 @@ import { TaskStatus } from "~/types/taskStatus";
 const CopyEditorHost = __COPY_EDITOR__ ? defineAsyncComponent(() => import("~/dev-tools/copy-editor/CopyEditorHost.vue")) : null;
 
 const { syncPendingChanges } = useTaskSync();
+// The palette (and its Cmd/Ctrl+K) goes with the app bar: no bar on /welcome, nothing to command there
+const { showsBar } = useAppNav();
 const timerDriver = useTaskTimerDriver();
 // Desktop only: the macOS menu bar (#614); a no-op on the web.
 useNativeMenu();

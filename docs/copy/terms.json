@@ -765,5 +765,21 @@
     "avoidEn": [],
     "status": "proposed",
     "note": "Toast \"Aufgabe gewechselt\" / \"Task switched\" and the keyboard live region. The code and the issue say swap; the UI does not (de \"tauschen\" would read as exchanging data). Not the Jetzt focus overlay."
+  },
+  {
+    "id": "reset-app",
+    "concept": "Erase everything the user created or connected and start again as on a first launch (kd#227)",
+    "de": "zurücksetzen",
+    "en": "reset",
+    "avoidDe": [
+      "Werkseinstellungen",
+      "Alles löschen"
+    ],
+    "avoidEn": [
+      "factory reset",
+      "wipe"
+    ],
+    "status": "proposed",
+    "note": "The command, the section and the dialog say \"App zurücksetzen\" / \"Reset app\"; the effect is described with Löschen / delete (the decided data term). Proposed by the #227 build; the user decides."
   }
 ]

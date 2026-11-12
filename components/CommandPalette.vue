@@ -2,13 +2,14 @@
 @component CommandPalette
 @kind component
 @category navigation
-@description Cmd/Ctrl+K command palette: board-wide commands plus actions for the card that held
-keyboard focus when the palette opened (issue #101, Direction B).
-@usage Mounted once in pages/tasks.vue; open with Cmd/Ctrl+K. Desktop/keyboard only (no entry point on mobile).
+@description Cmd/Ctrl+K command palette: app-wide commands (places, update, data, feedback) plus actions for the card that held
+keyboard focus when the palette opened (issue #101, Direction B; on every page since #224).
+@usage Mounted once in app.vue while the app bar shows (not on /welcome); open with Cmd/Ctrl+K or the ⋯ panel's "Befehle". Desktop/keyboard only (no entry point on mobile).
 @avoid Not for pointer navigation (AppNav, MorePanel); desktop and keyboard only, there is no entry point on a phone.
 @responsibility
 - Render UCommandPalette inside UModal; Esc closes and focus returns to the card
 - Show the shortcut hints of the commands (`kbds`) and the palette's own keys in the footer
+- The "focus a task with Tab" hint only on the board, the one place a card can have focus
 - Empty and loading states; screen-reader result status via role="status"
 -->
 <template>
@@ -36,7 +37,7 @@ keyboard focus when the palette opened (issue #101, Direction B).
           </EmptyNote>
         </template>
         <template #footer>
-          <p v-if="!hasCard" class="px-3 pt-2 text-xs text-muted">
+          <p v-if="onBoard && !hasCard" class="px-3 pt-2 text-xs text-muted">
             {{ t('commandPalette.noCardHint') }}
           </p>
           <div class="flex items-center gap-4 px-3 py-2 text-xs text-muted">
@@ -64,21 +65,15 @@ import { useI18n } from 'vue-i18n'
 import EmptyNote from '~/components/ui/EmptyNote.vue'
 import { useTasksStore } from '~/store/tasks'
 import { useCommandPalette } from '~/composables/useCommandPalette'
+import { useAppNav } from '~/composables/useAppNav'
 
 defineOptions({ name: 'CommandPalette' })
-
-const emit = defineEmits<{
-  openStatistics: []
-  openSettings: []
-}>()
 
 const { t } = useI18n()
 const tasksStore = useTasksStore()
 
-const { isOpen, groups, hasCard, open, restoreFocus } = useCommandPalette({
-  openStatistics: () => emit('openStatistics'),
-  openSettings: () => emit('openSettings'),
-})
+const { onBoard } = useAppNav()
+const { isOpen, groups, hasCard, open, restoreFocus } = useCommandPalette()
 
 // Not usingInput: the shortcut stays silent while typing in fields. Desktop keyboards only.
 // Nuxt UI maps `meta_k` to Ctrl+K off macOS (Cmd+K on macOS); the explicit `ctrl_k` also gives macOS a Ctrl+K (kd#23).

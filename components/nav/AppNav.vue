@@ -15,7 +15,7 @@
 - A failing source puts a status dot on ⋯ (error for broken, else warning) and the accessible name says so; the panel explains it
 - Tag abschließen: closes the panel, returns focus to ⋯, then opens the dialog, so the dialog's return target is ⋯ and not a removed row
 - Phone: fades out and ignores pointers while a card is dragged (no drop target is covered); the pills and the veil fade
-- Desktop ⋯ tooltip "Mehr" (+ "Befehle ⌘K" on the board, where the palette is mounted); no tooltip on touch
+- Desktop ⋯ tooltip "Mehr · Befehle ⌘K" on every page (the palette is mounted once in app.vue, #224); no tooltip on touch
 -->
 <template>
   <nav
@@ -124,7 +124,7 @@ defineOptions({ name: 'AppNav' })
 
 const { t } = useI18n()
 const route = useLiveRoute()
-const { showsBar, currentPlace, onBoard, thirdItem } = useAppNav()
+const { showsBar, currentPlace, thirdItem } = useAppNav()
 const { dragState } = useBoardDragState()
 const { open: openDayClose } = useDayClose()
 const boardStore = useBoardStore()
@@ -147,9 +147,9 @@ watch(open, (isOpen) => {
 /** Phone layout: no hover (no tooltip) and the panel opens upward from the bottom bar */
 const isPhone = useMediaQuery(BREAKPOINT_QUERIES.phone)
 
-// The ⋯ tooltip teaches the palette on the board, where CommandPalette is mounted (pages/tasks.vue)
-const tooltipKbds = computed(() => (onBoard.value ? ['meta', 'k'] : undefined))
-const tooltipText = computed(() => (onBoard.value ? t('nav.moreWithCommands', { commands: t('nav.commands') }) : t('nav.more')))
+// The ⋯ tooltip teaches the palette on every page: CommandPalette is mounted in app.vue next to the bar (#224)
+const tooltipKbds = ['meta', 'k']
+const tooltipText = computed(() => t('nav.moreWithCommands', { commands: t('nav.commands') }))
 
 // A source that cannot sync stays visible on ⋯ (the dock's sync icon is gone); a healthy sync is silent
 const worstProblem = computed(() => health.problemsOf(boardStore.connectedIntegrations)[0] ?? null)

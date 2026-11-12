@@ -8,7 +8,7 @@ export/import (#224, ADR 011). Mostly text; the path is shown because choosing t
 - Show the folder (middle-ellipsised, full path in the tooltip), last-saved time and schema version; for an iCloud folder one muted line with the upload state (#271)
 - "Ordner ändern…" opens the native picker, then DataFolderChangeModal; "Im Finder zeigen" reveals the file
 - Explain every non-ok state in one sentence with the few actions it allows; web shows nothing but export/import
-- Hosts the one confirmation modal for restore (backup or conflict copy) and import
+- Hosts the one confirmation modal for restore (backup or conflict copy) and import; ends with the "App zurücksetzen" section (kd#227, asks in place)
 -->
 <template>
   <div>
@@ -69,6 +69,7 @@ export/import (#224, ADR 011). Mostly text; the path is shown because choosing t
           <DataConflictCopies @restore="onRestoreCopy" />
         </template>
         <DataExportImport @import="onImport" />
+        <DataResetSection />
       </div>
 
       <DataFolderChangeModal v-if="desktop" v-model:open="modalOpen" :choice="choice" @after:leave="restoreFocus" />
@@ -85,6 +86,7 @@ import { useI18n } from 'vue-i18n';
 import DataBackupList from '~/components/settings/DataBackupList.vue';
 import DataConflictCopies from '~/components/settings/DataConflictCopies.vue';
 import DataExportImport from '~/components/settings/DataExportImport.vue';
+import DataResetSection from '~/components/settings/DataResetSection.vue';
 import DataFolderChangeModal from '~/components/settings/DataFolderChangeModal.vue';
 import DataRestoreModal, { type RestoreRequest } from '~/components/settings/DataRestoreModal.vue';
 import DataStorageNotice from '~/components/settings/DataStorageNotice.vue';

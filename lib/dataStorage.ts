@@ -51,6 +51,27 @@ const SECRET_STORAGE_KEYS: ReadonlySet<string> = new Set(SECRET_STATE_LOCATIONS.
 /** Open `withoutPersistence` windows (nesting-safe). */
 let persistenceMuted = 0
 
+/** Set once an app reset has erased the data (kd#227): the page is about to reload, nothing may be written back. */
+let writesFrozen = false
+
+/**
+ * Makes `appStorage.setItem` drop every write until the page is gone: a deferred store write or the unload sync that
+ * runs while the window reloads onto the welcome page must not bring the erased state back. One-way within a page life;
+ * only a web reset whose commit rolled back lifts it again (`unfreezeWrites`).
+ */
+export function freezeWrites(): void {
+  writesFrozen = true
+}
+
+/** The rollback of a failed web reset: the old data stays, so writes must work again. */
+export function unfreezeWrites(): void {
+  writesFrozen = false
+}
+
+export function isWritesFrozen(): boolean {
+  return writesFrozen
+}
+
 /**
  * Runs `fn` with `appStorage.setItem` dropping writes for the stores that hold a secret path, and keeps
  * that window open until the stores' pending `$subscribe` flush has happened (`await nextTick()` after
@@ -113,6 +134,7 @@ export const appStorage = {
     return webStorage()?.getItem(key) ?? null
   },
   setItem(key: string, value: string): void {
+    if (writesFrozen) return
     if (persistenceMuted > 0 && SECRET_STORAGE_KEYS.has(key)) return
     const active = runtime
     if (!active || !PERSISTED_KEY_SET.has(key)) {
@@ -251,6 +273,7 @@ function requireBackend(): DataBackend {
 
 /** Test helper: back to the web behaviour. */
 export function resetDataStorage(): void {
+  writesFrozen = false
   unsubscribe?.()
   unsubscribe = null
   runtime = null

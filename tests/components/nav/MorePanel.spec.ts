@@ -266,13 +266,15 @@ describe('MorePanel: the Mehr panel (#470)', () => {
       w.unmount()
     })
 
-    it('Befehle is the first row on the board and emits commands; absent off the board', async () => {
+    it('Befehle is the first row on every page (#224) and emits commands', async () => {
       const w = render()
       expect(w.find('[data-testid="more-commands"]').text()).toContain('Befehle')
       await w.find('[data-testid="more-commands"]').trigger('click')
       expect(w.emitted('commands')).toHaveLength(1)
       route.path = '/trash'
-      expect(render().find('[data-testid="more-commands"]').exists()).toBe(false)
+      const off = render()
+      expect(off.find('[data-testid="more-commands"]').exists()).toBe(true)
+      expect(off.find('[data-testid="more-day-close"]').exists()).toBe(false)
     })
   })
 })
