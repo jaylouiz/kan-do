@@ -56,7 +56,8 @@ Nuxt UI MCP (`get-component-metadata`, `search-components`) or `.nuxt/ui/<compon
 
 - tool: `playwright-cli` skill (no Chrome installed: a script with the repo's `playwright` chromium, CLAUDE.md "Testing"); seed first (`/tasks?seed=local`), then open the task sheet from the board or `goto /tasks/seed-open-1`; a detail URL without the seed step loses the seed
 - widths: 1280 and 390; light only
-- entry URL: `http://localhost:<port>/tasks?seed=local` (`?seed=dayclose` for the end-of-day dialog, `?seed=notion` with `npm run dev:e2e`)
+- entry URL: `http://localhost:<port>/tasks?seed=local` (`?seed=dayclose` for the end-of-day dialog, `?seed=notion` with `npm run dev:e2e`; a seed switches the Jetzt focus overlay off, `&focus=1` shows it)
+- phone browser chrome (Safari's toolbar and status bar tint, safe areas): the iOS simulator runs the local dev server, `xcrun simctl boot <device>`, `xcrun simctl openurl <device> "http://localhost:<port>/…"`, `xcrun simctl io <device> screenshot <file>` (kd#207; Playwright shows no browser bars)
 - desktop-only pages (`/settings/data`, `/settings/github`): `desktop-pages-shots.spec.ts` (skill `desktop-verify`)
 - motion (stack collapse and other script animations): `npm run motion:film` (paused, seeked filmstrips plus jump/pop checks; usage in `scripts/motion-film.mts`), in Design and Build alike; it has no nav or app-bar target (#616: use a seeked filmstrip there)
 - completion effects at 390px (headless, #692): the mobile board shows one column page; focusing a card in Erledigt switches to that page (`focusin`). To replay a completion effect on that card, push its id into the board store's transient `confirmingTaskIds` (`store/board.ts`) through the page's Pinia instance; say in the round that the shot replays an already-done card. A real completion on desktop: the drag helpers in `.claude/rules/e2e.md`. Seek motion by timing (e.g. 150/350/600 ms) when `motion:film` has no target.
