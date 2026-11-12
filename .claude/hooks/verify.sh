@@ -64,7 +64,8 @@ verify_root() {
   # Anything but the single word `fast` is quality: a typo can only make the checks stricter.
   # checks.tsv tier column: `fast` in fast mode, `-` in quality (unchanged rows).
   local mode=quality tier=-
-  [ "$(tr -d '[:space:]' <.claude/testing-mode 2>/dev/null)" = fast ] && mode=fast tier=fast
+  # Through the script, so a worktree without its own file follows the main checkout (kd#222)
+  [ "$(node scripts/testing-mode.mjs "$PWD" 2>/dev/null)" = fast ] && mode=fast tier=fast
 
   run() {
     local label=$1
