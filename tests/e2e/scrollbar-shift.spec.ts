@@ -14,6 +14,7 @@
 import { test, expect, type Page } from '@playwright/test'
 import { seedLocalBoard, fillerTasks, SEED_TASKS } from './helpers/seed'
 import { openDayClose } from './helpers/appNav'
+import { showColumnPage } from './helpers/dnd'
 import { forceClassicScrollbar, tagElements, boxes, moved, documentScrollbar } from './helpers/layoutShift'
 
 test.use({ launchOptions: { ignoreDefaultArgs: ['--hide-scrollbars'] } })
@@ -64,6 +65,7 @@ for (const viewport of [{ name: 'desktop', width: 1280, height: 700 }, { name: '
         await forceClassicScrollbar(page)
         await page.goto('/tasks')
         await expect(page.locator('.task-wrapper').first()).toBeVisible()
+        await showColumnPage(page, 0) // the board opens on Jetzt while a task sits there (kd#191)
         // The precondition: a classic scrollbar takes width from the page (not on touch layouts, where the board scrolls inside)
                 if (viewport.width > 767) await expect.poll(() => documentScrollbar(page), { message: 'the document has a classic scrollbar' }).toBeGreaterThan(0)
         await tagElements(page)

@@ -85,9 +85,8 @@ three tools (Rechteck, Pfeil, Schwärzen), undo last, clear all, and the toggle 
         icon="i-ph-x-circle"
         role="alert"
         :description="captureFailure === 'too_large' ? t('feedback.screenshot.tooLarge') : t('feedback.screenshot.failed')"
-        data-testid="annotate-capture-failed"
       />
-      <p class="text-xs text-muted" data-testid="annotate-hint">{{ t('feedback.annotate.drawHint') }}</p>
+      <p class="text-xs text-muted">{{ t('feedback.annotate.drawHint') }}</p>
     </div>
   </div>
 </template>

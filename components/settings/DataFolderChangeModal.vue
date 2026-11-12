@@ -33,7 +33,6 @@ stays), a folder that already holds data offers "use the data already there" (th
           icon="i-ph-x-circle"
           role="alert"
           :description="blockedText"
-          data-testid="data-folder-blocked"
         />
 
         <template v-else-if="step === 'confirm'">
@@ -70,7 +69,6 @@ stays), a folder that already holds data offers "use the data already there" (th
           icon="i-ph-x-circle"
           role="alert"
           :description="errorText"
-          data-testid="data-folder-error"
         />
       </div>
     </template>

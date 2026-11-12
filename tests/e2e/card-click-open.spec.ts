@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
 import { seedLocalBoard, type SeedTask } from './helpers/seed'
-import { pickUp, hover, dropSettled } from './helpers/dnd'
+import { pickUp, hover, dropSettled, showColumnPage } from './helpers/dnd'
 import { dwell, flushFrames, focusUntilActive, settleAnimations, settleStack } from './helpers/settle'
 
 /**
@@ -232,6 +232,7 @@ test.describe('Card click opens (kd#25): touch', () => {
   test('a tap opens the sheet and the card has no hover lift', async ({ context, page }) => {
     await seedLocalBoard(context, PLAIN)
     await page.goto('/tasks')
+    await showColumnPage(page, 0) // the board opens on Jetzt while a task sits there (kd#191)
     await expect(face(page, 'p1')).toBeVisible()
     const noHover = await page.evaluate(() => matchMedia('(hover: hover)').matches === false)
     expect(noHover).toBe(true)

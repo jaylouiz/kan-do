@@ -34,7 +34,6 @@ showing it.
               variant="soft"
               color="neutral"
               :disabled="copy.schemaVersion > CURRENT_SCHEMA_VERSION || !canRestore"
-              data-testid="data-copy-restore"
               @click="emit('restore', copy)"
             >
               {{ t('settings.data.copies.restore') }}
@@ -44,7 +43,6 @@ showing it.
               color="neutral"
               :loading="filing === copy.name"
               :disabled="filing !== null"
-              data-testid="data-copy-file"
               @click="onFile(copy.name)"
             >
               {{ t('settings.data.copies.file') }}
@@ -60,7 +58,6 @@ showing it.
       icon="i-ph-x-circle"
       role="alert"
       :description="errorText"
-      data-testid="data-copies-error"
     />
   </PageSheet>
 </template>

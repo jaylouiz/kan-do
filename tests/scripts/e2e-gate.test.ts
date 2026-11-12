@@ -705,7 +705,7 @@ describe('config guard', () => {
 
   it('names only specs that exist in tests/e2e', () => {
     const named = [...config.smoke, ...config.map.flatMap(rule => rule.specs)]
-    expect(named.filter(name => !existingSpecs.includes(name))).toEqual([])
+    expect(named.filter(name => !existingSpecs.includes(name)), 'a renamed or deleted spec is still named in .claude/hooks/e2e-gate.json: rename or remove it in "smoke" and in every "specs" list').toEqual([])
   })
 
   it('has no duplicate smoke entry and the agreed seven', () => {
@@ -773,6 +773,8 @@ describe('app shell and archive mappings (#493)', () => {
   const NO_PHONE_ASSERTIONS = new Set(['desktop-pages-shots', 'ui-shell', 'ui-catalog'])
   const phoneSpecs = existingSpecs.filter(name => /\b390\b/.test(e2eSources[`tests/e2e/${name}.spec.ts`] ?? '') && !NO_PHONE_ASSERTIONS.has(name))
   const dndSpecs = config.map.find(rule => rule.paths.includes('composables/useBoardDndKit.ts'))?.specs ?? []
+  /** The failure names the fix (kd#215): `.claude/rules/e2e.md` loads only once a file under tests/e2e is read, which is after a new spec was written. */
+  const SHELL_FIX = 'a spec that names a 390 viewport (or belongs to the DnD spec set) must run when the app shell changes: add its name to the "specs" of the app-shell rule in .claude/hooks/e2e-gate.json (the rule whose "paths" hold app.vue and components/nav/**), or move the test into a spec that rule already lists; a spec that mentions 390 without asserting shell geometry goes into NO_PHONE_ASSERTIONS in this file with its reason'
 
   it('finds the specs to guard', () => {
     expect(phoneSpecs).toEqual(expect.arrayContaining(['archive-feature', 'mobile-app-bar', 'stack-mobile']))
@@ -781,7 +783,7 @@ describe('app shell and archive mappings (#493)', () => {
 
   it.each(SHELL_FILES)('runs every spec with a 390px viewport and the whole DnD spec set when %s changes', (file) => {
     const specs = specsFor(file)
-    expect([...phoneSpecs, ...dndSpecs].filter(name => !specs.has(name))).toEqual([])
+    expect([...phoneSpecs, ...dndSpecs].filter(name => !specs.has(name)), SHELL_FIX).toEqual([])
     for (const name of ['archive-feature', 'dnd-open-column-gap']) expect(specs.has(name), name).toBe(true)
   })
 

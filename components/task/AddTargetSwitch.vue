@@ -24,7 +24,6 @@
       align="start"
       :disabled="isSaving"
       :picker-ui="{ content: 'min-w-64 max-w-xs', itemDescription: 'whitespace-normal' }"
-      data-testid="add-target-select"
       @update:model-value="(value) => setTarget(value as SourceId)"
     />
   </div>

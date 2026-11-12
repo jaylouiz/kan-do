@@ -40,7 +40,6 @@
       variant="link"
       class="mt-2 min-h-11 px-0"
       :label="showAll ? t('statistics.patterns.showFewer') : t('statistics.patterns.showAll', { n: patterns.length })"
-      data-testid="stats-patterns-more"
       @click="showAll = !showAll"
     />
   </div>

@@ -4,6 +4,7 @@
  */
 import { test, expect, type Page } from '@playwright/test'
 import { seedLocalBoard } from './helpers/seed'
+import { showColumnPage } from './helpers/dnd'
 import { openDayClose, openMore, morePanel } from './helpers/appNav'
 
 const dialog = (page: Page) => page.getByRole('dialog')
@@ -70,6 +71,7 @@ for (const viewport of [{ name: 'desktop', width: 1280, height: 800 }, { name: '
     // kd#179: menus and popovers are 16 px sheets like the dialogs and toasts
     test('a context menu and the Mehr popover take the 16 px radius', async ({ page }) => {
       await page.goto('/tasks')
+      await showColumnPage(page, 0) // the board opens on Jetzt while a task sits there (kd#191)
       await page.locator('.task-wrapper').first().click({ button: 'right' })
       await expect(page.getByRole('menu')).toBeVisible()
       await expect.poll(() => page.getByRole('menu').first().evaluate((el) => getComputedStyle(el).borderTopLeftRadius)).toBe('16px')
@@ -83,6 +85,7 @@ for (const viewport of [{ name: 'desktop', width: 1280, height: 800 }, { name: '
 
     test('context menu carries --shadow-overlay, not the stock shadow', async ({ page }) => {
       await page.goto('/tasks')
+      await showColumnPage(page, 0) // the board opens on Jetzt while a task sits there (kd#191)
       await page.locator('.task-wrapper').first().click({ button: 'right' })
       await expect(page.getByRole('menu')).toBeVisible()
       const token = layersOf(await overlayToken(page))

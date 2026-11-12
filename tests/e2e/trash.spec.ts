@@ -3,6 +3,7 @@ import AxeBuilder from '@axe-core/playwright'
 import { elapse, elapseWindow, installClock, pinnedNow, startOfDay } from './helpers/clock'
 import { seedLocalBoard, seedMixedBoard, seedTrash, trashTask, SEED_TASKS, MIXED_SEED_TASKS } from './helpers/seed'
 import { closeMore, goToPlace, openMore, openTrash } from './helpers/appNav'
+import { showColumnPage } from './helpers/dnd'
 
 /**
  * Trash and in-card delete confirmation (#422). Sequences, not single calls: delete -> undo -> delete, delete ->
@@ -320,6 +321,7 @@ test.describe('delete is confirmed in the card slot (#422)', () => {
   test('390px: the gap is the compact 46px note and Papierkorb opens the page', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/tasks')
+    await showColumnPage(page, 0) // the board opens on Jetzt while a task sits there (kd#191)
     await deleteCard(page, OPEN_TITLE)
     await expect(gap(page)).toContainText('Im Papierkorb')
     // compact (#57): 46px under 768px (the box glides there in 220 ms, so poll)

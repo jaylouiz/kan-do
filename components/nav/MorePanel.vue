@@ -119,7 +119,7 @@
     </UButton>
 
     <USeparator class="my-1" />
-    <div class="space-y-2" data-testid="more-sync-footer">
+    <div class="space-y-2">
       <div v-if="worstProblem" class="space-y-2 p-2" :data-testid="`sync-problem-${worstProblem.source}`">
         <p class="flex items-start gap-2 text-sm font-medium text-highlighted">
           <UIcon :name="PROBLEM_ICONS[worstProblem.status]" class="mt-0.5 size-4 shrink-0" :class="problemTone" aria-hidden="true" />

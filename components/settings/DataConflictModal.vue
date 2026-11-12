@@ -22,7 +22,7 @@ it collapses to one action, "Neu laden".
     :dismissible="!working"
   >
     <template #body>
-      <div v-if="conflict" class="space-y-4" data-testid="data-conflict-modal">
+      <div v-if="conflict" class="space-y-4">
         <dl class="space-y-3 text-sm">
           <div class="space-y-0.5">
             <dt class="font-medium text-highlighted">{{ t('settings.data.conflict.theirs') }}</dt>
@@ -37,7 +37,7 @@ it collapses to one action, "Neu laden".
         <p class="text-body text-muted">
           {{ conflict.localChanges ? t('settings.data.conflict.bothKept') : t('settings.data.conflict.noChanges') }}
         </p>
-        <p v-if="blockedHint" class="text-body text-default" data-testid="data-conflict-hint">{{ blockedHint }}</p>
+        <p v-if="blockedHint" class="text-body text-default">{{ blockedHint }}</p>
         <UAlert
           v-if="errorText"
           color="error"
@@ -52,7 +52,7 @@ it collapses to one action, "Neu laden".
 
     <template #footer>
       <div class="flex w-full flex-wrap items-center justify-end gap-2">
-        <UButton color="neutral" variant="soft" :disabled="working" data-testid="data-conflict-later" @click="isOpen = false">
+        <UButton color="neutral" variant="soft" :disabled="working" @click="isOpen = false">
           {{ t('settings.data.conflict.later') }}
         </UButton>
         <template v-if="conflict?.localChanges">
@@ -61,7 +61,6 @@ it collapses to one action, "Neu laden".
             variant="soft"
             :loading="working && pending === 'theirs'"
             :disabled="working || !conflict.theirs.readable"
-            data-testid="data-conflict-theirs-action"
             @click="onResolve('theirs')"
           >
             {{ t('settings.data.conflict.loadTheirs') }}
@@ -71,7 +70,6 @@ it collapses to one action, "Neu laden".
             color="primary"
             :loading="working && pending === 'mine'"
             :disabled="working || theirsIsNewer"
-            data-testid="data-conflict-mine-action"
             @click="onResolve('mine')"
           >
             {{ t('settings.data.conflict.keepMine') }}
@@ -83,7 +81,6 @@ it collapses to one action, "Neu laden".
           color="primary"
           :loading="working"
           :disabled="working || (conflict !== null && !conflict.theirs.readable)"
-          data-testid="data-conflict-reload"
           @click="onResolve('theirs')"
         >
           {{ t('settings.data.conflict.reload') }}

@@ -63,7 +63,7 @@ optional element, optional screenshot, automatic context line), the annotate ste
               <span class="ml-1 text-toned">{{ elementName }}</span>
               <span class="block truncate font-mono text-xs text-toned">{{ draft.element.selector }}</span>
             </p>
-            <UButton color="neutral" variant="ghost" data-testid="feedback-element-remove" @click="draft.element = null">
+            <UButton color="neutral" variant="ghost" @click="draft.element = null">
               {{ t('feedback.removeElement') }}
             </UButton>
           </div>
@@ -138,7 +138,7 @@ optional element, optional screenshot, automatic context line), the annotate ste
           <template v-if="fallbackKnown">{{ t('feedback.publicAccount') }}</template>
         </p>
 
-        <p class="flex items-center gap-2 text-xs text-muted" data-testid="feedback-context-line">
+        <p class="flex items-center gap-2 text-xs text-muted">
           <span>{{ t('feedback.contextLine', { summary: contextSummary }) }}</span>
           <UButton color="neutral" variant="link" :disabled="!titleValid" class="md:h-auto max-md:min-h-0 p-0" @click="toReview">
             {{ t('feedback.contextReview') }}
@@ -158,7 +158,6 @@ optional element, optional screenshot, automatic context line), the annotate ste
             v-model="draft.include.element"
             :label="t('feedback.review.itemElement', { name: elementName })"
             color="neutral"
-            data-testid="feedback-include-element"
           />
           <UCheckbox
             v-if="draft.element?.taskId && draft.include.element"
@@ -171,7 +170,7 @@ optional element, optional screenshot, automatic context line), the annotate ste
           />
           <UCheckbox
 v-model="draft.include.environment" :label="t('feedback.review.itemEnvironment')" color="neutral"
-            data-testid="feedback-include-environment" />
+            />
           <UCheckbox
 v-model="draft.include.version" :label="t('feedback.review.itemVersion')" color="neutral"
             data-testid="feedback-include-version" />
@@ -236,7 +235,6 @@ v-if="logTail" v-model="draft.include.log" :label="t('feedback.review.itemLog')"
           icon="i-ph-x-circle"
           role="alert"
           :description="t('feedback.problem.clipboardFailed')"
-          data-testid="feedback-clipboard-failed"
         />
         <p v-if="sending" class="text-body text-muted" role="status">{{ sendingText }}</p>
       </div>
@@ -250,7 +248,7 @@ v-if="logTail" v-model="draft.include.log" :label="t('feedback.review.itemLog')"
         <UButton v-else-if="canUndoDiscard" color="neutral" variant="ghost" class="mr-auto" data-testid="feedback-undo-discard" @click="undoDiscard">
           {{ t('common.undo') }}
         </UButton>
-        <UButton color="neutral" variant="soft" data-testid="feedback-cancel" @click="close">{{ t('common.cancel') }}</UButton>
+        <UButton color="neutral" variant="soft" @click="close">{{ t('common.cancel') }}</UButton>
         <UButton size="lg" color="primary" :disabled="!titleValid" data-testid="feedback-next" @click="toReview">{{ t('feedback.next') }}</UButton>
       </template>
       <template v-else-if="step === 'annotate'">

@@ -168,6 +168,19 @@ test.describe('/ui one-page view: dev-tool acceptance', () => {
   })
 })
 
+// kd#213: a list is portalled out of its sample, so neither the fingerprint (the sample's root) nor a baseline sees its
+// rows. In slice 1b the `lg` row of a USelect dropped from 36 to 34.2 px with the interface line height and no check moved.
+test.describe('/ui open lists', () => {
+  test('USelect: an option row of the open list is 36 px high, like the field', async ({ page }) => {
+    await openCatalog(page, 'c=USelect')
+    await page.locator('[data-kd-sample="USelect:matrix:lg"]').getByRole('combobox').click()
+    const option = page.getByRole('option').first()
+    await expect(option).toBeVisible()
+    // the layout height: the list scales in, so a bounding box is short while it opens
+    expect(await option.evaluate(el => (el as HTMLElement).offsetHeight)).toBe(36) // `min-h-9` in the `select` theme
+  })
+})
+
 test.describe('/ui style fingerprint', () => {
   test('the computed styles of every sample match tests/e2e/snapshots/ui-catalog/', async ({ page }, testInfo) => {
     // the one-page view: every sample of every entry, the whole theme of each library matrix

@@ -10,7 +10,7 @@
 - Manages drag-and-drop functionality between columns
 - Handles task status changes and column order updates
 - Provides visual feedback during task interactions
-- Phone: three column pages moved by swipe and drag edge-scroll only (no tabs, #470); the active page is `data-mobile-page`
+- Phone: three column pages moved by swipe and drag edge-scroll only (no tabs, #470); the active page is `data-mobile-page`. It opens on Jetzt while a task sits there, else on Offen (kd#191)
   and focus entering an off-screen page makes it active (the keyboard / screen-reader path the tabs were)
 - Phone: BoardPageDots, a non-interactive three-dot page indicator above the column title (kd#26)
 - Erledigt footer: the "Tag abschließen" CTA while something is done today
@@ -182,7 +182,7 @@ import { useNewDayRecap } from "~/composables/useNewDayRecap";
 import { useSettingsStore } from "~/store/settings";
 import { useArchiveDoneTasks } from "~/composables/useArchiveDoneTasks";
 import { useDayClose } from "~/composables/useDayClose";
-import { useIsPhone } from '~/composables/useIsDesktop';
+import { isPhoneNow, useIsPhone } from '~/composables/useIsDesktop';
 
 /**
  * Script-API: orchestrates kanban data via stores/composables, wires DnD
@@ -264,8 +264,13 @@ const tasksDone = computed(() => tasksStore.tasksDoneToday);
 // activeMobileTab drives translateX so no scroll container is needed. No tabs (#470): a swipe, the drag
 // edge-scroll and focus entering a page move it; it is exposed as data-mobile-page on .board.
 
-/** Index of the currently-visible column page on mobile (0=Open, 1=Mid, 2=Done) */
-const activeMobileTab = ref(0);
+/**
+ * Index of the currently-visible column page on mobile (0=Open, 1=Mid, 2=Done). A phone opens the board on the
+ * Jetzt page while a task sits in Jetzt, so the running task and its timebox are there at a glance (kd#191); with an
+ * empty Jetzt it opens on Offen, where the next task is picked. Read once at setup (the app is client-rendered: the
+ * stores and the media query are there), so the first paint is already that page and nothing slides.
+ */
+const activeMobileTab = ref(import.meta.client && isPhoneNow() && tasksProgress.value.length > 0 ? 1 : 0);
 
 /** True when the viewport is ≤767 px (updated reactively via MediaQueryList) */
 const isMobile = useIsPhone();
