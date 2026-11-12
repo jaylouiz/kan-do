@@ -143,7 +143,7 @@
             @edit="(name) => openEditor('topic', name)"
           />
         </TaskPropertyRow>
-        <div v-if="editing?.kind === 'topic'" class="ms-25 max-md:ms-0" data-testid="topic-editor-slot">
+        <div v-if="editing?.kind === 'topic'" class="ms-25 max-md:ms-0">
           <TopicEditorHost :key="`topic:${editing.name}`" nested :topic="editing.name" kind="topic" @close="closeEditor" />
         </div>
 
@@ -164,7 +164,7 @@
             @edit="(name) => openEditor('activity', name)"
           />
         </TaskPropertyRow>
-        <div v-if="editing?.kind === 'activity'" class="ms-25 max-md:ms-0" data-testid="activity-editor-slot">
+        <div v-if="editing?.kind === 'activity'" class="ms-25 max-md:ms-0">
           <TopicEditorHost :key="`activity:${editing.name}`" nested kind="activity" :topic="editing.name" @close="closeEditor" />
         </div>
 
@@ -202,7 +202,6 @@
             v-if="showSuggestion && timeboxSuggestion"
             tone="action"
             :aria-describedby="suggestionHintId"
-            data-testid="timebox-suggestion"
             @click="applySuggestion"
           >
             {{ t('task.property.suggest', { n: timeboxSuggestion.suggestedMinutes }) }}

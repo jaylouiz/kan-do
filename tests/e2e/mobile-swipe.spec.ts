@@ -18,7 +18,8 @@ test.describe('Mobile swipe axis lock', () => {
   const boardTransform = (page: Page) => page.locator('.board').evaluate(el => getComputedStyle(el).transform);
 
   test.beforeEach(async ({ context, page }) => {
-    await seedLocalBoard(context, [...longOpen, ...SEED_TASKS.filter(task => task.status !== 0)]);
+    // Jetzt stays empty, so the board opens on Offen (kd#191), the page these gestures start from
+    await seedLocalBoard(context, [...longOpen, ...SEED_TASKS.filter(task => task.status !== 0 && task.status !== 1)]);
     await page.goto('/tasks');
     await expect(page.locator('#column-open .task-wrapper').first()).toBeVisible();
   });
@@ -224,5 +225,27 @@ test.describe('Page dots under the focus overlay (kd#26)', () => {
     await page.addStyleTag({ content: '.focus-overlay { display: none !important; }' });
     const withoutOverlay = await page.screenshot({ clip, animations: 'disabled' });
     expect(withOverlay.equals(withoutOverlay)).toBe(false);
+  });
+});
+
+// kd#191: the running task and its timebox are the first thing a phone shows, not one swipe away.
+test.describe('Phone board: the page it opens on (kd#191)', () => {
+  test.use({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
+
+  test('opens on Jetzt while a task sits there, and still swipes back to Offen', async ({ context, page }) => {
+    await seedLocalBoard(context, SEED_TASKS);
+    await page.goto('/tasks');
+    await expect(page.locator('#column-progress .task-wrapper')).toBeVisible();
+    expect(await activeColumnPage(page)).toBe(1);
+    await expect(page.locator('#column-progress .task-wrapper')).toBeInViewport();
+    await showColumnPage(page, 0);
+    await expect(page.locator('#column-open .task-wrapper').first()).toBeInViewport();
+  });
+
+  test('opens on Offen while Jetzt is empty', async ({ context, page }) => {
+    await seedLocalBoard(context, SEED_TASKS.filter(task => task.status !== 1));
+    await page.goto('/tasks');
+    await expect(page.locator('#column-open .task-wrapper').first()).toBeVisible();
+    expect(await activeColumnPage(page)).toBe(0);
   });
 });

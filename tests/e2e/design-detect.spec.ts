@@ -6,6 +6,7 @@ import { promisify } from 'node:util'
 import { chromium, expect, test, type Browser, type BrowserContext, type Page } from '@playwright/test'
 import { seedLocalBoard, SEED_TASKS } from './helpers/seed'
 import { settleAnimations } from './helpers/settle'
+import { showColumnPage } from './helpers/dnd'
 
 /**
  * Rendered Impeccable detector matrix: every main surface and state at 1280 and 390, scanned with
@@ -88,6 +89,7 @@ const SURFACES: Surface[] = [
     open: async (page, context) => {
       await seedLocalBoard(context)
       await gotoBoard(page)
+      await showColumnPage(page, 0) // the board opens on Jetzt while a task sits there (kd#191)
       await page.locator('#column-open .add-task-button').click()
       await expect(page.getByTestId('new-card-title')).toBeFocused()
     },
@@ -97,6 +99,7 @@ const SURFACES: Surface[] = [
     open: async (page, context) => {
       await seedLocalBoard(context)
       await gotoBoard(page)
+      await showColumnPage(page, 0) // the board opens on Jetzt while a task sits there (kd#191)
       await page.locator('#column-open .add-task-button').click()
       await page.getByTestId('new-card-title').fill('Angebot schreiben')
       await page.keyboard.press('Enter')

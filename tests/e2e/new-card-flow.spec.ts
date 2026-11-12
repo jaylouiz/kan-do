@@ -2,6 +2,7 @@ import { test, expect, type Locator, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { DEFAULT_NOTION_SEED_CONFIG, seedLocalBoard, seedMixedBoard, seedNotionBoard, SEED_TASKS, type SeedTask } from './helpers/seed'
 import { openAddSheet } from './helpers/addSheet'
+import { showColumnPage } from './helpers/dnd'
 import { settleAnimations } from './helpers/settle'
 import { expectContrast } from './helpers/contrast'
 
@@ -57,6 +58,7 @@ for (const { name, viewport, touch } of [
     test.beforeEach(async ({ context, page }) => {
       await seedLocalBoard(context, RICH_TASKS)
       await page.goto('/tasks')
+      await showColumnPage(page, 0) // the board opens on Jetzt while a task sits there (kd#191)
       await expect(offen(page).locator('.task-wrapper').first()).toBeVisible()
     })
 
@@ -335,6 +337,7 @@ test.describe('guided new card, toast on a short phone', () => {
   test.beforeEach(async ({ context, page }) => {
     await seedLocalBoard(context, RICH_TASKS)
     await page.goto('/tasks')
+    await showColumnPage(page, 0) // the board opens on Jetzt while a task sits there (kd#191)
     await expect(offen(page).locator('.task-wrapper').first()).toBeVisible()
   })
 
@@ -623,6 +626,7 @@ test.describe('guided new card: a new value from the Mehr list (kd#16)', () => {
     const page = await context.newPage()
     await seedLocalBoard(context, RICH_TASKS)
     await page.goto('/tasks')
+    await showColumnPage(page, 0) // the board opens on Jetzt while a task sits there (kd#191)
     await expect(offen(page).locator('.task-wrapper').first()).toBeVisible()
     await openCard(page)
     await confirmTitle(page, 'Neues Thema am Telefon')

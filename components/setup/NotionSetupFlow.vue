@@ -21,7 +21,6 @@
       ref="doneRef"
       class="flex flex-col items-center gap-3 py-16 text-center"
       role="status"
-      data-testid="notion-connected"
     >
       <span class="flex size-16 items-center justify-center rounded-full bg-inverted">
         <UIcon name="i-ph-check-bold" class="size-8 text-inverted" aria-hidden="true" />

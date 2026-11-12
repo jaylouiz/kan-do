@@ -100,6 +100,7 @@ test.describe('Mobile app bar', () => {
   test('390px: cards keep a 1rem side gutter, the Jetzt card is as wide as the others', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await openBoard(page);
+    await showColumnPage(page, 0); // the board opens on Jetzt while a task sits there (kd#191)
     const card = (await page.locator('#column-open .task').first().boundingBox())!;
     expect(card.x).toBeGreaterThanOrEqual(16 - 0.5);
     expect(390 - (card.x + card.width)).toBeGreaterThanOrEqual(16 - 0.5);
@@ -152,6 +153,7 @@ test.describe('Mobile app bar', () => {
     await seedLocalBoard(context, [...SEED_TASKS, ...fillerTasks(12)]);
     await page.setViewportSize({ width: 390, height: 844 });
     await openBoard(page);
+    await showColumnPage(page, 0); // the board opens on Jetzt while a task sits there (kd#191)
     const first = (await page.locator('#column-open .task').first().boundingBox())!;
     // Partially scrolled: the arrows move with the header row
     await page.locator('#column-open').evaluate(el => { el.scrollTop = 20; });
@@ -182,6 +184,7 @@ test.describe('Mobile app bar', () => {
   test('390px: the add-task bar is label-wide and centred (#244)', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await openBoard(page, '/tasks?seed=local');
+    await showColumnPage(page, 0); // the board opens on Jetzt while a task sits there (kd#191)
     const add = (await page.locator('.add-task-slot--open .add-task-button').boundingBox())!;
     expect(add.width).toBeLessThan(280);
     expect(add.height).toBeGreaterThanOrEqual(48);
@@ -212,6 +215,8 @@ test.describe('Mobile app bar', () => {
   test('390px: a swipe still switches the pages, and focus entering an off-screen page makes it active', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await openBoard(page);
+    await expect(page.locator('.board')).toHaveAttribute('data-mobile-page', '1'); // a task sits in Jetzt (kd#191)
+    await showColumnPage(page, 0);
     await expect(page.locator('.board')).toHaveAttribute('data-mobile-page', '0');
     await showColumnPage(page, 1);
     await expect(page.locator('.board')).toHaveAttribute('data-mobile-page', '1');
@@ -230,6 +235,7 @@ test.describe('Mobile app bar', () => {
   test('390px: the bar fades out and takes no pointer while a card is dragged, and returns on drop', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await openBoard(page);
+    await showColumnPage(page, 0); // the board opens on Jetzt while a task sits there (kd#191)
     const nav = appNav(page);
     // The pills fade, never .app-nav itself: opacity < 1 on an ancestor makes it a Backdrop Root and the blur pops in
     // only at the end of the fade (#631)
@@ -249,6 +255,7 @@ test.describe('Mobile app bar', () => {
   test('390px: the bar never swipes the board when a touch starts on it', async ({ page, context }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await openBoard(page);
+    await showColumnPage(page, 0); // the board opens on Jetzt while a task sits there (kd#191)
     const touch = finger(await context.newCDPSession(page), page);
     const pill = (await bar(page).boundingBox())!;
     await touch.start(pill.x + 60, pill.y + pill.height / 2);

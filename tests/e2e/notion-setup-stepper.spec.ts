@@ -294,6 +294,10 @@ test.describe('Notion Setup Stepper', () => {
       await expect(panel.getByTestId('priority-map-high')).toContainText('Hoch')
       await expect(save).toBeDisabled()
       await expect(panel.getByRole('button', { name: 'Abbrechen' })).toHaveCount(0)
+      // A held request whose handler is still between `route.fetch()` and `fulfill` when the test ends has its response
+      // disposed under it ("Response has been disposed", "Route is already handled") and fails a test whose assertions all passed (kd#214):
+      // the routes come off here, and what a handler still throws after that is not the test's result.
+      await page.unrouteAll({ behavior: 'ignoreErrors' })
     })
 
     test('Cancel with a stored mapping still resets to it', async ({ context, page, baseURL }) => {

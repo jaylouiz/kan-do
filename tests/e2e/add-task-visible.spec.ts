@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { seedLocalBoard } from './helpers/seed';
+import { showColumnPage } from './helpers/dnd';
 
 /**
  * Issue #33: the "Aufgabe hinzufügen" control is always visible (no hover), keyboard
@@ -31,6 +32,7 @@ test.describe('Add task: persistent control', () => {
   test('mobile 390px: add control is on the Offen tab, 44px+, opens the new card', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/tasks');
+    await showColumnPage(page, 0) // the board opens on Jetzt while a task sits there (kd#191);
 
     const add = page.locator('#column-open').getByRole('button', { name: 'Aufgabe hinzufügen' });
     await expect(add).toBeVisible();

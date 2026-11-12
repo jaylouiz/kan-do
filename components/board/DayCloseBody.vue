@@ -13,8 +13,8 @@
 - Emits `smaller` so the host can close and open the task sheet; Delete goes through useTaskDeletion. The board's gap sits behind the modal, so a deleted row is answered here by one line ("Im Papierkorb", "Rückgängig") until its window ends (#422)
 -->
 <template>
-  <div class="flex flex-col gap-8" data-testid="day-close-body">
-    <section :aria-labelledby="doneHeadingId" data-testid="day-close-done">
+  <div class="flex flex-col gap-8">
+    <section :aria-labelledby="doneHeadingId">
       <SectionHeader :id="doneHeadingId" tag="h3" tone="muted">{{ t('dayClose.doneHeading') }}</SectionHeader>
       <p class="mt-1 text-body text-toned" data-testid="day-close-recap">{{ recap }}</p>
       <ul
@@ -37,7 +37,7 @@
       </ul>
     </section>
 
-    <section :aria-labelledby="inFlightHeadingId" data-testid="day-close-in-flight">
+    <section :aria-labelledby="inFlightHeadingId">
       <SectionHeader :id="inFlightHeadingId" tag="h3" tone="muted">{{ t('dayClose.inFlightHeading') }}</SectionHeader>
       <p v-if="inFlight.length === 0 && rowGaps.length === 0" class="mt-1 text-body text-toned">{{ t('dayClose.nothingInFlight') }}</p>
       <ul

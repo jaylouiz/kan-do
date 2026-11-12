@@ -17,7 +17,7 @@
     <TaskCard :task="entry.task" :muted="entry.fromStatus === TaskStatus.Waiting" preview readonly class="trash-entry__card" />
     <div class="trash-entry__side">
       <p class="text-sm text-muted">{{ agoLabel }}</p>
-      <p class="text-sm text-muted" data-testid="trash-was-in">{{ wasInLabel }}</p>
+      <p class="text-sm text-muted">{{ wasInLabel }}</p>
       <div class="trash-entry__actions" @keydown.esc.stop="confirming && cancel()">
         <UButton
           icon="i-ph-arrow-counter-clockwise"
@@ -25,7 +25,6 @@
           variant="soft"
           :loading="isRestoring(entry.taskId)"
           :aria-label="t('trash.restoreNamed', { title: entry.task.title })"
-          data-testid="trash-restore"
           @click="emit('restore', entry.taskId)"
         >
           {{ t('trash.restore') }}
@@ -54,7 +53,6 @@
           color="neutral"
           variant="ghost"
           :aria-label="t('trash.removeForeverNamed', { title: entry.task.title })"
-          data-testid="trash-remove"
           @click="openConfirm"
         />
       </div>

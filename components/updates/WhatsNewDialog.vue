@@ -22,7 +22,7 @@ version since the last one seen, newest first. Opened by the "Was ist neu" butto
     hide-description
   >
     <template #body>
-      <div class="max-h-96 space-y-6 overflow-y-auto" tabindex="0" data-testid="whats-new-body">
+      <div class="max-h-96 space-y-6 overflow-y-auto" tabindex="0">
         <section v-for="entry in state.entries" :key="entry.version" class="space-y-2" :aria-labelledby="`whats-new-${entry.version}`">
           <SectionHeader :id="`whats-new-${entry.version}`" tag="h3" size="sub">
             {{ t('whatsNew.version', { version: entry.version }) }}
@@ -33,7 +33,7 @@ version since the last one seen, newest first. Opened by the "Was ist neu" butto
             </li>
           </ul>
         </section>
-        <EmptyNote v-if="state.entries.length === 0" data-testid="whats-new-empty">{{ t('whatsNew.empty') }}</EmptyNote>
+        <EmptyNote v-if="state.entries.length === 0">{{ t('whatsNew.empty') }}</EmptyNote>
       </div>
     </template>
 

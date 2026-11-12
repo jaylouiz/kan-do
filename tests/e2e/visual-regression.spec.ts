@@ -644,6 +644,7 @@ test.describe('mixed board: source icons (#323)', () => {
     test('Offen tab with icons', async ({ page }) => {
       await page.goto('/tasks')
       await expect(page.getByTestId('task-source-icon')).toHaveCount(MIXED_VR_TASKS.length)
+      await showColumnPage(page, 0) // the board opens on Jetzt while a task sits there (kd#191)
       await waitForOfflineSync(page)
       await page.mouse.move(0, 0)
       await settle(page)
@@ -778,6 +779,7 @@ for (const { size, viewport } of CORE_VIEWPORTS) {
     const openCard = async (page: Page) => {
       await page.goto('/tasks')
       await expect(page.locator('#column-open .task-wrapper').first()).toBeVisible()
+      await showColumnPage(page, 0) // the board opens on Jetzt while a task sits there (kd#191)
       await page.locator('#column-open .add-task-button').click()
       await expect(page.getByTestId('new-card-title')).toBeFocused()
     }
@@ -819,7 +821,9 @@ for (const { size, viewport } of CORE_VIEWPORTS) {
 
     test('saving', async ({ context, page }) => {
       // A Notion default source: the card rests in `is-saving` while the create call is held
-      await seedMixedBoard(context, MIXED_VR_TASKS)
+      // No Jetzt task at 390, so the board opens on Offen (kd#191): a swipe there would give the refused sync time to mark the source
+      // unreachable, and an unreachable source queues the task without the create call this state waits in
+      await seedMixedBoard(context, size === '390' ? MIXED_VR_TASKS.filter(task => task.status !== 1) : MIXED_VR_TASKS)
       const held: Route[] = []
       // Only create-task is held; every other Notion call is refused so the stub never swaps the seeded rows (#364)
       await page.route('**/api/notion/**', (route) => route.abort('connectionrefused'))

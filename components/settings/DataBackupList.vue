@@ -50,10 +50,10 @@ event, the page owns the single confirmation modal.
       data-testid="data-backup-error"
     />
 
-    <p v-if="backupsLoad === 'loading'" class="text-body text-muted" data-testid="data-backups-loading">
+    <p v-if="backupsLoad === 'loading'" class="text-body text-muted">
       {{ t('settings.data.backups.loading') }}
     </p>
-    <div v-else-if="backupsLoad === 'error'" class="flex flex-wrap items-center gap-x-3 gap-y-1" data-testid="data-backups-failed">
+    <div v-else-if="backupsLoad === 'error'" class="flex flex-wrap items-center gap-x-3 gap-y-1">
       <UAlert color="error" variant="subtle" icon="i-ph-x-circle" class="w-auto" :description="t('settings.data.backups.loadFailed')" />
       <UButton variant="link" color="neutral" @click="refreshBackups">{{ t('settings.data.backups.reload') }}</UButton>
     </div>
@@ -86,7 +86,6 @@ event, the page owns the single confirmation modal.
           variant="ghost"
           color="neutral"
           disabled
-          data-testid="data-backup-update"
         >
           {{ t('settings.data.backups.update') }}
         </UButton>
@@ -96,7 +95,6 @@ event, the page owns the single confirmation modal.
           color="neutral"
           :disabled="restoreBlock !== null"
           :aria-label="t('settings.data.backups.restoreAt', { time: formatDateTime(entry.ts, 'mediumDateShortTime') })"
-          data-testid="data-backup-restore"
           @click="emit('restore', entry)"
         >
           {{ t('settings.data.backups.restore') }}

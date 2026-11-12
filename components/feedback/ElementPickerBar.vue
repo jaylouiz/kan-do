@@ -33,7 +33,7 @@ candidate element and a small hint bar at the bottom centre. Exists only while p
       data-testid="element-picker-bar"
     >
       <span>{{ t('feedback.picker.hint') }}</span>
-      <UButton color="neutral" variant="soft" data-testid="element-picker-cancel" @click="cancel">
+      <UButton color="neutral" variant="soft" @click="cancel">
         {{ t('feedback.picker.cancel') }}
       </UButton>
     </div>

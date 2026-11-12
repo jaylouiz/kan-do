@@ -119,7 +119,7 @@ export async function showColumnPage(page: Page, index: 0 | 1 | 2) {
   let swipes = 0
   while (swipes < 8) {
     const current = await activeColumnPage(page)
-    if (current === index) return
+    if (current === index) break
     const forward = index > current
     const next = current + (forward ? 1 : -1)
     await touch.start(forward ? 300 : 90, 400)
@@ -130,6 +130,12 @@ export async function showColumnPage(page: Page, index: 0 | 1 | 2) {
     await expect.poll(() => activeColumnPage(page), { timeout: 2500 }).toBe(next).catch(() => undefined)
   }
   await expect.poll(() => activeColumnPage(page)).toBe(index)
+  // The page slides in over 320 ms: a box measured or a tap aimed before it rests is off by the rest of the slide
+  await expect.poll(() => page.locator('.board').evaluate((el, target) => {
+    const transform = getComputedStyle(el).transform
+    const x = transform === 'none' ? 0 : new DOMMatrixReadOnly(transform).m41
+    return Math.round(x + target * window.innerWidth)
+  }, index)).toBe(0)
 }
 
 /**

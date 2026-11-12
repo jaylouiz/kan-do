@@ -139,7 +139,6 @@
               inset
               tone="action"
               :aria-describedby="suggestionHintId"
-              data-testid="timebox-suggestion"
               @click.prevent="applySuggestion"
             >
               {{ t('task.property.suggest', { n: timeboxSuggestion.suggestedMinutes }) }}

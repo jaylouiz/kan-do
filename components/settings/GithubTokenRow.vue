@@ -59,7 +59,7 @@
       />
 
       <!-- Screenshot upload (#247): only the feedback token uploads; the probe leaves nothing in the repository -->
-      <div v-if="entry === 'github-feedback'" class="flex w-full flex-wrap items-center gap-x-4 gap-y-1" data-testid="github-upload-probe">
+      <div v-if="entry === 'github-feedback'" class="flex w-full flex-wrap items-center gap-x-4 gap-y-1">
         <UButton
           variant="ghost"
           color="neutral"
