@@ -1,5 +1,5 @@
 import { execFileSync, spawnSync } from 'node:child_process'
-import { chmodSync, copyFileSync, existsSync, mkdtempSync, readFileSync, symlinkSync, writeFileSync } from 'node:fs'
+import { chmodSync, copyFileSync, cpSync, existsSync, mkdtempSync, readFileSync, realpathSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
@@ -31,6 +31,27 @@ writeFileSync(join(restBin, 'gh'), [
 ].join('\n'))
 chmodSync(join(restBin, 'gh'), 0o755)
 
+// The gate is for the repository the session runs in (kd#205): a merge that names another repository passes untouched. The
+// hook reads "this repository" from origin, so the tests pose as a checkout of `repo`: a throwaway git repo with that origin,
+// the hook's own files linked in (also keeps the pass stamps of the gate out of the real git dir).
+const projects = new Map<string, string>()
+const project = (repo: string) => {
+  let dir = projects.get(repo)
+  if (!dir) {
+    dir = realpathSync(mkdtempSync(join(tmpdir(), 'kando-hook-project-'))) // real path: the gate script tells it runs as the main module by it
+    execFileSync('git', ['init', '-q', dir])
+    execFileSync('git', ['-C', dir, 'remote', 'add', 'origin', `https://github.com/${repo}.git`])
+    // scripts is copied, not linked: a link changes the real path the gate script compares
+    cpSync(join(root, 'scripts'), join(dir, 'scripts'), { recursive: true })
+    for (const entry of ['.claude', 'tests', 'package.json', 'node_modules']) symlinkSync(join(root, entry), join(dir, entry))
+    projects.set(repo, dir)
+  }
+  return { CLAUDE_PROJECT_DIR: dir }
+}
+
+// The repository a lookup in the fake gh is expected to hit (`repos/x/y/pulls/34`, or the REST path of the command): the checkout poses as it.
+const lookedUpIn = (command: string, lookup = '') => (/repos\/([\w.-]+\/[\w.-]+)\//.exec(lookup) ?? /repos\/([\w.-]+\/[\w.-]+)\/pulls/.exec(command))?.[1]
+
 const merge = (prefix = '', gh = 'gh') => `${prefix}${gh} pr ${'mer' + 'ge'} 12`
 const restMerge = (method = '-X PUT') => `gh api ${method} repos/o/r/pulls/12/${'mer' + 'ge'} -f merge_method=merge`
 
@@ -41,7 +62,7 @@ const hook = (command: string, path = bin, ghRepo: string | null = 'o/r') => {
   return spawnSync('bash', [resolve(root, '.claude/hooks/e2e-before-merge.sh')], {
     input: JSON.stringify({ tool_input: { command } }),
     encoding: 'utf8',
-    env: { ...inherited, PATH: `${path}:${process.env.PATH}`, CLAUDE_PROJECT_DIR: root, ...(ghRepo ? { GH_REPO: ghRepo } : {}) },
+    env: { ...inherited, PATH: `${path}:${process.env.PATH}`, ...project('o/r'), ...(ghRepo ? { GH_REPO: ghRepo } : {}) },
   })
 }
 
@@ -306,13 +327,13 @@ describe('e2e-before-merge hook arguments', () => {
   writeFileSync(join(argBin, 'gh'), `#!/bin/sh\necho "$@" >>"${argLog}"\nexit 1\n`)
   chmodSync(join(argBin, 'gh'), 0o755)
   // GH_REPO is dropped from the inherited environment unless a test sets it: the default repository is origin.
-  const run = (command: string, ghRepo?: string) => {
+  const run = (command: string, ghRepo?: string, own?: string) => {
     writeFileSync(argLog, '')
     const { GH_REPO: _inherited, ...inherited } = process.env
     const result = spawnSync('bash', [resolve(root, '.claude/hooks/e2e-before-merge.sh')], {
       input: JSON.stringify({ tool_input: { command } }),
       encoding: 'utf8',
-      env: { ...inherited, ...(ghRepo ? { GH_REPO: ghRepo } : {}), PATH: `${argBin}:${process.env.PATH}`, CLAUDE_PROJECT_DIR: root },
+      env: { ...inherited, ...(ghRepo ? { GH_REPO: ghRepo } : {}), PATH: `${argBin}:${process.env.PATH}`, ...(own ? project(own) : { CLAUDE_PROJECT_DIR: root }) },
     })
     return { status: result.status, calls: readFileSync(argLog, 'utf8') }
   }
@@ -551,12 +572,110 @@ describe('e2e-before-merge hook arguments', () => {
     [`cat <<EOF\nbody\n EOF\ngh pr merge 34`, 'pulls/34'],
     [`timeout 9 ${restMerge().replace('pulls/12', 'pulls/34')}`, 'pulls/34'],
   ])('looks up the right PR for %j', (command, lookup) => {
-    const { status, calls } = run(command)
+    const { status, calls } = run(command, undefined, lookedUpIn(command, lookup))
     expect(status).toBe(2)
     expect(calls).toContain(lookup)
     expect(calls).not.toMatch(/pulls\/5\)|pulls\/x\b|pulls\/-|pulls\/99/)
     // 'api repos/' means the default repository (origin): a repository the command names (x/y, a/b) must not have been looked up
     if (lookup === 'api repos/') expect(calls).not.toMatch(/repos\/(?:x\/y|a\/b)\//)
+  })
+
+  // The gate is for this repository's PRs (kd#205): a merge that names another repository passes untouched, with no lookup. The
+  // checkout poses as o/r. Anything that reads as o/r stays gated in every spelling, and what is no repository fails closed.
+  it.each([
+    'gh pr merge 13 -R x/y',
+    'gh pr merge 13 --repo x/y',
+    'gh pr merge 13 --repo=x/y --squash',
+    'gh -R x/y pr merge 13',
+    'gh -Rx/y pr merge 13',
+    'gh pr merge 13 --repo github.com/x/y',
+    'gh pr merge https://github.com/x/y/pull/13',
+    'gh pr merge "https://github.com/x/y/pull/13" --merge',
+    'gh pr merge https://github.com/x/y/pull/13 -R o/r', // the URL wins over -R
+    'gh pr merge https://github.com/x/y/pull/13/files',
+    'gh api -X PUT repos/x/y/pulls/13/merge',
+    'gh api -X PUT repos/x/y/pulls/13/merge -f merge_method=merge',
+    'gh api --method PUT https://api.github.com/repos/x/y/pulls/13/merge',
+    'GH_REPO=x/y gh pr merge 13',
+    'export GH_REPO=x/y; gh pr merge 13',
+    'cd z && gh pr merge 13 -R x/y',
+    'gh pr merge 13 -R o/other', // same owner, other repository
+    'gh pr merge 13 -R other/r',
+  ])('lets %s pass: it merges in another repository, nothing is looked up', (command) => {
+    const { status, calls } = run(command, undefined, 'o/r')
+    expect(status).toBe(0)
+    expect(calls).toBe('')
+  })
+
+  it('says why it passes a merge in another repository', () => {
+    const result = hook('gh pr merge 13 -R x/y')
+    expect(result.status).toBe(0)
+    expect(result.stderr).toContain('names the repository x/y, not this one (o/r)')
+  })
+
+  it('lets the inherited GH_REPO of another repository pass, and gates origin again when it is dropped', () => {
+    expect(run('gh pr merge 13', 'x/y', 'o/r')).toEqual({ status: 0, calls: '' })
+    expect(run('unset GH_REPO; gh pr merge 13', 'x/y', 'o/r').calls).toContain('repos/o/r/pulls/13')
+  })
+
+  it.each([
+    ['gh pr merge 13', 'repos/o/r/pulls/13'],
+    ['gh pr merge 13 -R o/r', 'repos/o/r/pulls/13'],
+    ['gh pr merge 13 -R O/R', 'repos/O/R/pulls/13'], // GitHub names do not care about case
+    ['gh pr merge 13 --repo=o/R', 'repos/o/R/pulls/13'],
+    ['gh pr merge 13 -R github.com/o/r', 'repos/o/r/pulls/13'],
+    ['gh pr merge https://github.com/o/r/pull/13', 'repos/o/r/pulls/13'],
+    ['gh pr merge "https://github.com/O/r/pull/13"', 'repos/O/r/pulls/13'],
+    ['gh pr merge https://github.com/o/r/pull/13 -R x/y', 'repos/o/r/pulls/13'], // the URL wins over -R
+    ['GH_REPO=x/y gh pr merge https://github.com/o/r/pull/13', 'repos/o/r/pulls/13'],
+    ['gh api -X PUT repos/o/r/pulls/13/merge', 'repos/o/r/pulls/13'],
+    ['gh api -X PUT /repos/o/r/pulls/13/merge', 'repos/o/r/pulls/13'],
+    ['gh api -X PUT https://api.github.com/repos/o/r/pulls/13/merge', 'repos/o/r/pulls/13'],
+    ['gh api -X PUT repos/{owner}/{repo}/pulls/13/merge', 'repos/o/r/pulls/13'],
+    ['GH_REPO=o/r gh pr merge 13', 'repos/o/r/pulls/13'],
+    ['GH_REPO=x/y gh pr merge 13 -R o/r', 'repos/o/r/pulls/13'],
+  ])('keeps gating %s (a merge in this repository)', (command, lookup) => {
+    const { status, calls } = run(command, undefined, 'o/r')
+    expect(status).toBe(2)
+    expect(calls).toContain(lookup)
+  })
+
+  // What does not read as [HOST/]OWNER/REPO is no other repository: it is gated like before (and then fails at the lookup, or is refused).
+  it.each([
+    'gh pr merge 13 -R foo',
+    'gh pr merge 13 -R a/b/c/d',
+    'gh pr merge 13 -R ../x',
+    'gh pr merge 13 -R x/..',
+    'gh pr merge https://github.com/pull/13',
+    'GH_REPO=foo gh pr merge 13',
+  ])('does not let %s pass: it names no repository', (command) => {
+    const { status } = run(command, undefined, 'o/r')
+    expect(status).toBe(2)
+  })
+
+  it.each([
+    'gh pr merge 13 -R $R',
+    'gh pr merge 13 -R "$(git remote)"',
+    'gh pr merge https://github.com/$R/pull/13',
+    'GH_REPO=$R gh pr merge 13',
+  ])('refuses %s: the repository is no literal', (command) => {
+    const { status, calls } = run(command, undefined, 'o/r')
+    expect(status).toBe(2)
+    expect(calls).toBe('')
+  })
+
+  it('gates every merge when the checkout has no origin to compare with', () => {
+    const bare = realpathSync(mkdtempSync(join(tmpdir(), 'kando-hook-noorigin-')))
+    execFileSync('git', ['init', '-q', bare])
+    writeFileSync(argLog, '')
+    const { GH_REPO: _inherited, ...inherited } = process.env
+    const result = spawnSync('bash', [resolve(root, '.claude/hooks/e2e-before-merge.sh')], {
+      input: JSON.stringify({ tool_input: { command: 'gh pr merge 13 -R x/y' } }),
+      encoding: 'utf8',
+      env: { ...inherited, PATH: `${argBin}:${process.env.PATH}`, CLAUDE_PROJECT_DIR: bare },
+    })
+    expect(result.status).toBe(2)
+    expect(readFileSync(argLog, 'utf8')).toContain('repos/x/y/pulls/13')
   })
 
   it('says a subshell can be the reason when GH_REPO was changed inside one', () => {
@@ -566,7 +685,7 @@ describe('e2e-before-merge hook arguments', () => {
   })
 
   it.each(['declare', 'typeset', 'local', 'readonly'])('%s GH_REPO=... changes a GH_REPO the hook inherited (it stays exported)', (kw) => {
-    const { status, calls } = run(`${kw} GH_REPO=x/y; gh pr merge 34`, 'a/b')
+    const { status, calls } = run(`${kw} GH_REPO=x/y; gh pr merge 34`, 'a/b', 'x/y')
     expect(status).toBe(2)
     expect(calls).toContain('repos/x/y/pulls/34')
   })
@@ -578,7 +697,7 @@ describe('e2e-before-merge hook arguments', () => {
   })
 
   it.each(['(unset GH_REPO)', '(export -n GH_REPO)', '(declare +x GH_REPO)'])('%s in a subshell does not drop a GH_REPO the hook inherited', (drop) => {
-    const { status, calls } = run(`${drop}; declare GH_REPO=x/y; gh pr merge 34`, 'a/b')
+    const { status, calls } = run(`${drop}; declare GH_REPO=x/y; gh pr merge 34`, 'a/b', 'x/y')
     expect(status).toBe(2)
     expect(calls).toContain('repos/x/y/pulls/34')
   })
@@ -605,7 +724,7 @@ describe('e2e-before-merge hook arguments', () => {
     ['unset FOO; gh pr merge 34', 'repos/a/b/pulls/34'],
     ['gh pr merge 34', 'repos/a/b/pulls/34'],
   ])('%s keeps the repository %s', (command, lookup) => {
-    const { status, calls } = run(command, 'a/b')
+    const { status, calls } = run(command, 'a/b', lookedUpIn(command, lookup))
     expect(status).toBe(2)
     expect(calls).toContain(lookup)
   })
@@ -693,7 +812,7 @@ describe('e2e-before-merge hook arguments', () => {
     ['env FOO=1 gh pr merge 34', 'repos/a/b/pulls/34'],
     ['GH_REPO=x/y env FOO=1 gh pr merge 34', 'repos/x/y/pulls/34'],
   ])('%s with an inherited GH_REPO=a/b looks up %s', (command, lookup) => {
-    const { status, calls } = run(command, 'a/b')
+    const { status, calls } = run(command, 'a/b', lookedUpIn(command, lookup))
     expect(status).toBe(2)
     expect(calls).toContain(lookup)
     if (!lookup.startsWith('repos/a/b')) expect(calls).not.toContain('repos/a/b/')
@@ -784,7 +903,7 @@ describe('e2e-before-merge hook arguments', () => {
   })
 
   it('looks up the PR named in a REST merge path', () => {
-    const { status, calls } = run(restMerge().replace('pulls/12', 'pulls/34'))
+    const { status, calls } = run(restMerge().replace('pulls/12', 'pulls/34'), undefined, 'o/r')
     expect(status).toBe(2)
     expect(calls).toContain('pulls/34')
   })
@@ -812,7 +931,7 @@ describe('e2e-before-merge hook arguments', () => {
     const spawn = (env: Record<string, string>) => spawnSync('bash', [resolve(root, '.claude/hooks/e2e-before-merge.sh')], {
       input: JSON.stringify({ tool_input: { command: merge() } }),
       encoding: 'utf8',
-      env: { ...inherited, PATH: `${restBin}:${process.env.PATH}`, CLAUDE_PROJECT_DIR: root, GH_REPO: 'o/r', ...env },
+      env: { ...inherited, PATH: `${restBin}:${process.env.PATH}`, ...project('o/r'), GH_REPO: 'o/r', ...env },
     })
     // The override file gets the row; the real file (the default location) and the file-level temp ledger do not.
     const real = `${execFileSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], { cwd: root, encoding: 'utf8' }).trim()}/agent-ledgers/checks.tsv`
@@ -844,7 +963,7 @@ describe('e2e-before-merge hook arguments', () => {
     const run = (command: string) => spawnSync('bash', [join(dir, 'e2e-before-merge.sh')], {
       input: JSON.stringify({ tool_input: { command } }),
       encoding: 'utf8',
-      env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, CLAUDE_PROJECT_DIR: root, GH_REPO: 'o/r' },
+      env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, ...project('o/r'), GH_REPO: 'o/r' },
     })
     const blocked = run(merge())
     expect(blocked.status).toBe(2)
@@ -862,7 +981,7 @@ describe('e2e-before-merge hook arguments', () => {
     const run = (command: string) => spawnSync('bash', [join(dir, 'e2e-before-merge.sh')], {
       input: JSON.stringify({ tool_input: { command } }),
       encoding: 'utf8',
-      env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, CLAUDE_PROJECT_DIR: root, GH_REPO: 'o/r' },
+      env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, ...project('o/r'), GH_REPO: 'o/r' },
     })
     const blocked = run(merge())
     expect(blocked.status).toBe(2)
@@ -875,7 +994,7 @@ describe('e2e-before-merge hook arguments', () => {
       input: JSON.stringify({ tool_input: { command: merge() } }),
       encoding: 'utf8',
       cwd: tmpdir(),
-      env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, CLAUDE_PROJECT_DIR: root, GH_REPO: 'o/r' },
+      env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, ...project('o/r'), GH_REPO: 'o/r' },
     })
     expect(result.status).toBe(2)
     expect(result.stderr).not.toContain('cannot parse')
@@ -889,7 +1008,7 @@ describe('e2e-before-merge hook without jq (kd#2)', () => {
       const result = spawnSync('bash', [resolve(root, '.claude/hooks/e2e-before-merge.sh')], {
         input: JSON.stringify({ tool_input }),
         encoding: 'utf8',
-        env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, CLAUDE_PROJECT_DIR: root, GH_REPO: 'o/r' },
+        env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, ...project('o/r'), GH_REPO: 'o/r' },
       })
       expect(result.status).toBe(2)
       expect(result.stderr).toContain('cannot read the hook input')
@@ -913,7 +1032,7 @@ describe('e2e-before-merge hook without jq (kd#2)', () => {
   const run = (path: string, command: string) => spawnSync('/bin/bash', [resolve(root, '.claude/hooks/e2e-before-merge.sh')], {
     input: JSON.stringify({ tool_input: { command } }),
     encoding: 'utf8',
-    env: { ...process.env, PATH: path, CLAUDE_PROJECT_DIR: root, GH_REPO: 'o/r' },
+    env: { ...process.env, PATH: path, ...project('o/r'), GH_REPO: 'o/r' },
   })
 
   it('the test PATH really has no jq', () => {
@@ -938,7 +1057,7 @@ describe('e2e-before-merge hook without jq (kd#2)', () => {
     const post = (payload: unknown) => spawnSync('/bin/bash', [resolve(root, '.claude/hooks/e2e-before-merge.sh')], {
       input: JSON.stringify(payload),
       encoding: 'utf8',
-      env: { ...process.env, PATH: path, CLAUDE_PROJECT_DIR: root, GH_REPO: 'o/r' },
+      env: { ...process.env, PATH: path, ...project('o/r'), GH_REPO: 'o/r' },
     })
     for (const payload of [{ tool_input: { command: [merge()] } }, { tool_input: merge() }]) {
       const result = post(payload)

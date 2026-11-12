@@ -7,6 +7,8 @@
 # (scripts/e2e-gate.mjs, .claude/hooks/e2e-gate.json). A pass is stamped per PR head SHA and tier, so an unchanged PR is only
 # tested once. Exit 2 blocks the merge and feeds the failure back to Claude. A run that exceeds its own
 # budget (E2E_GATE_BUDGET_SECONDS, default 1500 s) also blocks, with result `timeout` in checks.tsv (#415).
+# The gate is this repository's: a merge that names another repository (-R/--repo, a PR URL, the REST path, GH_REPO) passes
+# untouched; origin's own PRs stay gated in every spelling, and a repository that is no literal OWNER/REPO fails closed (kd#205).
 
 input=$(cat)
 # shellcheck source=hook-input.sh
@@ -79,6 +81,13 @@ export PATH="$PATH:${HOMEBREW_PREFIX:-/opt/homebrew}/bin"
 
 # `gh pr merge [<number>|<url>|<branch>] ...`: first non-flag argument after "merge" (the REST form hands over its PR number).
 target=$(printf '%s' "$merge_args" | tr ' ' '\n' | grep -v '^-' | grep -v '^$' | head -1)
+# A full PR URL names its repository, and gh lets the URL win over -R and GH_REPO: read it as the repository flag (kd#205).
+# A host-qualified URL keeps its host here; the [HOST/]OWNER/REPO check below handles it like `-R host/o/r`.
+case "$(printf '%s' "$target" | tr -d "\"'")" in
+  http://*/pull/* | https://*/pull/*)
+    repo_flag=$(printf '%s' "$target" | tr -d "\"'")
+    repo_flag=${repo_flag#*://} repo_flag=${repo_flag%%/pull/*} ;;
+esac
 # PR data over REST only (`gh api`): cloud sessions reject GraphQL (`gh pr view`), REST works in both places.
 errf=$(mktemp "${TMPDIR:-/tmp}/kando-e2e-gh.XXXXXX")
 origin_repo=$(git remote get-url origin 2>/dev/null | sed -E 's#(\.git)?/*$##; s#.*[:/]([^/:]+/[^/:]+)$#\1#')
@@ -96,6 +105,19 @@ elif [ -n "$repo_flag" ]; then # `gh -R <[host/]owner/repo> pr merge`: the PR li
     exit 2
   fi
   repo=$(printf '%s' "$repo_flag" | sed -E 's#^.*/([^/]+/[^/]+)$#\1#') # [HOST/]OWNER/REPO -> OWNER/REPO
+fi
+# The gate is kan-do's own: a merge that names another repository (-R/--repo, GH_REPO, a PR URL or the REST path of another
+# repository) is none of its business and passes untouched (kd#205). Only a repository that reads as [HOST/]OWNER/REPO and
+# differs from origin passes; anything else (a variable, no origin, a shape that is no repository) is gated as before, and
+# a merge in origin stays gated in every spelling (case-insensitive: GitHub names are).
+repo_key() { printf '%s' "$1" | grep -Eq '^([A-Za-z0-9.-]+/)?[A-Za-z0-9-]+/[A-Za-z0-9_.-]+$' && printf '%s' "$1" | grep -Evq '/\.{1,2}$' &&
+  printf '%s' "$1" | sed -E 's#^.*/([^/]+/[^/]+)$#\1#' | tr 'A-Z' 'a-z'; }
+named=$repo # what the command wrote, not the lenient OWNER/REPO cut above: `-R a/b/c/d` is no repository
+case "$repo_flag" in '' | ':origin') ;; *) named=$(printf '%s' "$repo_flag" | tr -d "\"'") ;; esac
+if this=$(repo_key "$named") && own=$(repo_key "$origin_repo") && [ "$this" != "$own" ]; then
+  echo "e2e-before-merge: the merge names the repository $this, not this one ($own): the E2E gate is for this repository's PRs only, so it passes." >&2
+  rm -f "$errf"
+  exit 0
 fi
 num="" branch=""
 case "$target" in
