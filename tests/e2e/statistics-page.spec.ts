@@ -328,6 +328,16 @@ test.describe('Statistics Page', () => {
       await expect(page.getByRole('dialog', { name: 'Test Task 1' })).toBeVisible();
     });
 
+    test('the statistics sheet has the close button of the board\'s sheet and it lands on /statistics (kd#201)', async ({ page, baseURL }) => {
+      await page.setViewportSize({ width: 1280, height: 900 });
+      await page.goto(`${baseURL}/statistics/test-task-1`);
+      const dialog = page.getByRole('dialog', { name: 'Test Task 1' });
+      await expect(dialog).toBeVisible();
+      await dialog.getByRole('button', { name: /^(Schließen|Close)$/ }).click();
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+      await expect(page).toHaveURL(/\/statistics$/);
+    });
+
     test('the sheet closes like the board\'s: Escape lands on /statistics and focus returns to the outlier, Back does the same (kd#179)', async ({ page, baseURL }) => {
       await page.goto(`${baseURL}/statistics?open=3`);
       const outlier = page.getByTestId('stats-outliers').getByRole('button', { name: /Test Task 2/ });

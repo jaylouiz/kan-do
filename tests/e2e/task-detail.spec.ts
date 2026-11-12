@@ -384,7 +384,7 @@ test.describe('Task Detail View', () => {
     // Task 1 has topic "Development"
     await expect.soft(page.getByText('Development').first(), 'shows topic badge when topic is set').toBeVisible();
 
-    // Utility menu trigger lives in the content header; the sheet has no close button (Escape, overlay, swipe)
+    // Utility menu trigger lives in the content header; the close button sits in the sheet's corner, clear of this menu (kd#201)
     await expect.soft(
       page.getByTestId('task-detail-header').getByTestId('task-actions-menu'),
       'action buttons are visible in the header without hovering',
@@ -997,3 +997,65 @@ for (const { name, viewport, touch, expected } of [
     })
   })
 }
+
+// kd#201: at desktop width the task sheet shows a close button in its corner; the phone drawer has none (swipe, outside tap).
+test.describe('task sheet close button (kd#201)', () => {
+  test.describe('at 1280px', () => {
+    test.use({ viewport: { width: 1280, height: 900 } })
+
+    test.beforeEach(async ({ context }) => {
+      await seedLocalBoard(context)
+    })
+
+    test('the detail sheet closes by the button, lands on /tasks and returns focus to the opening card; it clears the title and the menu', async ({ page }) => {
+      await page.goto('/tasks')
+      const card = page.locator('.task-wrapper[data-task-id="seed-open-1"]')
+      await card.click()
+      const dialog = page.getByRole('dialog')
+      await expect(dialog).toBeVisible()
+      await settleAnimations(page)
+      const close = dialog.getByRole('button', { name: /^(Schließen|Close)$/ })
+      await expect(close).toBeVisible()
+
+      // Clear of the "More actions" menu and the title row: no overlap of the boxes
+      const closeBox = (await close.boundingBox())!
+      for (const target of [dialog.getByTestId('task-actions-menu'), dialog.getByTestId('task-detail-header').locator('[data-inline-editable]')]) {
+        const box = (await target.boundingBox())!
+        const overlaps = closeBox.x < box.x + box.width && closeBox.x + closeBox.width > box.x && closeBox.y < box.y + box.height && closeBox.y + closeBox.height > box.y
+        expect(overlaps).toBe(false)
+      }
+
+      await close.click()
+      await expect(page.getByRole('dialog')).toHaveCount(0)
+      await expect(page).toHaveURL(/\/tasks$/)
+      await expect(card).toBeFocused()
+    })
+
+    test('the add sheet has the same close button, and Escape still closes it', async ({ page }) => {
+      await page.goto('/tasks/add')
+      const dialog = page.getByRole('dialog')
+      await expect(dialog.getByRole('button', { name: /^(Schließen|Close)$/ })).toBeVisible()
+      await dialog.getByRole('button', { name: /^(Schließen|Close)$/ }).click()
+      await expect(page.getByRole('dialog')).toHaveCount(0)
+      await page.goto('/tasks/add')
+      await expect(page.getByRole('dialog')).toBeVisible()
+      await page.keyboard.press('Escape')
+      await expect(page.getByRole('dialog')).toHaveCount(0)
+    })
+  })
+
+  test.describe('at 390px', () => {
+    test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true })
+
+    test.beforeEach(async ({ context }) => {
+      await seedLocalBoard(context)
+    })
+
+    test('the drawer has no close button', async ({ page }) => {
+      await page.goto('/tasks/seed-open-1')
+      await expect(page.getByRole('dialog')).toBeVisible()
+      await expect(page.getByTestId('task-property-list')).toBeVisible()
+      await expect(page.getByRole('dialog').getByRole('button', { name: /^(Schließen|Close)$/ })).toHaveCount(0)
+    })
+  })
+})

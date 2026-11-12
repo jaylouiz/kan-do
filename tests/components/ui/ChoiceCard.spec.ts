@@ -35,4 +35,15 @@ describe('ChoiceCard (kd#178)', () => {
     expect(radios[1]!.attributes('aria-checked')).toBe('false')
     expect(radios[0]!.find('[class*="rounded-full"]').exists()).toBe(true)
   })
+
+  it('has the 12 px corner of buttons and fields and a checked radio card is a fill, never an outline (kd#200)', () => {
+    const wrapper = mount({
+      render: () => h(RadioGroupRoot, { modelValue: 'fresh' }, () => [h(ChoiceCard, { value: 'fresh', icon: 'i-ph-plus-circle' }, () => 'Neu starten')]),
+    })
+    const classes = wrapper.find('[role="radio"]').classes()
+    expect(classes).toContain('rounded-md')
+    expect(classes).not.toContain('rounded-xl')
+    expect(classes).toContain('data-[state=checked]:bg-primary')
+    expect(classes.some((name) => name.includes('border-inverted'))).toBe(false)
+  })
 })

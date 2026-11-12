@@ -45,13 +45,14 @@
       v-if="!isPreview"
       :task-id="task.id"
       class="mx-6 mt-4 mb-2"
+      :class="{ 'md:me-16': pinMetadata }"
       @kept="focusTitle"
       @smaller="startSmallerStep"
       @delete="emit('delete')"
     />
 
     <!-- Title: the sheet's one display line; the utility menu is a ghost button next to it -->
-    <div class="px-6 pt-2 pb-4" data-testid="task-detail-header">
+    <div class="px-6 pt-2 pb-4" :class="{ 'md:pe-16': pinMetadata }" data-testid="task-detail-header">
       <div class="flex items-start gap-3">
         <div class="min-w-0 flex-1">
           <InlineEditable
