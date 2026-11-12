@@ -12,7 +12,7 @@ Sources: audit/critique 2026-10 (`docs/design/audit-2026-10.md`, IDs marked *aud
 
 Ordered by visibility in the core loop (glance → move → timer → close). Details: `docs/design/audit-2026-10.md`.
 
-1. **P4** (#30) Swap onto a full Jetzt with hover preview + undo toast (decided 2026-10-20) — today `isDropBlocked` is computed but never rendered and the drop refuses silently.
+1. ~~**P4** (#30) Swap onto a full Jetzt with hover preview + undo toast (decided 2026-10-20) — today `isDropBlocked` is computed but never rendered and the drop refuses silently.~~ - done 2026-11-12 (kd#162: the running card shows the swap state, the drop swaps, one undo toast; a stack and a card from Erledigt stay refused)
 2. ~~**P2 + A9** (#31) Task detail as `USlideover`/`UDrawer` - also fixes the missing initial focus, the leaky trap and the lost focus return.~~ - done 2026-10-20
 3. **A13** (#32) Enter opens a focused card; German dnd-kit announcements with task titles instead of IDs.
 4. ~~**R1** (#33) Visible "Aufgabe hinzufügen" — today it is hover-only on desktop and absent on mobile.~~ - done 2026-10-20

@@ -18,7 +18,6 @@
     color="neutral"
     variant="ghost"
     class="board-focus-trigger"
-    :ui="{ leadingIcon: 'size-5' }"
     :class="{ 'is-on': active, 'is-open': chipsOpen && !active }"
     :aria-label="active ? t('board.focus.endNamed', { topic: focusTopic }) : t('board.focus.trigger')"
     :aria-expanded="active ? undefined : chipsOpen"

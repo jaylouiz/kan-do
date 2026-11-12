@@ -46,7 +46,6 @@
         color="neutral"
         variant="ghost"
         class="board-focus-bar__end"
-        :ui="{ leadingIcon: 'size-3.5' }"
         :aria-label="t('board.focus.end')"
         data-testid="focus-end"
         @click="clearFocus"
@@ -105,6 +104,8 @@ const showsPill = computed(() => focusTopic.value !== null)
   gap: 0.25rem;
   max-width: 100%;
   height: var(--field-h);
+  /* The same block height as the chip row (its 0.125rem padding), so swapping the row for the pill does not move the board */
+  margin-block: 0.125rem;
   padding: 0 0.25rem 0 0.875rem;
   border-radius: 9999px;
   background: color-mix(in oklab, var(--ui-primary) 10%, transparent);
