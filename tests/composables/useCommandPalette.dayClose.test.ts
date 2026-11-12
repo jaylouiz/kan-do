@@ -3,6 +3,7 @@ import { navigateTo } from 'nuxt/app'
 import { setActivePinia, createPinia } from 'pinia'
 import { useCommandPalette } from '~/composables/useCommandPalette'
 import { useDayClose } from '~/composables/useDayClose'
+import { resetAppResetState, useAppReset } from '~/composables/useAppReset'
 
 vi.mock('nuxt/app', () => ({ navigateTo: vi.fn() }))
 vi.mock('~/composables/useTaskOperations', () => ({
@@ -48,5 +49,29 @@ describe('command palette: close the day', () => {
     palette.isOpen.value = true
     palette.restoreFocus()
     expect(useDayClose().isOpen.value).toBe(false)
+  })
+})
+
+describe('command palette: reset the app (kd#227)', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    resetAppResetState()
+    vi.mocked(navigateTo).mockClear()
+    document.body.innerHTML = ''
+  })
+
+  it('closes the palette, goes to Daten & Speicher with the question open and erases nothing', () => {
+    const palette = useCommandPalette()
+    const reset = useAppReset()
+    palette.isOpen.value = true
+
+    const global = palette.groups.value.find(g => g.id === 'global')!
+    const item = (global.items as Item[]).find(i => i.id === 'reset-app')!
+    item.onSelect()
+
+    expect(palette.isOpen.value).toBe(false)
+    expect(navigateTo).toHaveBeenCalledWith('/settings/data')
+    expect(reset.isOpen.value).toBe(true) // the section asks in place once the page is there
+    expect(reset.busy.value).toBe(false) // confirming is the section's job
   })
 })

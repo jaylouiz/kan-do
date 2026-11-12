@@ -226,7 +226,8 @@
         "plugins/00.data-storage*",
         "plugins/pinia*",
         "types/dataFile.ts",
-        "utils/reloadApp.ts"
+        "utils/reloadApp.ts",
+        "composables/useAppReset*"
       ],
       "specs": [
         "data-safety",

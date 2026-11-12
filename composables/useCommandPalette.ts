@@ -36,6 +36,7 @@ import { useWhatsNew } from '~/composables/useWhatsNew'
 import { isTauri } from '~/utils/isTauri'
 import { paletteExtensionGroups } from '~/lib/paletteExtensions'
 import { openOnBoard } from '~/lib/nativeMenu'
+import { useAppReset } from '~/composables/useAppReset'
 
 type Translate = (key: string, ...args: unknown[]) => string
 
@@ -58,6 +59,8 @@ export interface PaletteActions {
   checkForUpdates?: () => void
   /** Desktop only: the version and updates page (#225). */
   openUpdates?: () => void
+  /** Goes to Daten & Speicher with the confirmation of "App zurücksetzen" open (kd#227); nothing is erased by the command. */
+  resetApp: () => void
   /** Desktop only: the in-app feedback dialog (#227); from any page, via the board (#224). */
   sendFeedback?: () => void
   /** Desktop only: re-opens "What's new" (#226). */
@@ -173,6 +176,7 @@ export function buildCommandGroups({ t, task, canMove, moveTargets = [], actions
   if (actions.openWhatsNew) {
     globalItems.push({ id: 'whats-new', label: t('commandPalette.openWhatsNew'), icon: 'i-ph-sparkle', onSelect: actions.openWhatsNew })
   }
+  globalItems.push({ id: 'reset-app', label: t('commandPalette.resetApp'), icon: 'i-ph-eraser', onSelect: actions.resetApp })
   groups.push({ id: 'global', label: t('commandPalette.groupGlobal'), items: globalItems })
 
   // Global commands sit right under the move rows so they stay above the fold; the long list comes last
@@ -228,6 +232,7 @@ export function useCommandPalette() {
   const appUpdater = useAppUpdater()
   const feedback = isTauri() ? useFeedback() : null
   const whatsNew = useWhatsNew()
+  const appReset = useAppReset()
 
   /** Called after the close animation: returns focus to the card unless a command navigated away. */
   function restoreFocus(): void {
@@ -280,6 +285,8 @@ export function useCommandPalette() {
           openWhatsNew: run(() => { afterLeave = () => { void whatsNew.openReopen() } }, { navigates: true }),
         }
       : { openDataTransfer: run(() => { void navigateTo('/settings/data') }, { navigates: true }) }),
+    // The confirmation is asked in place on the data page, with the export section right above it: go there with the question open
+    resetApp: run(() => { appReset.open(); void navigateTo('/settings/data') }, { navigates: true }),
     openDetails: id => run(() => { void navigateTo(`/tasks/${id}`) }, { navigates: true })(),
     moveTo: (id, status) => run(() => { void moveTaskToStatus(id, status) })(),
     setTimebox: (id, seconds) => run(() => tasksStore.updateTask(id, { timeBoxSeconds: seconds }))(),

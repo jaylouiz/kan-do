@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { appStorage, dataState, initDataStorage, PERSISTED_KEYS, resetDataStorage, snapshotMirror, withoutPersistence } from '~/lib/dataStorage'
+import { appStorage, dataState, freezeWrites, initDataStorage, isWritesFrozen, PERSISTED_KEYS, resetDataStorage, snapshotMirror, unfreezeWrites, withoutPersistence } from '~/lib/dataStorage'
 import { nextTick } from 'vue'
 import { createFakeDataBackend } from '../helpers/fakeDataBackend'
 import { CURRENT_SCHEMA_VERSION } from '~/utils/dataFile/envelope'
@@ -302,5 +302,36 @@ describe('schema migration at start-up', () => {
     const { CURRENT_SCHEMA_VERSION } = await import('~/utils/dataFile/envelope')
     const rust = readFileSync('src-tauri/src/data_file.rs', 'utf8')
     expect(rust).toMatch(new RegExp(`pub const SCHEMA_VERSION: u64 = ${CURRENT_SCHEMA_VERSION};`))
+  })
+})
+
+describe('frozen writes (app reset, kd#227)', () => {
+  it('web: setItem is dropped for every key until the freeze is lifted', () => {
+    appStorage.setItem('tasks-store', '{"a":1}')
+    freezeWrites()
+    expect(isWritesFrozen()).toBe(true)
+    appStorage.setItem('tasks-store', '{"a":2}')
+    appStorage.setItem('kando-locale', 'en')
+    expect(localStorage.getItem('tasks-store')).toBe('{"a":1}')
+    expect(localStorage.getItem('kando-locale')).toBeNull()
+    unfreezeWrites()
+    appStorage.setItem('tasks-store', '{"a":3}')
+    expect(localStorage.getItem('tasks-store')).toBe('{"a":3}')
+  })
+
+  it('desktop: neither the mirror nor Rust see a write while frozen', async () => {
+    const backend = createFakeDataBackend({ envelope: envelope({ 'tasks-store': { tasks: [] } }) })
+    await initDataStorage({ backend })
+    freezeWrites()
+    appStorage.setItem('tasks-store', '{"tasks":[1]}')
+    await Promise.resolve()
+    expect(backend.sets['tasks-store']).toBeUndefined()
+    expect(JSON.parse(appStorage.getItem('tasks-store') as string)).toEqual({ tasks: [] })
+  })
+
+  it('resetDataStorage lifts the freeze (a new page life)', () => {
+    freezeWrites()
+    resetDataStorage()
+    expect(isWritesFrozen()).toBe(false)
   })
 })

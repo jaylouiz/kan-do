@@ -17,6 +17,7 @@ import { notifyTaskMoveRejected } from '~/lib/taskMoveEvents';
 import { useTrashStore } from '~/store/trash';
 import type { TrashEntry } from '~/types/trash';
 import { completedAtForDay } from '~/lib/doneDay';
+import { isWritesFrozen } from '~/lib/dataStorage';
 
 /** Where a source's setup problems are reported (the context picks the localized message). */
 const setupContextOf = (source: SourceId) => (source === 'todoist' ? 'todoist_setup' : 'notion_setup') as 'todoist_setup' | 'notion_setup';
@@ -558,6 +559,8 @@ export const useTaskSync = () => {
    * write is already in flight is left to that write. Local tasks need no push: they are persisted via Pinia.
    */
   const syncPendingChanges = async (only?: SourceId): Promise<void> => {
+    // After an app reset the stores still hold the erased state until the reload: never push it upstream (kd#227)
+    if (isWritesFrozen()) return;
     // Time queued for a source that stores none (Local, Todoist) has nothing to push: it only lingered
     // until the stale cleanup (#336). New ticks of such tasks are not queued at all.
     for (const taskId of Object.keys(tasksStore.pendingTimeUpdates)) {
