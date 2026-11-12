@@ -31,7 +31,7 @@ export/import (#224, ADR 011). Mostly text; the path is shown because choosing t
           </div>
           <p class="text-sm text-muted" data-testid="data-folder-saved">{{ savedLine }}</p>
           <div v-if="cloudLine" class="space-y-1" data-testid="data-folder-cloud">
-            <p class="text-sm text-muted">{{ cloudLine }}</p>
+            <p class="text-body text-muted">{{ cloudLine }}</p>
             <p v-if="state.cloudSync?.state === 'error' && state.cloudSync.message" class="font-mono text-xs wrap-break-word text-muted">{{ state.cloudSync.message }}</p>
           </div>
           <UButton variant="ghost" color="neutral" icon="i-ph-folder-open" data-testid="data-folder-reveal" @click="onReveal">

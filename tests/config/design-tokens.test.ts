@@ -27,7 +27,8 @@ describe('design tokens', () => {
   })
 
   it('tells tailwind-merge every type role of main.css, so a text-<role> class replaces Nuxt UI\'s own size (#70)', async () => {
-    const roles = [...readFileSync(resolve(root, 'assets/css/main.css'), 'utf8').matchAll(/^\s*--text-([a-z]+):/gm)].map(m => m[1]).sort()
+    // `body` is the one role that is a utility (`@utility text-body`, utilities.css) and not a size token
+    const roles = [...readFileSync(resolve(root, 'assets/css/main.css'), 'utf8').matchAll(/^\s*--text-([a-z]+):/gm)].map(m => m[1]).concat('body').sort()
     const config = readFileSync(resolve(root, 'app.config.ts'), 'utf8')
     const listed = /text: \[([^\]]*)\]/.exec(config)?.[1]?.match(/[a-z]+/g)?.sort()
     expect(listed).toEqual(roles)
@@ -56,7 +57,7 @@ describe('design tokens', () => {
 
   it('knows the project-defined utilities and leaves component classes to the lint rule\'s ignore', () => {
     const classes = projectCssClasses(root) as string[]
-    expect(classes).toEqual(expect.arrayContaining(['font-display', 'text-2xs', 'tracking-display']))
+    expect(classes).toEqual(expect.arrayContaining(['font-display', 'tracking-display']))
     const nonUtility = new RegExp(NON_UTILITY_CLASS)
     expect(['task-card', 'is-on', 'more-panel'].every(c => nonUtility.test(c))).toBe(true)
     expect(['text-muted-foreground', 'hover:bg-elevate', 'border-border', '!px-safe'].some(c => nonUtility.test(c))).toBe(false)

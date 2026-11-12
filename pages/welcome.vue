@@ -42,7 +42,7 @@
     >
       <header class="mb-8">
         <SectionHeader tag="p" size="hero">{{ t('nav.brand') }}</SectionHeader>
-        <p class="mt-2 text-sm text-default">{{ t('onboarding.page.tagline') }}</p>
+        <p class="mt-2 text-body text-default">{{ t('onboarding.page.tagline') }}</p>
       </header>
       <!-- One Transition for the whole content: start screen and setup swap as a single block and the block's height
            follows (setup-body), so nothing animates element by element (#43) -->
@@ -75,7 +75,7 @@
             {{ choice.label }}
           </ChoiceCard>
         </div>
-        <p class="mt-6 text-sm text-muted">{{ t('onboarding.page.later') }}</p>
+        <p class="mt-6 text-body text-muted">{{ t('onboarding.page.later') }}</p>
         <p class="mt-8 text-xs text-muted">
           {{ t('onboarding.page.version') }} {{ $config.public.clientVersion }}
         </p>

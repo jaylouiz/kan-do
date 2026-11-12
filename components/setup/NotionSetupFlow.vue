@@ -27,7 +27,7 @@
         <UIcon name="i-ph-check-bold" class="size-8 text-inverted" aria-hidden="true" />
       </span>
       <SectionHeader tag="p" size="display">{{ t('onboarding.flow.notion.connected') }}</SectionHeader>
-      <p class="text-sm text-muted">{{ t('onboarding.flow.notion.loading') }}</p>
+      <p class="text-body text-muted">{{ t('onboarding.flow.notion.loading') }}</p>
     </div>
 
     <template v-else>

@@ -27,7 +27,7 @@ Hosted by ResponsiveOverlay (modal at >=768px with both decks side by side, bott
     @after-leave="finishLeave"
   >
     <template #description>
-      <span class="text-base text-toned" data-testid="recap-summary">{{ summary }}</span>
+      <span class="text-body text-toned" data-testid="recap-summary">{{ summary }}</span>
     </template>
     <template #body="{ isDesktop }">
       <div v-if="snapshot">

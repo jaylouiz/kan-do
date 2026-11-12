@@ -31,7 +31,7 @@
           {{ t('trash.restore') }}
         </UButton>
         <template v-if="forever && confirming">
-          <p class="trash-entry__confirm text-sm text-default" role="alert" data-private>
+          <p class="trash-entry__confirm text-body text-default" role="alert" data-private>
             {{ t('trash.removeForeverConfirm', { title: entry.task.title }) }}
           </p>
           <UButton color="error" variant="soft" data-testid="trash-remove-confirm" @click="confirmRemove">

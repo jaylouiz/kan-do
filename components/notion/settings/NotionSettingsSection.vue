@@ -15,7 +15,7 @@
     <!-- Section Header -->
     <div class="pb-2">
       <SectionHeader tag="h2">{{ title }}</SectionHeader>
-      <p v-if="description" class="mt-1 text-sm text-muted">{{ description }}</p>
+      <p v-if="description" class="mt-1 text-body text-muted">{{ description }}</p>
     </div>
 
     <!-- Section Content -->

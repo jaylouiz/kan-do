@@ -57,7 +57,7 @@ UpdateDialog.
         <SectionHeader id="updates-access-heading" tag="h2">
           {{ t('settings.updates.accessHeading') }}
         </SectionHeader>
-        <p class="text-sm text-muted">{{ t('settings.updates.accessBody') }}</p>
+        <p class="text-body text-muted">{{ t('settings.updates.accessBody') }}</p>
         <UButton
           v-if="offersGithubLink"
           to="/settings/github"

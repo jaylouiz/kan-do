@@ -27,7 +27,7 @@
       <SectionHeader ref="headingRef" tag="h2" size="display" tabindex="-1" class="text-balance outline-none">
         {{ t('onboarding.flow.local.title') }}
       </SectionHeader>
-      <p class="mt-2 text-sm text-default">{{ t('onboarding.flow.local.intro') }}</p>
+      <p class="mt-2 text-body text-default">{{ t('onboarding.flow.local.intro') }}</p>
     </div>
 
     <RadioGroupRoot v-model="pick" class="flex flex-col gap-3" orientation="vertical" :aria-label="t('onboarding.local.howToStart')">

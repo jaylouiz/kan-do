@@ -34,10 +34,10 @@ it collapses to one action, "Neu laden".
           </div>
         </dl>
 
-        <p class="text-sm text-muted">
+        <p class="text-body text-muted">
           {{ conflict.localChanges ? t('settings.data.conflict.bothKept') : t('settings.data.conflict.noChanges') }}
         </p>
-        <p v-if="blockedHint" class="text-sm text-default" data-testid="data-conflict-hint">{{ blockedHint }}</p>
+        <p v-if="blockedHint" class="text-body text-default" data-testid="data-conflict-hint">{{ blockedHint }}</p>
         <UAlert
           v-if="errorText"
           color="error"

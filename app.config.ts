@@ -81,7 +81,7 @@ export default defineAppConfig({
     // tailwind-merge does not know our `--text-*` type roles (main.css `@theme`, #70): without this `text-label/3` reads as
     // a colour and Nuxt UI's own `text-[10px]/3` stays next to it. Keep in step with the roles; design-tokens.test.ts checks.
     tv: {
-      twMergeConfig: { extend: { theme: { text: ['display', 'headline', 'title', 'label', 'brand'] } } },
+      twMergeConfig: { extend: { theme: { text: ['display', 'headline', 'title', 'label', 'brand', 'body'] } } },
     },
     fonts: {
       sans: "var(--font-sans)",
@@ -167,6 +167,8 @@ export default defineAppConfig({
         // Standard footer chrome: actions right-aligned. Wizards that need a
         // two-zone layout put a `flex w-full justify-between` div inside.
         footer: 'flex items-center justify-end gap-2 px-6 py-4',
+        // Dialog copy is the body role (reading text, 1.55); Nuxt UI sets `text-sm`
+        description: 'text-body',
       },
       // The default scrim is the `overlay` variant (`bg-elevated/75`), which beats a slot override.
       // This variant must win over Nuxt UI's default bg-elevated/75; tests/e2e/overlay-scrim.spec.ts guards it.
@@ -187,6 +189,7 @@ export default defineAppConfig({
         overlay: 'z-(--z-overlay)',
         content: 'z-(--z-overlay) bg-elevated md:shadow-(--shadow-sheet)',
         title: 'font-display text-lg font-medium tracking-display',
+        description: 'text-body',
       }
     },
     drawer: {
@@ -194,6 +197,7 @@ export default defineAppConfig({
         overlay: 'z-(--z-overlay) bg-(--overlay-scrim)',
         content: 'z-(--z-overlay) bg-elevated',
         title: 'font-display text-lg font-medium tracking-display',
+        description: 'text-body',
       }
     },
     // Menus, popovers and toasts are sheets: the 16 px radius (`rounded-lg`) and the warm overlay shadow replace Nuxt UI's `shadow-lg` in Tailwind's black
@@ -435,6 +439,16 @@ export default defineAppConfig({
         // Phone: every tab is a 44px target (DESIGN.md "Space, size and shape"), like the button floor above; no call site sets it
         trigger: 'max-md:min-h-11 max-md:min-w-11 disabled:opacity-50'
       },
+      // A tab is 32 px (24, 28 and 36 for the sizes no template uses) whatever the text line is: the height is explicit,
+      // never the 1.3 line of the interface role plus padding (kd#190; DESIGN.md "Space, size and shape")
+      variants: {
+        size: {
+          xs: { trigger: 'h-6' },
+          sm: { trigger: 'h-7' },
+          md: { trigger: 'h-8' },
+          lg: { trigger: 'h-9' }
+        }
+      },
       compoundVariants: [
         {
           color: 'neutral',
@@ -456,7 +470,7 @@ export default defineAppConfig({
     alert: {
       slots: {
         // Full-strength description: Nuxt UI's `opacity-90` takes every role's text below AA on its own wash (#353, kd#123)
-        description: 'opacity-100'
+        description: 'text-body opacity-100'
       },
       // Role text on the role's wash: the default 500 step measures 1.8 to 4.1:1 (#353, #368, #74, kd#123)
       compoundVariants: alertRoleCompounds

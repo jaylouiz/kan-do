@@ -23,7 +23,7 @@
           <p v-if="count > 0" class="text-sm text-muted">{{ t('trash.retention') }}</p>
           <div v-if="count > 0" class="flex flex-wrap items-center gap-2" @keydown.esc.stop="confirming && cancelEmpty()">
             <template v-if="confirming">
-              <p class="text-sm text-default" role="alert">{{ t('trash.emptyConfirm', { n: count }, count) }}</p>
+              <p class="text-body text-default" role="alert">{{ t('trash.emptyConfirm', { n: count }, count) }}</p>
               <UButton color="error" variant="soft" data-testid="trash-empty-confirm" @click="confirmEmpty">
                 {{ t('trash.emptyConfirmYes') }}
               </UButton>

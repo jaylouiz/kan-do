@@ -60,7 +60,7 @@
               {{ option.label }}
             </ChoiceChip>
           </div>
-          <p class="text-xs text-muted max-md:text-sm">{{ t('board.sync.stackHint') }}</p>
+          <p class="text-xs text-muted max-md:text-body">{{ t('board.sync.stackHint') }}</p>
         </div>
       </section>
       <USeparator class="my-1" />
@@ -125,7 +125,7 @@
           <UIcon :name="PROBLEM_ICONS[worstProblem.status]" class="mt-0.5 size-4 shrink-0" :class="problemTone" aria-hidden="true" />
           <span>{{ problemTitle(worstProblem) }}</span>
         </p>
-        <p class="text-sm text-muted">{{ problemHint(worstProblem) }}</p>
+        <p class="text-body text-muted">{{ problemHint(worstProblem) }}</p>
         <UButton
           v-if="repairRouteOf(worstProblem.source)"
           :to="repairRouteOf(worstProblem.source)!"

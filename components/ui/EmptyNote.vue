@@ -11,7 +11,7 @@
 - Where (moved from DESIGN.md, D1 on kd#68): one muted sentence for an empty tile, dialog, popover, menu, wizard step or a section among other sections; on the task board one muted sentence at most, and empty columns stay blank. A page or tab whose main content is a list that fills with use takes `EmptyState`
 -->
 <template>
-  <p class="text-sm text-muted">
+  <p class="text-body text-muted">
     <slot />
   </p>
 </template>

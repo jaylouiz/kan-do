@@ -217,7 +217,7 @@ function openTask(taskId: string) {
   gap: 0.375rem;
   font-size: var(--text-sm);
   font-weight: 400;
-  line-height: 1.25rem;
+  line-height: var(--lh-snug);
   color: var(--ui-text-highlighted);
 }
 
@@ -274,7 +274,7 @@ function openTask(taskId: string) {
 
 .yesterday-note__title {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: flex-start;
   gap: 0.75rem;
   /* full row plus the 0.25rem the hover wash reaches past the text on each side */
@@ -285,7 +285,7 @@ function openTask(taskId: string) {
   text-align: left;
   font-size: var(--text-sm);
   font-weight: 400;
-  line-height: 1.5rem;
+  line-height: var(--lh-snug);
 }
 
 /* after the base rule on purpose: same specificity, the later one wins; the open title rows are touch targets too */
@@ -301,8 +301,11 @@ function openTask(taskId: string) {
 }
 
 .yesterday-note__more {
+  display: flex;
+  align-items: center;
+  min-height: 1.75rem;
   font-size: var(--text-sm);
-  line-height: 1.75rem;
+  line-height: var(--lh-snug);
 }
 
 .yesterday-note-leave-active,

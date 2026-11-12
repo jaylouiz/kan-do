@@ -17,7 +17,7 @@
     <UIcon :name="icon" class="-ml-1 size-10 text-dimmed" aria-hidden="true" />
     <div class="space-y-1">
       <p class="text-default" data-testid="empty-state-sentence"><slot /></p>
-      <p v-if="subline" class="max-w-md text-sm text-pretty text-muted" data-testid="empty-state-subline">{{ subline }}</p>
+      <p v-if="subline" class="max-w-md text-body text-pretty text-muted" data-testid="empty-state-subline">{{ subline }}</p>
     </div>
   </div>
 </template>

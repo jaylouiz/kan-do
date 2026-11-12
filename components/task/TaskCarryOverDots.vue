@@ -97,12 +97,4 @@ const label = computed(() => t('task.carryOver.label', { n: props.day }))
   font-weight: 500;
   line-height: 1;
 }
-
-/* Mobile label step (#220): 0.6875rem -> 0.75rem with the card's footer chips */
-@media (--phone) {
-  .carry-over-count,
-  .carry-over-more {
-    font-size: var(--text-xs);
-  }
-}
 </style>

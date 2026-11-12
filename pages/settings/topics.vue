@@ -23,7 +23,7 @@ shared TopicEditor: an inline panel under the row at >=768px, a bottom drawer at
           <template #trailing="{ item }"><span class="text-muted">{{ item.count }}</span></template>
           <template #content>
             <PageSheet class="space-y-6" data-testid="topics-panel">
-              <p v-if="list.length" class="text-sm text-muted">{{ t(kind === 'topic' ? 'settings.topics.introTopics' : 'settings.topics.introActivities') }}</p>
+              <p v-if="list.length" class="text-body text-muted">{{ t(kind === 'topic' ? 'settings.topics.introTopics' : 'settings.topics.introActivities') }}</p>
 
               <ul v-if="list.length" class="divide-y divide-default" data-testid="topics-list">
                 <ListRow

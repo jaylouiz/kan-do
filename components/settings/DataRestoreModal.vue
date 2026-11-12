@@ -30,7 +30,7 @@ for the comparison (source vs. now), not as an "are you sure?"; the replace is r
           <dt class="text-muted">{{ t('settings.data.restore.current') }}</dt>
           <dd class="text-highlighted" data-testid="data-restore-current">{{ countText(currentCount) }}</dd>
         </dl>
-        <p class="text-sm text-default">{{ request.note ?? t('settings.data.restore.note') }}</p>
+        <p class="text-body text-default">{{ request.note ?? t('settings.data.restore.note') }}</p>
         <UCheckbox
           v-if="request.safetyOption"
           v-model="safetyDownload"

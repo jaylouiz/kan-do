@@ -16,7 +16,7 @@
   <div class="flex flex-col gap-8" data-testid="day-close-body">
     <section :aria-labelledby="doneHeadingId" data-testid="day-close-done">
       <SectionHeader :id="doneHeadingId" tag="h3" tone="muted">{{ t('dayClose.doneHeading') }}</SectionHeader>
-      <p class="mt-1 text-sm text-toned" data-testid="day-close-recap">{{ recap }}</p>
+      <p class="mt-1 text-body text-toned" data-testid="day-close-recap">{{ recap }}</p>
       <ul
         v-if="done.length > 0"
         class="mt-3 divide-y divide-default"
@@ -39,7 +39,7 @@
 
     <section :aria-labelledby="inFlightHeadingId" data-testid="day-close-in-flight">
       <SectionHeader :id="inFlightHeadingId" tag="h3" tone="muted">{{ t('dayClose.inFlightHeading') }}</SectionHeader>
-      <p v-if="inFlight.length === 0 && rowGaps.length === 0" class="mt-1 text-sm text-toned">{{ t('dayClose.nothingInFlight') }}</p>
+      <p v-if="inFlight.length === 0 && rowGaps.length === 0" class="mt-1 text-body text-toned">{{ t('dayClose.nothingInFlight') }}</p>
       <ul
         v-else
         class="mt-3 divide-y divide-default"
