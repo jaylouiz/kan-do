@@ -248,8 +248,9 @@ export function isStyleOnlyVue(before, after) {
  * @param {{
  *   files: string[] | null | undefined,
  *   body?: string,
- *   config: { smoke: string[], map: { paths: string[], specs: string[], risk?: boolean }[], design?: { paths: string[], specs: string[] } },
+ *   config: { smoke: string[], map: { paths: string[], specs: string[], risk?: boolean }[], design?: { paths: string[], specs: string[] }, catalog?: { paths: string[], components: string, specs: string[] } },
  *   existingSpecs: string[],
+ *   cataloguedComponents?: () => Set<string>,
  *   env?: Record<string, string | undefined>,
  *   mode?: string,
  *   specsImportingHelper?: (helpers: string[]) => string[],
@@ -262,7 +263,7 @@ export function isStyleOnlyVue(before, after) {
  *   labels and test ids the diff changed (#525, default none) and `specsMentioning` finds the specs that name one
  * @returns {{ tier: 'skip' | 'style' | 'full' | 'targeted' | 'fast', reason: string, specs: string[], unmapped: string[], unknown: string[], byText: string[], key: string }}
  */
-export function selectE2e({ files, body = '', config, existingSpecs, env = {}, mode: rawMode = 'quality', isStyleOnlyVueFile = () => ({ styleOnly: false, failed: false }), specsImportingHelper = () => [], changedStrings = () => ({ strings: [], failed: [] }), specsMentioning: findByText = () => [] }) {
+export function selectE2e({ files, body = '', config, existingSpecs, env = {}, mode: rawMode = 'quality', isStyleOnlyVueFile = () => ({ styleOnly: false, failed: false }), specsImportingHelper = () => [], changedStrings = () => ({ strings: [], failed: [] }), specsMentioning: findByText = () => [], cataloguedComponents = () => new Set() }) {
   const exists = new Set(existingSpecs)
   const fast = parseTestingMode(rawMode) === 'fast'
   /** @type {string[]} changed `.vue` files whose judgement failed */
@@ -281,6 +282,19 @@ export function selectE2e({ files, body = '', config, existingSpecs, env = {}, m
 
   /** The rendered design scan (`config.design`) for a PR that touches a UI path. */
   const designSpecs = (list) => !fast && config.design && list.some(file => matchesAny(file, config.design.paths)) ? config.design.specs : []
+  /**
+   * The style fingerprint (`config.catalog`, kd#230) in fast mode, which drops the other design specs: a change that can move the
+   * computed style of a `/ui` sample selects it. That is a stylesheet or `app.config.ts` (`paths`) and a `.vue` file of a component
+   * with a catalog entry (`components` glob, the entry's file name `catalog/<category>/<Name>.catalog.ts` names the component).
+   * Quality mode has it through `design`.
+   */
+  const catalogSpecs = (list) => {
+    const rule = config.catalog
+    if (!fast || !rule) return []
+    const names = cataloguedComponents()
+    const moves = file => matchesAny(file, rule.paths) || (matchesGlob(file, rule.components) && file.endsWith('.vue') && names.has(posix.basename(file, '.vue')))
+    return list.some(moves) ? rule.specs : []
+  }
   const resolved = Array.isArray(files) && files.length > 0
   const full = (reason) => result('full', reason, [...exists].sort())
   // A truncated list is never judged docs-only; the env switch beats the docs-only skip.
@@ -303,11 +317,13 @@ export function selectE2e({ files, body = '', config, existingSpecs, env = {}, m
     const changedSpecs = [...new Set(files.map(specName).filter(name => name && exists.has(name)))]
     // A style change is exactly what the rendered design scan judges, so it runs even when nothing else does.
     const design = designSpecs(files) // none in fast mode
-    const picked = [...new Set([...changedSpecs, ...design])].filter(name => exists.has(name)).sort()
+    const fingerprint = catalogSpecs(files) // fast mode only
+    const picked = [...new Set([...changedSpecs, ...design, ...fingerprint])].filter(name => exists.has(name)).sort()
     if (picked.length === 0) return result('style', 'style-only: css, <style> blocks, comments, docs, snapshots')
-    return result('targeted', design.length > 0 ? 'style-only + design scan' : 'style-only + touched specs', picked)
+    const reason = design.length > 0 ? 'style-only + design scan' : fingerprint.length > 0 ? 'style-only + style fingerprint' : 'style-only + touched specs'
+    return result('targeted', reason, picked)
   }
-  const specs = new Set([...config.smoke, ...designSpecs(files)])
+  const specs = new Set([...config.smoke, ...designSpecs(files), ...catalogSpecs(files)])
   const unmapped = []
   for (const file of files) {
     if (isDocsOnly(file)) continue
@@ -354,6 +370,23 @@ export function fastReleaseSpecs(config, existingSpecs) {
   const exists = new Set(existingSpecs)
   const names = [...config.smoke, ...config.map.filter(rule => rule.risk).flatMap(rule => rule.specs)]
   return [...new Set(names)].filter(name => exists.has(name)).sort()
+}
+
+/** Component names with a `/ui` catalog entry: the `<Name>` of every `catalog/<category>/<Name>.catalog.ts` in a checkout (kd#230). */
+export function listCataloguedComponents(root = ROOT) {
+  const names = new Set()
+  const suffix = '.catalog.ts'
+  try {
+    for (const category of readdirSync(join(root, 'catalog'), { withFileTypes: true })) {
+      if (!category.isDirectory()) continue
+      for (const file of readdirSync(join(root, 'catalog', category.name))) {
+        if (file.endsWith(suffix)) names.add(file.slice(0, -suffix.length))
+      }
+    }
+  } catch {
+    // no catalog folder in this checkout: nothing is catalogued
+  }
+  return names
 }
 
 /** Basenames of `tests/e2e/*.spec.ts` in a checkout. */
@@ -513,7 +546,7 @@ async function main() {
   const changedStrings = changedTextStrings(parsed.baseRefName, parsed.headRefOid)
   const findByText = strings => specsMentioning(strings, sources)
   const mode = readTestingMode(ROOT, process.env)
-  const decision = selectE2e({ ...parsed, config, existingSpecs, env: process.env, mode, isStyleOnlyVueFile, specsImportingHelper, changedStrings, specsMentioning: findByText })
+  const decision = selectE2e({ ...parsed, config, existingSpecs, env: process.env, mode, isStyleOnlyVueFile, specsImportingHelper, changedStrings, specsMentioning: findByText, cataloguedComponents: () => listCataloguedComponents() })
   const files = decision.tier === 'full' ? [] : decision.specs.map(name => `tests/e2e/${name}${SPEC_SUFFIX}`)
   const args = decision.tier === 'skip' || decision.tier === 'style' ? [] : e2eArgs({ files, load: loadavg()[0], cpus: cpus().length })
   console.log(JSON.stringify({ ...decision, mode, args }))

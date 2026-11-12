@@ -30,6 +30,18 @@ export async function settleStack(page: Page): Promise<void> {
 }
 
 /**
+ * Waits until the end-of-drag motion of a drop or a cancelled drag has run out (kd#181): the floating preview is gone
+ * and no card carries the landing or set-down mark. dnd-kit then hands focus back to the dragged card one frame after
+ * the drop animation (`restoreFocus`, only for a keyboard drag), so a focus move made earlier is overridden once the
+ * motion ends: under load that was `stack-a11y` failing with a1 "inactive" after Enter (kd#231). Call it after a keyboard
+ * drag, before the next focus assertion. `settleAnimations` is not enough: the set-down mark is a timer, not an animation.
+ */
+export async function settleDropMotion(page: Page): Promise<void> {
+  await expect(page.locator('[data-dnd-dropping], .kando-dnd-landing, .kando-dnd-set-down')).toHaveCount(0)
+  await flushFrames(page)
+}
+
+/**
  * The only sanctioned fixed sleep in the stack specs (ESLint bans `page.waitForTimeout` there): a
  * dwell that is the point of the test, e.g. a touch hold or the edge-zone hold, or the fixed pacing
  * between synthetic touch moves. Pass a named constant or a pacing parameter, never a bare number
