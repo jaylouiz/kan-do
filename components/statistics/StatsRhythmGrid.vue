@@ -12,7 +12,7 @@
 -->
 <template>
   <div role="img" :aria-label="label" data-testid="stats-rhythm-grid">
-    <div class="grid gap-0.5 " :style="{ gridTemplateColumns: `2rem repeat(${RHYTHM.hours}, minmax(0, 1fr))` }" aria-hidden="true">
+    <div class="grid gap-0.5" :style="{ gridTemplateColumns: `2rem repeat(${RHYTHM.hours}, minmax(0, 1fr))` }" aria-hidden="true">
       <span />
       <span
         v-for="index in RHYTHM.hours"

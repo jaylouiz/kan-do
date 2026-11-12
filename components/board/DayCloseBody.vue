@@ -28,7 +28,7 @@
           class="text-sm text-toned"
           data-testid="day-close-done-row"
         >
-          <UIcon name="i-ph-check" class="mt-0.5 size-4 shrink-0 text-muted" aria-hidden="true" />
+          <UIcon name="i-ph-check" class="size-4 shrink-0 text-muted" aria-hidden="true" />
           <span class="min-w-0 flex-1 wrap-break-word" data-private>{{ task.title }}</span>
           <span v-if="task.timeSpentSeconds > 0" class="shrink-0 text-muted tabular-nums">
             {{ formatDuration(task.timeSpentSeconds, 'spaced') }}

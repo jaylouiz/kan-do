@@ -46,7 +46,7 @@ shared TopicEditor: an inline panel under the row at >=768px, a bottom drawer at
                     <UIcon :name="open === name ? 'i-ph-caret-up' : 'i-ph-pencil-simple'" class="size-4 shrink-0 text-muted" aria-hidden="true" />
                   </span>
                   <template #after>
-                    <div v-if="open === name" class="mb-3 ml-9 w-full max-md:ml-0">
+                    <div v-if="open === name" class="mb-3 ml-9 max-md:ml-0">
                       <TopicEditorHost :key="`${kind}:${name}`" :topic="name" :kind="kind" @close="close" @saved="onSaved" />
                     </div>
                   </template>

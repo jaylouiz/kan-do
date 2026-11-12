@@ -94,6 +94,22 @@ for (const vp of VIEWPORTS) {
       await expect(button).not.toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
     })
 
+    test('an action row is one 44 px density and its open editor stays inside the row (kd#180)', async ({ page }) => {
+      await page.goto('/settings/topics')
+      const rowBox = await row(page, 'Home').getByTestId('topics-row-button').boundingBox()
+      // two text lines (name and meta) set the height; no 80 px from a content-box min-height
+      expect(rowBox!.height).toBeGreaterThanOrEqual(44)
+      expect(rowBox!.height).toBeLessThan(72)
+      // a phone opens the editor as a drawer; the inline panel exists from md
+      test.skip(vp.touch, 'the inline editor panel is md and wider')
+      await row(page, 'Wrk').getByTestId('topics-row-button').click()
+      await expect(editor(page)).toBeVisible()
+      const rowEl = await row(page, 'Wrk').boundingBox()
+      const panel = await editor(page).boundingBox()
+      expect(panel!.x + panel!.width).toBeLessThanOrEqual(rowEl!.x + rowEl!.width + 0.5)
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+    })
+
     test('rename from the settings page reaches every status, the trash, the statistics and survives a reload; A -> B -> A restores', async ({ page }) => {
       await page.goto('/settings/topics')
       await expect(page.getByTestId('topics-list')).toBeVisible()
