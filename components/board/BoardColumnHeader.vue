@@ -58,11 +58,23 @@ const isWaiting = computed(() => props.status === TaskStatus.Waiting);
 
 <style scoped>
   /* The marker (DESIGN.md "The Marker Rule"): a stroke of yellow text marker through the lower half of the Jetzt
-     headline, its only use. Static, a decoration without a meaning of its own; the ink on it keeps body contrast. */
+     headline, its only use. Static, a decoration without a meaning of its own; the ink on it keeps body contrast.
+     Drawn by hand (kd#207): a layer of its own behind the word, tilted a little and with softly rounded, uneven
+     ends, so it sits with the round serif instead of ruling a straight bar under it. */
   h2.column-header__marked {
+    position: relative;
+    isolation: isolate; /* keeps the stroke's z-index -1 behind the word, above the page */
     padding-inline: 0.3em;
-    border-radius: var(--radius-sm);
-    background: linear-gradient(transparent 0 56%, var(--marker) 56% 90%, transparent 90%) no-repeat;
+  }
+
+  h2.column-header__marked::before {
+    content: '';
+    position: absolute;
+    inset: 54% 0 9%;
+    z-index: -1;
+    border-radius: var(--radius-sm) var(--radius-md) var(--radius-sm) var(--radius-md);
+    background: var(--marker);
+    rotate: -1.6deg;
   }
 
   /* The done mark before "Erledigt" is the check icon the done cards use, not a text glyph: the display face has no

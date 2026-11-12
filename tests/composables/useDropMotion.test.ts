@@ -67,11 +67,11 @@ describe('useDropMotion', () => {
     expect(dragState.value.setDownTaskId).toBeNull()
   })
 
-  it('under reduced motion the landing ends without a set-down mark', () => {
+  it('under reduced motion the landing still ends with the set-down mark: it keeps the card transitions off (kd#225)', () => {
     vi.stubGlobal('matchMedia', () => ({ matches: true }))
     motion.land('a', null)
     motion.setDown()
-    expect(dragState.value).toMatchObject({ landingTaskId: null, setDownTaskId: null })
+    expect(dragState.value).toMatchObject({ landingTaskId: null, setDownTaskId: 'a' })
     vi.unstubAllGlobals()
   })
 })

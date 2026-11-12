@@ -166,21 +166,28 @@ test.describe('Card click opens (kd#25): plain cards', () => {
     await page.waitForURL(/\/tasks\/p2/)
   })
 
-  test('the card lifts to the hovered shadow under a pointer that hovers', async ({ page }) => {
-    const shadow = (id: string) => face(page, id).evaluate(el => getComputedStyle(el).boxShadow)
-    const hoverToken = await page.evaluate(() => {
+  test('the card answers a hovering pointer with a darker sheet: it does not move and keeps its shadow (kd#225)', async ({ page }) => {
+    const look = (id: string) => face(page, id).evaluate((el) => {
+      const cs = getComputedStyle(el)
+      return { fill: cs.backgroundColor, shadow: cs.boxShadow, translate: cs.translate, top: el.getBoundingClientRect().top }
+    })
+    const hoverFill = await page.evaluate(() => {
       const probe = document.createElement('div')
-      probe.style.boxShadow = 'var(--shadow-task-hover)'
+      probe.style.backgroundColor = 'var(--task-card-hover-bg)'
       document.body.append(probe)
-      const value = getComputedStyle(probe).boxShadow
+      const value = getComputedStyle(probe).backgroundColor
       probe.remove()
       return value
     })
-    const rest = await shadow('p2')
-    expect(rest).not.toBe(hoverToken)
+    const rest = await look('p2')
+    expect(rest.fill).not.toBe(hoverFill)
     await face(page, 'p2').hover()
-    await expect.poll(() => shadow('p2')).toBe(hoverToken)
-    expect(await shadow('p1')).toBe(rest)
+    await expect.poll(async () => (await look('p2')).fill).toBe(hoverFill)
+    const hovered = await look('p2')
+    expect(hovered.shadow).toBe(rest.shadow)
+    expect(hovered.translate).toBe('none')
+    expect(hovered.top).toBe(rest.top)
+    expect((await look('p1')).fill).toBe(rest.fill)
   })
 })
 

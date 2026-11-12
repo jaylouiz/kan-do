@@ -195,7 +195,8 @@ function getCardStyles(index: number): Record<string, string> {
 /* ========================================
  * TASK STACK (#148)
  * The collapsed face is front card + peek layers + pill, all driven by --stack-layers (0-2) and
- * --stack-collapsed-offset (4px). No rotation; hover and focus only lift the front card.
+ * --stack-collapsed-offset (4px). No rotation and no movement: under the pointer or a finger the front card's sheet
+ * turns one step darker, like a plain card (kd#225).
  * ======================================== */
 
 .task-stack {
@@ -216,13 +217,6 @@ function getCardStyles(index: number): Record<string, string> {
 
 .task-stack:not(.kando-dnd-placeholder) .task-stack__cards {
   filter: var(--shadow-stack-collapsed);
-  transition: filter var(--stack-transition-duration) var(--stack-transition-easing);
-}
-
-/** Hover/Focus: the shadow follows the lifted front card */
-.task-stack:not(.kando-dnd-placeholder):hover .task-stack__cards,
-.task-stack:not(.kando-dnd-placeholder):focus-within .task-stack__cards {
-  filter: var(--shadow-stack-hover);
 }
 
 /**
@@ -238,13 +232,13 @@ function getCardStyles(index: number): Record<string, string> {
   display: grid;
   place-items: center;
   pointer-events: none;
-  transition: transform var(--stack-transition-duration) var(--stack-transition-easing);
 }
 
 /**
  * Wash (#270, #371): the pill sits on a wide radial wash of the card's sheet colour, opaque at the
  * centre and transparent toward the ellipse edge, covering most of the front card (clipped to it),
- * so the pill reads as lying above the card, not belonging to it.
+ * so the pill reads as lying above the card, not belonging to it. The colour is a plain fill behind a
+ * radial mask, so it follows the front card's hover fill on the same transition (a gradient cannot ease).
  */
 .task-stack__pill-layer::before {
   content: "";
@@ -252,11 +246,13 @@ function getCardStyles(index: number): Record<string, string> {
   inset: 0;
   z-index: -1;
   border-radius: var(--task-card-radius);
-  background: radial-gradient(
+  background-color: var(--ui-bg-elevated);
+  mask-image: radial-gradient(
     ellipse var(--stack-wash-rx) var(--stack-wash-ry) at center,
-    var(--ui-bg-elevated) var(--stack-wash-opaque),
+    black var(--stack-wash-opaque),
     transparent var(--stack-wash-edge)
   );
+  transition: background-color var(--duration-fast) var(--ease-emphasized);
 }
 
 /** The wash tones with a muted or waiting front card, like the card's own filter (TaskCard.vue) */
@@ -267,10 +263,20 @@ function getCardStyles(index: number): Record<string, string> {
     contrast(var(--task-muted-filter-contrast));
 }
 
-/** The pill follows the front card's hover/focus lift */
-.task-stack:hover .task-stack__pill-layer,
-.task-stack:focus-within .task-stack__pill-layer {
-  transform: translateY(-2px);
+/**
+ * Hover and press (kd#225): the front card's sheet and the wash on it turn one step darker together, as a plain
+ * card does (TaskCard). Nothing moves and the shadow stays. Press is outside the hover query, so a tap shows it.
+ */
+@media (hover: hover) {
+  .task-stack:not(.kando-dnd-placeholder, .kando-dnd-preview):hover :deep(.stacked-task--top),
+  .task-stack:not(.kando-dnd-placeholder, .kando-dnd-preview):hover .task-stack__pill-layer::before {
+    background-color: var(--task-card-hover-bg);
+  }
+}
+
+.task-stack:not(.kando-dnd-placeholder, .kando-dnd-preview):active :deep(.stacked-task--top),
+.task-stack:not(.kando-dnd-placeholder, .kando-dnd-preview):active .task-stack__pill-layer::before {
+  background-color: var(--task-card-hover-bg);
 }
 
 /**
@@ -315,24 +321,18 @@ function getCardStyles(index: number): Record<string, string> {
  * ======================================== */
 
 /**
- * Front card is in flow, defines the stack's height. Hover and focus lift it a little.
+ * Front card is in flow, defines the stack's height.
  * - z-index: board.css gives every `.task` z-index 100 + --item-index, which is far below the
  *   peek cards' --stack-z (399). Without this the second task covers the first one.
  */
 :deep(.stacked-task--top) {
   position: relative;
   z-index: var(--stack-z, auto);
-  transition: transform var(--stack-transition-duration) var(--stack-transition-easing);
-}
-
-.task-stack:hover :deep(.stacked-task--top),
-.task-stack:focus-within :deep(.stacked-task--top) {
-  transform: translateY(-2px);
 }
 
 /**
  * Peek layers: absolutely positioned behind the front card, one offset step lower and narrower per
- * layer, so only a sliver of each shows. They are inert and never move (the front card does).
+ * layer, so only a sliver of each shows. They are inert and never move.
  */
 :deep(.stacked-task--overflow) {
   position: absolute;
@@ -353,10 +353,8 @@ function getCardStyles(index: number): Record<string, string> {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .task-stack__cards,
-  .task-stack__pill-layer,
-  .task-stack__cards :deep(.stacked-task--top > *),
-  :deep(.stacked-task--top) {
+  .task-stack__pill-layer::before,
+  .task-stack__cards :deep(.stacked-task--top > *) {
     transition: none;
   }
 }

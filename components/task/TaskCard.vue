@@ -24,9 +24,9 @@
   spring, around the card for ~0.9 s; decorative, none under reduced motion
 - Timebox nudge (#389): a Jetzt card without a timebox shows the in-card question (board store
   `timeboxNudgeTaskId`); its own content is hidden under it (`task--nudged`, rules in TaskTimeboxNudge)
-- Opens the task sheet on a click or tap (kd#25, one gesture for every pointer; Enter via SortableTaskWrapper), lifts 2 px
-  with the hovered shadow under a hovering pointer and sets down on press (kd#181; `translate`, because dnd-kit and the
-  stack own `transform`); a collapsed stack's cards never open
+- Opens the task sheet on a click or tap (kd#25, one gesture for every pointer; Enter via SortableTaskWrapper); its sheet
+  turns one step darker (`--task-card-hover-bg`) under a hovering pointer and while pressed, on touch too; it never
+  moves and its shadow stays (kd#225, replaces the 2 px lift of kd#181); a collapsed stack's cards never open
 - End of a drag (kd#181, `useDropMotion`, dnd.css): the floating preview glides to the slot, then the card is set down
 - Provides drag-and-drop styling
 - `readonly` (#422): the card of a trash entry. Same face, but no task id on the DOM (board selectors never match it), no
@@ -381,7 +381,6 @@ const openDetails = (event: MouseEvent) => {
     background-color var(--duration-fast) var(--ease-emphasized),
     color var(--duration-fast) var(--ease-emphasized),
     box-shadow var(--duration-fast) var(--ease-standard),
-    translate var(--duration-fast) var(--ease-standard),
     filter var(--duration-base) var(--ease-emphasized),
     opacity var(--sheet-fade-duration) var(--sheet-fade-easing);
   min-height: var(--task-card-height);
@@ -391,30 +390,19 @@ const openDetails = (event: MouseEvent) => {
   box-shadow: var(--shadow-task);
 }
 
-/* Hover (kd#25): the card is a click target, so it lifts to the "sheet hovered" shadow under a pointer that can hover.
-   Not on a trash entry or the add-sheet draft, not while a drag runs (dnd.css owns the dragged look), and never inside
-   a collapsed stack (TaskStack pins its cards to the resting shadow) or on the lit Jetzt card (focus overlay). */
+/* Hover and press (kd#25, kd#225): the card is a click target, so its sheet turns one step darker under the pointer
+   and under a finger, the same answer every control gives. It does not move and its shadow stays: a card that
+   shifted under the pointer made the board feel loose (owner, 2026-11-12, replaces the 2 px lift of kd#181).
+   Not on a trash entry or the add-sheet draft, not while a drag runs (dnd.css owns the dragged look). A collapsed
+   stack answers as one (TaskStack). Press is outside the hover query so a tap on a phone shows it too. */
 @media (hover: hover) {
-  .board:not(.dragging) .task:not(.task--readonly, .task--draft, .kando-dnd-placeholder):hover {
-    box-shadow: var(--shadow-task-hover);
-  }
-
-  .board:not(.dragging) .task:not(.task--readonly, .task--draft, .kando-dnd-placeholder, .stacked-task):active {
-    box-shadow: var(--shadow-task);
+  .board:not(.dragging) .task:not(.task--readonly, .task--draft, .kando-dnd-placeholder, .stacked-task):hover {
+    background-color: var(--task-card-hover-bg);
   }
 }
 
-/* The lift (kd#181): 2 px up under the pointer, set down again on press. `translate`, not `transform`: dnd-kit
-   and the stack own `transform`. A stack lifts as one (TaskStack); the lit Jetzt card stays put
-   (board-focus-overlay.css). Movement, so not under reduced motion: there the shadow alone answers. */
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .board:not(.dragging) .task:not(.task--readonly, .task--draft, .kando-dnd-placeholder, .stacked-task):hover {
-    translate: 0 -2px;
-  }
-
-  .board:not(.dragging) .task:not(.task--readonly, .task--draft, .kando-dnd-placeholder, .stacked-task):active {
-    translate: 0 0;
-  }
+.board:not(.dragging) .task:not(.task--readonly, .task--draft, .kando-dnd-placeholder, .stacked-task):active {
+  background-color: var(--task-card-hover-bg);
 }
 
 /* A trash entry (#422) is a picture of the card, not a control */
@@ -547,7 +535,6 @@ const openDetails = (event: MouseEvent) => {
     background-color var(--duration-fast) var(--ease-emphasized),
     color var(--duration-fast) var(--ease-emphasized),
     box-shadow var(--duration-fast) var(--ease-standard),
-    translate var(--duration-fast) var(--ease-standard),
     filter var(--task-muted-transition-duration) var(--task-muted-transition-easing),
     opacity var(--sheet-fade-duration) var(--sheet-fade-easing);
 }
