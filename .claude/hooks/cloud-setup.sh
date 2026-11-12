@@ -4,6 +4,8 @@
 # npm ci is keyed on the lockfile hash, so a resumed session with unchanged dependencies skips it.
 [ "${CLAUDE_CODE_REMOTE:-}" = "true" ] || exit 0
 cd "${CLAUDE_PROJECT_DIR:-.}" || exit 0
+# SessionStart stdout becomes session context: the cloud rules live here instead of in the always-loaded CLAUDE.md.
+cat .claude/cloud.md 2>/dev/null
 log() { echo "cloud-setup: $*" >&2; }
 
 hash=$(sha256sum package-lock.json 2>/dev/null | cut -c1-16)
@@ -21,7 +23,7 @@ fi
 pw=node_modules/.bin/playwright
 "$pw" install --with-deps chromium >/dev/null 2>&1 ||
   "$pw" install chromium >/dev/null 2>&1 ||
-  log "Chromium download failed: E2E and screenshots will not run (allowed domains: CLAUDE.md 'Cloud sessions')"
+  log "Chromium download failed: E2E and screenshots will not run (allowed domains: .claude/cloud.md)"
 
 # playwright-cli backs the project skill of the same name (version pinned to the local install).
 command -v playwright-cli >/dev/null 2>&1 ||

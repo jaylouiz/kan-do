@@ -4,14 +4,14 @@ Read before running the design gate of a UI PR (`.claude/issue-workflow.md` "Des
 
 ## Critique procedure
 
-`/impeccable audit <target>` runs as written. `/impeccable critique <target>` follows the plugin's `reference/critique.md`:
+The gate of a UI PR is one design review of the built result (reduced 2026-11-13 by the owner: across 38 UI PRs the before and after scores moved by a mean of +1 of 40, inside their own noise, while the review's findings led to a fix in about one PR of three).
 
-- Assessments A and B always run as two isolated sub-agents (A: design review, inherits the session model and gets the 1280 and 390 screenshots as required input, no valid screenshots = recapture, never review; B: detector and browser evidence, `model: haiku`); inline with the `⚠️ DEGRADED: single-context` banner only when no `Agent` tool exists.
-- Unattended (worker or orchestrated): one bounded pass, no browser overlay, no live server; the run ends with the literal line `Questions skipped: unattended worker`.
-- Calibration stays outside A (critique.md: A is unanchored, `ignore.md` is its only prior-run input): the after-run is persisted (`critique-storage write`; it stays local, `.impeccable/critique/` is git-ignored because runs record absolute worktree paths; the before-run on the `origin/main` worktree is not persisted) and its trend line goes into the PR. In synthesis, a heuristic that moved 2+ points or a total that moved 4+ against the last stored run of the same slug without a rendering change in the diff names the evidence for the move, else the parent re-scores that heuristic against critique.md's scoring guide.
-- Real before/after scores for both in the PR (before = the same pass on an `origin/main` worktree; a motion-only or one-frame change may give a code-level estimate, marked); a later fix round without rendering change reuses them (say so).
-- Fix every P0 and P1 except one that restates a spec `Accepted trade-offs` entry (cite it). List P2/P3 in the PR.
-- A run that cannot happen is reported with the concrete error, never "not feasible unattended"; its box stays unticked.
+- When: as soon as the change renders, before the first full E2E pass (findings change CSS; a later run repeats the E2E set).
+- What: `/impeccable critique <target>`, its design-review assessment (A in the plugin's `reference/critique.md`) as one isolated sub-agent that inherits the session model and gets the after screenshots at 1280 and 390 as required input. No valid screenshots = recapture, never review; warm the route first and check that the shots show the changed state. Inline with the `⚠️ DEGRADED: single-context` banner only when no `Agent` tool exists.
+- Not part of the gate: a run on `origin/main`, scores and their trend, the scored `/impeccable audit`, a separate detector assessment. `npm run design:detect`, axe and the rendered scan already run in the Stop hook and the merge gate.
+- Unattended (worker or orchestrated): one bounded pass, no browser overlay, no live server.
+- Fix every P0 and P1 the PR introduced, except one that restates a spec `Accepted trade-offs` entry (cite it). A finding that `main` already has becomes an `inbox` issue. List P2/P3 in the PR.
+- A review that cannot happen is reported with the concrete error, never "not feasible unattended"; its box stays unticked.
 
 ## Detector notes
 
