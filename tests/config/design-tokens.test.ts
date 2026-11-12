@@ -71,4 +71,12 @@ describe('design tokens', () => {
     expect(['task-card', 'is-on', 'more-panel'].every(c => nonUtility.test(c))).toBe(true)
     expect(['text-muted-foreground', 'hover:bg-elevate', 'border-border', '!px-safe'].some(c => nonUtility.test(c))).toBe(false)
   })
+  it('every size token in use has an explicit line height (no calc default), and the lg select row keeps 36 px (kd#190)', () => {
+    const css = readFileSync(join(root, 'assets/css/main.css'), 'utf8')
+    for (const size of ['5xl', 'lg', '2xl', 'base', 'sm', 'xs', 'display', 'headline', 'title', 'label']) {
+      expect(css, `--text-${size}--line-height`).toMatch(new RegExp(`--text-${size}--line-height:`))
+    }
+    const config = readFileSync(join(root, 'app.config.ts'), 'utf8')
+    expect(config).toMatch(/select: \{[^]*?item: 'min-h-9'/)
+  })
 })

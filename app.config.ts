@@ -279,7 +279,8 @@ export default defineAppConfig({
     select: {
       slots: {
         content: 'rounded-lg shadow-(--shadow-overlay)',
-        item: 'min-h-8',
+        // The `lg` item (p-2, text-sm) is 16 + 18.2 = 34.2 px at 1.3; `min-h-9` keeps the 36 px row it had before kd#190
+        item: 'min-h-9',
         base: [
           'h-(--field-h) disabled:cursor-not-allowed disabled:opacity-50'
         ]

@@ -33,6 +33,7 @@
   --text-2xl--line-height: var(--lh-tight); /* not a role: the figures in the statistics rings */
   --text-title: 0.9375rem; /* card title */
   --text-title--line-height: var(--lh-snug);
+  --text-base--line-height: 1.5; /* explicit, same as Tailwind's calc default: no pixel moves */
   --text-sm--line-height: var(--lh-snug); /* interface text: buttons, fields, rows, tabs, card meta */
   --text-xs--line-height: var(--lh-snug);
   --text-label: 0.75rem; /* label: badges, chips, counts, property labels, hints */
