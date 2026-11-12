@@ -2,14 +2,16 @@ import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { HUES } from '~/lib/topicStyles'
+import { cssColor } from './helpers/tokens'
 
 /**
  * The nine topic mark tones (#431) are named tokens in assets/css/main.css and each must read on the card sheet:
- * >= 3:1 (WCAG 1.4.11, non-text contrast) against the white sheet (the card surface) and the fill inside a sheet (#F6F3ED, `--ui-bg-muted`).
+ * >= 3:1 (WCAG 1.4.11, non-text contrast) against the white sheet (the card surface) and the fill inside a sheet (`--ui-bg-muted`, read from main.css, kd#194).
  * Retuning a tone (#423) passes here or it does not ship.
  */
 const css = readFileSync(resolve(__dirname, '../../assets/css/main.css'), 'utf8')
-const SURFACES = { sheet: '#F6F3ED', white: '#FFFFFF' }
+const toSrgb = (c: [number, number, number]): [number, number, number] => [c[0] / 255, c[1] / 255, c[2] / 255]
+const SURFACES = { sheet: toSrgb(cssColor('--ui-bg-muted')), white: toSrgb(cssColor('--ui-bg')) }
 
 /** OKLCH -> gamma-encoded sRGB (0..1), clipped. */
 function oklchToSrgb(l: number, c: number, hue: number): [number, number, number] {
@@ -36,9 +38,6 @@ function contrast(a: [number, number, number], b: [number, number, number]): num
   return (hi + 0.05) / (lo + 0.05)
 }
 
-const hexToSrgb = (hex: string): [number, number, number] =>
-  [1, 3, 5].map(i => Number.parseInt(hex.slice(i, i + 2), 16) / 255) as [number, number, number]
-
 function tone(hue: string): [number, number, number] {
   const match = new RegExp(`--topic-${hue}:\\s*oklch\\(([\\d.]+)\\s+([\\d.]+)\\s+([\\d.]+)\\)`).exec(css)
   if (!match) throw new Error(`--topic-${hue} is not an oklch() token in main.css`)
@@ -53,13 +52,13 @@ describe('topic mark tokens (#431)', () => {
   for (const hue of HUES) {
     it(`${hue} has >= 3:1 on the card sheet and on white`, () => {
       for (const [name, surface] of Object.entries(SURFACES)) {
-        expect(contrast(tone(hue), hexToSrgb(surface)), `${hue} on ${name}`).toBeGreaterThanOrEqual(3)
+        expect(contrast(tone(hue), surface), `${hue} on ${name}`).toBeGreaterThanOrEqual(3)
       }
     })
   }
 
   it('prints the measured ratios (value for the PR)', () => {
-    const ratios = HUES.map(hue => `${hue} ${contrast(tone(hue), hexToSrgb(SURFACES.sheet)).toFixed(2)}`)
+    const ratios = HUES.map(hue => `${hue} ${contrast(tone(hue), SURFACES.sheet).toFixed(2)}`)
     expect(ratios).toHaveLength(9)
     if (process.env.TOPIC_TOKENS_VERBOSE) console.log(ratios.join(', '))
   })
