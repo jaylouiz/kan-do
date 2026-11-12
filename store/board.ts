@@ -7,6 +7,7 @@ import type { BoardGroupingState, GroupKey } from "~/types/boardGrouping";
 import { POSITION_GAP, getPositionBetween, needsRebalancing, rebalancePositions } from "@/types/taskPosition";
 import { mapHelpers } from "~/utils/mapHelpers";
 import { dayKey, isValidDayKey } from "~/utils/recapDay";
+import { useToday } from "~/composables/useToday";
 import { persistOmitFor } from "~/lib/secrets";
 import { useTasksStore } from "~/store/tasks";
 import { normalizeBoardConfig, singleSource } from "~/lib/taskSources";
@@ -145,9 +146,11 @@ export const useBoardStore = defineStore("board", () => {
   );
 
   /** The topic the board is focused on right now: null when there is none or it was set on an earlier day. */
+  const { today } = useToday();
   const activeFocusTopic = computed<string | null>(() => {
     const current = focus.value;
-    return current && current.day === dayKey(new Date()) ? current.topic : null;
+    // `today` is reactive across midnight, so a window left open overnight drops the focus without a reload.
+    return current && current.day === dayKey(today.value) ? current.topic : null;
   });
 
   // Actions

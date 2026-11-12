@@ -38,6 +38,23 @@ describe('board focus (#161)', () => {
     expect(store.activeFocusTopic).toBeNull()
   })
 
+  it('a focus ends at midnight in a window that stays open', () => {
+    vi.useFakeTimers()
+    try {
+      vi.setSystemTime(new Date(2026, 10, 12, 23, 50))
+      window.dispatchEvent(new Event('focus')) // useToday re-reads the day
+      const store = hydrate(undefined)
+      store.setFocus('Abend')
+      expect(store.activeFocusTopic).toBe('Abend')
+      vi.setSystemTime(new Date(2026, 10, 13, 0, 5))
+      window.dispatchEvent(new Event('focus'))
+      expect(store.activeFocusTopic).toBeNull()
+    } finally {
+      vi.useRealTimers()
+      window.dispatchEvent(new Event('focus'))
+    }
+  })
+
   it('a focus of an earlier day is no focus', () => {
     const store = hydrate({ focus: { topic: 'Alt', day: yesterday() } })
     expect(store.activeFocusTopic).toBeNull()
