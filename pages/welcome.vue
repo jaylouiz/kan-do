@@ -9,9 +9,11 @@
 - Fokus: nach dem Tausch auf die Überschrift des Setups, beim Zurück auf die Antwortzeile, von der man kam
 - Keine gefüllte Schaltfläche: beide Antworten sind ganze Zeilen (ChoiceCard, min. 64px), keine hervorgehoben
 - Todoist wird nicht angeboten; weitere Verbindungen kommen später in den Einstellungen dazu
-- Ein ruhiges Foto (Jalousie-Schatten, gebündelt in public/welcome, Quelle in CREDITS.md) füllt die Seite; es ist nur
-  Stimmung: Text steht nie direkt darauf. Mittig ein heller Bogen (Oberfläche und Schatten wie ein Dialog) trägt
-  Wortmarke, Zeile, Frage, Antworten, Hinweis und Version. Am Telefon füllt der Bogen die Breite, darüber bleibt ein Foto-Streifen.
+- Ein ruhiges Foto (Schreibtisch mit Tasse, Notizbuch und Pflanze im Fensterlicht, kd#226; gebündelt in public/welcome,
+  Quelle in CREDITS.md) füllt die Seite; es ist nur Stimmung: Text steht nie direkt darauf. Mittig ein heller Bogen
+  (Oberfläche und Schatten wie ein Dialog) trägt Wortmarke, Zeile, Frage, Antworten, Hinweis und Version. Am Telefon
+  füllt der Bogen die Breite, darüber bleibt ein Foto-Streifen: das Foto ist dort eigens beschnitten (rechts unten,
+  vergrößert), damit Tasse, Tischkante und Notizbuch im Streifen liegen statt nur die Wand.
 - Das Foto blendet beim Laden ein (ohne Layoutsprung); lädt es nicht, bleibt die Seite auf Papierfarbe, der Bogen unverändert
 -->
 <template>
@@ -20,14 +22,14 @@
     <!-- Atmosphere only (alt=""): fades in once loaded, a failed load leaves the paper colour -->
     <img
       ref="photo"
-      src="/welcome/blinds-2000.webp"
-      srcset="/welcome/blinds-800.webp 800w, /welcome/blinds-2000.webp 2000w"
-      sizes="100vw"
+      src="/welcome/desk-1672.webp"
+      srcset="/welcome/desk-800.webp 800w, /welcome/desk-1672.webp 1672w"
+      sizes="(min-width: 40rem) 100vw, 270vw"
       alt=""
       aria-hidden="true"
       decoding="async"
       data-testid="welcome-photo"
-      class="pointer-events-none absolute inset-0 size-full object-cover transition-opacity duration-700 motion-reduce:transition-none"
+      class="welcome-photo pointer-events-none absolute inset-0 size-full object-cover transition-opacity duration-700 motion-reduce:transition-none"
       :class="photoLoaded ? 'opacity-100' : 'opacity-0'"
       @load="photoLoaded = true"
     >
@@ -207,6 +209,32 @@ const handleNotionSetupComplete = async () => {
 </script>
 
 <style>
+/* Phone (below `sm`, where the sheet fills the width, kd#226): a full-page cover crop would show only the wall in the
+   strip above the sheet. The photo is sized by the viewport height instead, anchored right and pulled up, so the mug,
+   the table edge and the notebook lie in the strip; the sheet covers what is below. Viewport units keep the crop in
+   proportion on short and tall phones. */
+.welcome-photo {
+  inset: 0 0 auto auto;
+  width: auto;
+  max-width: none;
+  /* Tall enough that its lower edge (55 % of the height, after the pull) stays below the strip: the sheet is at least
+     about 27rem high, so the strip is at most 100dvh - 27rem */
+  height: max(80dvh, calc((100dvh - 27rem) / 0.55));
+  aspect-ratio: 1672 / 941;
+  translate: 0 -45%; /* the strip starts just above the mug; so mug, table edge and notebook fall into it */
+}
+
+/* From `sm` the photo covers the page again (the `inset-0 size-full object-cover` of the element) */
+@media (--sm) {
+  .welcome-photo {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+    translate: none;
+  }
+}
+
 /* 12px clip margin: the Back button sits 4px outside the body and its focus ring reaches 4px beyond it (2px offset + 2px width) */
 .setup-body { position: relative; overflow: clip; overflow-clip-margin: 12px; }
 /* Leave 140 ms, enter 240 ms straight after it (no delay: a delay shows an empty sheet for a beat) */
