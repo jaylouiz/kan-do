@@ -25,6 +25,7 @@ import { ref, computed, useId } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useTasksStore } from '~/store/tasks'
 import { useColumnSortable } from '~/composables/useColumnSortable'
+import { useDropMotionClasses } from '~/composables/useDropMotion'
 import { useTaskDeletion } from '~/composables/useTaskDeletion'
 import { findCardElement, neighbourCardId } from '~/utils/neighbourCard'
 import { focusFirstAvailable } from '~/utils/focusRecovery'
@@ -60,6 +61,8 @@ const positionText = computed(() =>
     ? t('board.stack.memberPosition', { n: props.stackIndex, total: props.stackSize, group: props.stackLabel })
     : null,
 )
+
+const dropMotionClasses = useDropMotionClasses(() => props.taskId)
 
 const { isDragging } = useColumnSortable(
   props.taskId,
@@ -112,7 +115,7 @@ function deleteFocusedCard(event: KeyboardEvent) {
     :aria-label="task?.title"
     :aria-describedby="positionText ? positionId : undefined"
     :aria-roledescription="t('board.dnd.roleDescription')"
-    :class="{ 'kando-dnd-dragged': isDragging }"
+    :class="[{ 'kando-dnd-dragged': isDragging }, dropMotionClasses]"
     @keydown.enter.self="openDetails"
     @keydown.delete.self="deleteFocusedCard"
   >

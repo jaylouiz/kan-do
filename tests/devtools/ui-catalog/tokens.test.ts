@@ -15,7 +15,7 @@ describe('groupOf', () => {
     ['--task-card-radius', 'calc(var(--ui-radius) * 2)', 'radius'],
     ['--font-sans', 'Figtree', 'typography'],
     ['--lh-body', '1.55', 'typography'],
-    ['--dnd-reorder-duration', '220ms', 'motion'],
+    ['--dnd-reorder-duration', '200ms', 'motion'],
     ['--sheet-fade-easing', 'cubic-bezier(0.2, 0, 0, 1)', 'motion'],
     ['--breakpoint-md', '48rem', 'breakpoints'],
     ['--task-list-gap', '0.75rem', 'spacing'],

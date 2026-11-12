@@ -218,7 +218,7 @@ describe('useStackMotion: expand', () => {
     expect(rise.keyframes[0]!.transform).toBe('translate(0px, 38px)')
     expect(rise.keyframes[1]!.transform).toBe('none')
     expect(rise.keyframes[0]!.zIndex).toBe('700')
-    expect(rise.options.duration).toBe(220)
+    expect(rise.options.duration).toBe(200)
     // the row itself never fades: only the pill travels and the X comes in
     expect(animations.some(animation => animation.target === header)).toBe(false)
   })
@@ -259,7 +259,7 @@ describe('useStackMotion: expand', () => {
     expect(animations.length).toBeGreaterThan(0)
     for (const animation of animations) {
       expect(animation.options.fill).toBe('none')
-      expect(animation.options.duration).toBe(220)
+      expect(animation.options.duration).toBe(200)
       expect(animation.options.iterations).toBeUndefined()
       for (const frame of animation.keyframes) {
         expect(Object.keys(frame).filter(key => !['transform', 'transformOrigin', 'opacity', 'zIndex', 'offset', 'easing'].includes(key))).toEqual([])

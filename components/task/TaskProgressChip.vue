@@ -173,7 +173,7 @@ watch(() => props.isNow, (now) => {
   --chip-spring: linear(0, 0.032, 0.114, 0.225, 0.35, 0.477, 0.598, 0.707, 0.802, 0.88, 0.942, 0.989, 1.022, 1.044, 1.057, 1.063, 1.063, 1.059, 1.053, 1.045, 1.037, 1.029, 1.022, 1.015, 1.01, 1.005, 1.002, 1, 0.998, 0.997, 0.996, 0.996, 0.996, 0.996, 0.997, 0.997, 0.998, 0.998, 0.999, 0.999, 1);
   --chip-ease: var(--ease-emphasized);
   --chip-duration: 600ms;
-  --chip-settle-delay: 240ms; /* the card lands first (drop animation ~150 ms), then the label morphs */
+  --chip-settle-delay: 240ms; /* the card lands first (drop glide 200 ms, `DND_MOTION`), then the label morphs */
   --chip-fill-duration: 700ms;
   --chip-radius: var(--ui-radius); /* the sibling UBadge radius */
   --chip-pad: 0.4375rem;

@@ -1,7 +1,7 @@
 import { test, expect, type BrowserContext, type Page } from '@playwright/test'
 import { elapse, installClock, NUDGE_COUNTDOWN_MS } from './helpers/clock'
 import { seedLocalBoard, type SeedTask } from './helpers/seed'
-import { pickUp, hover, finger, activeColumnPage } from './helpers/dnd'
+import { pickUp, hover, finger, activeColumnPage, dropSettled } from './helpers/dnd'
 import { dwell, flushFrames } from './helpers/settle'
 import { EDGE_HOLD_DWELL_MS } from './helpers/constants'
 
@@ -89,7 +89,8 @@ test.describe('timebox nudge on a card that lands in Jetzt (desktop)', () => {
     // No dialog semantics, no focus theft
     await expect(page.locator('[role="dialog"], [aria-modal="true"]')).toHaveCount(0)
     expect(await page.evaluate(() => document.activeElement === document.body || !document.activeElement?.closest('.nudge'))).toBe(true)
-    // Regular-size card: 288 x 132 with the three buttons 36px high
+    // Regular-size card at rest (after the set-down, kd#181): 288 x 132 with the three buttons 36px high
+    await dropSettled(page)
     const card = (await jetzt(page).locator('.task').boundingBox())!
     expect([Math.round(card.width), Math.round(card.height)]).toEqual([288, 132])
     expect(Math.round((await nudgeBtn(page, '15 min').boundingBox())!.height)).toBe(36)
@@ -294,7 +295,8 @@ test.describe('timebox nudge on touch (390px)', () => {
   test('a tap on the face does nothing, buttons are 44px, a drag from the face moves the card and ends the nudge', async ({ context, page }) => {
     const touch = await touchIntoJetzt(context, page)
 
-    // 280 x 128 card, 44px buttons
+    // 280 x 128 card at rest (the set-down after the drop scales it for 200 ms, kd#181), 44px buttons
+    await dropSettled(page)
     const card = (await jetzt(page).locator('.task').boundingBox())!
     expect([Math.round(card.width), Math.round(card.height)]).toEqual([280, 128])
     expect(Math.round((await nudgeBtn(page, '15 min').boundingBox())!.height)).toBe(44)

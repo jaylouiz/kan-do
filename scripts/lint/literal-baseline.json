@@ -1,20 +1,19 @@
 {
   "motion": {
-    "assets/css/board-focus-overlay.css": 5,
+    "assets/css/board-focus-overlay.css": 3,
     "assets/css/board.css": 1,
     "assets/css/dnd.css": 1,
     "assets/css/mobile-nav.css": 1,
     "assets/css/sheet.css": 2,
-    "components/board/BoardColumnHeader.vue": 3,
+    "components/board/BoardColumnHeader.vue": 2,
     "components/board/BoardColumnYesterdayNote.vue": 3,
     "components/board/BoardPageDots.vue": 2,
-    "components/board/NewCardFlow.vue": 5,
+    "components/board/NewCardFlow.vue": 3,
     "components/recap/RecapDeck.vue": 8,
-    "components/task/TaskCard.vue": 7,
+    "components/task/TaskCard.vue": 3,
     "components/task/TaskCompletionBurst.vue": 2,
     "components/task/TaskDeletedGap.vue": 12,
     "components/task/TaskProgressChip.vue": 2,
-    "components/task/TaskStackHeader.vue": 1,
     "components/task/TaskTimeboxNudge.vue": 4,
     "pages/welcome.vue": 7
   }

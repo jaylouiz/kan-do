@@ -24,8 +24,10 @@
   spring, around the card for ~0.9 s; decorative, none under reduced motion
 - Timebox nudge (#389): a Jetzt card without a timebox shows the in-card question (board store
   `timeboxNudgeTaskId`); its own content is hidden under it (`task--nudged`, rules in TaskTimeboxNudge)
-- Opens the task sheet on a click or tap (kd#25, one gesture for every pointer; Enter via SortableTaskWrapper), lifts to the
-  hovered shadow under a hovering pointer; a collapsed stack's cards never open
+- Opens the task sheet on a click or tap (kd#25, one gesture for every pointer; Enter via SortableTaskWrapper), lifts 2 px
+  with the hovered shadow under a hovering pointer and sets down on press (kd#181; `translate`, because dnd-kit and the
+  stack own `transform`); a collapsed stack's cards never open
+- End of a drag (kd#181, `useDropMotion`, dnd.css): the floating preview glides to the slot, then the card is set down
 - Provides drag-and-drop styling
 - `readonly` (#422): the card of a trash entry. Same face, but no task id on the DOM (board selectors never match it), no
   open gesture and no pointer cursor; a card that came back from an undo plays its grow-back (`task--returning`)
@@ -376,9 +378,10 @@ const openDetails = (event: MouseEvent) => {
   overflow: visible;
   z-index: var(--z-card);
   transition:
-    background-color 160ms var(--ease-emphasized),
-    color 160ms var(--ease-emphasized),
+    background-color var(--duration-fast) var(--ease-emphasized),
+    color var(--duration-fast) var(--ease-emphasized),
     box-shadow var(--duration-fast) var(--ease-standard),
+    translate var(--duration-fast) var(--ease-standard),
     filter var(--duration-base) var(--ease-emphasized),
     opacity var(--sheet-fade-duration) var(--sheet-fade-easing);
   min-height: var(--task-card-height);
@@ -394,6 +397,17 @@ const openDetails = (event: MouseEvent) => {
 @media (hover: hover) {
   .board:not(.dragging) .task:not(.task--readonly, .task--draft, .kando-dnd-placeholder):hover {
     box-shadow: var(--shadow-task-hover);
+  }
+
+  /* The lift (kd#181): 2 px up under the pointer, set down again on press. `translate`, not `transform`: dnd-kit
+     and the stack own `transform`. A stack lifts as one (TaskStack); the lit Jetzt card stays put (board-focus-overlay.css). */
+  .board:not(.dragging) .task:not(.task--readonly, .task--draft, .kando-dnd-placeholder, .stacked-task):hover {
+    translate: 0 -2px;
+  }
+
+  .board:not(.dragging) .task:not(.task--readonly, .task--draft, .kando-dnd-placeholder, .stacked-task):active {
+    box-shadow: var(--shadow-task);
+    translate: 0 0;
   }
 }
 
@@ -518,6 +532,7 @@ const openDetails = (event: MouseEvent) => {
 .task.muted,
 .task-waiting {
   filter: grayscale(var(--task-muted-filter-grayscale))
+    sepia(var(--task-muted-filter-sepia))
     brightness(var(--task-muted-filter-brightness))
     contrast(var(--task-muted-filter-contrast));
   /* Same colour and shadow easing as the `.task` base rule: this list replaces it, so leaving them out made the hover
@@ -526,6 +541,7 @@ const openDetails = (event: MouseEvent) => {
     background-color var(--duration-fast) var(--ease-emphasized),
     color var(--duration-fast) var(--ease-emphasized),
     box-shadow var(--duration-fast) var(--ease-standard),
+    translate var(--duration-fast) var(--ease-standard),
     filter var(--task-muted-transition-duration) var(--task-muted-transition-easing),
     opacity var(--sheet-fade-duration) var(--sheet-fade-easing);
 }
@@ -561,14 +577,14 @@ const openDetails = (event: MouseEvent) => {
 
 .task.stacked-task--overflow {
   transition:
-    transform var(--stack-transition-duration, 220ms)
+    transform var(--stack-transition-duration)
       var(--stack-transition-easing, var(--ease-standard)),
-    box-shadow var(--stack-transition-duration, 220ms)
+    box-shadow var(--stack-transition-duration)
       var(--stack-transition-easing, var(--ease-standard)),
-    opacity var(--stack-transition-duration, 220ms)
+    opacity var(--stack-transition-duration)
       var(--stack-transition-easing, var(--ease-standard)),
-    background-color 160ms var(--ease-emphasized),
-    color 160ms var(--ease-emphasized);
+    background-color var(--duration-fast) var(--ease-emphasized),
+    color var(--duration-fast) var(--ease-emphasized);
 }
 
 /* ========================================

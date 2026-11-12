@@ -2,6 +2,7 @@ import { nextTick, watch, type MaybeRefOrGetter, type Ref } from 'vue'
 import { Feedback } from '@dnd-kit/dom'
 import { useSortable, type UseSortableInput } from '@dnd-kit/vue/sortable'
 import { useBoardDragState } from '~/composables/useBoardDragState'
+import { DND_MOTION } from '~/composables/useDropMotion'
 import type { TaskStatus } from '~/types/taskStatus'
 
 /** Plugin list accepted by a sortable (`Plugins` from @dnd-kit/abstract, a transitive dependency). */
@@ -54,8 +55,8 @@ export function useColumnSortable(
     // which would otherwise call the customizer itself without the defaults.
     plugins: () => withCloneFeedback,
     transition: {
-      duration: 200,
-      easing: 'cubic-bezier(0.2, 0, 0, 1)',
+      duration: DND_MOTION.reorderMs,
+      easing: DND_MOTION.easing,
       idle: false,
     },
   })
