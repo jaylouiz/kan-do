@@ -645,7 +645,8 @@
         "pages/tasks.vue",
         "types/columnItem.ts",
         "types/boardGrouping.ts",
-        "utils/columnItemSelector.ts"
+        "utils/columnItemSelector.ts",
+        "utils/revealDraft.ts"
       ],
       "specs": [
         "done-drop",

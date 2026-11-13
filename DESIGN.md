@@ -82,7 +82,7 @@ Token values live in `assets/css/main.css` and `app.config.ts`; these tables nam
 | Paper | `--ui-page-bg`, `bg-page` | the canvas: page, board, behind every sheet |
 | Sheet | `--ui-bg`, `--ui-bg-elevated` (white) | every lifted surface: card, page sheet, task sheet, dialog, menu, toast |
 | Fill on a sheet | `--ui-bg-muted`, `--ui-bg-accented` | a light paper tone: selects, badges, the hover of a row |
-| Fill on the canvas | `--fill-on-canvas` (the shadow colour at 7 %, 13 % on hover) | a step darker than whatever lies below: soft buttons, the tab track, the empty add slot |
+| Fill on the canvas | `--fill-on-canvas` (the shadow colour at 7 %, 13 % on hover) | a step darker than whatever lies below: soft buttons, the tab track, the Offen header's add button |
 | Rule line | `--ui-border` | hairlines inside a sheet |
 | Ink, graphite | `--ui-text`, `--ui-text-muted` | near-black warm text; secondary text |
 | Forest green | `primary` and `success` (ramp `custom-forest`, hue 152) | action and done: the solid button, links, selected options, the focus ring, the running timebox, the done check and washes |
@@ -97,7 +97,7 @@ Token values live in `assets/css/main.css` and `app.config.ts`; these tables nam
 
 **The Topic Mark Rule.** A topic carries its hue and symbol on its mark only: a small dot or glyph before the name. Never a coloured chip, card, column or surface, never a hue on a name, and no topic hue in a chart (charts use the ink ramp).
 
-**The Marker Rule.** A stroke of yellow text marker through the lower half of a word is an allowed decoration in slight, intentional use (owner, 2026-11-11). It is static, carries no meaning of its own and appears once per view at most. Today's only use: the Jetzt headline. A new use is a recorded decision.
+**The Marker Rule.** A stroke of yellow text marker centred on the bottom edge of a word (through the foot of its letters) is an allowed decoration in slight, intentional use (owner, 2026-11-11). It is static, carries no meaning of its own and appears once per view at most. Today's only use: the Jetzt headline. A new use is a recorded decision.
 
 **The Frozen Primary Rule.** The primary palette (forest green, hue 152, chosen by the owner on 2026-11-11) changes only by a decision recorded here, never as a side effect of a feature.
 

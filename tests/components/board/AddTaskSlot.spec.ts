@@ -34,8 +34,8 @@ const render = (showButton: boolean, status = TaskStatus.Open) =>
 describe('AddTaskSlot reserved box (#125)', () => {
   afterEach(() => useTaskDraft().clearDraft())
 
-  it('reserves the card box for the button', () => {
-    expect(render(true).classes()).not.toContain('is-empty')
+  it('reserves the card box for the Jetzt button', () => {
+    expect(render(true, TaskStatus.Progress).classes()).not.toContain('is-empty')
   })
 
   it('reserves the card box for a draft without a button', () => {
@@ -49,13 +49,20 @@ describe('AddTaskSlot reserved box (#125)', () => {
     expect(w.classes()).toContain('is-empty')
     expect(w.find('button').exists()).toBe(false)
   })
+
+  it('Offen without a draft renders no box at all: no wrapper, nothing the list gap could open above the first card (#248)', () => {
+    const w = render(false)
+    expect(w.classes()).toContain('add-task-slot--open')
+    expect(w.find('.add-task-slot-draft-wrap').exists()).toBe(false)
+    expect(w.find('button').exists()).toBe(false)
+  })
 })
 
 describe('AddTaskSlot surface (#466)', () => {
   afterEach(() => useTaskDraft().clearDraft())
 
   it('wraps icon and label in the surface inside the native button', () => {
-    const w = render(true)
+    const w = render(true, TaskStatus.Progress)
     const surface = w.find('button .add-task-button-surface')
     expect(surface.exists()).toBe(true)
     expect(surface.find('.add-task-button-label').text()).toBe('Aufgabe hinzufügen')
@@ -69,9 +76,9 @@ describe('AddTaskSlot surface (#466)', () => {
     expect(bolt.find('[data-icon]').attributes('data-icon')).toBe('i-ph-lightning')
   })
 
-  it('marks the slot as drafting so the surface is held grown', () => {
-    useTaskDraft().startDraft(TaskStatus.Open)
-    const w = render(true)
+  it('marks the slot as drafting so the Jetzt button is inert', () => {
+    useTaskDraft().startDraft(TaskStatus.Progress)
+    const w = render(true, TaskStatus.Progress)
     expect(w.classes()).toContain('is-drafting')
     expect(w.find('button').attributes('inert')).toBeDefined()
   })
@@ -89,47 +96,64 @@ describe('AddTaskSlot in-card adding (#649)', () => {
     route.value.path = '/tasks'
   })
 
+  // Offen (#248): no button of its own; the header's add button calls the exposed `open()`
+  const headerButton = document.createElement('button')
   const renderInCard = (props: Record<string, unknown> = {}) =>
-    mount(AddTaskSlot, { props: { status: TaskStatus.Open, label: 'Aufgabe hinzufügen', inCard: true, ...props }, global: { stubs }, attachTo: document.body })
+    mount(AddTaskSlot, {
+      props: { status: TaskStatus.Open, label: 'Aufgabe hinzufügen', showButton: false, inCard: true, focusFallback: () => headerButton, ...props },
+      global: { stubs },
+      attachTo: document.body,
+    })
+  const open = (w: ReturnType<typeof renderInCard>) => (w.vm as unknown as { open: () => void }).open()
 
-  it('opens the card instead of emitting open, holds the slot grown and makes the button inert', async () => {
+  it('open() shows the card at the slot instead of emitting open; a second open() never opens a second card', async () => {
     const w = renderInCard()
-    await w.find('button.add-task-button').trigger('click')
+    expect(w.find('[data-testid="new-card-flow"]').exists()).toBe(false)
+    open(w)
+    await nextTick()
     expect(w.emitted('open')).toBeUndefined()
-    expect(w.find('[data-testid="new-card-flow"]').exists()).toBe(true)
+    expect(w.findAll('[data-testid="new-card-flow"]')).toHaveLength(1)
     expect(w.classes()).toContain('is-drafting')
-    expect(w.find('button.add-task-button').attributes('inert')).toBeDefined()
+    expect((w.vm as unknown as { isDrafting: boolean }).isDrafting).toBe(true)
+    open(w)
+    await nextTick()
+    expect(w.findAll('[data-testid="new-card-flow"]')).toHaveLength(1)
     expect(w.find('[data-testid="task-draft-card"]').exists()).toBe(false)
     w.unmount()
   })
 
-  it('still emits open without inCard (Jetzt, static board): the sheet path', async () => {
-    const w = mount(AddTaskSlot, { props: { status: TaskStatus.Open, label: 'x' }, global: { stubs } })
+  it('still emits open without inCard (Jetzt): the sheet path', async () => {
+    const w = mount(AddTaskSlot, { props: { status: TaskStatus.Progress, label: 'x' }, global: { stubs } })
     await w.find('button.add-task-button').trigger('click')
     expect(w.emitted('open')).toHaveLength(1)
     expect(w.find('[data-testid="new-card-flow"]').exists()).toBe(false)
   })
 
-  it('cancel closes the card and focuses the button again', async () => {
+  it('cancel closes the card and hands focus to the fallback (the header button)', async () => {
+    document.body.appendChild(headerButton)
     const w = renderInCard()
-    await w.find('button.add-task-button').trigger('click')
+    open(w)
+    await nextTick()
     await w.find('[data-testid="flow-cancel"]').trigger('click')
     await nextTick()
     await nextTick()
     expect(w.find('[data-testid="new-card-flow"]').exists()).toBe(false)
     expect(w.classes()).not.toContain('is-drafting')
-    expect(document.activeElement).toBe(w.find('button.add-task-button').element)
+    expect(document.activeElement).toBe(headerButton)
+    headerButton.remove()
     w.unmount()
   })
 
   it('#665: Esc on a typed title offers an undo toast that reopens the card with the title; no toast without one', async () => {
     toastAddMock.mockReset()
     const w = renderInCard()
-    await w.find('button.add-task-button').trigger('click')
+    open(w)
+    await nextTick()
     await w.find('[data-testid="flow-cancel"]').trigger('click')
     expect(toastAddMock).not.toHaveBeenCalled()
 
-    await w.find('button.add-task-button').trigger('click')
+    open(w)
+    await nextTick()
     await w.find('[data-testid="flow-cancel-typed"]').trigger('click')
     await nextTick()
     expect(w.find('[data-testid="new-card-flow"]').exists()).toBe(false)
@@ -142,34 +166,43 @@ describe('AddTaskSlot in-card adding (#649)', () => {
     expect(w.find('[data-testid="new-card-flow"]').attributes('data-initial-title')).toBe('Tippfehler')
     // A fresh open starts blank again
     await w.find('[data-testid="flow-cancel"]').trigger('click')
-    await w.find('button.add-task-button').trigger('click')
+    open(w)
+    await nextTick()
     expect(w.find('[data-testid="new-card-flow"]').attributes('data-initial-title')).toBeUndefined()
     w.unmount()
   })
 
   it('a save closes the card (the saved card replaces it) and a new card can be opened afterwards', async () => {
     const w = renderInCard()
-    await w.find('button.add-task-button').trigger('click')
+    open(w)
+    await nextTick()
     await w.find('[data-testid="flow-saved"]').trigger('click')
     expect(w.find('[data-testid="new-card-flow"]').exists()).toBe(false)
     expect(focusWhenReady).toHaveBeenCalledTimes(1) // focus goes to the saved card
-    await w.find('button.add-task-button').trigger('click')
+    open(w)
+    await nextTick()
     expect(w.find('[data-testid="new-card-flow"]').exists()).toBe(true)
     w.unmount()
   })
 
-  it('the sheet opening or a drag cancels the card', async () => {
+  it('the sheet opening cancels the card; a drag keeps it, hidden in its place, and gives it back (#248)', async () => {
     const w = renderInCard()
-    await w.find('button.add-task-button').trigger('click')
+    open(w)
+    await nextTick()
     route.value.path = '/tasks/add'
     await nextTick()
     expect(w.find('[data-testid="new-card-flow"]').exists()).toBe(false)
 
     route.value.path = '/tasks'
-    await w.find('button.add-task-button').trigger('click')
+    open(w)
+    await nextTick()
     expect(w.find('[data-testid="new-card-flow"]').exists()).toBe(true)
     await w.setProps({ hidden: true })
-    expect(w.find('[data-testid="new-card-flow"]').exists()).toBe(false)
+    expect(w.find('[data-testid="new-card-flow"]').exists()).toBe(true)
+    expect(w.find('.add-task-slot').classes()).toContain('is-hidden')
+    await w.setProps({ hidden: false })
+    expect(w.find('[data-testid="new-card-flow"]').exists()).toBe(true)
+    expect(w.find('.add-task-slot').classes()).not.toContain('is-hidden')
     w.unmount()
   })
 })

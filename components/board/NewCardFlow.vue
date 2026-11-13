@@ -245,6 +245,7 @@ import { useTasksStore } from '~/store/tasks';
 import { TaskStatus } from '~/types/taskStatus';
 import type { Task } from '~/types/task';
 import { fieldsForSource } from '~/utils/sourceFields';
+import { revealDraft } from '~/utils/revealDraft';
 
 defineOptions({ name: 'NewCardFlow' });
 
@@ -257,6 +258,8 @@ const KEY_ESCAPE = 'Esc';
 const props = defineProps<{
   /** A title to start with: the card reopened by "Rückgängig" after Esc dropped a typed title (#665) */
   initialTitle?: string;
+  /** A drag is running: the card keeps its box (hidden by the slot), nothing is cancelled, and it takes the focus back after */
+  suspended?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -647,24 +650,56 @@ async function save() {
   }
 }
 
-/** A press outside throws away a blank card only; one with a title waits for Esc, back or save */
+/** A press outside throws away a blank card only; one with a title waits for Esc, back or save.
+ *  A press on a card may become a drag: that is decided on release, because a card that goes away at the press makes every
+ *  card below it slide up while the drag measures its shapes (#248). A drag keeps the card, a plain press throws it away */
+let pendingCancel = false;
+function endPendingPress() {
+  document.removeEventListener('pointerup', onPressReleased, true);
+  document.removeEventListener('pointercancel', endPendingPress, true);
+}
+function onPressReleased() {
+  endPendingPress();
+  if (!pendingCancel) return;
+  pendingCancel = false;
+  if (!props.suspended) emit('cancel');
+}
 function onPressOutside(event: PointerEvent) {
   if (phase.value !== 'title' || title.value.trim() || moreOpen.value) return;
   if (event.target instanceof Node && rootEl.value?.contains(event.target)) return;
+  if (event.target instanceof Element && event.target.closest('.task-wrapper')) {
+    pendingCancel = true;
+    document.addEventListener('pointerup', onPressReleased, true);
+    document.addEventListener('pointercancel', endPendingPress, true);
+    return;
+  }
   emit('cancel');
 }
+
+watch(() => props.suspended, async (suspended) => {
+  if (suspended) {
+    pendingCancel = false;
+    return;
+  }
+  // Back from a drag: the hidden card lost the focus, so typing goes on where it stopped
+  await nextTick();
+  if (!document.activeElement || document.activeElement === document.body) {
+    if (phase.value === 'title') titleEl.value?.focus({ preventScroll: true });
+    else focusStep();
+  }
+});
 
 onMounted(() => {
   document.addEventListener('pointerdown', onPressOutside, true);
   ensureOptionsAvailable();
   void showTitleField();
-  // On a phone the card sits at the end of a long list, under the keyboard: bring it into view
-  const mobile = isPhoneNow();
-  rootEl.value?.scrollIntoView?.({ block: mobile ? 'start' : 'nearest', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+  // The card stands at the start of the list: on a phone the page goes back to the top, so the header stays in view
+  revealDraft(rootEl.value, { phone: isPhoneNow(), reducedMotion: prefersReducedMotion() });
 });
 
 onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', onPressOutside, true);
+  endPendingPress();
   clearTimeout(advanceTimer);
 });
 </script>

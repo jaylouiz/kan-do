@@ -38,6 +38,19 @@ test.describe('empty states', () => {
   })
 })
 
+test.describe('Offen add button (#248)', () => {
+  test('the header button at rest and while a draft is open: named, then disabled in place (1280)', async ({ context, page }) => {
+    await seedLocalBoard(context)
+    await gotoBoard(page)
+    const header = page.locator('#column-open .column-header')
+    await expect(header).toMatchAriaSnapshot({ name: 'add-button-rest-1280.aria.yml' })
+    await header.getByRole('button', { name: 'Aufgabe hinzufügen' }).click()
+    await expect(page.getByTestId('new-card-title')).toBeFocused()
+    await settleAnimations(page)
+    await expect(header).toMatchAriaSnapshot({ name: 'add-button-draft-open-1280.aria.yml' })
+  })
+})
+
 test.describe('loading state', () => {
   test('sync in progress: the Mehr panel while Notion has not answered', async ({ context, page }) => {
     await seedMixedBoard(context)
@@ -239,7 +252,7 @@ test.describe('guided new card (#649)', () => {
       { ...SEED_TASKS[0]!, id: 'ncf-extra-2', title: 'Noch eine', topic: 'Vertrieb', activity: 'Telefonat', status: 2 },
     ])
     await gotoBoard(page)
-    await page.locator('#column-open .add-task-button').click()
+    await page.locator('#column-open [data-testid="add-task-header-button"]').click()
     const card = page.getByTestId('new-card-flow')
     await expect(page.getByTestId('new-card-title')).toBeFocused()
     await settleAnimations(page)
@@ -272,7 +285,7 @@ test.describe('guided new card (#649)', () => {
     await page.setViewportSize(MOBILE)
     await seedLocalBoard(context, [])
     await gotoBoard(page)
-    await page.locator('#column-open .add-task-button').click()
+    await page.locator('#column-open [data-testid="add-task-header-button"]').click()
     await page.getByTestId('new-card-title').fill('Erste Aufgabe')
     await page.keyboard.press('Enter')
     // an empty board has no topics or activities: Timebox comes first, with the full list behind the third pill

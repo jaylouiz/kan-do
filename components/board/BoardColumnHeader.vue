@@ -9,20 +9,43 @@
 - Displays column title with appropriate styling
 - Shows status-specific icons (checkmark for Done column)
 - Handles visual states for different statuses (waiting, empty)
+- Offen only (`showAdd`, #248): a round soft icon-only add button at the end of the card-width track, vertically centred on
+  the title line; the title stays centred exactly like the other columns' (the button is out of the flow, so it never moves
+  the title). Click, Enter or Space emits `add`; while a draft is open (`addDisabled`) the button stays in place but is
+  disabled, so the header never shifts. `addButtonEl()` lets the column return focus after a cancel. Same look as the
+  stack header's close button (ghost UButton, `--fill-on-canvas` fill by CSS, 32px, 44px on touch)
 -->
 <template>
   <div
     :class="['column-header', { 'waiting-header': isWaiting, empty: isEmpty }]"
-    class="flex items-center justify-center"
+    class="relative flex items-center justify-center"
   >
     <h2 class="font-display" :class="{ 'column-header__marked': status === TaskStatus.Progress }">
       <UIcon v-if="status === TaskStatus.Done" name="i-ph-check-bold" class="column-header__mark" aria-hidden="true" />
       {{ title }}
     </h2>
+    <div v-if="showAdd" class="column-header__track">
+      <div class="column-header__add-row">
+        <UButton
+          ref="addButton"
+          class="column-header__add"
+          color="neutral"
+          variant="ghost"
+          square
+          icon="i-ph-plus"
+          data-testid="add-task-header-button"
+          :aria-label="t('board.addTask')"
+          :disabled="addDisabled"
+          @click="emit('add')"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { TaskStatus } from "~/types/taskStatus";
 
 defineOptions({ name: "BoardColumnHeader" });
@@ -46,7 +69,24 @@ const props = defineProps<{
   taskCount: number;
   /** Whether the column contains no tasks */
   isEmpty?: boolean;
+  /** Shows the round add button (Offen only, #248) */
+  showAdd?: boolean;
+  /** A draft is open: the button stays in place but does nothing */
+  addDisabled?: boolean;
 }>();
+
+const emit = defineEmits<{
+  /** The add button was pressed (click, Enter or Space) */
+  add: [];
+}>();
+
+const { t } = useI18n();
+const addButton = ref<{ $el: HTMLElement } | null>(null);
+
+/** The add button's element, where the column returns focus after a cancelled draft; null when there is none */
+const addButtonEl = (): HTMLElement | null => addButton.value?.$el ?? null;
+
+defineExpose({ addButtonEl });
 
 /**
  * Whether this column represents the Waiting status
@@ -57,10 +97,12 @@ const isWaiting = computed(() => props.status === TaskStatus.Waiting);
 </script>
 
 <style scoped>
-  /* The marker (DESIGN.md "The Marker Rule"): a stroke of yellow text marker through the lower half of the Jetzt
-     headline, its only use. Static, a decoration without a meaning of its own; the ink on it keeps body contrast.
+  /* The marker (DESIGN.md "The Marker Rule"): a stroke of yellow text marker centred on the bottom edge (the baseline) of
+     the Jetzt headline, its only use (#239). Static, a decoration without a meaning of its own; the ink on it keeps body contrast.
      Drawn by hand (kd#207): a layer of its own behind the word, tilted a little and with softly rounded, uneven
-     ends, so it sits with the round serif instead of ruling a straight bar under it. */
+     ends, so it sits with the round serif instead of ruling a straight bar under it. The inset is a percentage of the
+     h2 so it keeps scaling with the display step: 61% to 98% is a 37% tall stroke whose centre (79.5%) is the baseline
+     (measured at the 36px display face, 41.4px line box: baseline at 79.7%). */
   h2.column-header__marked {
     position: relative;
     isolation: isolate; /* keeps the stroke's z-index -1 behind the word, above the page */
@@ -70,7 +112,7 @@ const isWaiting = computed(() => props.status === TaskStatus.Waiting);
   h2.column-header__marked::before {
     content: '';
     position: absolute;
-    inset: 54% 0 9%;
+    inset: 61% 0 2%;
     z-index: -1;
     border-radius: var(--radius-sm) var(--radius-md) var(--radius-sm) var(--radius-md);
     background: var(--marker);
@@ -109,6 +151,71 @@ const isWaiting = computed(() => props.status === TaskStatus.Waiting);
 
   .waiting-header h2 {
     margin-top: 2.5rem;
+  }
+
+  /* Add button (Offen, #248). The track mirrors the task list's side padding (board.css, BoardColumn: px-3, md:px-10) and
+     the card box inside it, so the button's right edge is the cards' right edge. Out of the flow: the title stays centred
+     in the header whatever the button does. Pointer events pass through everything but the button. */
+  .column-header__track {
+    position: absolute;
+    inset: 0 0.75rem;
+    pointer-events: none;
+  }
+
+  .column-header__add-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: min(var(--task-card-width), 100%);
+    max-width: var(--task-card-max-width);
+    margin-inline: auto;
+    margin-top: 1.75rem; /* the h2's margin-top */
+    height: calc(var(--text-display) * var(--lh-tight)); /* the h2's line box: the button centres on the title line */
+  }
+
+  /* The stack header's close button look (TaskStackHeader): round, soft grey on the canvas, one step deeper on hover */
+  .column-header__add {
+    pointer-events: auto;
+    flex: none;
+    width: 2rem;
+    height: 2rem;
+    min-width: 2rem;
+    padding: 0;
+    justify-content: center;
+    border-radius: 9999px;
+    background-color: var(--fill-on-canvas);
+    color: var(--ui-text);
+    cursor: pointer;
+  }
+
+  /* Disabled while a draft is open (DESIGN.md "Disabled"): the dimmed look, no hover answer, and the cursor says so */
+  .column-header__add:disabled {
+    cursor: not-allowed;
+  }
+
+  .column-header__add:hover:not(:disabled) {
+    background-color: var(--fill-on-canvas-hover);
+  }
+
+  @media (--desktop) {
+    .column-header__track {
+      inset-inline: 2.5rem;
+    }
+  }
+
+  @media (--phone) {
+    /* the button ladder's 44px floor (the unlayered size above would outrank the theme's `min-h-11`) */
+    .column-header__add {
+      width: 2.75rem;
+      height: 2.75rem;
+      min-width: 2.75rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .column-header__add {
+      transition: background-color var(--duration-fast) var(--ease-standard);
+    }
   }
   
 </style>

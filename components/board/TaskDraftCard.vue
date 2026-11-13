@@ -29,6 +29,7 @@ import { useI18n } from 'vue-i18n';
 import TaskCard from '~/components/task/TaskCard.vue';
 import { useTaskDraft } from '~/composables/useTaskDraft';
 import { isPhoneNow } from '~/composables/useIsDesktop';
+import { revealDraft } from '~/utils/revealDraft';
 
 defineOptions({ name: 'TaskDraftCard' });
 
@@ -36,15 +37,12 @@ const { t } = useI18n();
 const { draftTask } = useTaskDraft();
 const rootEl = ref<HTMLElement | null>(null);
 
-// On mobile the sheet covers the lower half of the board: bring the draft into the visible part.
+// On mobile the sheet covers the lower half of the board: bring the draft (at the start of its list) into the visible part.
 onMounted(() => {
   if (!import.meta.client) return;
   const mobile = isPhoneNow();
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  rootEl.value?.scrollIntoView?.({
-    block: mobile ? 'start' : 'nearest',
-    behavior: reduced ? 'auto' : 'smooth',
-  });
+  revealDraft(rootEl.value, { phone: mobile, reducedMotion: reduced });
 });
 </script>
 
