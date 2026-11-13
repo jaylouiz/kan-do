@@ -478,10 +478,14 @@ for (const { label, size } of VIEWPORTS) {
         const back = page.getByRole('link', { name: 'Zurück zu Einstellungen' })
         await expect(back).toBeVisible()
         await expect(back).toHaveAttribute('href', `/settings?tab=${tabOf[path]}`) // the tab that holds the sub-page (#691)
-        expect((await back.boundingBox())!.height).toBeGreaterThanOrEqual(44)
+        const backBox = (await back.boundingBox())!
+        expect(backBox.height).toBeGreaterThanOrEqual(44)
         await expect(back.locator('[data-slot="leadingIcon"]')).toBeVisible() // the arrow
-        const title = await page.getByRole('heading', { level: 1 }).boundingBox()
-        expect((await back.boundingBox())!.y + 44).toBeLessThanOrEqual(title!.y + 1) // the first line of the head, above the title (#263)
+        const title = (await page.getByRole('heading', { level: 1 }).boundingBox())!
+        expect(backBox.y + backBox.height).toBeLessThanOrEqual(title.y + 1) // the first line of the head, above the title (#263)
+        const arrow = (await back.locator('[data-slot="leadingIcon"]').boundingBox())!
+        expect(Math.abs(arrow.x - title.x)).toBeLessThanOrEqual(6) // the arrow sits at the title's left edge, give or take the button padding (#263)
+        await expect(page.getByTestId('page-header-back')).toContainText('Zurück zu Einstellungen')
       }
       await page.goto('/settings/topics')
       await page.getByRole('link', { name: 'Zurück zu Einstellungen' }).click()
