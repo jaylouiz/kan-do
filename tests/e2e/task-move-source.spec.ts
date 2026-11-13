@@ -163,23 +163,21 @@ test.describe('Move a task between sources (#322)', () => {
     await expect(palette(page).getByText(/Verschieben nach (Notion|Lokal|Todoist)/)).toHaveCount(0)
   })
 
-  test('detail sheet menu moves the task; the card keeps its place', async ({ context, page, baseURL }) => {
+  test('detail sheet button moves the task; the card keeps its place', async ({ context, page, baseURL }) => {
     await installClock(context) // the undo window runs on the page clock (#543)
     await seedMixedBoard(context, undefined, { defaultSource: 'local', once: true })
     const creates = countCalls(page, 'create-task')
     await page.goto(`${baseURL}/tasks/local-open-1`)
     await expect(page.getByRole('dialog')).toBeVisible()
 
-    await page.getByTestId('task-actions-menu').click()
-    await page.getByRole('menuitem', { name: 'Verschieben nach …' }).click()
+    await page.getByTestId('task-move-source').click()
     await page.getByRole('menuitem', { name: /^Notion/ }).click()
 
     await expect(toastText(page, 'Nach Notion verschoben')).toBeVisible()
     await elapseWindow(page)
     await expect.poll(() => creates.length).toBe(1)
     await expect.poll(async () => (await storedTask(page, 'local-open-1'))?.source).toBe('notion')
-    await page.getByTestId('task-actions-menu').click()
-    await page.getByRole('menuitem', { name: 'Verschieben nach …' }).click()
+    await page.getByTestId('task-move-source').click()
     await expect(page.getByRole('menuitem', { name: /^Lokal/ })).toBeVisible()
     await expect(page.getByRole('menuitem', { name: /^Notion/ })).toHaveCount(0)
   })

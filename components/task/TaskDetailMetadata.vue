@@ -7,11 +7,11 @@
 @avoid Only the collapsed metadata section of the task detail.
 @responsibility
 - Quiet collapsible with the source, the creation date and the stable task id
-- `pinned` adds the hairline above it and its padding, so it reads as the sheet footer (the notes sit above, in the scroll region)
+- `pinned` adds its padding; the host wraps it with the action row in one footer block that carries the hairline (#244)
 - The open state is a v-model owned by the parent, so a resize that swaps pinned and in-flow keeps it
 -->
 <template>
-  <section class="task-detail-section" :class="{ 'shrink-0 border-t border-default px-6 pt-4 pb-6': pinned }" data-testid="task-metadata">
+  <section class="task-detail-section" :class="{ 'shrink-0 px-6 pt-4': pinned }" data-testid="task-metadata">
     <UCollapsible v-model:open="open" class="w-full">
       <UButton
         variant="ghost"
@@ -56,7 +56,7 @@ withDefaults(defineProps<{
   createdAt: string;
   /** Stable app-level task id */
   taskId: string;
-  /** Bottom-pinned in the desktop slideover: hairline above, own padding */
+  /** Bottom-pinned in the desktop slideover: own top padding; the host adds the hairline and bottom padding */
   pinned?: boolean;
 }>(), {
   source: null,

@@ -52,13 +52,16 @@ test.describe('Carried-over cue (#99), local tasks', () => {
     await expect(page.getByRole('tooltip')).toContainText('Tag 3 auf dem Board')
   })
 
-  test('the sheet shows the triage block past 4 days; Keep hides it and leaves the dots', async ({ page, baseURL }) => {
+  test('the sheet asks one question past 4 days; Keep turns it into a confirmation and leaves the dots (#247)', async ({ page, baseURL }) => {
     await page.goto(`${baseURL}/tasks/seed-open-1`)
     const triage = page.getByTestId('carry-over-triage')
-    await expect(triage).toContainText('Immer noch da: Tag 6 auf dem Board.')
+    await expect(triage).toContainText('Die Aufgabe ist seit 6 Tagen zur Erledigung eingeplant. Ist sie wirklich wichtig?')
+    await expect(triage.getByRole('button')).toHaveText(['Ja, behalten', 'Nein, löschen'])
 
     await triage.getByTestId('carry-over-keep').click()
-    await expect(triage).toHaveCount(0)
+    await expect(triage.getByRole('status')).toContainText('Die Aufgabe bleibt auf deinem Board')
+    await expect(triage.getByRole('status')).toContainText('Tipp: Plane zunächst den kleinstmöglichen, ersten Schritt.')
+    await expect(triage.getByRole('button')).toHaveCount(0)
     await expect(page.getByTestId('carry-over-line')).toContainText('Tag 6 auf dem Board')
     await expect(page.locator('[data-testid="task-detail-header"] [role="button"]').first()).toBeFocused()
 
@@ -72,9 +75,8 @@ test.describe('Carried-over cue (#99), local tasks', () => {
     await expect(page.getByTestId('carry-over-triage')).toHaveCount(0)
   })
 
-  test('Make smaller focuses the title field with the first-step hint', async ({ page, baseURL }) => {
-    await page.goto(`${baseURL}/tasks/seed-open-1`)
-    await page.getByTestId('carry-over-smaller').click()
+  test('Make smaller (from the closing step, ?smaller=1) focuses the title field with the first-step hint', async ({ page, baseURL }) => {
+    await page.goto(`${baseURL}/tasks/seed-open-1?smaller=1`)
     const titleInput = page.locator('[data-testid="task-detail-header"] input')
     await expect(titleInput).toBeFocused()
     await expect(page.getByTestId('carry-over-smaller-hint')).toHaveText('Was ist der erste kleine Schritt?')
@@ -119,7 +121,7 @@ test.describe('Carried-over cue (#99), Notion stub: deferred upstream delete', (
     })
 
     await page.goto(`${baseURL}/tasks/page-1`)
-    const del = page.getByTestId('carry-over-delete')
+    const del = page.getByTestId('task-delete')
     await expect(del).toHaveText('Löschen, auch in Notion')
     await del.click()
 

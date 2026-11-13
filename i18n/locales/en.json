@@ -245,15 +245,12 @@
       "localOnly": "Applies only in Kan-Do."
     },
     "detail": {
-      "moreActions": "More actions",
       "notesEmpty": "Add a note…",
       "notesPlaceholder": "Add a note…",
       "notesHint": "Markdown supported • {shortcut} to save",
       "metadata": "Metadata",
       "sourceLocal": "Local",
       "created": "Created: {date}",
-      "copied": "Copied",
-      "copyId": "Copy ID",
       "openIn": "Open in {source}"
     },
     "timeStats": {
@@ -296,10 +293,14 @@
     "carryOver": {
       "label": "Day {n} on the board",
       "nudgeTitle": "Still here: day {n} on the board.",
-      "nudgeHint": "Does this task still belong to today?",
       "keep": "Keep",
       "smaller": "Make smaller",
-      "smallerHint": "What is the first small step?"
+      "smallerHint": "What is the first small step?",
+      "question": "This task has been planned for {n} day. Does it really matter? | This task has been planned for {n} days. Does it really matter?",
+      "keepYes": "Yes, keep it",
+      "deleteNo": "No, delete it",
+      "kept": "The task stays on your board.",
+      "keptTip": "Tip: Start by planning the smallest possible first step."
     },
     "property": {
       "setValue": "+ add",
