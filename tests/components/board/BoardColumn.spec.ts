@@ -172,20 +172,38 @@ describe('BoardColumn', () => {
       useTaskDraft().clearDraft()
     })
 
-    it('renders the labelled slot only in the Open column', () => {
-      expect(slot(mountStatus(TaskStatus.Open)).text()).toBe('Aufgabe hinzufügen')
-      expect(slot(mountStatus(TaskStatus.Open)).attributes('data-status')).toBe(String(TaskStatus.Open))
+    it('renders the draft host (no button of its own) only in the Open column, before the cards', () => {
+      const w = mountStatus(TaskStatus.Open)
+      expect(slot(w).attributes('data-status')).toBe(String(TaskStatus.Open))
+      expect(slot(w).attributes('data-show-button')).toBe('false')
+      expect(w.find('.task-list').element.firstElementChild).toBe(slot(w).element)
       expect(slot(mountStatus(TaskStatus.Waiting)).exists()).toBe(false)
       expect(slot(mountStatus(TaskStatus.Done)).exists()).toBe(false)
     })
 
-    it('respects the feature flag, but keeps an Offen draft opened another way (command palette)', () => {
+    it('gives the Open header the add button, no other column (#248)', () => {
+      const showAdd = (status: TaskStatus) => mountStatus(status).find('board-column-header-stub').attributes('show-add')
+      expect(showAdd(TaskStatus.Open)).toBe('true')
+      expect(showAdd(TaskStatus.Progress)).toBe('false')
+      expect(showAdd(TaskStatus.Waiting)).toBe('false')
+      expect(showAdd(TaskStatus.Done)).toBe('false')
+    })
+
+    it('respects the feature flag for the header button, but keeps the host for an Offen draft opened another way (sheet)', () => {
       flags.openColumnAddButton = false
-      expect(slot(mountStatus(TaskStatus.Open)).exists()).toBe(false)
-      useTaskDraft().startDraft()
       const w = mountStatus(TaskStatus.Open)
+      expect(w.find('board-column-header-stub').attributes('show-add')).toBe('false')
       expect(slot(w).exists()).toBe(true)
-      expect(slot(w).attributes('data-show-button')).toBe('false')
+    })
+
+    it('the header button asks the slot to open (add event)', async () => {
+      const open = vi.fn()
+      const w = mount(BoardColumn, {
+        props: { taskStatus: TaskStatus.Open, tasks: [], isDragging: false, muteOthers: false },
+        global: { stubs: { ...stubs, AddTaskSlot: { props: ['status'], setup: (_p: unknown, { expose }: { expose: (e: object) => void }) => { expose({ open, isDrafting: false }); return () => null } } } },
+      })
+      await w.findComponent({ name: 'BoardColumnHeader' }).vm.$emit('add')
+      expect(open).toHaveBeenCalledTimes(1)
     })
 
     it('stays mounted but hidden during a drag, so the list does not collapse', () => {
@@ -193,12 +211,13 @@ describe('BoardColumn', () => {
       expect(slot(mountStatus(TaskStatus.Open, true)).attributes('data-hidden')).toBe('true')
     })
 
-    it('is not rendered in static mode', () => {
+    it('shows neither slot nor header button in static mode', () => {
       const w = mount(BoardColumn, {
         props: { taskStatus: TaskStatus.Open, tasks: [], isDragging: false, muteOthers: false, staticMode: true },
         global: { stubs },
       })
       expect(slot(w).exists()).toBe(false)
+      expect(w.find('board-column-header-stub').attributes('show-add')).toBe('false')
     })
   })
 

@@ -15,15 +15,16 @@ test.describe('Draft card while adding a task', () => {
 
   const openColumn = (page: import('@playwright/test').Page) => page.locator('#column-open');
 
-  test('replaces the add button with an empty draft card and fills live', async ({ page }) => {
+  test('shows an empty draft card at the top of Offen and fills live', async ({ page }) => {
     const column = openColumn(page);
     await openAddSheet(page);
     await page.waitForURL(/\/tasks\/add/);
 
     const draft = column.getByTestId('task-draft-card');
     await expect(draft).toBeVisible();
-    // The button stays under the draft (#125 morph) but is inert and out of the accessibility tree
-    await expect(column.getByRole('button', { name: 'Aufgabe hinzufügen' })).toHaveCount(0);
+    // The header button (#248) stays in place but does nothing while the draft is open
+    // (the sheet makes the rest of the page inert for the accessibility tree, so the testid is the handle)
+    await expect(column.getByTestId('add-task-header-button')).toBeDisabled();
     await expect(draft.locator('.task-title-text')).toHaveText('');
 
     await page.locator('input[name="title"]').fill('Entwurf schreiben');
@@ -41,7 +42,7 @@ test.describe('Draft card while adding a task', () => {
     await expect(column.getByTestId('task-draft-card')).toHaveCSS('outline-style', 'none');
   });
 
-  test('removes the draft card on Escape and restores the button', async ({ page }) => {
+  test('removes the draft card on Escape and the header button is live again', async ({ page }) => {
     const column = openColumn(page);
     await openAddSheet(page);
     await expect(column.getByTestId('task-draft-card')).toBeVisible();
@@ -49,10 +50,10 @@ test.describe('Draft card while adding a task', () => {
     await page.keyboard.press('Escape');
     await page.waitForURL(/\/tasks$/);
     await expect(column.getByTestId('task-draft-card')).toHaveCount(0);
-    await expect(column.locator('.add-task-button')).toBeVisible();
+    await expect(column.getByTestId('add-task-header-button')).toBeEnabled();
   });
 
-  test('turns the draft into the saved card and brings the button back', async ({ page }) => {
+  test('turns the draft into the saved card and the header button is live again', async ({ page }) => {
     const column = openColumn(page);
     await openAddSheet(page);
     await page.locator('input[name="title"]').fill('Gespeicherte Aufgabe');
@@ -61,7 +62,7 @@ test.describe('Draft card while adding a task', () => {
 
     await expect(column.getByTestId('task-draft-card')).toHaveCount(0);
     await expect(column.locator('.task', { hasText: 'Gespeicherte Aufgabe' })).toHaveCount(1);
-    await expect(column.locator('.add-task-button')).toBeVisible();
+    await expect(column.getByTestId('add-task-header-button')).toBeEnabled();
   });
 
   test('also appears when the add form is opened by URL', async ({ page }) => {

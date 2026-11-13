@@ -294,7 +294,7 @@ test.describe('desktop, mouse', () => {
   test('the in-card new-task form turns it off and cancelling it brings it back (kd#56)', async ({ page }) => {
     await openBoard(page)
     await expectOn(page)
-    await page.locator('#column-open .add-task-button').click()
+    await page.locator('#column-open [data-testid="add-task-header-button"]').click()
     await expect(page.getByTestId('new-card-title')).toBeFocused()
     await expectAbsent(page)
     // Time passing alone does not bring it back while the form is open

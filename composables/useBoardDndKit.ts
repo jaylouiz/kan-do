@@ -149,8 +149,8 @@ export function useBoardDndKit() {
    * renders as a draggable card at all (the node is a leftover and would show as a ghost until a
    * reload).
    * - the column still renders the task as a draggable card or as the front of a collapsed stack: place the node before the element of
-   *   the next rendered item that exists, else after the last item, else before the add slot / drop
-   *   zone. If Vue already rendered a fresh wrapper for the task, the old node is the leftover.
+   *   the next rendered item that exists, else after the last item, else before the drop zone (the add slot sits at the
+   *   start of an Offen list, #248, so a node must land after its draft, never before it). If Vue already rendered a fresh wrapper for the task, the old node is the leftover.
    * - otherwise: remove the node if it is still in the document.
    */
   function restoreDraggedElement(origin: DragOrigin | null) {
@@ -182,7 +182,7 @@ export function useBoardDndKit() {
       list.insertBefore(element, last.nextSibling)
       return
     }
-    list.insertBefore(element, list.querySelector(':scope > .add-task-slot, :scope > .column-drop-zone'))
+    list.insertBefore(element, list.querySelector(':scope > .column-drop-zone'))
   }
 
   /**

@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { seedLocalBoard } from './helpers/seed';
+import { settleAnimations } from './helpers/settle';
 
 test.describe('Add Task Button Visibility', () => {
   test.beforeEach(async ({ page, context, baseURL }) => {
@@ -17,18 +18,16 @@ test.describe('Add Task Button Visibility', () => {
     }
   });
 
-  test('Open column button is persistent (no hover needed)', async ({ page }) => {
+  test('Open column button is persistent (no hover needed) and sits in the header, not in the list (#248)', async ({ page }) => {
     const openColumn = page.locator('#column-open');
-    const addButton = openColumn.locator('.add-task-button');
+    const addButton = openColumn.getByRole('button', { name: 'Aufgabe hinzufügen' });
 
-    // Mouse is parked away from the column: the button is still fully visible.
+    // Mouse is parked away from the column: the button is still fully visible, icon only.
     await expect(addButton).toBeVisible();
     await expect(addButton).toHaveCSS('opacity', '1');
-    await expect(addButton).toContainText('Aufgabe hinzufügen');
-
-    // Its card-sized slot (#125) lives inside the task list, below the existing card.
-    await expect(addButton.locator('..')).toHaveClass(/add-task-slot/);
-    await expect(addButton.locator('../..')).toHaveClass(/task-list/);
+    await expect(addButton).toHaveText('');
+    await expect(openColumn.locator('.column-header').getByRole('button', { name: 'Aufgabe hinzufügen' })).toHaveCount(1);
+    await expect(openColumn.locator('.task-list').getByRole('button', { name: 'Aufgabe hinzufügen' })).toHaveCount(0);
   });
 
   test('Progress column button behavior (when empty)', async ({ page }) => {
@@ -79,15 +78,16 @@ test.describe('Add Task Button Visibility', () => {
     await page.mouse.up();
   });
 
-  test('Open column drop zone expands and the add slot hides (keeping its box) during drag', async ({ page }) => {
+  test('Open column drop zone expands and the header button keeps its box during drag', async ({ page }) => {
     const openColumn = page.locator('#column-open');
     const taskList = openColumn.locator('.task-list');
-    const addButton = openColumn.locator('.add-task-button');
+    const addButton = openColumn.getByRole('button', { name: 'Aufgabe hinzufügen' });
+    await settleAnimations(page);
+    const buttonBox = (await addButton.boundingBox())!;
     const task = openColumn.locator('.task-wrapper').first(); // Assumes at least one task from seed
 
     // 1. Initial State
-    // Button should be attached (v-if is true)
-    await expect(addButton).toBeAttached();
+    await expect(addButton).toBeVisible();
     // Task list should NOT have flex-1 initially (compact mode)
     await expect(taskList).not.toHaveClass(/flex-1/);
 
@@ -107,9 +107,8 @@ test.describe('Add Task Button Visibility', () => {
     // Task list SHOULD have flex-1 now (expanded drop zone)
     await expect(taskList).toHaveClass(/flex-1/);
     
-    // Add slot stays in the DOM but is hidden, so collision rects do not shift (#125)
-    await expect(addButton).toBeAttached();
-    await expect(addButton).toBeHidden();
+    // The header button does not move while a card is dragged (#248); it is no drop target
+    expect(await addButton.boundingBox()).toEqual(buttonBox);
 
     // 4. End Drag
     await page.mouse.up();
@@ -118,7 +117,6 @@ test.describe('Add Task Button Visibility', () => {
     // Wait for state reset
     await page.waitForTimeout(100);
     
-    // Button should return
     await expect(addButton).toBeVisible();
     // Task list should revert to compact (no flex-1)
     await expect(taskList).not.toHaveClass(/flex-1/);

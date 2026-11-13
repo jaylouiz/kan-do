@@ -90,7 +90,7 @@ const SURFACES: Surface[] = [
       await seedLocalBoard(context)
       await gotoBoard(page)
       await showColumnPage(page, 0) // the board opens on Jetzt while a task sits there (kd#191)
-      await page.locator('#column-open .add-task-button').click()
+      await page.locator('#column-open [data-testid="add-task-header-button"]').click()
       await expect(page.getByTestId('new-card-title')).toBeFocused()
     },
   },
@@ -100,7 +100,7 @@ const SURFACES: Surface[] = [
       await seedLocalBoard(context)
       await gotoBoard(page)
       await showColumnPage(page, 0) // the board opens on Jetzt while a task sits there (kd#191)
-      await page.locator('#column-open .add-task-button').click()
+      await page.locator('#column-open [data-testid="add-task-header-button"]').click()
       await page.getByTestId('new-card-title').fill('Angebot schreiben')
       await page.keyboard.press('Enter')
       await expect(page.getByTestId('new-card-options')).toBeVisible()
