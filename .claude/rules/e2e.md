@@ -43,6 +43,8 @@ npm run dev:e2e
 
 Reproduce in Linux Chromium before guessing (kd#100): `colima start`, then run the spec in `mcr.microsoft.com/playwright:v<the repo's @playwright/test version>-noble` against a server on the host (`BASE_URL=http://host.docker.internal:<port>`); mount the worktree from under `$HOME` (colima does not share `/private/tmp`). `--cpus 1` exposes focus and timing races CI hits.
 
+A sideways-scroll flake (about 1 in 12 runs) is timing-dependent, so element boxes can look fine: probe the scroll position with a deterministic `window.scrollTo(15, 0)` and assert `scrollX` stays 0 (kd#269). Never size layout in `100vw`: a classic scroll bar on Linux makes it wider than the layout.
+
 ## Seed modes
 
 Local tasks (default for UI-only tests, no stub needed): `npm run dev`, open `http://localhost:3000/tasks?seed=local` (board pre-loaded with test tasks). Notion stub (no real credentials): `npm run dev:e2e`, open `/tasks?seed=notion`. After pulling a Playwright upgrade: `npx playwright install chromium`.
