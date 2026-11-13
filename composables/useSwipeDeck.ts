@@ -26,7 +26,7 @@ export const DECK_SWIPE_THRESHOLD_PX = 80
 export const DECK_TAP_SLOP_PX = 6
 /** Sideways slide of the moving card (ms); mirrors the `out` transition in `RecapDeck`. */
 export const DECK_OUT_MS = 130
-/** Settle to the new depth (ms); the CSS transition in `RecapDeck` is 240ms and may finish while the next move has started. */
+/** Settle to the new depth (ms); the CSS transition in `RecapDeck` is 300ms and may finish while the next move has started. */
 export const DECK_SETTLE_MS = 200
 /** One whole move (ms). */
 export const DECK_MOVE_MS = DECK_OUT_MS + DECK_SETTLE_MS

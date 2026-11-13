@@ -7,7 +7,8 @@ import { elapse, installClock } from './helpers/clock'
  * #162: a single card from Offen or Wartet dropped on the running Jetzt card swaps them. While it
  * hovers there the running card shows the swap state (`task--swap-target`, dashed ring), the drop moves the
  * running task to Wartet and starts the dropped one, one toast offers the undo. The keyboard drag and the
- * task sheet's status field swap the same way. Drags use page.mouse (docs/testing/e2e-dnd-patterns.md).
+ * task sheet's status field swap the same way, and since #241 so do the card's context menu and the command palette.
+ * Drags use page.mouse (docs/testing/e2e-dnd-patterns.md).
  */
 
 const NOW = new Date().toISOString()
@@ -188,6 +189,103 @@ test.describe('swap by keyboard and the task sheet (#162)', () => {
     await page.getByRole('option', { name: 'Jetzt', exact: true }).click()
     await expect(page.getByText('Verschieben nicht möglich').first()).toBeVisible()
     await expect(toast(page)).toHaveCount(0)
+  })
+})
+
+const palette = (page: Page) => page.getByRole('dialog', { name: 'Befehlspalette' })
+
+test.describe('swap from the context menu and the command palette (#241)', () => {
+  test.beforeEach(async ({ context }) => {
+    await seedLocalBoard(context, [RUNNING, ...OFFEN, ...WARTET, DONE])
+  })
+
+  async function openStatusMenu(page: Page, id: string) {
+    await card(page, id).click({ button: 'right' })
+    await page.getByRole('menuitem', { name: 'Status ändern' }).click()
+  }
+
+  test('the context menu offers a plain "Jetzt", swaps on choosing it, and the toast undoes both moves', async ({ page }) => {
+    await gotoBoard(page)
+    await openStatusMenu(page, 'open-1')
+    const jetzt = page.getByRole('menuitem', { name: 'Jetzt', exact: true })
+    await expect(jetzt).toBeVisible()
+    await expect(jetzt).not.toHaveAttribute('data-disabled')
+    await expect(page.getByRole('menuitem', { name: /max\. erreicht/ })).toHaveCount(0)
+    await jetzt.click()
+
+    await expect.poll(() => ids(page, 'progress')).toEqual(['open-1'])
+    expect(await ids(page, 'waiting')).toContain(RUNNING.id)
+    await expect(toast(page)).toContainText('„Konzept ausarbeiten“ läuft · „Review schreiben“ wartet')
+
+    await undoButton(page).click()
+    await expect.poll(() => ids(page, 'progress')).toEqual([RUNNING.id])
+    expect(await ids(page, 'open')).toEqual(['open-1', 'open-2'])
+  })
+
+  test('from Wartet the context menu swaps too, and Jetzt never holds two', async ({ page }) => {
+    await gotoBoard(page)
+    await openStatusMenu(page, 'wait-2')
+    await page.getByRole('menuitem', { name: 'Jetzt', exact: true }).click()
+
+    await expect.poll(() => ids(page, 'progress')).toEqual(['wait-2'])
+    expect(await ids(page, 'waiting')).toContain(RUNNING.id)
+    await expect(toast(page)).toBeVisible()
+  })
+
+  test('a task from Erledigt: the menu entry stays "Jetzt (max. erreicht)" and disabled', async ({ page }) => {
+    await gotoBoard(page)
+    await openStatusMenu(page, DONE.id)
+    const refused = page.getByRole('menuitem', { name: 'Jetzt (max. erreicht)' })
+    await expect(refused).toBeVisible()
+    await expect(refused).toHaveAttribute('data-disabled')
+    await page.keyboard.press('Escape')
+    expect(await ids(page, 'progress')).toEqual([RUNNING.id])
+  })
+
+  test('with Jetzt empty the menu moves the task there as before: no swap toast', async ({ context, page }) => {
+    await seedLocalBoard(context, [...OFFEN, ...WARTET])
+    await page.goto('/tasks')
+    await expect(card(page, 'open-1')).toBeVisible()
+    await openStatusMenu(page, 'open-1')
+    await page.getByRole('menuitem', { name: 'Jetzt', exact: true }).click()
+
+    await expect.poll(() => ids(page, 'progress')).toEqual(['open-1'])
+    await expect(toast(page)).toHaveCount(0)
+  })
+
+  test('the palette row "Verschieben nach Jetzt" is runnable without a suffix, swaps, closes and focuses the moved card', async ({ page }) => {
+    await gotoBoard(page)
+    await card(page, 'open-1').focus()
+    await page.keyboard.press('ControlOrMeta+k')
+    await expect(palette(page)).toBeVisible()
+    const row = palette(page).getByRole('option', { name: /Verschieben nach Jetzt/ })
+    await expect(row).not.toHaveAttribute('data-disabled')
+    await expect(row).not.toContainText('Jetzt belegt')
+    // keeps its column position (Offen is the current column, so Jetzt comes first), not sorted last
+    await expect(palette(page).getByRole('option').first()).toHaveText(/Verschieben nach Jetzt/)
+    await page.keyboard.type('Jetzt')
+    await expect(palette(page).locator('[role="option"][data-highlighted]')).toHaveText(/Verschieben nach Jetzt/)
+    await page.keyboard.press('Enter')
+
+    await expect(palette(page)).toBeHidden()
+    await expect.poll(() => ids(page, 'progress')).toEqual(['open-1'])
+    expect(await ids(page, 'waiting')).toContain(RUNNING.id)
+    await expect(toast(page)).toContainText('„Konzept ausarbeiten“ läuft · „Review schreiben“ wartet')
+    await expect(card(page, 'open-1')).toBeFocused()
+
+    await undoButton(page).click()
+    await expect.poll(() => ids(page, 'progress')).toEqual([RUNNING.id])
+  })
+
+  test('a task from Erledigt: the palette row stays disabled with "Jetzt belegt"', async ({ page }) => {
+    await gotoBoard(page)
+    await card(page, DONE.id).focus()
+    await page.keyboard.press('ControlOrMeta+k')
+    const row = palette(page).getByRole('option', { name: /Verschieben nach Jetzt/ })
+    await expect(row).toContainText('Jetzt belegt')
+    await expect(row).toHaveAttribute('data-disabled')
+    await page.keyboard.press('Escape')
+    expect(await ids(page, 'progress')).toEqual([RUNNING.id])
   })
 })
 

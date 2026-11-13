@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { removeDevPages, shouldShipDevPages, type PageRecord } from '../../lib/devPages'
+import { isDevInstance, removeDevPages, shouldShipDevPages, type PageRecord } from '../../lib/devPages'
 
 // #65: `/ui` and `/error-test` ship only in dev and in the E2E build (flag), never in a plain production build.
 describe('shouldShipDevPages', () => {
@@ -16,6 +16,31 @@ describe('shouldShipDevPages', () => {
   it('keeps them in a production build only for KANDO_UI_CATALOG=1', () => {
     expect(shouldShipDevPages({ NODE_ENV: 'production', KANDO_UI_CATALOG: '1' })).toBe(true)
     for (const other of ['0', 'true', '', undefined]) expect(shouldShipDevPages({ NODE_ENV: 'production', KANDO_UI_CATALOG: other })).toBe(false)
+  })
+})
+
+// #246: the dev instance is a Vercel preview of the `dev` branch (or KANDO_DEV_INSTANCE=1): it carries /ui and the copy editor.
+describe('isDevInstance', () => {
+  it('is on for KANDO_DEV_INSTANCE=1 only', () => {
+    expect(isDevInstance({ KANDO_DEV_INSTANCE: '1' })).toBe(true)
+    for (const other of ['0', 'true', '', undefined]) expect(isDevInstance({ KANDO_DEV_INSTANCE: other })).toBe(false)
+  })
+
+  it('is on for the Vercel preview of the dev branch', () => {
+    expect(isDevInstance({ VERCEL_ENV: 'preview', VERCEL_GIT_COMMIT_REF: 'dev' })).toBe(true)
+  })
+
+  it('is off for production, other branches and prototypes', () => {
+    expect(isDevInstance({ VERCEL_ENV: 'production', VERCEL_GIT_COMMIT_REF: 'main' })).toBe(false)
+    expect(isDevInstance({ VERCEL_ENV: 'production', VERCEL_GIT_COMMIT_REF: 'dev' })).toBe(false)
+    expect(isDevInstance({ VERCEL_ENV: 'preview', VERCEL_GIT_COMMIT_REF: 'proto/12-x' })).toBe(false)
+    expect(isDevInstance({ VERCEL_ENV: 'preview', VERCEL_GIT_COMMIT_REF: 'dev-2' })).toBe(false)
+    expect(isDevInstance({})).toBe(false)
+  })
+
+  it('makes a production build ship the dev pages', () => {
+    expect(shouldShipDevPages({ NODE_ENV: 'production', VERCEL_ENV: 'preview', VERCEL_GIT_COMMIT_REF: 'dev' })).toBe(true)
+    expect(shouldShipDevPages({ NODE_ENV: 'production', VERCEL_ENV: 'preview', VERCEL_GIT_COMMIT_REF: 'proto/1-a' })).toBe(false)
   })
 })
 

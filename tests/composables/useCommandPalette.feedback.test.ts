@@ -1,12 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { ref } from 'vue'
 import { navigateTo } from 'nuxt/app'
 import { setActivePinia, createPinia } from 'pinia'
 import { useCommandPalette } from '~/composables/useCommandPalette'
 import { resetFeedbackState, useFeedback } from '~/composables/useFeedback'
 
-vi.mock('nuxt/app', () => ({ navigateTo: vi.fn() }))
+vi.mock('nuxt/app', () => ({ navigateTo: vi.fn(), useRouter: () => ({ currentRoute: ref({ path: '/tasks' }) }) }))
 vi.mock('~/composables/useTaskOperations', () => ({
-  useTaskOperations: () => ({ moveTaskToStatus: vi.fn(), canMoveToStatus: () => ({ allowed: true }) }),
+  useTaskOperations: () => ({ moveOrSwapToStatus: vi.fn(), canMoveOrSwapToStatus: () => ({ allowed: true }) }),
 }))
 vi.mock('~/composables/useTaskDeletion', () => ({
   useTaskDeletion: () => ({ deleteTaskWithUndo: vi.fn() }),
@@ -23,7 +24,7 @@ const setDesktop = (on: boolean) => {
 }
 const globalItems = () => {
   const palette = useCommandPalette()
-  return { palette, items: palette.groups.value.find(g => g.id === 'global')!.items as Item[] }
+  return { palette, items: palette.groups.value.filter(g => g.id.startsWith('global-')).flatMap(g => g.items as Item[]) }
 }
 
 describe('command palette: send feedback (desktop only)', () => {
