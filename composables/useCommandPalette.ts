@@ -3,7 +3,7 @@
  * @description State and command list for the Cmd/Ctrl+K palette (issue #101, Direction B).
  * `buildCommandGroups` is the single source of commands and their `kbds` hints; it is pure so the
  * focused-card / no-card / Jetzt-full cases are unit-testable. Moves go through
- * `useTaskOperations.moveTaskToStatus` (shared WIP guard and completion undo toast).
+ * `useTaskOperations.moveOrSwapToStatus` (shared WIP guard, completion undo toast, and the swap into a full Jetzt, #241).
  * Global commands come in four groups (Aktionen, Gehe zu, Daten & Speicher, App; "App" is desktop only) after the card
  * groups; a row that only navigates is left out on its own page (`currentPath`, #234).
  * @responsibility Open/close state, focus capture + restore, command groups. No UI. Page-independent: mounted once in
@@ -259,7 +259,7 @@ export function closeCommandPalette(): void {
 export function useCommandPalette() {
   const { t } = useI18n()
   const tasksStore = useTasksStore()
-  const { moveTaskToStatus, canMoveToStatus } = useTaskOperations()
+  const { moveOrSwapToStatus, canMoveOrSwapToStatus } = useTaskOperations()
   const route = useLiveRoute()
   const { deleteTaskWithUndo } = useTaskDeletion()
   const { moveTaskToSource } = useTaskMove()
@@ -326,7 +326,7 @@ export function useCommandPalette() {
     // The confirmation is asked in place on the data page, with the export section right above it: go there with the question open
     resetApp: run(() => { appReset.open(); void navigateTo('/settings/data') }, { navigates: true }),
     openDetails: id => run(() => { void navigateTo(`/tasks/${id}`) }, { navigates: true })(),
-    moveTo: (id, status) => run(() => { void moveTaskToStatus(id, status) })(),
+    moveTo: (id, status) => run(() => { void moveOrSwapToStatus(id, status) })(),
     setTimebox: (id, seconds) => run(() => tasksStore.updateTask(id, { timeBoxSeconds: seconds }))(),
     setPriority: (id, priority) => run(() => tasksStore.updateTask(id, { priority }))(),
     moveToSource: (id, source) => run(() => { moveTaskToSource(id, source) })(),
@@ -341,7 +341,7 @@ export function useCommandPalette() {
     return [...buildCommandGroups({
       t: t as Translate,
       task,
-      canMove: canMoveToStatus,
+      canMove: canMoveOrSwapToStatus,
       currentPath: route.value.path,
       moveTargets: task
         ? buildMoveTargets({

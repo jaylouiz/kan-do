@@ -100,14 +100,23 @@ test.describe('Command palette', () => {
     await expect(page.getByRole('button', { name: 'Rückgängig', includeHidden: true }).first()).toBeVisible()
   })
 
-  test('refuses a second Jetzt task with a visible reason', async ({ page }) => {
+  test('a task from Erledigt is refused a second Jetzt with a visible reason; one from Offen swaps (#241)', async ({ page }) => {
+    await card(page, 'Retrospektive nachbereiten').focus()
+    await page.keyboard.press('ControlOrMeta+k')
+    const refused = palette(page).getByRole('option', { name: /Verschieben nach Jetzt/ })
+    await expect(refused).toContainText('Jetzt belegt')
+    await expect(refused).toHaveAttribute('data-disabled')
+    await page.keyboard.press('Escape')
+    await expect(palette(page)).toBeHidden()
+    await expect(column(page, 'progress').locator('.task-wrapper')).toHaveCount(1)
+
+    // An Offen task may take Jetzt over by swap: a normal runnable row
     await card(page, 'Dokumentation lesen').focus()
     await page.keyboard.press('ControlOrMeta+k')
-    const jetzt = palette(page).getByRole('option', { name: /Verschieben nach Jetzt/ })
-    await expect(jetzt).toContainText('Jetzt belegt')
-    await expect(jetzt).toHaveAttribute('data-disabled')
+    const swap = palette(page).getByRole('option', { name: /Verschieben nach Jetzt/ })
+    await expect(swap).not.toContainText('Jetzt belegt')
+    await expect(swap).not.toHaveAttribute('data-disabled')
     await page.keyboard.press('Escape')
-    await expect(column(page, 'progress').locator('.task-wrapper')).toHaveCount(1)
   })
 
   test('delete from the palette is undoable', async ({ page }) => {
@@ -148,8 +157,11 @@ test.describe('Command palette', () => {
     await card(page, 'Dokumentation lesen').focus()
     await page.keyboard.press('ControlOrMeta+k')
     const highlighted = palette(page).locator('[role="option"][data-highlighted]')
-    await expect(highlighted).toHaveText(/Verschieben nach Wartet/)
+    // Jetzt can swap (#241), so it is a normal row in its column position and leads
+    await expect(highlighted).toHaveText(/Verschieben nach Jetzt/)
 
+    await page.keyboard.press('ArrowDown')
+    await expect(highlighted).toHaveText(/Verschieben nach Wartet/)
     await page.keyboard.press('ArrowDown')
     await expect(highlighted).toHaveText(/Verschieben nach Erledigt/)
     await page.keyboard.press('ArrowDown')

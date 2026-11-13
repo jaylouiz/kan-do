@@ -8,11 +8,9 @@ import { TaskStatus } from '~/types/taskStatus';
 import type { Task } from '~/types/task';
 import { TASK_STATUS_CONFIG, getStatusLabel } from '~/utils/taskStatusMappings';
 import { useTaskOperations } from '~/composables/useTaskOperations';
-import { useTaskSwap } from '~/composables/useTaskSwap';
 
 export function useTaskStatusActions(task: Ref<Task | null>) {
-  const { moveTaskToStatus } = useTaskOperations();
-  const { swapIntoProgress, swapPartnerOf } = useTaskSwap();
+  const { moveOrSwapToStatus } = useTaskOperations();
 
   /**
    * Changes the status of the current task
@@ -21,10 +19,9 @@ export function useTaskStatusActions(task: Ref<Task | null>) {
     if (!task.value?.id) return;
     
     try {
-      // Jetzt is full and this task may take over (#162): swap instead of the refusal toast
-      if (newStatus === TaskStatus.Progress && swapPartnerOf(task.value.id) && swapIntoProgress(task.value.id)) return;
-      // Same path as the context menu: keeps board order consistent and offers undo on completion
-      await moveTaskToStatus(task.value.id, newStatus);
+      // Same path as the context menu and the palette: swaps into a full Jetzt (#162, #241), keeps board order
+      // consistent and offers undo on completion
+      await moveOrSwapToStatus(task.value.id, newStatus);
     } catch (err) {
       console.error('Failed to update task status:', err);
     }

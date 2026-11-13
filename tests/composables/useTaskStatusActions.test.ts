@@ -7,15 +7,9 @@ import { useTaskStatusActions } from '~/composables/useTaskStatusActions'
 
 const updateTaskStatusMock = vi.fn()
 
-const swapPartnerOfMock = vi.fn(() => null as string | null)
-const swapIntoProgressMock = vi.fn(() => true)
-vi.mock('~/composables/useTaskSwap', () => ({
-  useTaskSwap: () => ({ swapPartnerOf: swapPartnerOfMock, swapIntoProgress: swapIntoProgressMock }),
-}))
-
 vi.mock('~/composables/useTaskOperations', () => ({
   useTaskOperations: () => ({
-    moveTaskToStatus: updateTaskStatusMock,
+    moveOrSwapToStatus: updateTaskStatusMock,
   }),
 }))
 
@@ -41,29 +35,15 @@ describe('useTaskStatusActions', () => {
     setActivePinia(createPinia())
     updateTaskStatusMock.mockReset()
     updateTaskStatusMock.mockResolvedValue(undefined)
-    swapPartnerOfMock.mockReset().mockReturnValue(null)
-    swapIntoProgressMock.mockReset().mockReturnValue(true)
   })
 
-  describe('choosing Jetzt while it is full (#162)', () => {
-    it('swaps instead of moving', async () => {
-      swapPartnerOfMock.mockReturnValue('running')
+  describe('choosing Jetzt (#162, #241)', () => {
+    it('goes through the shared swap-aware move, whatever the status (the swap decision lives there, not in the sheet)', async () => {
       const { changeStatus } = useTaskStatusActions(ref(makeTask({ id: 'abc' })))
 
       await changeStatus(TaskStatus.Progress)
-
-      expect(swapIntoProgressMock).toHaveBeenCalledWith('abc')
-      expect(updateTaskStatusMock).not.toHaveBeenCalled()
-    })
-
-    it('moves as before when nothing can swap (empty Jetzt, a task from Erledigt) or another status is chosen', async () => {
-      const { changeStatus } = useTaskStatusActions(ref(makeTask({ id: 'abc' })))
-
-      await changeStatus(TaskStatus.Progress)
-      swapPartnerOfMock.mockReturnValue('running')
       await changeStatus(TaskStatus.Waiting)
 
-      expect(swapIntoProgressMock).not.toHaveBeenCalled()
       expect(updateTaskStatusMock).toHaveBeenNthCalledWith(1, 'abc', TaskStatus.Progress)
       expect(updateTaskStatusMock).toHaveBeenNthCalledWith(2, 'abc', TaskStatus.Waiting)
     })

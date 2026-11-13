@@ -8,7 +8,7 @@ import { resetAppResetState, useAppReset } from '~/composables/useAppReset'
 
 vi.mock('nuxt/app', () => ({ navigateTo: vi.fn(), useRouter: () => ({ currentRoute: ref({ path: '/tasks' }) }) }))
 vi.mock('~/composables/useTaskOperations', () => ({
-  useTaskOperations: () => ({ moveTaskToStatus: vi.fn(), canMoveToStatus: () => ({ allowed: true }) }),
+  useTaskOperations: () => ({ moveOrSwapToStatus: vi.fn(), canMoveOrSwapToStatus: () => ({ allowed: true }) }),
 }))
 vi.mock('~/composables/useTaskDeletion', () => ({
   useTaskDeletion: () => ({ deleteTaskWithUndo: vi.fn() }),
