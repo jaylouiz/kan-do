@@ -265,7 +265,7 @@ const tasksWaiting = computed(() => applyFocus(tasksStore.tasksWaiting));
 const tasksDone = computed(() => applyFocus(tasksStore.tasksDoneToday));
 
 // ── Mobile column navigation (transform-based) ───────────────────────────────
-// The board is 300vw wide on mobile. .board-container clips it to 100vw.
+// The board is 300% of its container wide on mobile. .board-container clips it to its own width (never 100vw, #269).
 // activeMobileTab drives translateX so no scroll container is needed. No tabs (#470): a swipe, the drag
 // edge-scroll and focus entering a page move it; it is exposed as data-mobile-page on .board.
 
@@ -371,7 +371,7 @@ const {
 const mobileBoardStyle = computed<{ transform?: string }>(() => {
   if (!isMobile.value) return {};
   const offset = swipeOffsetPx.value !== 0 ? ` + ${Math.round(swipeOffsetPx.value)}px` : '';
-  return { transform: `translateX(calc(${-activeMobileTab.value} * 100vw${offset}))` };
+  return { transform: `translateX(calc(${-activeMobileTab.value} * 100% / 3${offset}))` };
 });
 
 // ── Mobile edge-scroll during drag ────────────────────────────────────────────

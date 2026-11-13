@@ -276,11 +276,12 @@
       ]
     },
     {
-      "area": "document scroll bar: classic-bar detection and the gutter that keeps the layout from shifting (#669), with the scroll lock (#580)",
+      "area": "document scroll bar: classic-bar detection and the gutter that keeps the layout from shifting (#669), with the scroll lock (#580); the phone board is sized from the layout, never 100vw (#269)",
       "paths": [
         "plugins/scrollbar-gutter.client.ts",
         "assets/css/utilities.css",
-        "assets/css/board.css"
+        "assets/css/board.css",
+        "components/board/Board.vue"
       ],
       "specs": [
         "scrollbar-gutter",

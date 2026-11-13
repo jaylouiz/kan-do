@@ -45,6 +45,10 @@ for (const viewport of [{ name: 'desktop', width: 1280 }, { name: 'wide', width:
       const columnScrolls = () => page.locator('#column-open').evaluate(el => el.scrollHeight > el.clientHeight)
       const overflowing = () => (mobile ? columnScrolls() : scrolls(page))
       expect(await overflowing(), 'collapsed: fits, no bar').toBe(false)
+      // The phone board is sized from the layout, never 100vw, which includes the gutter and made the document 15px
+      // too wide: a click or focus then scrolled the whole page sideways, at random times (#269). The probe is
+      // deterministic: a document wider than its layout accepts the scroll
+      if (mobile) expect(await page.evaluate(() => { window.scrollTo(15, 0); const x = window.scrollX; window.scrollTo(0, 0); return x }), 'the document cannot scroll sideways').toBe(0)
       await tagElements(page)
       const before = await boxes(page)
 

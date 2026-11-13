@@ -1,5 +1,5 @@
 /**
- * Board layout: desktop 3-column grid, mobile 300vw transform layout, column placement, task list,
+ * Board layout: desktop 3-column grid, mobile 300% transform layout, column placement, task list,
  * drag-time header states and z-index stacking. Selectors target .board / #column-* markup from
  * Board.vue and BoardColumn.vue, so this stays global (scoped styles would not reach nested
  * component roots). Imported by main.css; components layer (#43).
@@ -59,9 +59,12 @@
 
   /* ── Mobile: transform-based single-column navigation ── */
   /*
-   * The board is 300vw wide. .board-container clips it to 100vw with
-   * overflow: hidden. Vue drives translateX(n * -100vw) to show the
+   * The board is three container widths wide. .board-container clips it to its own width with
+   * overflow: clip. Vue drives translateX(n * -100% / 3) to show the
    * active column — no scroll container / scrollTo() needed at all.
+   * Widths are percentages of the layout, never 100vw (#269): 100vw includes the 15 px a classic
+   * scroll bar's gutter takes from the layout (html.kando-classic-scrollbar), so a 100vw board overflowed the
+   * document sideways and a focus or click scrolled the whole page by the bar's width.
    */
   @media (--phone) {
     /* Mobile hit areas: anything marked .touch-target meets the 44px minimum (#37). Buttons never carry it: the button theme in app.config.ts floors them (#552). */
@@ -74,8 +77,8 @@
     .board-container {
       /* Strip the page dots (BoardPageDots, kd#26) take above the column title */
       --page-dots-strip: 1.25rem;
-      width: 100vw;
-      max-width: 100vw;
+      width: 100%;
+      max-width: 100%;
       overflow: hidden;      /* clip the off-screen columns */
       /* `clip` cannot be scrolled at all: focusing a control on an off-screen page (Tab, #470) must not scroll this
          container sideways on top of the board's own translateX (the page would land one page too far) */
@@ -89,7 +92,7 @@
       display: flex;
       flex-direction: row;
       justify-content: flex-start; /* undo the desktop centring (#122) */
-      width: 300vw;           /* 3 column-pages side-by-side */
+      width: 300%;            /* 3 column-pages side-by-side */
       overflow: visible;      /* clipping is handled by .board-container */
       min-height: 100svh;
       /* Smooth column-switch animation driven by the Vue-managed transform */
@@ -127,10 +130,10 @@
     :where(.board) > #column-open,
     :where(.board) > .column-group-mid,
     :where(.board) > #column-done {
-      width: 100vw;
-      min-width: 100vw;
-      max-width: 100vw;
-      flex-shrink: 0;
+      /* Equal thirds of the board = one container width each. A flex share divides exactly; calc(100% / 3) lands on
+         389.98px after layout rounding and shifts the text by sub-pixels (visual baselines) */
+      flex: 1 1 0;
+      min-width: 0;
       overflow-y: auto;
       overflow-x: hidden;
       min-height: 100svh;
