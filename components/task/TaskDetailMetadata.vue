@@ -56,7 +56,7 @@ withDefaults(defineProps<{
   createdAt: string;
   /** Stable app-level task id */
   taskId: string;
-  /** Bottom-pinned in the desktop slideover: hairline above, own padding */
+  /** Bottom-pinned in the desktop slideover: own top padding; the host adds the hairline and bottom padding */
   pinned?: boolean;
 }>(), {
   source: null,
