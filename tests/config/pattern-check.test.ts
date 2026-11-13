@@ -99,7 +99,12 @@ describe('wf_pr_body_check Pattern gate (#586)', () => {
   }
 
   const ui = ['components/ui/Thing.vue']
-  const e2e = 'E2E-specs: smoke\n'
+  const e2e = 'E2E-specs: smoke\n## Design review\nno findings\n'
+
+  it('requires the Design review section on a UI diff and basenames only on the E2E-specs line', () => {
+    expect(check(ui, 'E2E-specs: smoke\nPattern: none (copy fix)\n')).toContain('Design review')
+    expect(check(ui, 'E2E-specs: smoke (9 passed)\n## Design review\nok\nPattern: none (copy fix)\n')).toContain('basenames')
+  })
 
   it('still requires the E2E-specs line, with or without a UI diff', () => {
     expect(check([], 'Closes #1\n')).toContain('E2E-specs')
