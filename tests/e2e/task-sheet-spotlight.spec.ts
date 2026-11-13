@@ -3,7 +3,8 @@
  * Desktop slideover and mobile drawer, all columns, close paths, deep link, add route (draft card, #110).
  */
 import { test, expect, type Page } from '@playwright/test'
-import { seedLocalBoard } from './helpers/seed'
+import { seedLocalBoard, buildBoardStore, buildTasksStore, SEED_TASKS } from './helpers/seed'
+import { emitDataStatus, installTauriStub } from './helpers/tauriStub'
 import { settleAnimations } from './helpers/settle'
 
 const OPEN_ID = 'seed-open-1'
@@ -75,7 +76,31 @@ test.describe('desktop, scrolled to the top', () => {
     await expect.poll(() => opacity(page, 'seed-open-2')).toBeLessThan(0.6)
     await settleAnimations(page)
     expect(await page.evaluate(() => window.scrollY)).toBe(0)
-    // The empty margin left of the first column: inside the row (y 8..40) and below it, above the column heading (y 64..90)
+    await expectOneTone(page)
+  })
+
+  // DataStorageNotice sits between the bar and the board: the dimming must still reach the bar row.
+  test('the dimming covers the bar row while the storage notice is shown', async ({ page }) => {
+    await installTauriStub(page.context(), { data: {
+      folder: '/Users/test/data',
+      envelope: {
+        schemaVersion: 2, writtenAt: '2026-10-24T09:12:00.000Z', writtenBy: 'other-device', appVersion: '0.1.0',
+        stores: { 'board-store': buildBoardStore('local'), 'tasks-store': buildTasksStore(SEED_TASKS) },
+      },
+    } })
+    await page.goto(`/tasks/${OPEN_ID}`)
+    await expect(page.getByRole('dialog')).toBeVisible()
+    await emitDataStatus(page, { status: 'folder-unavailable' })
+    await expect(page.getByTestId('data-storage-notice')).toBeVisible()
+    await settleAnimations(page)
+    await expect.poll(() => opacity(page, 'seed-open-2')).toBeLessThan(0.6)
+    await expectOneTone(page)
+  })
+})
+
+async function expectOneTone(page: Page) {
+  {
+    // The empty margin left of the first column: inside the row (y 8..40) and below it
     const sample = async (y: number) => {
       const png = await page.screenshot({ clip: { x: 8, y, width: 24, height: 24 }, animations: 'disabled' })
       return page.evaluate(async (base64) => {
@@ -90,8 +115,8 @@ test.describe('desktop, scrolled to the top', () => {
     const row = await sample(16)
     const below = await sample(72)
     row.forEach((channel, i) => expect(Math.abs(channel - below[i]!), `channel ${i}: row ${row}, board ${below}`).toBeLessThanOrEqual(2))
-  })
-})
+  }
+}
 
 test('reduced motion: fade is instant', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
