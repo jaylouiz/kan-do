@@ -88,9 +88,9 @@ test.describe('New-day recap (#385)', () => {
     await expect(summary(page)).toHaveText('Du hast gestern 4 von 6 Aufgaben erledigt.')
     await expect(deck(page, 'done')).toHaveAccessibleName('4 erledigt, mit Pfeiltasten wechseln')
     await expect(deck(page, 'undone')).toHaveAccessibleName('2 noch offen, mit Pfeiltasten wechseln')
-    // The board is mounted behind, inert and hidden from assistive tech
+    // The board is mounted behind and inert (which also hides it from assistive tech; no aria-hidden besides)
     await expect(board(page)).toHaveAttribute('inert', '')
-    await expect(board(page)).toHaveAttribute('aria-hidden', 'true')
+    await expect(board(page)).not.toHaveAttribute('aria-hidden')
     await expect(board(page).locator('[data-task-id="nd-open-1"]').first()).toBeAttached()
     await expect(continueButton(page)).toBeFocused()
   })

@@ -8,7 +8,7 @@
 - Sync, Ansicht und Tag abschließen laufen über die App-Leiste (Mehr-Panel, #470), nicht über das Board
 -->
 <template>
-  <main data-task-sheet-return :inert="recap.isOpen.value || undefined" :aria-hidden="recap.isOpen.value ? 'true' : undefined">
+  <main data-task-sheet-return :inert="recap.isOpen.value || undefined">
     <h1 class="sr-only">{{ t('board.pageHeading') }}</h1>
     <DataStorageNotice class="relative z-10 mx-auto mt-3 w-auto max-w-3xl" />
 

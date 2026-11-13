@@ -353,6 +353,15 @@ describe('NewDayRecap', () => {
     expect(document.activeElement).toBe(q('[data-testid="recap-continue"]'))
   })
 
+  it('a remount with the recap already open (back from settings) focuses the button again', async () => {
+    await open([doneAt(1, 'a')])
+    wrapper!.unmount()
+    wrapper = mount(NewDayRecap, { global: { stubs }, attachTo: document.body })
+    await nextTick()
+    await new Promise(resolve => requestAnimationFrame(() => resolve(null)))
+    expect(document.activeElement).toBe(q('[data-testid="recap-continue"]'))
+  })
+
   describe('curtain', () => {
     const photo = () => q('.recap-stage__photo')
     const slide = () => photo().dispatchEvent(Object.assign(new Event('transitionend'), { propertyName: 'transform' }))
@@ -378,6 +387,18 @@ describe('NewDayRecap', () => {
       expect(page()).toBeNull()
       expect(useNewDayRecap().snapshot.value).toBeNull()
       expect(document.activeElement).toBe(q('main[data-task-sheet-return]'))
+    })
+
+    it('keeps focus on a control the user moved to during the curtain', async () => {
+      document.body.insertAdjacentHTML('beforeend', '<main data-task-sheet-return><button id="other">x</button></main>')
+      await open([doneAt(1, 'a')])
+      q('[data-testid="recap-continue"]').click()
+      await nextTick()
+      q('#other').focus()
+      slide()
+      await nextTick()
+      expect(page()).toBeNull()
+      expect(document.activeElement).toBe(q('#other'))
     })
 
     it('a second click or Escape while the curtain runs does nothing', async () => {

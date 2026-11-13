@@ -187,7 +187,15 @@ function endCurtain() {
   if (!closing.value) return
   clearTimeout(curtainTimer)
   closing.value = false
-  finishLeave()
+  finishCurtain()
+}
+
+/** Focus goes back to the board only if it was on the stage (or nowhere); a sheet or control the user opened meanwhile keeps it. */
+function finishCurtain() {
+  const active = document.activeElement
+  const stage = document.querySelector('[data-testid="new-day-recap"]')
+  const keep = active && active !== document.body && !stage?.contains(active)
+  finishLeave({ restoreFocus: !keep })
 }
 
 /** The button and Escape: close the recap at once (archive, marker, live board), then let the curtain play. Not repeatable. */
@@ -198,7 +206,7 @@ function leaveOnce() {
   if (isOpen.value) return // nothing to leave (no snapshot)
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   if (!stage || reduced) {
-    finishLeave()
+    finishCurtain()
     return
   }
   closing.value = true
@@ -210,13 +218,14 @@ function leaveOnce() {
 
 onBeforeUnmount(() => {
   clearTimeout(curtainTimer)
-  if (closing.value) finishLeave()
+  if (closing.value) finishCurtain()
 })
 
+// `immediate`: coming back from settings remounts the stage with `isOpen` already true
 watch(isOpen, async (open) => {
-  if (!open) return
+  if (!open || typeof window === 'undefined') return
   pickedKind.value = 'undone'
   await nextTick()
   requestAnimationFrame(focusPrimary)
-})
+}, { immediate: true })
 </script>

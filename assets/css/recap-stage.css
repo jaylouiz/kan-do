@@ -14,7 +14,7 @@
     inset: var(--app-bar-offset-top) 0 0 0;
     z-index: var(--z-titlebar);
     overflow: hidden;
-    padding: 0.75rem 1rem calc(var(--phone-bar-offset) + 0.75rem);
+    padding: calc(env(safe-area-inset-top, 0px) + 0.75rem) 1rem calc(var(--phone-bar-offset) + 0.75rem);
     animation: recap-stage-in var(--recap-enter-duration) var(--ease-emphasized) both;
   }
 

@@ -300,5 +300,17 @@ describe('useNewDayRecap', () => {
       expect(recap.snapshot.value).toBeNull()
       expect(document.activeElement).toBe(document.querySelector('main'))
     })
+
+    it('finishLeave({ restoreFocus: false }) drops the snapshot and leaves focus alone', () => {
+      document.body.innerHTML = '<main data-task-sheet-return></main><button id="x"></button>'
+      setup()
+      const recap = useNewDayRecap()
+      recap.check('tasks')
+      recap.leave()
+      document.querySelector<HTMLElement>('#x')!.focus()
+      recap.finishLeave({ restoreFocus: false })
+      expect(recap.snapshot.value).toBeNull()
+      expect(document.activeElement).toBe(document.querySelector('#x'))
+    })
   })
 })
