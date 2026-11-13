@@ -445,7 +445,8 @@
       "specs": [
         "new-day-recap",
         "day-close",
-        "archive-feature"
+        "archive-feature",
+        "modal-style"
       ]
     },
     {

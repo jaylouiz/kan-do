@@ -31,7 +31,7 @@ PORT=3101 npm run test:e2e -- tests/e2e/visual-regression.spec.ts --update-snaps
 
 ### Seeded boards for E2E / dev testing
 
-`?seed=<mode>` writes the localStorage state and reloads: `npm run dev`, open `http://localhost:3000/tasks?seed=local` (Local board with test tasks, the default for UI work). Other modes: `dayclose` (end-of-day dialog), `notion` (Notion stub, needs `npm run dev:e2e`), `newday` / `newday-all` (recap on a new day), `demo` (realistic board for trying the app and reviewing UI, never an E2E fixture), `mixed` (Local and Notion side by side), `clear`. Options and E2E helpers per mode: `.claude/rules/e2e.md` "Seed modes".
+`?seed=<mode>` writes the localStorage state and reloads: `npm run dev`, open `http://localhost:3000/tasks?seed=local` (Local board with test tasks, the default for UI work). All modes (`dayclose`, `notion` needs `npm run dev:e2e`, `newday`, `demo` never an E2E fixture, `mixed`, `clear`), options and E2E helpers: `.claude/rules/e2e.md` "Seed modes".
 
 ## Architecture
 
