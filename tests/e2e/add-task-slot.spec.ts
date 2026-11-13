@@ -1,6 +1,6 @@
 import { test, expect, type Page, type Locator } from '@playwright/test';
 import { seedLocalBoard, SEED_TASKS } from './helpers/seed';
-import { showColumnPage } from './helpers/dnd';
+import { hover, pickUp, showColumnPage, dropSettled } from './helpers/dnd';
 import { settleAnimations } from './helpers/settle';
 
 /**
@@ -196,6 +196,55 @@ test.describe('Add slot, desktop', () => {
       await expect(page.locator('.board')).not.toHaveClass(/dragging/);
       await expect(newCard(offen(page))).toHaveCount(0);
       expectSameBox(await box(add), before);
+    });
+
+    test('Offen: a drag started while the draft is open moves no card; the draft stays hidden in its place and returns after the drop with what was typed (#248)', async ({ page }) => {
+      await headerAdd(page).click();
+      await expect(newCard(offen(page))).toBeVisible();
+      await settleAnimations(page);
+      const wrappers = offen(page).locator('.task-wrapper');
+      const ys = async () => (await wrappers.evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().top * 10) / 10)));
+      const before = await ys();
+      const draftBefore = await box(offen(page).locator('.add-task-slot-draft-wrap'));
+      const second = wrappers.nth(1);
+      const dragged = await second.getAttribute('data-task-id');
+
+      await pickUp(page, second);
+      // dnd-kit measures the shapes at the start: nothing may slide, then or a moment later (the old collapse took 200ms)
+      for (let i = 0; i < 5; i++) {
+        expect(await ys()).toEqual(before);
+        await page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 60)));
+      }
+      expectSameBox(await box(offen(page).locator('.add-task-slot-draft-wrap')), draftBefore);
+      await expect(offen(page).locator('.add-task-slot')).toHaveClass(/is-hidden/);
+
+      await hover(page, page.locator('#column-waiting .task-wrapper').first());
+      await page.mouse.up();
+      await dropSettled(page);
+      await expect(page.locator(`#column-waiting .task-wrapper[data-task-id="${dragged}"]`)).toHaveCount(1);
+      // The blank draft was not thrown away: it is back, live, at the top
+      await expect(newCard(offen(page))).toBeVisible();
+      await expect(offen(page).locator('.add-task-slot')).not.toHaveClass(/is-hidden/);
+      await expect(page.getByTestId('new-card-title')).toBeFocused();
+    });
+
+    test('Offen: a typed draft survives a drag of a card out of Offen (#248)', async ({ page }) => {
+      await headerAdd(page).click();
+      await page.getByTestId('new-card-title').fill('Bleibt');
+      const second = offen(page).locator('.task-wrapper').nth(1);
+      await pickUp(page, second);
+      await hover(page, page.locator('#column-waiting .task-wrapper').first());
+      await page.mouse.up();
+      await dropSettled(page);
+      await expect(newCard(offen(page))).toBeVisible();
+      await expect(page.getByTestId('new-card-title')).toHaveValue('Bleibt');
+    });
+
+    test('Offen: a plain press on a card still throws away a blank draft, on release (#248)', async ({ page }) => {
+      await headerAdd(page).click();
+      await expect(newCard(offen(page))).toBeVisible();
+      await offen(page).locator('.task-wrapper').nth(1).click();
+      await expect(newCard(offen(page))).toHaveCount(0);
     });
 
     test('Jetzt slot is hidden at rest and revealed by hovering the Jetzt section, not Wartet', async ({ page }) => {
@@ -401,6 +450,25 @@ test.describe('Add slot, 390px', () => {
     await expect(headerAdd(page)).toBeInViewport({ ratio: 1 });
     await headerAdd(page).click();
     await expect(newCard(offen(page))).toBeInViewport({ ratio: 1 });
+    // The draft's mount scroll does not push the column title and the add button out of view (they are what Esc returns to)
+    await page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 600)));
+    await expect(offen(page).locator('h2')).toBeInViewport({ ratio: 1 });
+    await expect(headerAdd(page)).toBeInViewport({ ratio: 1 });
+    await expect(newCard(offen(page))).toBeInViewport({ ratio: 1 });
+  });
+
+  test('Offen, a long list scrolled down: opening the draft brings the page back to the top with its title (#248)', async ({ context, page }) => {
+    const template = EMPTY_JETZT.find((task) => task.status === 0)!;
+    const longOffen = Array.from({ length: 12 }, (_, i) => ({ ...template, id: `long-${i}`, title: `Long ${i}` }));
+    await seedLocalBoard(context, longOffen);
+    await page.goto('/tasks');
+    await showColumnPage(page, 0);
+    await offen(page).evaluate((el) => el.scrollTo({ top: el.scrollHeight }));
+    await expect(offen(page).locator('h2')).not.toBeInViewport();
+    await headerAdd(page).evaluate((el: HTMLElement) => el.click());
+    await expect(newCard(offen(page))).toBeInViewport({ ratio: 1 });
+    await expect(offen(page).locator('h2')).toBeInViewport({ ratio: 1 });
+    await expect(headerAdd(page)).toBeInViewport({ ratio: 1 });
   });
 
   test.describe('touch', () => {

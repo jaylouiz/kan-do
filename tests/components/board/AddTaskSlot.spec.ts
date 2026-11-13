@@ -185,7 +185,7 @@ describe('AddTaskSlot in-card adding (#649)', () => {
     w.unmount()
   })
 
-  it('the sheet opening or a drag cancels the card', async () => {
+  it('the sheet opening cancels the card; a drag keeps it, hidden in its place, and gives it back (#248)', async () => {
     const w = renderInCard()
     open(w)
     await nextTick()
@@ -198,7 +198,11 @@ describe('AddTaskSlot in-card adding (#649)', () => {
     await nextTick()
     expect(w.find('[data-testid="new-card-flow"]').exists()).toBe(true)
     await w.setProps({ hidden: true })
-    expect(w.find('[data-testid="new-card-flow"]').exists()).toBe(false)
+    expect(w.find('[data-testid="new-card-flow"]').exists()).toBe(true)
+    expect(w.find('.add-task-slot').classes()).toContain('is-hidden')
+    await w.setProps({ hidden: false })
+    expect(w.find('[data-testid="new-card-flow"]').exists()).toBe(true)
+    expect(w.find('.add-task-slot').classes()).not.toContain('is-hidden')
     w.unmount()
   })
 })

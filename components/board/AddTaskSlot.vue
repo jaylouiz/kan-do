@@ -9,11 +9,11 @@
 - Offen (#248): renders nothing but the draft. While no draft is open it has no box at all (`display: contents` root, no wrapper), so card positions in the list equal a board without any slot and the list's gap never opens above the first card. The draft card enters at the top: its wrapper animates the row height 0fr to 1fr with opacity, and a negative bottom margin cancels the list gap while closed, so the cards below follow in step (--duration-base = 200ms, --ease-emphasized); cancel leaves just as fast and the cards close up; reduced motion is instant
 - Exposes `open()` (the header button's entry; the in-card flow for `inCard`, `open` emit otherwise) and `isDrafting` (the header button disables itself while it is true: a second click never opens a second card). Cancel and Esc hand focus to `focusFallback` (the header button); a save focuses the saved card (as before)
 - Jetzt: native button named by its visible label, in a regular card's box (width, --task-card-height, card radius); the box never changes size, so layout, hit area and DnD rects stay put. Inside it `.add-task-button-surface` (centred icon + label) is always the full card shape; on pointer devices surface and label appear only while the Jetzt section is hovered or the slot has focus; touch shows the label at rest
-- In-card adding (#649, `inCard`, Offen): `open()` shows NewCardFlow in the slot instead of the sheet. Esc on a typed title also shows a "Rückgängig" toast that reopens the card with it (#665). Esc, a press outside a blank card, the sheet opening or a drag cancel it and send focus back; a save swaps it for the saved card (no fade) and focuses that card. Jetzt and every other entry (palette, nav, menu) keep the sheet
+- In-card adding (#649, `inCard`, Offen): `open()` shows NewCardFlow in the slot instead of the sheet. Esc on a typed title also shows a "Rückgängig" toast that reopens the card with it (#665). Esc, a press outside a blank card, the sheet opening cancel it and send focus back (a press on a card cancels a blank one on release; a drag keeps the card, hidden in its place with what was typed, and it takes the focus back after the drop, #248); a save swaps it for the saved card (no fade) and focuses that card. Jetzt and every other entry (palette, nav, menu) keep the sheet
 - While the in-card form is open the Jetzt focus overlay steps aside (useInCardAdding, kd#56)
 - Drafting (useTaskDraft holds a draft for this column): the draft card fades in over the Jetzt button, whose label fades out; the button stays mounted but inert, so focus can return to it
 - The Jetzt slot is a raw `<button>` on purpose (#71, audit): a card-shaped target whose box is reserved and held while a draft or a drag runs (`add-task-button`, `data-add-slot`, `inert`), which `UButton ghost block` cannot reproduce
-- During a drag (`hidden`) a draft keeps its geometry but is invisible and not interactive
+- During a drag (`hidden`) a draft keeps its geometry but is invisible and not interactive; it is never cancelled by the drag, so no card moves while dnd-kit measures (#248)
 - Reserves the card box only for the button or the draft: with neither (`showButton` off, no draft) it takes no space
 -->
 <template>
@@ -42,6 +42,7 @@
           v-if="flowOpen"
           class="add-task-slot-draft"
           :initial-title="flowTitle"
+          :suspended="props.hidden"
           @saved="onFlowSaved"
           @cancel="closeFlow"
         />
@@ -148,12 +149,9 @@ function onFlowSaved(id: string) {
   focusWhenReady(() => findSavedCardElement(id), [() => buttonEl.value ?? props.focusFallback?.() ?? null]);
 }
 
-// The sheet (palette, nav, menu) and a drag take over: the unsaved card gives way
+// The sheet (palette, nav, menu) takes over: the unsaved card gives way. A drag does not: the card keeps its box, hidden, and comes back after the drop (#248)
 watch(() => route.path, (path) => {
   if (flowOpen.value && path.startsWith('/tasks/add')) flowOpen.value = false;
-});
-watch(() => props.hidden, (hidden) => {
-  if (hidden) flowOpen.value = false;
 });
 /** Neither button nor draft: nothing to reserve the card box for */
 const isEmpty = computed(() => !props.showButton && !isDrafting.value);
