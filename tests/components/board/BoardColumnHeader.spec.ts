@@ -11,8 +11,9 @@ const UButton = {
 }
 // Shows its props as attributes so the test reads the tooltip text and its disabled flag
 const UTooltip = {
-  props: ['text', 'disabled'],
-  template: '<span data-testid="tip" :data-text="text" :data-disabled="String(!!disabled)"><slot /></span>',
+  props: ['text', 'disabled', 'open'],
+  emits: ['update:open'],
+  template: '<span data-testid="tip" :data-text="text" :data-disabled="String(!!disabled)" :data-open="String(!!open)"><slot /></span>',
 }
 const render = (props: Record<string, unknown> = {}) =>
   mount(BoardColumnHeader, {
@@ -49,5 +50,28 @@ describe('BoardColumnHeader add button (#248)', () => {
     const tip = render({ showAdd: true }).find('[data-testid="tip"]')
     expect(tip.attributes('data-text')).toBe('Aufgabe hinzufügen')
     expect(tip.find('[data-testid="add-task-header-button"]').exists()).toBe(true)
+  })
+
+  // Focus returned by the column after a cancelled draft must not open the tooltip (as AppNav's ⋯, kd#40)
+  it('holds the tooltip back on programmatic focus return until the pointer moves or focus leaves', async () => {
+    const w = render({ showAdd: true })
+    const tip = w.findComponent(UTooltip)
+    const button = w.find('[data-testid="add-task-header-button"]')
+    ;(w.vm as unknown as { addButtonEl: () => HTMLElement | null }).addButtonEl()
+    tip.vm.$emit('update:open', true) // the focus-open the library would ask for
+    await w.vm.$nextTick()
+    expect(tip.attributes('data-open')).toBe('false')
+    await button.trigger('pointermove')
+    tip.vm.$emit('update:open', true)
+    await w.vm.$nextTick()
+    expect(tip.attributes('data-open')).toBe('true')
+  })
+
+  it('opens the tooltip on ordinary focus or hover', async () => {
+    const w = render({ showAdd: true })
+    const tip = w.findComponent(UTooltip)
+    tip.vm.$emit('update:open', true)
+    await w.vm.$nextTick()
+    expect(tip.attributes('data-open')).toBe('true')
   })
 })

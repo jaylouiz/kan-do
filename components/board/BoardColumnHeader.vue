@@ -27,7 +27,7 @@
     </h2>
     <div v-if="showAdd" class="column-header__track">
       <div class="column-header__add-row">
-        <UTooltip :text="t('board.addTask')" :disabled="isPhone">
+        <UTooltip :open="tipOpen" :text="t('board.addTask')" :disabled="isPhone" @update:open="onTipOpen">
           <UButton
             ref="addButton"
             class="column-header__add"
@@ -39,6 +39,9 @@
             :aria-label="t('board.addTask')"
             :disabled="addDisabled"
             @click="emit('add')"
+            @blur="tipHeldBack = false"
+            @pointermove="tipHeldBack = false"
+            @pointerleave="tipHeldBack = false"
           />
         </UTooltip>
       </div>
@@ -90,8 +93,22 @@ const { t } = useI18n();
 const isPhone = useMediaQuery(BREAKPOINT_QUERIES.phone);
 const addButton = ref<{ $el: HTMLElement } | null>(null);
 
-/** The add button's element, where the column returns focus after a cancelled draft; null when there is none */
-const addButtonEl = (): HTMLElement | null => addButton.value?.$el ?? null;
+/**
+ * Tooltip (kd#40 as AppNav's ⋯): the column returns focus here after a cancelled draft, and a focus-open tooltip would
+ * then appear for a mouse user who never hovered. It stays held back until the button loses focus or the pointer moves over or leaves it.
+ */
+const tipOpen = ref(false);
+const tipHeldBack = ref(false);
+const onTipOpen = (next: boolean) => {
+  tipOpen.value = next && !tipHeldBack.value;
+};
+
+/** The add button's element, where the column returns focus after a cancelled draft (holds the tooltip back); null when there is none */
+const addButtonEl = (): HTMLElement | null => {
+  const el = addButton.value?.$el ?? null;
+  if (el) { tipHeldBack.value = true; tipOpen.value = false; }
+  return el;
+};
 
 defineExpose({ addButtonEl });
 
