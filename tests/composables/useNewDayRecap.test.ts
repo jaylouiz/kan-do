@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
+import { useDayClose } from '~/composables/useDayClose'
 import { useNewDayRecap, resetNewDayRecap } from '~/composables/useNewDayRecap'
 import { useTasksStore } from '~/store/tasks'
 import { useBoardStore } from '~/store/board'
@@ -12,6 +13,7 @@ import type { Task } from '~/types/task'
 
 const syncArchiveStatusForTasks = vi.hoisted(() => vi.fn().mockResolvedValue(undefined))
 vi.mock('~/composables/useTaskSync', () => ({ useTaskSync: () => ({ syncArchiveStatusForTasks }) }))
+vi.mock('~/composables/useTaskOperations', () => ({ useTaskOperations: () => ({ stopTimer: vi.fn(), moveTaskToStatus: vi.fn() }) }))
 vi.mock('~/store/taskStatistics', () => ({
   useTaskStatisticsStore: () => ({ syncExistingDoneTasks: vi.fn(), updateTaskRecord: vi.fn() }),
 }))
@@ -72,6 +74,18 @@ describe('useNewDayRecap', () => {
       recap.check('tasks-add')
       recap.check('tasks-id')
       expect(recap.isOpen.value).toBe(false)
+    })
+
+    it('does not open over an open day-close dialog (never modal on modal)', () => {
+      setup()
+      const dayClose = useDayClose()
+      dayClose.open()
+      const recap = useNewDayRecap()
+      recap.check('tasks')
+      expect(recap.isOpen.value).toBe(false)
+      dayClose.close()
+      recap.check('tasks')
+      expect(recap.isOpen.value).toBe(true)
     })
 
     it('does not open without onboarding (sources === null)', () => {

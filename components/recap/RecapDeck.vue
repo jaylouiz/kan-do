@@ -121,6 +121,11 @@ const deck = useSwipeDeck({
   flyDistance: () => (grabRef.value?.offsetWidth ?? 288) * 0.5,
 })
 
+/** Deepest visible layer of this deck: a 2-card deck ends at layer 1, so a leaving card sinks to where it really lands. */
+const lastLayer = computed(() => Math.min(cards.value.length - 1, 2))
+/** Layer transform (without the pointer part): one place for the resting layers and the sink target. */
+const layerTransform = (layer: number) => `translateY(${layer * 8}px) scale(${1 - layer * 0.04})`
+
 /**
  * Layer geometry by depth; the front card follows the pointer. Deeper than the second layer is hidden, except the card that
  * travels in a move (#690): it stays visible at full opacity, so it never seems to leave the deck.
@@ -133,7 +138,7 @@ function cardStyle(index: number) {
     // Leaving to the back (#243): while it slides out, the card already sinks to the last layer's height and size, so
     // the z-order flip that follows hides it behind the stack without a visible step.
     if (deck.moving.value?.index === index && deck.moving.value.type === 'next' && deck.moving.value.stage === 'out') {
-      return { zIndex: 10, transform: `translateX(${x}px) translateY(16px) scale(0.92) rotate(${x / 24}deg)`, opacity: 1 }
+      return { zIndex: 10, transform: `translateX(${x}px) ${layerTransform(lastLayer.value)} rotate(${x / 24}deg)`, opacity: 1 }
     }
     return { zIndex: 10, transform: `translateX(${x}px) translateY(0px) scale(1) rotate(${x / 24}deg)`, opacity: 1 }
   }
@@ -141,7 +146,7 @@ function cardStyle(index: number) {
   const x = m && m.stage === 'out' ? m.x : 0
   return {
     zIndex: 10 - depth,
-    transform: `translateX(${x}px) translateY(${shown * 8}px) scale(${1 - shown * 0.04}) rotate(${x / 24}deg)`,
+    transform: `translateX(${x}px) ${layerTransform(shown)} rotate(${x / 24}deg)`,
     opacity: depth > 2 && !m ? 0 : 1,
   }
 }

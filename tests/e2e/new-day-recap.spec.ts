@@ -111,7 +111,11 @@ test.describe('New-day recap (#385)', () => {
     await expect(board(page)).toBeVisible()
     await expect(recap(page)).toBeHidden()
 
-    await page.evaluate(() => { (window as unknown as { __shiftMs: number }).__shiftMs = 26 * 3600 * 1000 })
+    // 09:00 of the next local day, whatever the hour the test runs at (a fixed 26h lands on D+2 after 22:00)
+    await page.evaluate(() => {
+      const next = new Date(); next.setDate(next.getDate() + 1); next.setHours(9, 0, 0, 0)
+      ;(window as unknown as { __shiftMs: number }).__shiftMs = next.getTime() - Date.now()
+    })
     await page.waitForTimeout(300)
     await expect(recap(page)).toBeHidden() // still focused: the user is working, nothing opens by itself
 

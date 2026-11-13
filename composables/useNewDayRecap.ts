@@ -20,6 +20,7 @@ import { syncToday } from '~/composables/useToday'
 import { useTasksStore } from '~/store/tasks'
 import { useBoardStore } from '~/store/board'
 import { useDayRecapStore } from '~/store/dayRecap'
+import { useDayClose } from '~/composables/useDayClose'
 import { useArchiveDoneTasks } from '~/composables/useArchiveDoneTasks'
 import { dataState } from '~/lib/dataStorage'
 import { newestCompletedAt } from '~/utils/doneDayLabel'
@@ -54,12 +55,14 @@ export function useNewDayRecap() {
   const boardStore = useBoardStore()
   const recapStore = useDayRecapStore()
   const { archiveTasks } = useArchiveDoneTasks()
+  const dayClose = useDayClose()
 
   /** Desktop only: nothing is written or archived while the data file is in conflict or unavailable. */
   const writesBlocked = () => dataState.available && dataState.status !== 'ok'
 
   function check(routeName: unknown): void {
-    if (isOpen.value || routeName !== 'tasks') return
+    // never modal on modal: an evening day-close dialog still open waits for the next return
+    if (isOpen.value || routeName !== 'tasks' || dayClose.isOpen.value) return
     // the done-before-today list reads the shared "today": bring it up to date before looking at it (#242)
     syncToday()
     if (boardStore.boardConfig.sources === null) return

@@ -178,6 +178,8 @@ onMounted(() => {
   stopRecapReturn = recap.listenForReturn(() => route.name);
 });
 let stopRecapReturn = () => {};
+// A task sheet open overnight swallows the return check (route is not `tasks`): closing it must run it (#242)
+watch(() => route.name, name => recap.check(name));
 
 // Watch for task updates to track when they happen
 /** Source accessor for tasks array to drive the watcher. */
