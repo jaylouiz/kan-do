@@ -66,14 +66,15 @@ async function deleteViaCardMenu(page: Page, title: string, label: string) {
 
 async function deleteViaSheet(page: Page, id: string, label: string) {
   await page.goto(`/tasks/${id}`)
-  await page.getByTestId('task-actions-menu').click()
-  await page.getByRole('menuitem', { name: label, exact: true }).click()
+  await page.getByTestId('task-delete').filter({ hasText: label }).click()
   await expect(page).toHaveURL(/\/tasks$/)
 }
 
 async function deleteViaTriage(page: Page, id: string, label: string) {
   await page.goto(`/tasks/${id}`)
-  const del = page.getByTestId('carry-over-delete')
+  // The age box's "Nein, löschen" (#247) and the footer Delete run the same flow; the footer names the upstream consequence
+  await expect(page.getByTestId('carry-over-delete')).toHaveText('Nein, löschen')
+  const del = page.getByTestId('task-delete')
   await expect(del).toHaveText(label)
   await del.click()
   await expect(page).toHaveURL(/\/tasks$/)
@@ -165,8 +166,7 @@ test.describe('delete label names the task\'s own source (#325)', () => {
       await page.keyboard.press('Escape')
 
       await page.goto(`/tasks/${task.id}`)
-      await page.getByTestId('task-actions-menu').click()
-      await expect(page.getByRole('menuitem', { name: task.triageLabel, exact: true })).toBeVisible()
+      await expect(page.getByTestId('task-delete')).toHaveText(task.triageLabel)
     })
   }
 })
