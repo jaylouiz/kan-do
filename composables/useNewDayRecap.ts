@@ -128,9 +128,9 @@ export function useNewDayRecap() {
   }
 
   /** After the leave transition: the page no longer needs its snapshot; focus goes to the board region. */
-  function finishLeave(): void {
+  function finishLeave(options: { restoreFocus?: boolean } = {}): void {
     snapshot.value = null
-    restoreFocus()
+    if (options.restoreFocus !== false) restoreFocus()
   }
 
   function restoreFocus(): void {

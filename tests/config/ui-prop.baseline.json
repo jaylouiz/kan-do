@@ -27,10 +27,6 @@
     "count": 1,
     "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
   },
-  "components/recap/NewDayRecap.vue": {
-    "count": 2,
-    "reason": "forwarding *-ui props into a :ui; moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
-  },
   "components/settings/DataFolderChangeModal.vue": {
     "count": 1,
     "reason": "moves into the app.config.ts theme or a token with its category slice (epic #58 D1)"
