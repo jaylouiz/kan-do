@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { revealDraft } from '~/utils/revealDraft'
+import { revealDraft, scrollDeltaClearOfToast } from '~/utils/revealDraft'
 
 describe('revealDraft', () => {
   beforeEach(() => {
@@ -32,5 +32,17 @@ describe('revealDraft', () => {
     draft.scrollIntoView = vi.fn()
     revealDraft(draft, { phone: true, reducedMotion: false })
     expect(draft.scrollIntoView).toHaveBeenCalledWith({ block: 'nearest', behavior: 'smooth' })
+  })
+})
+
+describe('scrollDeltaClearOfToast', () => {
+  it('scrolls a card under the toast up to the limit', () => {
+    expect(scrollDeltaClearOfToast(537, 471, 409, 100)).toBe(66)
+  })
+  it('does nothing for a card already clear', () => {
+    expect(scrollDeltaClearOfToast(300, 471, 172, 100)).toBe(0)
+  })
+  it('never pushes the card top above the floor', () => {
+    expect(scrollDeltaClearOfToast(700, 471, 150, 100)).toBe(50)
   })
 })

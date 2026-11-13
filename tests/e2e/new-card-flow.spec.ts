@@ -354,13 +354,17 @@ test.describe('guided new card, toast on a short phone', () => {
     await expect(page.getByText('Aufgabe hinzugefügt', { exact: true }).first()).toBeVisible()
     await expect.poll(async () => (await storedTask(page, 'Toast mit Abstand'))?.id).toBeTruthy()
     const saved = (await storedTask(page, 'Toast mit Abstand'))!
-    const toast = await box(page.locator('[data-state="open"][data-swipe-direction], [role="status"]').filter({ hasText: 'Aufgabe hinzugefügt' }).first())
-    const task = await box(offen(page).locator(`.task-wrapper[data-task-id="${saved.id}"]`))
+    const toastBox = () => box(page.locator('[data-state="open"][data-swipe-direction], [role="status"]').filter({ hasText: 'Aufgabe hinzugefügt' }).first())
+    const taskBox = () => box(offen(page).locator(`.task-wrapper[data-task-id="${saved.id}"]`))
     // one row (title and Details): the description line wrapped it to three at 390 px, 150 px tall
-    expect(toast.height).toBeLessThan(80)
-    const overlap = Math.min(toast.y + toast.height, task.y + task.height) - Math.max(toast.y, task.y)
-    const overlapX = Math.min(toast.x + toast.width, task.x + task.width) - Math.max(toast.x, task.x)
-    expect(overlap > 0 && overlapX > 0).toBe(false)
+    expect((await toastBox()).height).toBeLessThan(80)
+    // the toast slides in and the page scrolls the saved card clear of it (smooth): the card ends up above the toast, not under it
+    await expect.poll(async () => {
+      const [toast, task] = [await toastBox(), await taskBox()]
+      const overlap = Math.min(toast.y + toast.height, task.y + task.height) - Math.max(toast.y, task.y)
+      const overlapX = Math.min(toast.x + toast.width, task.x + task.width) - Math.max(toast.x, task.x)
+      return overlap > 0 && overlapX > 0
+    }).toBe(false)
   })
 })
 
