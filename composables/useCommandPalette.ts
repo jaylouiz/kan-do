@@ -4,6 +4,8 @@
  * `buildCommandGroups` is the single source of commands and their `kbds` hints; it is pure so the
  * focused-card / no-card / Jetzt-full cases are unit-testable. Moves go through
  * `useTaskOperations.moveTaskToStatus` (shared WIP guard and completion undo toast).
+ * Global commands come in four groups (Aktionen, Gehe zu, Daten & Speicher, App; "App" is desktop only) after the card
+ * groups; a row that only navigates is left out on its own page (`currentPath`, #234).
  * @responsibility Open/close state, focus capture + restore, command groups. No UI. Page-independent: mounted once in
  * app.vue (#224); card groups exist only while a card holds keyboard focus (the board), dialog commands go to the board first.
  */
@@ -37,6 +39,7 @@ import { isTauri } from '~/utils/isTauri'
 import { paletteExtensionGroups } from '~/lib/paletteExtensions'
 import { openOnBoard } from '~/lib/nativeMenu'
 import { useAppReset } from '~/composables/useAppReset'
+import { useLiveRoute } from '~/composables/useAppNav'
 
 type Translate = (key: string, ...args: unknown[]) => string
 
@@ -80,11 +83,22 @@ export interface BuildCommandGroupsInput {
   canMove: (taskId: string, status: TaskStatus) => WipVerdict
   /** Where the focused task can move to (#322); empty with a single source. Optional: no source group then. */
   moveTargets?: readonly MoveTarget[]
+  /** Live route path; the row that navigates to it is left out (#234). `null` (default) hides nothing. */
+  currentPath?: string | null
   actions: PaletteActions
 }
 
+/** A global row plus the path it navigates to, when it only navigates. */
+type GlobalRow = CommandPaletteItem & { to?: string }
+
+/** Path without query, hash and trailing slash (`/statistics/?x=1` -> `/statistics`); the root stays `/`. */
+function normalizePath(path: string): string {
+  const bare = path.split(/[?#]/)[0] ?? ''
+  return bare.length > 1 ? bare.replace(/\/+$/, '') : bare
+}
+
 /** Builds the palette groups. Card groups exist only when a card had focus. */
-export function buildCommandGroups({ t, task, canMove, moveTargets = [], actions }: BuildCommandGroupsInput): CommandPaletteGroup<CommandPaletteItem>[] {
+export function buildCommandGroups({ t, task, canMove, moveTargets = [], currentPath = null, actions }: BuildCommandGroupsInput): CommandPaletteGroup<CommandPaletteItem>[] {
   const groups: CommandPaletteGroup<CommandPaletteItem>[] = []
   let cardItems: CommandPaletteItem[] | null = null
 
@@ -147,37 +161,60 @@ export function buildCommandGroups({ t, task, canMove, moveTargets = [], actions
     cardItems = taskItems
   }
 
-  const globalItems: CommandPaletteItem[] = [
-    { id: 'add', label: t('commandPalette.addTask'), icon: 'i-ph-plus', onSelect: actions.addTask },
-    { id: 'today', label: t('commandPalette.openToday'), icon: 'i-ph-kanban', onSelect: actions.openToday },
-    { id: 'statistics', label: t('commandPalette.openStatistics'), icon: 'i-ph-chart-bar', onSelect: actions.openStatistics },
-    { id: 'trash', label: t('commandPalette.openTrash'), icon: ICONS.delete, onSelect: actions.openTrash },
-    { id: 'settings', label: t('commandPalette.openSettings'), icon: 'i-ph-gear', onSelect: actions.openSettings },
-    { id: 'day-close', label: t('commandPalette.dayClose'), icon: 'i-ph-sun-horizon', onSelect: actions.openDayClose },
+  // Four groups by kind (#234). A row that only navigates carries the path it goes to (`to`), so the row of the page
+  // the user is already on is left out; rows that start something (add, day close, reset, update check, feedback,
+  // what's new) have no `to` and are never hidden.
+  const nav = (id: string, label: string, icon: string, to: string, onSelect: () => void): GlobalRow => ({ id, label, icon, onSelect, to })
+  const cmd = (id: string, label: string, icon: string, onSelect: () => void): GlobalRow => ({ id, label, icon, onSelect })
+
+  const actionRows: GlobalRow[] = [
+    cmd('add', t('commandPalette.addTask'), 'i-ph-plus', actions.addTask),
+    cmd('day-close', t('commandPalette.dayClose'), 'i-ph-sun-horizon', actions.openDayClose),
   ]
+  const placeRows: GlobalRow[] = [
+    nav('today', t('commandPalette.openToday'), 'i-ph-kanban', '/tasks', actions.openToday),
+    nav('statistics', t('commandPalette.openStatistics'), 'i-ph-chart-bar', '/statistics', actions.openStatistics),
+    nav('trash', t('commandPalette.openTrash'), ICONS.delete, '/trash', actions.openTrash),
+    nav('settings', t('commandPalette.openSettings'), 'i-ph-gear', '/settings', actions.openSettings),
+  ]
+  const dataRows: GlobalRow[] = []
   if (actions.openGithubSettings) {
-    globalItems.push({ id: 'github-access', label: t('commandPalette.openGithubAccess'), icon: 'i-ph-key', onSelect: actions.openGithubSettings })
+    dataRows.push(nav('github-access', t('commandPalette.openGithubAccess'), 'i-ph-key', '/settings/github', actions.openGithubSettings))
   }
   if (actions.openDataFolder) {
-    globalItems.push({ id: 'data-folder', label: t('commandPalette.openDataFolder'), icon: 'i-ph-folder-open', onSelect: actions.openDataFolder })
+    dataRows.push(nav('data-folder', t('commandPalette.openDataFolder'), 'i-ph-folder-open', '/settings/data', actions.openDataFolder))
   }
   if (actions.openDataTransfer) {
-    globalItems.push({ id: 'data-transfer', label: t('commandPalette.openDataTransfer'), icon: 'i-ph-download-simple', onSelect: actions.openDataTransfer })
+    dataRows.push(nav('data-transfer', t('commandPalette.openDataTransfer'), 'i-ph-download-simple', '/settings/data', actions.openDataTransfer))
   }
+  // Goes to /settings/data too, but starts the reset question there: it is not "the page I am on", so no `to`
+  dataRows.push(cmd('reset-app', t('commandPalette.resetApp'), 'i-ph-eraser', actions.resetApp))
+  const appRows: GlobalRow[] = []
   if (actions.checkForUpdates) {
-    globalItems.push({ id: 'check-updates', label: t('commandPalette.checkForUpdates'), icon: 'i-ph-arrow-circle-up', onSelect: actions.checkForUpdates })
+    appRows.push(cmd('check-updates', t('commandPalette.checkForUpdates'), 'i-ph-arrow-circle-up', actions.checkForUpdates))
   }
   if (actions.openUpdates) {
-    globalItems.push({ id: 'updates', label: t('commandPalette.openUpdates'), icon: 'i-ph-info', onSelect: actions.openUpdates })
+    appRows.push(nav('updates', t('commandPalette.openUpdates'), 'i-ph-info', '/settings/updates', actions.openUpdates))
   }
   if (actions.sendFeedback) {
-    globalItems.push({ id: 'send-feedback', label: t('commandPalette.sendFeedback'), icon: 'i-ph-chat-teardrop-text', onSelect: actions.sendFeedback })
+    appRows.push(cmd('send-feedback', t('commandPalette.sendFeedback'), 'i-ph-chat-teardrop-text', actions.sendFeedback))
   }
   if (actions.openWhatsNew) {
-    globalItems.push({ id: 'whats-new', label: t('commandPalette.openWhatsNew'), icon: 'i-ph-sparkle', onSelect: actions.openWhatsNew })
+    appRows.push(cmd('whats-new', t('commandPalette.openWhatsNew'), 'i-ph-sparkle', actions.openWhatsNew))
   }
-  globalItems.push({ id: 'reset-app', label: t('commandPalette.resetApp'), icon: 'i-ph-eraser', onSelect: actions.resetApp })
-  groups.push({ id: 'global', label: t('commandPalette.groupGlobal'), items: globalItems })
+
+  const here = currentPath === null ? null : normalizePath(currentPath)
+  const globalGroups: Array<[string, string, GlobalRow[]]> = [
+    ['global-actions', t('commandPalette.groupActions'), actionRows],
+    ['global-places', t('commandPalette.groupPlaces'), placeRows],
+    ['global-data', t('commandPalette.groupData'), dataRows],
+    ['global-app', t('commandPalette.groupApp'), appRows],
+  ]
+  for (const [id, label, rows] of globalGroups) {
+    const shown = rows.filter(row => here === null || row.to !== here)
+    if (shown.length === 0) continue
+    groups.push({ id, label, items: shown.map(({ to: _to, ...item }): CommandPaletteItem => item) })
+  }
 
   // Global commands sit right under the move rows so they stay above the fold; the long list comes last
   if (cardItems) groups.push({ id: 'card', label: t('commandPalette.groupCard'), items: cardItems })
@@ -223,6 +260,7 @@ export function useCommandPalette() {
   const { t } = useI18n()
   const tasksStore = useTasksStore()
   const { moveTaskToStatus, canMoveToStatus } = useTaskOperations()
+  const route = useLiveRoute()
   const { deleteTaskWithUndo } = useTaskDeletion()
   const { moveTaskToSource } = useTaskMove()
   const boardStore = useBoardStore()
@@ -304,6 +342,7 @@ export function useCommandPalette() {
       t: t as Translate,
       task,
       canMove: canMoveToStatus,
+      currentPath: route.value.path,
       moveTargets: task
         ? buildMoveTargets({
             t: t as Translate,

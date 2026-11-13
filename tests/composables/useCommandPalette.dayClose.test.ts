@@ -1,11 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { ref } from 'vue'
 import { navigateTo } from 'nuxt/app'
 import { setActivePinia, createPinia } from 'pinia'
 import { useCommandPalette } from '~/composables/useCommandPalette'
 import { useDayClose } from '~/composables/useDayClose'
 import { resetAppResetState, useAppReset } from '~/composables/useAppReset'
 
-vi.mock('nuxt/app', () => ({ navigateTo: vi.fn() }))
+vi.mock('nuxt/app', () => ({ navigateTo: vi.fn(), useRouter: () => ({ currentRoute: ref({ path: '/tasks' }) }) }))
 vi.mock('~/composables/useTaskOperations', () => ({
   useTaskOperations: () => ({ moveTaskToStatus: vi.fn(), canMoveToStatus: () => ({ allowed: true }) }),
 }))
@@ -31,7 +32,7 @@ describe('command palette: close the day', () => {
     const dayClose = useDayClose()
     palette.isOpen.value = true // open() is client-only (import.meta.client is false in Vitest)
 
-    const global = palette.groups.value.find(g => g.id === 'global')!
+    const global = palette.groups.value.find(g => g.id === 'global-actions')!
     const item = (global.items as Item[]).find(i => i.id === 'day-close')!
     item.onSelect()
 
@@ -65,7 +66,7 @@ describe('command palette: reset the app (kd#227)', () => {
     const reset = useAppReset()
     palette.isOpen.value = true
 
-    const global = palette.groups.value.find(g => g.id === 'global')!
+    const global = palette.groups.value.find(g => g.id === 'global-data')!
     const item = (global.items as Item[]).find(i => i.id === 'reset-app')!
     item.onSelect()
 

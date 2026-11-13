@@ -2,8 +2,9 @@
 @component CommandPalette
 @kind component
 @category navigation
-@description Cmd/Ctrl+K command palette: app-wide commands (places, update, data, feedback) plus actions for the card that held
-keyboard focus when the palette opened (issue #101, Direction B; on every page since #224).
+@description Cmd/Ctrl+K command palette: app-wide commands in four groups (Aktionen, Gehe zu, Daten & Speicher, and on desktop App;
+#234) plus actions for the card that held keyboard focus when the palette opened (issue #101, Direction B; on every page since #224).
+The row that would navigate to the page the user is already on is left out (`buildCommandGroups`, `currentPath`).
 @usage Mounted once in app.vue while the app bar shows (not on /welcome); open with Cmd/Ctrl+K or the ⋯ panel's "Befehle". Desktop/keyboard only (no entry point on mobile).
 @avoid Not for pointer navigation (AppNav, MorePanel); desktop and keyboard only, there is no entry point on a phone.
 @responsibility

@@ -51,9 +51,25 @@ test.describe('Command palette', () => {
     await expect(moreButton(page)).toBeFocused()
   })
 
+  test('the global commands come in groups by kind, in order, and the board offers no row for itself (#234)', async ({ page }) => {
+    await page.keyboard.press('ControlOrMeta+k')
+    await expect(palette(page)).toBeVisible()
+    // web: no "App" group (desktop only); a dev build adds its own "Developer" group after these (extension groups keep their place)
+    await expect(palette(page).getByRole('group', { name: 'App', exact: true })).toHaveCount(0)
+    await expect(palette(page).getByRole('group').nth(0)).toContainText('Aktionen')
+    await expect(palette(page).getByRole('group').nth(1)).toContainText('Gehe zu')
+    await expect(palette(page).getByRole('group').nth(2)).toContainText('Daten & Speicher')
+    await expect(palette(page).getByRole('group', { name: 'Aktionen' }).getByRole('option')).toHaveText([/Aufgabe hinzufügen/, /Tag abschließen/])
+    await expect(palette(page).getByRole('group', { name: 'Gehe zu' }).getByRole('option')).toHaveText([/Statistik öffnen/, /Papierkorb öffnen/, /Einstellungen öffnen/])
+    await expect(palette(page).getByRole('group', { name: 'Daten & Speicher' }).getByRole('option')).toHaveText([/Daten exportieren\/importieren/, /App zurücksetzen/])
+    await expect(palette(page).getByRole('option', { name: 'Heute öffnen' })).toHaveCount(0)
+  })
+
   test('Statistik öffnen goes to the statistics page', async ({ page }) => {
     await page.keyboard.press('ControlOrMeta+k')
     await page.keyboard.type('statis')
+    // Enter runs the highlighted row: wait for the filter to settle on it (a half-typed term can highlight an earlier group's row)
+    await expect(palette(page).locator('[role="option"][data-highlighted]')).toHaveText(/Statistik öffnen/)
     await page.keyboard.press('Enter')
     await expect(page).toHaveURL(/\/statistics/)
   })
@@ -170,15 +186,28 @@ test.describe('Command palette off the board (kd#224)', () => {
     await seedLocalBoard(context)
   })
 
-  for (const path of ['/statistics', '/settings', '/settings/data', '/trash']) {
-    test(`Ctrl+K opens it on ${path} with app commands and no card commands`, async ({ page }) => {
+  // The row of the page itself is left out (#234); the other two place rows stay
+  const places: Array<{ path: string, own: string | null }> = [
+    { path: '/statistics', own: 'Statistik öffnen' },
+    { path: '/settings', own: 'Einstellungen öffnen' },
+    { path: '/settings/data', own: null }, // web: the data row is "Daten exportieren/importieren", checked below
+    { path: '/trash', own: 'Papierkorb öffnen' },
+  ]
+  for (const { path, own } of places) {
+    test(`Ctrl+K opens it on ${path} with app commands, without the row of that page and no card commands`, async ({ page }) => {
       await page.goto(path)
       await expect(page.getByTestId('app-nav')).toBeVisible()
       await page.keyboard.press('ControlOrMeta+k')
       await expect(palette(page)).toBeVisible()
-      await expect(palette(page).getByRole('option', { name: 'Heute öffnen' })).toBeVisible()
-      await expect(palette(page).getByRole('option', { name: 'Statistik öffnen' })).toBeVisible()
-      await expect(palette(page).getByRole('option', { name: 'Papierkorb öffnen' })).toBeVisible()
+      for (const name of ['Heute öffnen', 'Statistik öffnen', 'Papierkorb öffnen', 'Einstellungen öffnen']) {
+        const row = palette(page).getByRole('option', { name })
+        if (name === own) await expect(row).toHaveCount(0)
+        else await expect(row).toBeVisible()
+      }
+      if (path === '/settings/data') {
+        await expect(palette(page).getByRole('option', { name: 'Daten exportieren/importieren' })).toHaveCount(0)
+        await expect(palette(page).getByRole('option', { name: 'App zurücksetzen…' })).toBeVisible()
+      }
       await expect(palette(page).getByText('Verschieben nach Erledigt')).toHaveCount(0)
       // the "focus a task with Tab" hint belongs to the board, the only place a card can have focus
       await expect(palette(page).getByText('Mit Tab eine Aufgabe fokussieren')).toHaveCount(0)
@@ -186,6 +215,27 @@ test.describe('Command palette off the board (kd#224)', () => {
       await expect(palette(page)).toBeHidden()
     })
   }
+
+  test('rows that start something stay on every page, also on /settings/notion all rows stay (#234)', async ({ page }) => {
+    await page.goto('/settings/notion')
+    await expect(page.getByTestId('app-nav')).toBeVisible()
+    await page.keyboard.press('ControlOrMeta+k')
+    for (const name of ['Aufgabe hinzufügen', 'Tag abschließen', 'Heute öffnen', 'Statistik öffnen', 'Papierkorb öffnen', 'Einstellungen öffnen', 'Daten exportieren/importieren', 'App zurücksetzen…']) {
+      await expect(palette(page).getByRole('option', { name })).toBeVisible()
+    }
+    await page.keyboard.press('Escape')
+    await page.goto('/statistics')
+    await expect(page.getByTestId('app-nav')).toBeVisible()
+    await page.keyboard.press('ControlOrMeta+k')
+    await expect(palette(page).getByRole('option', { name: 'Heute öffnen' })).toBeVisible()
+    await expect(palette(page).getByRole('option', { name: 'Statistik öffnen' })).toHaveCount(0)
+    await expect(palette(page).getByRole('option', { name: 'Aufgabe hinzufügen' })).toBeVisible()
+    await expect(palette(page).getByRole('option', { name: 'Tag abschließen' })).toBeVisible()
+    await expect(palette(page).getByRole('option', { name: 'App zurücksetzen…' })).toBeVisible()
+    // search still finds the remaining rows
+    await page.keyboard.type('papier')
+    await expect(palette(page).getByRole('option', { name: 'Papierkorb öffnen' })).toBeVisible()
+  })
 
   test('the ⋯ panel offers Befehle off the board, as its first row, and the tooltip teaches the shortcut', async ({ page }) => {
     await page.goto('/statistics')
