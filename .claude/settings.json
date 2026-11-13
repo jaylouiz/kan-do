@@ -119,13 +119,21 @@
       "Bash(rm -rf tests/e2e/test-results)"
     ],
     "deny": [
-      "Edit(docs/copy/terms.lock.json)",
-      "Write(docs/copy/terms.lock.json)"
+      "Artifact",
+      "Edit(docs/copy/terms.lock.json)"
     ]
   },
   "worktree": {
     "symlinkDirectories": [
       "node_modules"
     ]
+  },
+  "enabledPlugins": {
+    "playwright@claude-plugins-official": false,
+    "visual-explainer@visual-explainer-marketplace": false,
+    "diagram-design@diagram-design": false
+  },
+  "skillOverrides": {
+    "diagram-design": "off"
   }
 }
