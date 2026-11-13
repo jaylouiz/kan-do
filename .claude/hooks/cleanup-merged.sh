@@ -12,7 +12,8 @@
 #   package-lock.json alone: worktree setup (`npm install` with local npm 11.6) rewrites it,
 #   it is never part of the PR, so it is discarded
 # - Orca-managed worktrees are removed via `orca worktree rm` so Orca's sidebar stays in sync
-# - proto/<n>-* branches (throwaway design prototypes, never merged) go once issue #<n> is closed;
+# - proto/<n>-* branches (throwaway design prototypes, never merged) go once issue #<n> is closed
+#   and no open issue names the branch in its body any more (a prototype shared by a design batch);
 #   those of open issues stay as the Design record. Never merged, so instead of a merge check a
 #   local tip missing from origin (unpushed commits) is skipped and reported.
 # - the main checkout and `main` itself are never touched, nor a worktree somebody works in (kd#203): the
@@ -125,6 +126,16 @@ if [ -n "$CLOSED" ]; then
     [ -n "$branch" ] || continue
     n="$(printf '%s' "$branch" | sed -n 's|^proto/\([0-9][0-9]*\)-.*|\1|p')"
     [ -n "$n" ] && printf '%s\n' "$CLOSED" | grep -qx "$n" || continue
+    # A shared prototype (design batch: several issues on one surface) stays while an open issue still names
+    # the branch in its body (the `## UX decision` "Prototype:" line). Open bodies are read once, from the API
+    # and not the search index (a fresh edit is not indexed yet); if they cannot be read, nothing is deleted.
+    if [ -z "${OPEN_BODIES_READ:-}" ]; then
+      OPEN_BODIES_READ=1
+      OPEN_BODIES="$(gh issue list --state open --limit 500 --json number,body 2>/dev/null)" || OPEN_BODIES=""
+    fi
+    [ -n "$OPEN_BODIES" ] || { skipped+=("$branch (open issues unreadable)"); continue; }
+    linked="$(printf '%s' "$OPEN_BODIES" | jq -r --arg b "$branch" '[.[] | select((.body // "") | contains($b)) | "#\(.number)"] | join(" ")' 2>/dev/null)"
+    [ -z "$linked" ] || { skipped+=("$branch (still linked by open $linked)"); continue; }
     if git show-ref --verify --quiet "refs/heads/$branch"; then
       if git show-ref --verify --quiet "refs/remotes/origin/$branch"; then
         git merge-base --is-ancestor "refs/heads/$branch" "refs/remotes/origin/$branch" 2>/dev/null \
