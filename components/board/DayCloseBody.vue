@@ -2,133 +2,74 @@
 @component DayCloseBody
 @kind block
 @category display
-@description Scrolling content of the closing step (#98): what got done today, what is not done yet, one closing line.
+@description Scrolling content of the closing sheet (#98, #237): the day in one look (date, headline, total time, time-box bar), what got done today, and what stays on the board for tomorrow.
 @usage Hosted by DayCloseDialog (modal and drawer share it). Reads the local cache only; a sync that lands while it is open updates the lists in place.
 @avoid Not standalone: hosted by DayCloseDialog (modal and drawer share it); the start-of-day look back is NewDayRecap.
 @responsibility
-- Recap line and the quiet list of tasks completed today with their time (no archived, nothing from earlier days)
-- "Noch nicht erledigt": Offen, Jetzt and Wartet as plain rows (not draggable, not links), carry-over dots, the #99 triage block (compact) for Offen/Jetzt past the threshold
-- One muted line under the list when something is in Jetzt: "Fertig" puts it back to Offen (the move itself lives in useDayClose.finish)
-- Closing line chosen by local date
-- Emits `smaller` so the host can close and open the task sheet; Delete goes through useTaskDeletion. The board's gap sits behind the modal, so a deleted row is answered here by one line ("Im Papierkorb", "Rückgängig") until its window ends (#422)
+- DayCloseSummary on top, then today's done tasks as DayCloseTaskRow (no archived, nothing from earlier days)
+- "Für morgen": one sentence with the number of tasks that stay, and a native `<details>` ("Offene Aufgaben anzeigen") with one DayCloseOpenRow and checkbox per Offen, Jetzt or Wartet task, all selected by default; nothing open: one quiet line, no section
+- The choice lives in useDayClose (deselected ids, cleared on open); only "Fertig" acts on it (trash for a deselected task, Jetzt back to Offen otherwise)
+- The sheet scrolls as one, there is no inner scroll area; opening the list scrolls its header to the top; no motivation sentence
 -->
 <template>
-  <div class="flex flex-col gap-8">
-    <section :aria-labelledby="doneHeadingId">
-      <SectionHeader :id="doneHeadingId" tag="h3" tone="muted">{{ t('dayClose.doneHeading') }}</SectionHeader>
-      <p class="mt-1 text-body text-toned" data-testid="day-close-recap">{{ recap }}</p>
-      <ul
-        v-if="done.length > 0"
-        class="mt-3 divide-y divide-default"
-        :aria-label="t('dayClose.doneListLabel', { n: done.length }, done.length)"
-      >
-        <ListRow
-          v-for="task in done"
-          :key="task.id"
-          class="text-sm text-toned"
-          data-testid="day-close-done-row"
-        >
-          <UIcon name="i-ph-check" class="size-4 shrink-0 text-muted" aria-hidden="true" />
-          <span class="min-w-0 flex-1 wrap-break-word" data-private>{{ task.title }}</span>
-          <span v-if="task.timeSpentSeconds > 0" class="shrink-0 text-muted tabular-nums">
-            {{ formatDuration(task.timeSpentSeconds, 'spaced') }}
-          </span>
-        </ListRow>
-      </ul>
-    </section>
+  <div class="flex flex-col gap-7">
+    <DayCloseSummary :done="done" :open-count="inFlight.length" :total-seconds="totalSeconds" />
 
-    <section :aria-labelledby="inFlightHeadingId">
-      <SectionHeader :id="inFlightHeadingId" tag="h3" tone="muted">{{ t('dayClose.inFlightHeading') }}</SectionHeader>
-      <p v-if="inFlight.length === 0 && rowGaps.length === 0" class="mt-1 text-body text-toned">{{ t('dayClose.nothingInFlight') }}</p>
-      <ul
-        v-else
-        class="mt-3 divide-y divide-default"
-        :aria-label="t('dayClose.inFlightListLabel', { n: inFlight.length }, inFlight.length)"
-      >
-        <DayCloseTaskRow
-          v-for="task in inFlight"
-          :key="task.id"
-          :task="task"
-          @smaller="emit('smaller', task.id)"
-        />
-        <!-- A delete from this dialog (#422): the board's gap sits behind the modal, so the row answers here, same copy -->
-        <ListRow
-          v-for="gap in rowGaps"
-          :key="gap.taskId"
-          class="text-sm text-toned"
-          data-testid="day-close-deleted-row"
-          @pointerenter="hold(gap.taskId, 'pointer', true)"
-          @pointerleave="hold(gap.taskId, 'pointer', false)"
-          @focusin="hold(gap.taskId, 'focus', true)"
-          @focusout="onFocusOut(gap.taskId, $event)"
-        >
-          <UIcon :name="ICONS.delete" class="size-4 shrink-0" aria-hidden="true" />
-          <span class="min-w-0 flex-1 wrap-break-word">{{ t('trash.inTrash') }}</span>
-          <UButton
-            color="neutral"
-            variant="soft"
-            class="shrink-0"
-            :aria-label="t('trash.undoNamed', { title: gap.task.title })"
-            @click="undoDelete(gap.taskId)"
-          >
-            {{ t('common.undo') }}
-          </UButton>
-        </ListRow>
-      </ul>
-      <p v-if="progress.length > 0" class="mt-4 text-sm text-muted" data-testid="day-close-put-back-hint">{{ putBackHint }}</p>
-    </section>
+    <ul
+      v-if="done.length > 0"
+      class="divide-y divide-default"
+      :aria-label="t('dayClose.doneListLabel', { n: done.length }, done.length)"
+    >
+      <DayCloseTaskRow v-for="task in done" :key="task.id" :task="task" />
+    </ul>
 
-    <p class="text-lg leading-(--lh-body) text-highlighted" data-testid="day-close-closing-line">{{ closingLine }}</p>
+    <section v-if="inFlight.length > 0" :aria-labelledby="tomorrowHeadingId" data-testid="day-close-tomorrow-section">
+      <SectionHeader :id="tomorrowHeadingId" tag="h3" size="sub">{{ t('dayClose.tomorrowHeading') }}</SectionHeader>
+      <p class="mt-1 text-body text-toned" data-testid="day-close-tomorrow">{{ t('dayClose.tomorrow', { n: keptCount }, keptCount) }}</p>
+      <details class="group mt-2" data-testid="day-close-open-details" @toggle="revealList">
+        <summary class="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-md text-sm text-toned focus-ring">
+          <UIcon :name="ICONS.forward" class="size-4 shrink-0 transition-transform group-open:rotate-90" aria-hidden="true" />
+          {{ t('dayClose.showOpen') }}
+        </summary>
+        <ul class="mt-1 divide-y divide-default" :aria-label="t('dayClose.openListLabel')">
+          <DayCloseOpenRow
+            v-for="task in inFlight"
+            :key="task.id"
+            :task="task"
+            :kept="isKept(task.id)"
+            @update:kept="setKept(task.id, $event)"
+          />
+        </ul>
+      </details>
+    </section>
+    <p v-else-if="done.length > 0" class="text-body text-toned" data-testid="day-close-nothing-open">{{ t('dayClose.nothingInFlight') }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
-import ListRow from '~/components/ui/ListRow.vue'
 import SectionHeader from '~/components/ui/SectionHeader.vue'
 import { ICONS } from '~/lib/icons'
 import { computed, useId } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useDayCloseData } from '~/composables/useDayClose'
-import { useLocaleFormat } from '~/composables/useLocaleFormat'
-import { closingLineIndex } from '~/utils/dayClose'
-import { localDateKey } from '~/utils/carryOver'
+import { useDayClose, useDayCloseData } from '~/composables/useDayClose'
+import DayCloseOpenRow from '~/components/board/DayCloseOpenRow.vue'
+import DayCloseSummary from '~/components/board/DayCloseSummary.vue'
 import DayCloseTaskRow from '~/components/board/DayCloseTaskRow.vue'
-import { useDeletedGaps } from '~/composables/useDeletedGaps'
-import { useDeleteHold } from '~/composables/useDeleteHold'
-import { useTaskDeletion } from '~/composables/useTaskDeletion'
-import { TaskStatus } from '~/types/taskStatus'
 
 defineOptions({ name: 'DayCloseBody' })
 
-const emit = defineEmits<{
-  /** The user chose "Make smaller" on a card: the host closes the dialog and opens the task sheet. */
-  smaller: [taskId: string]
-}>()
-
 const { t } = useI18n()
-const { formatDuration } = useLocaleFormat()
-const { done, totalSeconds, inFlight, progress } = useDayCloseData()
-const { undoDelete } = useTaskDeletion()
-const { hold, onFocusOut } = useDeleteHold()
-const { gaps } = useDeletedGaps()
-/** Deletes inside their undo window that came from a row of this list (not from Erledigt) */
-const rowGaps = computed(() => gaps.value.filter(gap => gap.state === 'open' && gap.fromStatus !== TaskStatus.Done))
+const { done, totalSeconds, inFlight } = useDayCloseData()
+const { isKept, setKept } = useDayClose()
 
-const doneHeadingId = useId()
-const inFlightHeadingId = useId()
+const tomorrowHeadingId = useId()
 
-const recap = computed(() => {
-  if (done.value.length === 0) return t('dayClose.nothingDone')
-  return totalSeconds.value > 0
-    ? t('dayClose.recap', { n: done.value.length, time: formatDuration(totalSeconds.value, 'spaced') })
-    : t('dayClose.recapNoTime', { n: done.value.length })
-})
+/** Opening the list brings its header to the top of the scrolling sheet: on a phone the rows would otherwise sit below the fold. */
+function revealList(event: Event) {
+  const details = event.target as HTMLDetailsElement
+  if (details.open) details.scrollIntoView({ block: 'start' })
+}
 
-const putBackHint = computed(() =>
-  t('dayClose.putBackHint', { title: progress.value[0]?.title ?? '', n: progress.value.length }, progress.value.length),
-)
-
-// Captured when the dialog mounts (it mounts on open): stable while it is open, even across midnight.
-const closingLineKey = `dayClose.closing.line${closingLineIndex(localDateKey())}`
-const closingLine = computed(() => t(closingLineKey))
+/** Open tasks that carry on to tomorrow: every one that is not deselected. */
+const keptCount = computed(() => inFlight.value.filter(task => isKept(task.id)).length)
 </script>

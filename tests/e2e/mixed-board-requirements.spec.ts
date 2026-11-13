@@ -112,6 +112,7 @@ test('requirements sections 1-10 hold on one mixed board', async ({ context, pag
   await expect(card(page, 'Walk: lokal angelegt')).toBeVisible()
   await openDayClose(page)
   const dayClose = page.getByRole('dialog', { name: 'Tag abschließen' })
+  await dayClose.getByTestId('day-close-open-details').locator('summary').click() // the open tasks sit in the "Für morgen" list
   await expect(dayClose.getByText('Walk: lokal angelegt')).toBeVisible()
   await expect(dayClose.getByText('Fokusaufgabe vorbereiten')).toBeVisible()
   await expect(dayClose.getByTestId('task-source-icon')).toHaveCount(0)

@@ -214,6 +214,15 @@ export function deleteLabelKey(source: SourceId): string {
   }
 }
 
+/** i18n key of the closing sheet's "goes to the trash" line for a deselected task: it names the source that is deleted from too (#237). */
+export function deleteTrashKey(source: SourceId): string {
+  switch (source) {
+    case 'notion': return 'dayClose.trash.notion'
+    case 'todoist': return 'dayClose.trash.todoist'
+    default: return 'dayClose.trash.local'
+  }
+}
+
 /** Display name of an integration. Brand names are not translated. */
 export function integrationLabel(source: IntegrationSourceId): string {
   return source === 'notion' ? 'Notion' : 'Todoist'

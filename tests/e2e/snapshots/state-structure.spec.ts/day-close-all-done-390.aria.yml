@@ -1,0 +1,20 @@
+- dialog "Tag abschließen":
+  - heading "Tag abschließen" [level=2]
+  - paragraph: Rückblick auf heute und was noch auf dem Board liegt.
+  - status
+  - paragraph: /Montag, \d+\. Juni/
+  - heading "Alle Aufgaben erledigt" [level=3]
+  - paragraph: "Gesamtzeit: 2 h"
+  - paragraph: 1 von 2 Timeboxen eingehalten
+  - list "2 heute erledigte Aufgaben":
+    - listitem:
+      - paragraph: Angebot schreiben
+      - paragraph: /Erledigt · \d+ Min über der Timebox/
+      - text: /1 h \d+ min/
+    - listitem:
+      - paragraph: Steuerunterlagen sortieren
+      - paragraph: /Erledigt · \d+ Min unter der Timebox/
+      - text: /\d+ min/
+  - paragraph: Nichts mehr offen.
+  - button "Zusammenfassung kopieren"
+  - button "Fertig"

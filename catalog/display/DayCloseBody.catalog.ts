@@ -4,7 +4,7 @@ import type { CatalogEntry } from '../types'
 export default {
   component: 'DayCloseBody',
   source: 'app',
-  alternatives: ['DayCloseTaskRow'],
+  alternatives: ['DayCloseSummary', 'DayCloseTaskRow'],
   host: 'board',
   screen: '/tasks',
   variants: [{ id: 'demo', label: 'end of the day on the demo board' }],

@@ -49,8 +49,6 @@ describe('line heights come from the size tokens (DESIGN.md "Type")', () => {
     expect(hits(/\bleading-[\w.()[\]-]+/g, shipped, {
       // The clock in the ring is one line in a fixed box at two sizes
       'components/statistics/StatsTimeSplit.vue: leading-(--lh-tight)': 'single-line figure in the donut',
-      // The closing line is the one 18 px reading sentence: body line height on the subhead size (kd#176)
-      'components/board/DayCloseBody.vue: leading-(--lh-body)': 'closing line of the end-of-day dialog',
     })).toEqual([])
     expect([...config.matchAll(/\bleading-[\w.()[\]-]+/g)].map(m => m[0])).toEqual([])
   })
