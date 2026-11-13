@@ -70,13 +70,24 @@ test.describe('Add slot, desktop', () => {
       expect(Math.round(button.height)).toBe(32);
       await expect(add).toHaveCSS('border-top-left-radius', '9999px');
       await expect(add).not.toHaveCSS('background-color', TRANSPARENT);
-      // The cards' right edge, and the centre of the title line
-      expect(Math.abs(button.x + button.width - (card.x + card.width))).toBeLessThanOrEqual(1);
+      // The cards' left edge (#264), and the centre of the title line
+      expect(Math.abs(button.x - card.x)).toBeLessThanOrEqual(1);
       expect(Math.abs(button.y + button.height / 2 - (title.y + title.height / 2))).toBeLessThanOrEqual(1);
       // Never over the title, which stays centred on the cards like the other columns' titles
-      expect(button.x).toBeGreaterThanOrEqual(title.x + title.width);
+      expect(button.x + button.width).toBeLessThanOrEqual(title.x);
       expect(Math.abs(title.x + title.width / 2 - (card.x + card.width / 2))).toBeLessThanOrEqual(1);
       await expect(page.locator('#column-progress, #column-waiting, #column-done').getByRole('button', { name: 'Aufgabe hinzufügen' })).toHaveCount(0);
+    });
+
+    test('hovering or focusing the header button shows a tooltip with its name; none while it is disabled (#264)', async ({ page }) => {
+      const add = headerAdd(page);
+      await add.hover();
+      await expect(page.getByRole('tooltip')).toHaveText('Aufgabe hinzufügen');
+      await parkPointer(page);
+      await expect(page.getByRole('tooltip')).toHaveCount(0);
+      await page.keyboard.press('Tab'); // any focus move; then focus the button by keyboard
+      await add.focus();
+      await expect(page.getByRole('tooltip')).toHaveText('Aufgabe hinzufügen');
     });
 
     test('Offen list has no add control or reserved box: the first card sits at the top of the list, the list ends with its last card (#248)', async ({ page }) => {
@@ -413,7 +424,7 @@ test.describe('Add slot, desktop', () => {
 test.describe('Add slot, 390px', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test('Offen: no sticky bar; the round header button (44px, cards\' right edge) shows the draft at the top (#248)', async ({ context, page }) => {
+  test('Offen: no sticky bar; the round header button (44px, cards\' left edge) shows the draft at the top (#248)', async ({ context, page }) => {
     await seedLocalBoard(context, EMPTY_JETZT);
     await page.goto('/tasks');
     await showColumnPage(page, 0);
@@ -429,9 +440,14 @@ test.describe('Add slot, 390px', () => {
     const cardBefore = await box(firstCard);
     expect(Math.round(button.width)).toBe(44);
     expect(Math.round(button.height)).toBe(44);
-    expect(Math.abs(button.x + button.width - (cardBefore.x + cardBefore.width))).toBeLessThanOrEqual(1);
+    expect(Math.abs(button.x - cardBefore.x)).toBeLessThanOrEqual(1);
     const title = await box(offen(page).locator('h2'));
-    expect(button.x).toBeGreaterThanOrEqual(title.x + title.width);
+    expect(button.x + button.width).toBeLessThanOrEqual(title.x);
+    expect(Math.abs(title.x + title.width / 2 - (cardBefore.x + cardBefore.width / 2))).toBeLessThanOrEqual(1);
+    // No hover on the phone layout: no tooltip even on focus (#264)
+    await add.focus();
+    await page.waitForTimeout(700);
+    await expect(page.getByRole('tooltip')).toHaveCount(0);
 
     await add.click();
     const card = newCard(offen(page));

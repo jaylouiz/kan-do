@@ -9,10 +9,15 @@ const UButton = {
   emits: ['click'],
   template: '<button type="button" :disabled="disabled" @click="$emit(\'click\', $event)"><slot /></button>',
 }
+// Shows its props as attributes so the test reads the tooltip text and its disabled flag
+const UTooltip = {
+  props: ['text', 'disabled'],
+  template: '<span data-testid="tip" :data-text="text" :data-disabled="String(!!disabled)"><slot /></span>',
+}
 const render = (props: Record<string, unknown> = {}) =>
   mount(BoardColumnHeader, {
     props: { title: 'Offen', status: TaskStatus.Open, taskCount: 0, ...props },
-    global: { stubs: { UButton, UIcon: true } },
+    global: { stubs: { UButton, UTooltip, UIcon: true } },
   })
 
 describe('BoardColumnHeader add button (#248)', () => {
@@ -38,5 +43,11 @@ describe('BoardColumnHeader add button (#248)', () => {
     expect(button.attributes('disabled')).toBeDefined()
     await button.trigger('click')
     expect(w.emitted('add')).toBeUndefined()
+  })
+
+  it('wraps the button in a tooltip with its name (#264)', () => {
+    const tip = render({ showAdd: true }).find('[data-testid="tip"]')
+    expect(tip.attributes('data-text')).toBe('Aufgabe hinzufügen')
+    expect(tip.find('[data-testid="add-task-header-button"]').exists()).toBe(true)
   })
 })
