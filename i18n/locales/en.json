@@ -296,10 +296,10 @@
       "keep": "Keep",
       "smaller": "Make smaller",
       "smallerHint": "What is the first small step?",
-      "question": "This task has been planned for {n} days. Does it really matter?",
+      "question": "This task has been planned for {n} day. Does it really matter? | This task has been planned for {n} days. Does it really matter?",
       "keepYes": "Yes, keep it",
       "deleteNo": "No, delete it",
-      "kept": "The task stays on your board",
+      "kept": "The task stays on your board.",
       "keptTip": "Tip: Start by planning the smallest possible first step."
     },
     "property": {

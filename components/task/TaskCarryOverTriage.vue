@@ -39,7 +39,7 @@ Standalone so the closing step (#98) can list it under "still open". Renders not
         </div>
       </div>
       <template v-if="!kept">
-        <p :id="headingId" class="text-body text-highlighted">{{ t('task.carryOver.question', { n: displayDay }) }}</p>
+        <p :id="headingId" class="text-body text-highlighted">{{ t('task.carryOver.question', { n: displayDay }, displayDay) }}</p>
         <div class="mt-3 flex flex-wrap items-center gap-2">
           <UButton
             color="neutral"
