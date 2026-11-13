@@ -283,30 +283,29 @@ test.describe('the command palette and Jetzt are source-blind (#325)', () => {
     await expect(column(page, 'progress').locator('.task-wrapper')).toHaveCount(1)
     await expect(column(page, 'progress').getByText('Review Team Updates')).toBeVisible() // Notion in Jetzt
 
-    // 1. A Local task cannot enter Jetzt while a Notion task holds it
+    // 1. A Local task takes Jetzt over from the running Notion task by swap (#241); Notion is told, Jetzt holds one task
     await openPaletteOn(page, LOCAL_TITLE)
     const jetzt = palette(page).getByRole('option', { name: /Verschieben nach Jetzt/ })
-    await expect(jetzt).toContainText('Jetzt belegt')
-    await expect(jetzt).toHaveAttribute('data-disabled')
-    await page.keyboard.press('Escape')
-    await expect(palette(page)).toBeHidden()
-
-    // 2. The Notion task leaves Jetzt (palette, Notion is told); now the Local one may enter
-    await openPaletteOn(page, 'Review Team Updates')
-    await runPaletteCommand(page, 'Wartet', /Verschieben nach Wartet/)
-    await expect(column(page, 'waiting').getByText('Review Team Updates')).toBeVisible()
-    await expect.poll(() => callsFor(updates, 'page-2').length).toBeGreaterThan(0)
-
-    await openPaletteOn(page, LOCAL_TITLE)
+    await expect(jetzt).not.toContainText('Jetzt belegt')
+    await expect(jetzt).not.toHaveAttribute('data-disabled')
     await runPaletteCommand(page, 'Jetzt', /Verschieben nach Jetzt/)
     await expect(column(page, 'progress').getByText(LOCAL_TITLE)).toBeVisible()
     await expect(column(page, 'progress').locator('.task-wrapper')).toHaveCount(1)
+    await expect(column(page, 'waiting').getByText('Review Team Updates')).toBeVisible()
+    await expect.poll(() => callsFor(updates, 'page-2').length).toBeGreaterThan(0)
 
-    // 3. Now the Notion task is the one that is refused
+    // 2. The other way round: a Notion task takes it back from the Local one (Local goes to Wartet), still one task in Jetzt
     await openPaletteOn(page, NOTION_TITLE)
-    const second = palette(page).getByRole('option', { name: /Verschieben nach Jetzt/ })
-    await expect(second).toContainText('Jetzt belegt')
-    await page.keyboard.press('Escape')
+    await runPaletteCommand(page, 'Jetzt', /Verschieben nach Jetzt/)
+    await expect(column(page, 'progress').locator('.task-wrapper')).toHaveCount(1)
+    await expect(column(page, 'progress').getByText(NOTION_TITLE)).toBeVisible()
+    await expect(column(page, 'waiting').getByText(LOCAL_TITLE)).toBeVisible()
+    await expect.poll(() => callsFor(updates, 'page-1').length).toBeGreaterThan(0)
+
+    // 3. Local takes it again, so step 4 reads a Local task in Jetzt
+    await openPaletteOn(page, LOCAL_TITLE)
+    await runPaletteCommand(page, 'Jetzt', /Verschieben nach Jetzt/)
+    await expect(column(page, 'progress').getByText(LOCAL_TITLE)).toBeVisible()
     await expect(column(page, 'progress').locator('.task-wrapper')).toHaveCount(1)
 
     // 4. The Local task in Jetzt runs a timer like any other: time is counted

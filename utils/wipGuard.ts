@@ -1,8 +1,8 @@
 /**
  * @module wipGuard
  * @description The single WIP rule for the board: "Jetzt" holds at most one task.
- * Context menu, detail sheet, command palette (all via `useTaskOperations.moveTaskToStatus`)
- * and drag-and-drop (`useBoardDndKit`) all ask this function.
+ * Context menu, detail sheet, command palette (all via `useTaskOperations.moveTaskToStatus`, or
+ * `moveOrSwapToStatus` when a swap may apply) and drag-and-drop (`useBoardDndKit`) all ask this function.
  */
 import { TaskStatus } from '~/types/taskStatus'
 
@@ -45,7 +45,8 @@ export interface SwapInput {
  * Pure check (#162): may one task from Offen or Wartet take over a "Jetzt" that holds exactly one other
  * task, which then moves to Wartet? Only for a single card: a stack never fits "Jetzt", and a task
  * from Erledigt stays refused (its completion, statistics and undo are not part of a swap).
- * `checkWipMove` is unchanged: menus, the palette and the add flow still refuse a full "Jetzt".
+ * `checkWipMove` is unchanged and still refuses a full "Jetzt"; the context menu, the palette and the sheet try the swap
+ * first (`useTaskOperations.moveOrSwapToStatus`, #241) and fall back to it, the add flow, bulk moves and day close only use it.
  */
 export function canSwapIntoProgress({ incomingStatus, progressCount, taskCount = 1 }: SwapInput): boolean {
   if (taskCount !== 1) return false

@@ -7,6 +7,7 @@ import { useErrorHandler } from '~/composables/useErrorHandler';
 import { translate } from '~/lib/i18n';
 import { useCompletionUndo } from '~/composables/useCompletionUndo';
 import { useTaskDeletion } from '~/composables/useTaskDeletion';
+import { useTaskSwap } from '~/composables/useTaskSwap';
 import { stopTaskTimer } from '~/composables/useTaskTimerDriver';
 import { checkWipMove, type WipVerdict } from '~/utils/wipGuard';
 import { useToast } from '#imports';
@@ -22,6 +23,7 @@ export const useTaskOperations = () => {
   const { handleError } = useErrorHandler();
   const { captureCompletionSnapshot, notifyCompleted } = useCompletionUndo();
   const { deleteTaskWithUndo } = useTaskDeletion();
+  const { swapIntoProgress, swapPartnerOf } = useTaskSwap();
   const toast = useToast();
 
   /**
@@ -116,6 +118,28 @@ export const useTaskOperations = () => {
   };
 
   /**
+   * Like `canMoveToStatus`, but a full Jetzt that the task may take over by swap (#162, #241) counts as allowed.
+   * Context menu, palette and sheet use it to enable the "Jetzt" entry; the add flow, bulk moves and day close
+   * keep asking `canMoveToStatus` (a full Jetzt refuses there on purpose).
+   */
+  const canMoveOrSwapToStatus = (taskId: string, newStatus: TaskStatus): WipVerdict => {
+    if (newStatus === TaskStatus.Progress && swapPartnerOf(taskId) !== null) return { allowed: true };
+    return canMoveToStatus(taskId, newStatus);
+  };
+
+  /**
+   * The path for "put this task in Jetzt" from the context menu, the palette and the task sheet (#241): when
+   * Jetzt holds one task and this one may take it over, `useTaskSwap` swaps (one undo toast); otherwise exactly
+   * `moveTaskToStatus` (guarded move, refusal toast). The decision is read from the store now, never from what the
+   * caller showed, so a stale menu falls through to the refusal. The WIP rule itself stays in `utils/wipGuard.ts`.
+   * Returns false when nothing moved.
+   */
+  const moveOrSwapToStatus = async (taskId: string, newStatus: TaskStatus): Promise<boolean> => {
+    if (newStatus === TaskStatus.Progress && swapPartnerOf(taskId) !== null && swapIntoProgress(taskId)) return true;
+    return moveTaskToStatus(taskId, newStatus);
+  };
+
+  /**
    * Bulk updates multiple tasks
    */
   const bulkUpdateTasks = async (taskIds: string[], updates: Partial<Task>): Promise<void> => {
@@ -193,6 +217,8 @@ export const useTaskOperations = () => {
     toggleTaskCompletion,
     moveTaskToStatus,
     canMoveToStatus,
+    moveOrSwapToStatus,
+    canMoveOrSwapToStatus,
     notifyWipRefused,
     bulkUpdateTasks,
     deleteTask,

@@ -29,7 +29,7 @@ export const useTaskContextMenu = (
   menuOptions: UseTaskContextMenuOptions = {}
 ) => {
   const tasksStore = useTasksStore();
-  const { moveTaskToStatus, canMoveToStatus } = useTaskOperations();
+  const { moveOrSwapToStatus, canMoveOrSwapToStatus } = useTaskOperations();
   const { deleteTaskWithUndo } = useTaskDeletion();
   const { targets: moveTargets, move: moveToSource } = useTaskMoveTargets(task);
   const { t } = useI18n();
@@ -55,7 +55,7 @@ export const useTaskContextMenu = (
    */
   const changeStatus = async (newStatus: TaskStatus) => {
     if (task.value.status !== newStatus) {
-      await moveTaskToStatus(task.value.id, newStatus);
+      await moveOrSwapToStatus(task.value.id, newStatus);
     }
   };
 
@@ -121,8 +121,8 @@ export const useTaskContextMenu = (
     // Group 3: Status change submenu
 
     const statusChildren: ContextMenuItem[] = STATUS_OPTIONS.map((opt) => {
-      // Disable if: already in this status OR trying to move to Progress when at limit
-      const isDisabledByWip = !canMoveToStatus(currentTask.id, opt.status).allowed;
+      // Disable if: already in this status OR trying to move to Progress when at limit and no swap applies (#241)
+      const isDisabledByWip = !canMoveOrSwapToStatus(currentTask.id, opt.status).allowed;
 
       return {
         label: isDisabledByWip 
