@@ -37,6 +37,9 @@
     <component :is="CopyEditorHost" v-if="CopyEditorHost" />
     <!-- The command palette on every page with an app bar (#224); `useCommandPalette` holds the state, so one instance only -->
     <CommandPalette v-if="showsBar" />
+    <!-- Where the new-day recap stage lands (NewDayRecap.vue, #262): inside the app's stacking context, so the bar (z-bar)
+         paints above the photo, yet outside the inert <main> -->
+    <div id="recap-stage-host" />
     <UpdateDialog v-if="updaterAvailable" />
     <WhatsNewDialog v-if="updaterAvailable" />
   </UApp>

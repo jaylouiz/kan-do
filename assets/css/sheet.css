@@ -49,16 +49,26 @@
   /* Backdrop on the board side: the sheet overlay is transparent via `bg-transparent` in TaskSheet.vue (load-bearing: without it the global modal scrim would also dim the open card; it still catches outside clicks
      and traps focus), so the open card is never dimmed by a scrim. The darkening is a layer inside
      the isolated .board, above its page background and below every card and heading. The opacity
-     transition lives on the pseudo-element, never on .board itself (DnD invariant). */
+     transition lives on the pseudo-element, never on .board itself (DnD invariant). On desktop it reaches up over the
+     sticky app bar row (#262: the row sits above the board in the flow, so at scroll 0 it showed undimmed paper, a band
+     with a hard edge; scrolled down the dimmed board passes under the bar). It reaches up a full viewport height, not
+     the bar's own height: DataStorageNotice can sit between the bar and the board, and the clipped overflow above the
+     page top is not scrollable. 0 on a phone: the bar is at the bottom. */
   .board::before {
     content: '';
     position: absolute;
-    inset: 0;
+    inset: calc(var(--sheet-dim-reach, 100vh) * -1) 0 0 0;
     z-index: -1;
     background-color: var(--overlay-scrim);
     opacity: 0;
     pointer-events: none;
     transition: opacity var(--sheet-fade-duration) var(--sheet-fade-easing);
+  }
+
+  @media (--phone) {
+    .board::before {
+      --sheet-dim-reach: 0px;
+    }
   }
 
   .board-container[data-sheet-task-id] .board:not(.dragging)::before {

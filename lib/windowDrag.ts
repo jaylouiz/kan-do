@@ -2,7 +2,7 @@
  * @module windowDrag
  * @description Window dragging under full-screen layers (#614). The desktop window has no title bar; the `.titlebar`
  * strip in `app.vue` is the drag area, but every full-screen layer covers it, so with a task sheet, dialog or the
- * new-day recap (until #245, then a full-page layer) open the window could not be moved, where a native title bar always could. A press on the layer's top
+ * new-day recap open the window could not be moved, where a native title bar always could. A press on the layer's top
  * row, the height of the bar row, starts the drag instead (`plugins/desktop-shell.client.ts`).
  * Two kinds of layer count: Nuxt UI overlay scrims (`data-slot="overlay"`, the press must hit the scrim itself, never
  * the dialog beside it) and any custom layer that carries `data-window-drag-layer` (a press on its empty area counts,
@@ -13,7 +13,7 @@
 
 /** Nuxt UI marks every overlay scrim with `data-slot="overlay"`. */
 const SCRIM_SELECTOR = '[data-slot="overlay"]'
-/** Marker for a custom full-screen layer (none today: the new-day recap is a stage below the bar row since #245, so it needs none) that should hand its bar row to the window drag. */
+/** Marker for a custom full-screen layer (today the new-day recap stage, which since #262 runs behind the bar row) that should hand its bar row to the window drag. */
 const LAYER_SELECTOR = '[data-window-drag-layer]'
 const INTERACTIVE_SELECTOR = 'a, button, input, select, textarea, summary, label, [role="button"], [contenteditable]'
 

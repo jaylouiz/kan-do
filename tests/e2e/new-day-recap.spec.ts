@@ -2,6 +2,7 @@ import { test, expect, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { settleAnimations } from './helpers/settle'
 import { appNav, goToPlace, openSettings } from './helpers/appNav'
+import { expectContrast } from './helpers/contrast'
 import {
   MIXED_SEED_TASKS, atDaysAgo, dayKeyDaysAgo, newDayTasks, seedDayRecapStore, seedMixedBoard, seedNewDayBoard,
   type SeedTask,
@@ -526,6 +527,30 @@ test.describe('New-day recap (#385)', () => {
       return { corner: at(8, innerHeight - 8) }
     })
     expect(top.corner).toBe('new-day-recap')
+  })
+
+  test('the photo runs behind the app bar: no paper band, no veil, the brand and labels stay readable (#262)', async ({ page, context }) => {
+    await seedNewDayBoard(context)
+    await page.goto('/tasks')
+    await expect(recap(page)).toBeVisible()
+    await expect(page.getByTestId('recap-photo')).toHaveCSS('opacity', '1')
+    const hit = await page.evaluate(() => {
+      const at = (x: number, y: number) => document.elementFromPoint(x, y)?.closest('[data-testid="new-day-recap"], [data-testid="app-nav"]')?.getAttribute('data-testid') ?? null
+      const pill = document.querySelector('[data-testid="app-nav-place-board"]')!.getBoundingClientRect()
+      return { row: at(8, 8), pill: at(pill.x + pill.width / 2, pill.y + pill.height / 2) }
+    })
+    // The stage reaches the window's top edge (the row above the photo was the page paper); the pills stay above it
+    expect(hit).toEqual({ row: 'new-day-recap', pill: 'app-nav' })
+    // The bar's paper veil steps back, so it does not wash the photo
+    await expect.poll(() => appNav(page).evaluate(el => getComputedStyle(el, '::before').opacity)).toBe('0')
+    // The brand has no pill: it is read straight on the photo
+    await expectContrast(page, appNav(page).locator('.app-nav-brand-text'), 4.5)
+    await expectContrast(page, page.getByTestId('app-nav-place-board'), 4.5)
+    await expectContrast(page, page.getByTestId('app-nav-place-statistics'), 4.5)
+    // Back on the board the veil returns
+    await continueButton(page).click()
+    await expect(recap(page)).toHaveCount(0)
+    await expect.poll(() => appNav(page).evaluate(el => getComputedStyle(el, '::before').opacity)).toBe('1')
   })
 
   test('curtain: only the photo slides up, the board is live from the first moment, then the stage is gone and focus is on the board (#245)', async ({ page, context }) => {

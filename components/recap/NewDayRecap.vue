@@ -2,13 +2,13 @@
 @component NewDayRecap
 @kind block
 @category overlay
-@description "Kurzer Rückblick" (#385, #451, #44, #245): the recap on the first start of a new day, shown as a stage on the welcome photo under the app bar instead of a dialog over the board. A still-open deck and a done deck like the board's Offen → Erledigt, and one submit panel with the switch "Erledigte archivieren" and the button "Weiter zum Board".
+@description "Kurzer Rückblick" (#385, #451, #44, #245): the recap on the first start of a new day, shown as a stage on the welcome photo, behind the app bar, instead of a dialog over the board. A still-open deck and a done deck like the board's Offen → Erledigt, and one submit panel with the switch "Erledigte archivieren" and the button "Weiter zum Board".
 @usage Mounted once in pages/tasks.vue next to DayCloseDialog; opened by useNewDayRecap().check() on mount.
 One centred paper sheet (max 44rem, like the welcome sheet) with both decks side by side from 768px, one deck with a switcher below. The page itself never scrolls; only the stage's scroll area may, on very short windows.
 @avoid Only the first start of a new day; closing the day is DayCloseDialog.
 @responsibility
 - Shell only: headline (the title, the theme's 18 px dialog title, kd#179), summary, decks (body), submit panel
-- Not modal (#245), teleported to body so the inert board does not take it along: a `role="region"` named by the headline, no scrim, no focus trap. The app bar stays usable and sits above the stage (`--z-bar`); the board is `inert` behind it (`pages/tasks.vue`). Going to settings and coming back finds the same recap, because the state lives in `useNewDayRecap`
+- Not modal (#245), teleported to `#recap-stage-host` (app.vue) so the inert board does not take it along and the bar stays above it: a `role="region"` named by the headline, no scrim, no focus trap. The app bar stays usable and sits above the stage (`--z-bar`); the board is `inert` behind it (`pages/tasks.vue`). Going to settings and coming back finds the same recap, because the state lives in `useNewDayRecap`
 - Focus starts on the button; Escape inside the stage, and the button, call `leave()` which follows the switch (#44); `finishLeave()` after the curtain hands focus to the board
 - Curtain (assets/css/recap-stage.css): `leave()` runs at once (archive, marker, the board is live), the stage stays mounted while the sheet fades (200 ms) and only the photo slides up (700 ms, ease in-out) with a feathered edge; reduced motion: instant. A second click or Escape during the curtain does nothing
 - The photo is the welcome page's (`public/welcome`), decoration only (`alt=""`); until it loads, or if it fails, the layer is the paper colour
@@ -18,8 +18,8 @@ One centred paper sheet (max 44rem, like the welcome sheet) with both decks side
 - Submit panel: switch left and button right in a container query (`@md`), stacked when narrow
 -->
 <template>
-  <!-- Outside the inert board (<main> in pages/tasks.vue), like the dialog portal was -->
-  <Teleport to="body">
+  <!-- Outside the inert board (<main> in pages/tasks.vue), in app.vue's host: the same stacking context as the app bar, so the bar paints above the photo (#262) -->
+  <Teleport to="#recap-stage-host" defer>
     <div
       v-if="shown"
       class="recap-stage"
@@ -28,6 +28,7 @@ One centred paper sheet (max 44rem, like the welcome sheet) with both decks side
       :data-closing="closing || undefined"
       :inert="closing || undefined"
       data-testid="new-day-recap"
+      data-window-drag-layer
       @keydown.esc="leaveOnce"
     >
       <!-- Atmosphere only; the layer is the paper colour until the photo has loaded (or if it never does) -->

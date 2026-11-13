@@ -1,5 +1,7 @@
 /**
- * New-day recap stage (#245): the welcome photo plus one paper sheet, fixed between the app bar and the page.
+ * New-day recap stage (#245): the welcome photo plus one paper sheet, fixed over the whole window; the sheet sits below
+ * the app bar row (the padding takes its height), the photo runs behind it (#262: no paper band above the photo, and the
+ * bar's paper veil steps back while the stage is mounted, bottom of this file).
  * Not modal: the app bar (z-bar) paints above it, the board stays inert behind it (pages/tasks.vue).
  * Curtain on close: only the photo layer lifts (700 ms, ease in-out) with a feathered bottom edge; the sheet fades
  * out (--duration-base). The photo layer reaches --recap-feather below the stage, so the feathered edge is off screen
@@ -11,10 +13,10 @@
     --recap-curtain-duration: 700ms; /* the photo lifting off; the component waits for it (NewDayRecap.vue) */
     --recap-enter-duration: 500ms;
     position: fixed;
-    inset: var(--app-bar-offset-top) 0 0 0;
+    inset: 0;
     z-index: var(--z-titlebar);
     overflow: hidden;
-    padding: calc(env(safe-area-inset-top, 0px) + 0.75rem) 1rem calc(var(--phone-bar-offset) + 0.75rem);
+    padding: calc(var(--app-bar-offset-top) + env(safe-area-inset-top, 0px) + 0.75rem) 1rem calc(var(--phone-bar-offset) + 0.75rem);
     animation: recap-stage-in var(--recap-enter-duration) var(--ease-emphasized) both;
   }
 
@@ -70,4 +72,11 @@
     .recap-stage[data-closing] .recap-stage__photo,
     .recap-stage[data-closing] .recap-stage__scroll { transition: none; }
   }
+}
+
+/* The bar's paper veil (app-nav.css) would wash 80% paper over the photo: it steps back while the stage is mounted, like
+   under the Jetzt focus overlay and the task sheet (board-focus-overlay.css). The pills and the brand stay above. */
+html:has(.recap-stage) .app-nav::before {
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
