@@ -384,11 +384,9 @@ test.describe('Task Detail View', () => {
     // Task 1 has topic "Development"
     await expect.soft(page.getByText('Development').first(), 'shows topic badge when topic is set').toBeVisible();
 
-    // Utility menu trigger lives in the content header; the close button sits in the sheet's corner, clear of this menu (kd#201)
-    await expect.soft(
-      page.getByTestId('task-detail-header').getByTestId('task-actions-menu'),
-      'action buttons are visible in the header without hovering',
-    ).toBeVisible();
+    // #244: no three-dots menu in the title row; Delete sits in the sheet's bottom row, visible without hovering
+    await expect.soft(page.getByTestId('task-detail-header').getByTestId('task-actions-menu'), 'no menu in the header').toHaveCount(0);
+    await expect.soft(page.getByTestId('task-sheet-actions').getByTestId('task-delete'), 'Delete is visible in the bottom row').toBeVisible();
   });
 
   // #114: a value shows at rest what it is (no hover): a list value is a soft select with a chevron, a free value an editable label with a dotted rule
@@ -569,18 +567,24 @@ test.describe('Task Detail View', () => {
     await expect(page.getByTestId('task-not-found').locator('svg')).toHaveCount(0);
   });
 
-  // Since 66d6f42 the header action buttons were replaced by a single "Mehr Aktionen"
-  // utility menu (copy ID, open in source, delete).
-  test('copies task ID via the actions menu', async ({ page, context, baseURL }) => {
-    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  // #244: the three-dots menu and "ID kopieren" are gone; the id stays readable in Metadaten
+  test('has no actions menu and no copy-ID entry; the id is shown in Metadaten', async ({ page, baseURL }) => {
     await openSheet(page, baseURL, 'test-task-1');
 
-    await page.getByTestId('task-actions-menu').click();
-    const copyItem = page.getByRole('menuitem', { name: 'ID kopieren' });
-    await expect(copyItem).toBeVisible();
-    await copyItem.click();
+    await expect(page.getByTestId('task-actions-menu')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /ID kopieren|Mehr Aktionen/ })).toHaveCount(0);
+    await page.getByTestId('task-metadata').getByRole('button').click();
+    await expect(page.getByTestId('task-metadata')).toContainText('test-task-1');
+  });
 
-    await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe('test-task-1');
+  test('Delete in the bottom row opens the usual delete flow; Local board shows no source buttons (#244)', async ({ page, baseURL }) => {
+    await openSheet(page, baseURL, 'test-task-1');
+
+    const row = page.getByTestId('task-sheet-actions');
+    await expect(row.getByRole('button')).toHaveCount(1);
+    await row.getByTestId('task-delete').click();
+    await expect(page).toHaveURL(/\/tasks$/);
+    await expect(page.locator('.task-wrapper[data-task-id="test-task-1"]')).toHaveCount(0);
   });
 
   // Status is the first property row: a text-style picker named "Status: <value>"
@@ -771,12 +775,6 @@ test.describe('Task Detail View', () => {
       const optionSize = await option.evaluate((el) => getComputedStyle(el).fontSize);
       await page.keyboard.press('Escape');
 
-      // The utility menu is a Nuxt UI menu at the same size step as the card context menu (md)
-      await page.getByTestId('task-actions-menu').click();
-      const item = page.getByRole('menuitem').first();
-      await expect(item).toBeVisible();
-      const menuSize = await item.evaluate((el) => getComputedStyle(el).fontSize);
-      expect(optionSize).toBe(menuSize);
       expect(optionSize).toBe('14px');
     });
 
@@ -892,10 +890,12 @@ test.describe('Task Detail View', () => {
       const notes = (await page.getByTestId('task-notes').boundingBox())!;
       expect(notes.y).toBeGreaterThan(props.y + props.height);
 
-      // The metadata hugs the bottom edge of the sheet even though the content above is short, below the notes
+      // The footer (metadata, then the action row with Delete, #244) hugs the bottom edge of the sheet even though the content above is short, below the notes
       const dialogBox = (await page.getByRole('dialog').boundingBox())!;
       const meta = (await page.getByTestId('task-metadata').boundingBox())!;
-      expect(Math.abs(dialogBox.y + dialogBox.height - (meta.y + meta.height))).toBeLessThan(40);
+      const actions = (await page.getByTestId('task-sheet-actions').boundingBox())!;
+      expect(Math.abs(dialogBox.y + dialogBox.height - (actions.y + actions.height))).toBeLessThan(40);
+      expect(actions.y).toBeGreaterThanOrEqual(meta.y + meta.height);
       expect(meta.y).toBeGreaterThan(notes.y + notes.height);
     });
 
@@ -1017,9 +1017,9 @@ test.describe('task sheet close button (kd#201)', () => {
       const close = dialog.getByRole('button', { name: /^(Schließen|Close)$/ })
       await expect(close).toBeVisible()
 
-      // Clear of the "More actions" menu and the title row: no overlap of the boxes
+      // Clear of the title row: no overlap of the boxes
       const closeBox = (await close.boundingBox())!
-      for (const target of [dialog.getByTestId('task-actions-menu'), dialog.getByTestId('task-detail-header').locator('[data-inline-editable]')]) {
+      for (const target of [dialog.getByTestId('task-detail-header').locator('[data-inline-editable]')]) {
         const box = (await target.boundingBox())!
         const overlaps = closeBox.x < box.x + box.width && closeBox.x + closeBox.width > box.x && closeBox.y < box.y + box.height && closeBox.y + closeBox.height > box.y
         expect(overlaps).toBe(false)
