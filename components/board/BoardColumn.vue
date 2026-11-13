@@ -12,7 +12,7 @@
   of its stacks
 - Renders dedicated progress bar section for Progress column (separate from task list)
 - Provides header with status information
-- Enables task addition for the Open column (card-sized add slot that morphs into the draft, #125)
+- Enables task addition for the Open column (#248): the header's round add button asks the add slot, the draft host at the start of the list, to open; the draft card enters at the top (#125). Cancel returns focus to the header button
 - Handles visual states for different statuses and empty states
 - Erledigt drop target (#124): a light green wash under the list and a one-line hint while a card
   from another column hovers it
@@ -28,10 +28,14 @@
     @mouseleave="handleMouseLeave"
   >
     <board-column-header
+      ref="headerRef"
       :title="computedHeadline"
       :status="taskStatus"
       :task-count="tasks.length"
       :is-empty="isEmpty && !hasGaps"
+      :show-add="showAddButton"
+      :add-disabled="addSlotRef?.isDrafting ?? false"
+      @add="addSlotRef?.open()"
     />
 
     <!-- Spacer with centered Sorting Control (Erledigt: the drop hint while a card hovers it, #124) -->
@@ -90,6 +94,18 @@
       @focusin="handleFocusIn"
       @focusout="handleFocusOut"
     >
+      <!-- Add slot (Open column only, #125, #248): the draft host at the start of the list. It has no box while no draft is
+           open (no gap above the first card); the header button opens it. Inside the flex container so gap spacing applies -->
+      <add-task-slot
+        v-if="showAddSlot"
+        ref="addSlotRef"
+        :status="TaskStatus.Open"
+        :label="t('board.addTask')"
+        :show-button="false"
+        :hidden="props.isDragging"
+        :in-card="true"
+        :focus-fallback="() => headerRef?.addButtonEl() ?? null"
+      />
       <!-- One flat list of items: ungrouped cards, then (grouped) a collapsed stack or the cards of an
            expanded one in its place (#147), or (ungrouped mode) every task in order -->
       <board-column-item
@@ -101,17 +117,6 @@
         @open="openTask"
         @expand="expandStack"
         @close-stack="closeStack"
-      />
-      <!-- Add slot (Open column only, #125): last item of the list, morphs into the draft card;
-           inside the flex container so gap spacing applies -->
-      <add-task-slot
-        v-if="showAddSlot"
-        :status="TaskStatus.Open"
-        :label="t('board.addTask')"
-        :show-button="featureFlags.openColumnAddButton"
-        :hidden="props.isDragging"
-        :in-card="!props.staticMode"
-        @open="openRegularTaskCreation"
       />
       <!-- Droppable sentinel: ensures dnd-kit can accept drops even when the column is empty -->
       <column-drop-zone :task-status="taskStatus" :is-empty="isEmpty" />
@@ -131,7 +136,6 @@ import { useI18n } from "vue-i18n";
 import BoardColumnProgressContent from "~/components/board/BoardColumnProgressContent.vue";
 import BoardColumnYesterdayNote from "~/components/board/BoardColumnYesterdayNote.vue";
 import AddTaskSlot from "~/components/board/AddTaskSlot.vue";
-import { useTaskDraft } from "~/composables/useTaskDraft";
 import ColumnSortingControl from "~/components/board/ColumnSortingControl.vue";
 import BoardColumnItem from "~/components/board/BoardColumnItem.vue";
 import ColumnDropZone from "~/components/board/ColumnDropZone.vue";
@@ -424,19 +428,17 @@ const closeStack = (groupKey: string, source: "pointer" | "keyboard") => closeSt
 
 const featureFlags = useFeatureFlags();
 
-/** While a task is being added to Offen (#110), its draft card fills the add slot. */
-const { draftTask } = useTaskDraft();
-
 /**
- * The Open column's add slot is persistent (keyboard, touch and pointer users all see it). A drag only
- * hides it (its box stays, #125). The feature flag gates the button, not a draft opened another way.
+ * The Open column's add slot is the draft host at the start of the list (#248): it exists on every live Open column,
+ * so a draft opened another way (the sheet path) shows its card at the top too. It takes no space while idle.
  */
-const showAddSlot = computed(
-  () =>
-    isOpenColumn.value &&
-    !props.staticMode &&
-    (featureFlags.openColumnAddButton || draftTask.value?.status === TaskStatus.Open),
-);
+const showAddSlot = computed(() => isOpenColumn.value && !props.staticMode);
+
+/** The header's round add button: the flag gates it, not a draft opened another way */
+const showAddButton = computed(() => showAddSlot.value && featureFlags.openColumnAddButton);
+
+const headerRef = ref<{ addButtonEl: () => HTMLElement | null } | null>(null);
+const addSlotRef = ref<{ open: () => void; isDrafting: boolean } | null>(null);
 
 // Mouse event handlers
 const handleMouseEnter = () => {
@@ -512,19 +514,6 @@ const getListElement = (): HTMLElement | null => {
 defineExpose({ getListElement });
 
 const statusAttr = computed(() => TaskStatus[props.taskStatus].toLowerCase());
-
-/**
- * Opens the task creation sheet in regular mode (Offen adds in the card itself since #649: AddTaskSlot `in-card`; this runs for a static board)
- */
-const openRegularTaskCreation = () => {
-  if (props.staticMode) {
-    return;
-  }
-  if (import.meta.dev) {
-    console.log('[BoardColumn] Opening regular task creation');
-  }
-  navigateTo({ path: "/tasks/add" });
-};
 
 /**
  * Erledigt is the drop target of a card from another column (#124): wash + hint. A drag that

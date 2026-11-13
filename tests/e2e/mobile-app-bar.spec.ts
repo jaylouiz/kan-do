@@ -118,12 +118,15 @@ test.describe('Mobile app bar', () => {
     expect(title).not.toBe('24px');
   });
 
-  test('390px: the add-task button stays above the bar', async ({ page }) => {
+  test('390px: nothing of the add-task entry sticks above the bar; the button is in the Offen header (#248)', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await openBoard(page);
-    const add = (await page.locator('#column-open .add-task-button').boundingBox())!;
+    await showColumnPage(page, 0);
+    await expect(page.locator('#column-open .add-task-button, #column-open [data-add-slot="open"]')).toHaveCount(0);
+    const add = (await page.locator('#column-open').getByRole('button', { name: 'Aufgabe hinzufügen' }).boundingBox())!;
     const pill = (await bar(page).boundingBox())!;
     expect(add.y + add.height).toBeLessThanOrEqual(pill.y);
+    expect(add.y).toBeLessThan(120);
   });
 
   test('390px: drag edge arrows sit in the column-header row, not at the thumb zone', async ({ page }) => {
@@ -179,16 +182,6 @@ test.describe('Mobile app bar', () => {
     await expect(trigger).toHaveCSS('font-size', '12px');
     await page.setViewportSize({ width: 1280, height: 800 });
     await expect(trigger).toHaveCSS('font-size', '12px');
-  });
-
-  test('390px: the add-task bar is label-wide and centred (#244)', async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
-    await openBoard(page, '/tasks?seed=local');
-    await showColumnPage(page, 0); // the board opens on Jetzt while a task sits there (kd#191)
-    const add = (await page.locator('.add-task-slot--open .add-task-button').boundingBox())!;
-    expect(add.width).toBeLessThan(280);
-    expect(add.height).toBeGreaterThanOrEqual(48);
-    expect(Math.abs(add.x + add.width / 2 - 195)).toBeLessThanOrEqual(2);
   });
 
   test('390px: the Erledigt CTA is full width, above the bar, and the last card is never covered', async ({ page, context }) => {

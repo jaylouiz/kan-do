@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { seedLocalBoard, seedNewDayBoard } from './helpers/seed';
+import { seedLocalBoard } from './helpers/seed';
 import { openDayClose } from './helpers/appNav';
 
 test.describe('Modal Style Validation', () => {
@@ -49,11 +49,7 @@ test.describe('Modal Style Validation', () => {
         await expectSubhead(page.getByRole('dialog').locator('[data-slot="title"]'));
       });
 
-      test('the new-day recap is no exception', async ({ page, context }) => {
-        await seedNewDayBoard(context);
-        await page.goto('/tasks');
-        await expectSubhead(page.getByRole('dialog').locator('[data-slot="title"]'));
-      });
+      // The new-day recap is no longer a dialog since #245 (a non-modal photo stage, no dialog role), so it has no theme title to check here.
     });
   }
 });

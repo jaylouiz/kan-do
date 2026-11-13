@@ -780,7 +780,7 @@ for (const { size, viewport } of CORE_VIEWPORTS) {
       await page.goto('/tasks')
       await expect(page.locator('#column-open .task-wrapper').first()).toBeVisible()
       await showColumnPage(page, 0) // the board opens on Jetzt while a task sits there (kd#191)
-      await page.locator('#column-open .add-task-button').click()
+      await page.locator('#column-open [data-testid="add-task-header-button"]').click()
       await expect(page.getByTestId('new-card-title')).toBeFocused()
     }
     const toQuestion = async (page: Page) => {
@@ -825,8 +825,14 @@ for (const { size, viewport } of CORE_VIEWPORTS) {
       // unreachable, and an unreachable source queues the task without the create call this state waits in
       await seedMixedBoard(context, size === '390' ? MIXED_VR_TASKS.filter(task => task.status !== 1) : MIXED_VR_TASKS)
       const held: Route[] = []
-      // Only create-task is held; every other Notion call is refused so the stub never swaps the seeded rows (#364)
-      await page.route('**/api/notion/**', (route) => route.abort('connectionrefused'))
+      // Only create-task is held. The schema reads go through to the stub and every other call (the task query) hangs: it must
+      // not answer, so the stub never swaps the seeded rows (#364), and it must not be refused either: a refused call marks the
+      // source unreachable ~1.3 s after the load, and a task saved after that queues without the create call (a race the flow lost)
+      const hung: Route[] = []
+      await page.route('**/api/notion/**', (route) => {
+        if (/\/api\/notion\/(database|data-sources)\?/.test(route.request().url())) return route.continue()
+        hung.push(route)
+      })
       await page.route('**/api/notion/create-task', (route) => { held.push(route) })
       await openCard(page)
       await toQuestion(page)

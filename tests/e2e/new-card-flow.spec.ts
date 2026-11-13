@@ -15,7 +15,7 @@ const offen = (page: Page) => page.locator('#column-open')
 const card = (page: Page) => page.getByTestId('new-card-flow')
 const title = (page: Page) => page.getByTestId('new-card-title')
 const step = (page: Page) => page.getByTestId('new-card-step')
-const addButton = (page: Page) => offen(page).locator('.add-task-button')
+const addButton = (page: Page) => offen(page).getByRole('button', { name: 'Aufgabe hinzufügen' })
 const box = async (locator: Locator) => (await locator.boundingBox())!
 
 /** More than three topics and activities, so the Mehr list has something behind the three pills (kd#16) */
@@ -85,6 +85,7 @@ for (const { name, viewport, touch } of [
         })
 
       await openCard(page)
+      await settleAnimations(page) // the draft enters over 200 ms (#248): read the boxes at rest
       const title1 = await offsets()
       expect(Math.abs(title1.input! - title1.regularTitle)).toBeLessThanOrEqual(1)
       // The check is centred vertically on the card ...
@@ -321,7 +322,7 @@ for (const { name, viewport, touch } of [
 
     test('the sheet taking over cancels the card; a second card cannot be opened', async ({ page }) => {
       await openCard(page)
-      await expect(addButton(page)).toHaveJSProperty('inert', true)
+      await expect(addButton(page)).toBeDisabled()
       await title(page).fill('Wird verworfen')
       await page.locator('body').click({ position: { x: 4, y: 4 } }) // out of the input; the card has a title, so it stays
       await expect(card(page)).toBeVisible()
@@ -353,13 +354,17 @@ test.describe('guided new card, toast on a short phone', () => {
     await expect(page.getByText('Aufgabe hinzugefügt', { exact: true }).first()).toBeVisible()
     await expect.poll(async () => (await storedTask(page, 'Toast mit Abstand'))?.id).toBeTruthy()
     const saved = (await storedTask(page, 'Toast mit Abstand'))!
-    const toast = await box(page.locator('[data-state="open"][data-swipe-direction], [role="status"]').filter({ hasText: 'Aufgabe hinzugefügt' }).first())
-    const task = await box(offen(page).locator(`.task-wrapper[data-task-id="${saved.id}"]`))
+    const toastBox = () => box(page.locator('[data-state="open"][data-swipe-direction], [role="status"]').filter({ hasText: 'Aufgabe hinzugefügt' }).first())
+    const taskBox = () => box(offen(page).locator(`.task-wrapper[data-task-id="${saved.id}"]`))
     // one row (title and Details): the description line wrapped it to three at 390 px, 150 px tall
-    expect(toast.height).toBeLessThan(80)
-    const overlap = Math.min(toast.y + toast.height, task.y + task.height) - Math.max(toast.y, task.y)
-    const overlapX = Math.min(toast.x + toast.width, task.x + task.width) - Math.max(toast.x, task.x)
-    expect(overlap > 0 && overlapX > 0).toBe(false)
+    expect((await toastBox()).height).toBeLessThan(80)
+    // the toast slides in and the page scrolls the saved card clear of it (smooth): the card ends up above the toast, not under it
+    await expect.poll(async () => {
+      const [toast, task] = [await toastBox(), await taskBox()]
+      const overlap = Math.min(toast.y + toast.height, task.y + task.height) - Math.max(toast.y, task.y)
+      const overlapX = Math.min(toast.x + toast.width, task.x + task.width) - Math.max(toast.x, task.x)
+      return overlap > 0 && overlapX > 0
+    }).toBe(false)
   })
 })
 

@@ -147,14 +147,13 @@
       padding-bottom: calc(var(--phone-bar-offset) + 0.75rem);
     }
 
-    /* Offen page: the list fills the page so the add button (margin-top: auto,
-       sticky) sits at thumb height above the app bar even with few cards. */
+    /* Offen page: the list fills the page, so the drop zone below the last card keeps a full-height target. */
     :where(#column-open) :where(.task-list) {
       flex: 1 1 auto;
     }
 
-    /* The Offen and Erledigt pages scroll inside themselves (not the document) so the add button's and the
-       Tag-abschließen CTA's position: sticky have a scrollport to stick to (#470). */
+    /* The Offen and Erledigt pages scroll inside themselves (not the document) so the Tag-abschließen CTA's
+       position: sticky has a scrollport to stick to (#470). */
     :where(.board) > #column-open,
     :where(.board) > #column-done {
       height: 100svh;
