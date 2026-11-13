@@ -370,6 +370,7 @@ const problemText = computed(() => {
     case 'relayServer': return t('feedback.problem.relayServer')
     case 'relayUnexpected': return t('feedback.problem.relayUnexpected')
     case 'relayDown': return t('feedback.problem.relayDown')
+    case 'relayImageTooLarge': return t('feedback.problem.relayImageTooLarge')
     default: return t('feedback.problem.unexpected')
   }
 })

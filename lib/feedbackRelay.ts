@@ -18,6 +18,8 @@ export interface RelayReport {
 export type RelayResult = 'sent' | 'offline' | 'blocked' | 'server' | 'unavailable' | 'invalid'
 
 const TIMEOUT_MS = 30000
+/** Largest PNG the relay takes (decoded bytes); the same number as `SCREENSHOT_MAX_BYTES` on the server. */
+export const RELAY_IMAGE_MAX_BYTES = 3 * 1024 * 1024
 
 export async function sendToRelay(url: string, report: RelayReport): Promise<RelayResult> {
   let response: Response

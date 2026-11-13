@@ -41,7 +41,7 @@ import {
 } from '~/lib/feedback/types'
 import { classifyUploadStatus } from '~/lib/feedback/uploadAccess'
 import { flattenToPng, isMark, readAnnotationColors, type Annotation } from '~/lib/feedback/flattenCanvas'
-import { sendToRelay } from '~/lib/feedbackRelay'
+import { RELAY_IMAGE_MAX_BYTES, sendToRelay } from '~/lib/feedbackRelay'
 import { isTauri } from '~/utils/isTauri'
 import { toSecretError, useSecrets } from '~/composables/useSecrets'
 import { useTasksStore } from '~/store/tasks'
@@ -53,7 +53,7 @@ export type FeedbackStep = 'form' | 'annotate' | 'review'
 /** `present`: a token whose user may write to the repo (owner, collaborator). `readOnly`: a token without that right. */
 export type TokenState = 'unknown' | 'present' | 'absent' | 'rejected' | 'readOnly'
 /** What went wrong with the last send. The draft is kept in every case. */
-export type SendProblem = 'offline' | 'rejected' | 'blocked' | 'server' | 'unexpected' | 'uploadDenied' | 'relayBlocked' | 'relayServer' | 'relayUnexpected' | 'relayDown'
+export type SendProblem = 'offline' | 'rejected' | 'blocked' | 'server' | 'unexpected' | 'uploadDenied' | 'relayBlocked' | 'relayServer' | 'relayUnexpected' | 'relayDown' | 'relayImageTooLarge'
 /** How this report leaves the app: the owner's token (Rust), the relay (server route), or a prefilled GitHub link. */
 export type SendRoute = 'token' | 'relay' | 'browser'
 /** Which request of a send is running (plain text in the review step). */
@@ -705,6 +705,11 @@ export function useFeedback() {
    */
   async function sendViaRelay(): Promise<void> {
     if (sending.value || !titleValid.value || sendRoute.value !== 'relay') return
+    // The relay refuses a larger image: say so before anything is sent; unticking the screenshot sends the rest.
+    if (wantsImage.value && (flat.value?.blob.size ?? 0) > RELAY_IMAGE_MAX_BYTES) {
+      problem.value = 'relayImageTooLarge'
+      return
+    }
     sending.value = true
     problem.value = null
     clipboardFailed.value = false

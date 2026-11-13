@@ -1457,7 +1457,8 @@
       "relayBlocked": "Too much feedback is arriving right now. Try again later. Your draft is kept.",
       "relayServer": "The feedback could not be sent right now. Try again in a moment. Your draft is kept.",
       "relayUnexpected": "The feedback could not be sent. Your draft is kept.",
-      "relayDown": "Sending directly is not possible right now. Open the feedback on GitHub instead. Your draft is kept."
+      "relayDown": "Sending directly is not possible right now. Open the feedback on GitHub instead. Your draft is kept.",
+      "relayImageTooLarge": "The screenshot is too large to send. Clear its checkbox above and send again. Your draft is kept."
     },
     "sentToast": "Thanks, your feedback is now issue #{number}.",
     "picker": {

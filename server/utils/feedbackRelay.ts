@@ -111,7 +111,9 @@ export async function fileReport(report: FeedbackReport, target: { token: string
       message: `chore(feedback): screenshot ${report.screenshot.path.split('/').pop()?.replace('.png', '') ?? ''}`,
       content: report.screenshot.content,
     })
-    if (put.status !== 201) upstreamFailed('screenshot upload', put.status)
+    // 422: the file is already there. The path holds a fresh uuid per image, so this is the retry of a report whose
+    // issue create failed after the upload: go on to the issue instead of failing every retry.
+    if (put.status !== 201 && put.status !== 422) upstreamFailed('screenshot upload', put.status)
   }
 
   const issue = await github(token, 'POST', `/repos/${repo}/issues`, { title: report.title, body: report.body, labels: ['inbox'] })

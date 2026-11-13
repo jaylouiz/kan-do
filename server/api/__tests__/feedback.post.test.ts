@@ -75,6 +75,16 @@ describe('server/api/feedback.post.ts', () => {
     expect(writes()[0]!.body).not.toHaveProperty('branch')
   })
 
+  it('a retry after a failed issue create finds the image already uploaded (422) and still files the issue', async () => {
+    stubGithub({ 'POST ': { status: 500 } })
+    const first = await (await request()).post('/api/feedback').send({ ...REPORT, screenshot: { path: PATH, content: PNG } })
+    expect(first.status).toBe(502)
+    stubGithub({ 'PUT ': { status: 422, json: { message: 'Invalid request. "sha" wasn\'t supplied.' } } })
+    const retry = await (await request()).post('/api/feedback').send({ ...REPORT, screenshot: { path: PATH, content: PNG } })
+    expect(retry.status).toBe(201)
+    expect(writes().map(call => call.method)).toEqual(['PUT', 'POST'])
+  })
+
   it('a failed screenshot upload creates no issue', async () => {
     stubGithub({ 'PUT ': { status: 403, json: { message: 'Resource not accessible by personal access token' } } })
     const res = await (await request()).post('/api/feedback').send({ ...REPORT, screenshot: { path: PATH, content: PNG } })
