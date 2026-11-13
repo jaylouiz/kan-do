@@ -48,6 +48,12 @@ function start() {
   window.addEventListener('focus', refresh)
 }
 
+/** Brings the shared "today" up to date now (a window that comes back after a night has not refreshed it yet). */
+export function syncToday(): void {
+  start()
+  syncDay()
+}
+
 /** `today` is the local start of the current day; reactive across midnight. */
 export function useToday(): { today: Ref<Date> } {
   start()

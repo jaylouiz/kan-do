@@ -152,6 +152,38 @@ describe('useNewDayRecap', () => {
       expect(store.lastShownDay).toBe(TODAY)
     })
 
+    it('opens on the first check of a new day although the shared "today" is still yesterday (#242)', () => {
+      const lateTask = new Date(2026, 9, 22, 15)
+      setup({ lastShownDay: TODAY, tasks: [task('d1', TaskStatus.Done, lateTask)] })
+      const recap = useNewDayRecap()
+      // the shared "today" was computed on the 22nd; the window comes back on the 23rd without a remount
+      void useTasksStore().tasksDonePrevious.length
+      vi.setSystemTime(new Date(2026, 9, 23, 0, 30))
+      recap.check('tasks')
+      expect(recap.isOpen.value).toBe(true)
+      expect(recap.snapshot.value!.dayKey).toBe('2026-10-23')
+    })
+
+    it('opens when the window is focused again on a new day, never while it stays focused across midnight (#242)', () => {
+      setup({ lastShownDay: TODAY, tasks: [task('d1', TaskStatus.Done, new Date(2026, 9, 22, 15))] })
+      const recap = useNewDayRecap()
+      const stop = recap.listenForReturn(() => 'tasks')
+      vi.setSystemTime(new Date(2026, 9, 23, 0, 30))
+      vi.advanceTimersByTime(10 * 60 * 1000)
+      expect(recap.isOpen.value).toBe(false)
+      window.dispatchEvent(new Event('focus'))
+      expect(recap.isOpen.value).toBe(true)
+      stop()
+    })
+
+    it('stops listening after the returned stop function (#242)', () => {
+      setup({ lastShownDay: TODAY, tasks: [task('d1', TaskStatus.Done, yesterdayAt(9))] })
+      const recap = useNewDayRecap()
+      recap.listenForReturn(() => 'tasks')()
+      window.dispatchEvent(new Event('focus'))
+      expect(recap.isOpen.value).toBe(false)
+    })
+
     it('names the day by the newest completion: 3 days back reads as a weekday', () => {
       setup({ tasks: [task('d', TaskStatus.Done, new Date(2026, 9, 19, 16))] })
       const recap = useNewDayRecap()

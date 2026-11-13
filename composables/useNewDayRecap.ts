@@ -4,17 +4,19 @@
  * owns its open state and the snapshot it shows, and runs the one action when the user leaves it. State is
  * module-level so the page, the overlay and the board share it.
  * @responsibility
- * - `check(routeName)`: called by `pages/tasks.vue` once per mount, never awaited. Opens the recap when the board is
+ * - `check(routeName)`: called by `pages/tasks.vue` on mount and on every return to the app (`listenForReturn`: window focus,
+ *   tab visible; #242), never awaited. It syncs the shared "today" first. Opens the recap when the board is
  *   onboarded, the data status does not block writes, `lastShownDay` is a day before today and there are
  *   done-before-today tasks. A missing or malformed marker is the baseline: write today once, show nothing
  *   (skipped while the data status blocks, ADR 011). The day key is computed once here, so a midnight
- *   crossed mid-session never opens it (`useToday` refreshes on focus, this does not).
+ *   crossed while the window stays focused never opens it; the next return does.
  * - The snapshot is a copy taken at open: a fetch landing later changes nothing in the page.
  * - `leave()` (button, Escape): archives the snapshot ids still done before today when "Erledigte archivieren" is on
  *   (shared path with the board button; no toast, no undo, #463), moves the marker to the day the recap opened on, closes.
  * - `finishLeave()` after the fade-out: drops the snapshot and hands focus to the board, never to <body>.
  */
 import { computed, readonly, ref } from 'vue'
+import { syncToday } from '~/composables/useToday'
 import { useTasksStore } from '~/store/tasks'
 import { useBoardStore } from '~/store/board'
 import { useDayRecapStore } from '~/store/dayRecap'
@@ -58,6 +60,8 @@ export function useNewDayRecap() {
 
   function check(routeName: unknown): void {
     if (isOpen.value || routeName !== 'tasks') return
+    // the done-before-today list reads the shared "today": bring it up to date before looking at it (#242)
+    syncToday()
     if (boardStore.boardConfig.sources === null) return
     if (writesBlocked()) return
 
@@ -82,6 +86,25 @@ export function useNewDayRecap() {
       dayKey: todayKey,
     }
     isOpen.value = true
+  }
+
+  /**
+   * Runs `check` whenever the app is shown or focused again (#242): a hidden desktop window or a restored tab does not
+   * remount the page, so the first return on a new day would otherwise wait for a click or navigation. A window that
+   * stays focused across midnight is never interrupted. Returns the function that removes the listeners.
+   */
+  function listenForReturn(routeName: () => unknown): () => void {
+    if (typeof window === 'undefined') return () => {}
+    const onReturn = () => check(routeName())
+    const onVisible = () => {
+      if (document.visibilityState !== 'hidden') onReturn()
+    }
+    window.addEventListener('focus', onReturn)
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      window.removeEventListener('focus', onReturn)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
   }
 
   /** "Weiter zum Board", also Escape: the switch decides whether the done tasks are archived. */
@@ -116,5 +139,5 @@ export function useNewDayRecap() {
     board.focus({ preventScroll: true })
   }
 
-  return { isOpen: readonly(isOpen), snapshot: computed(() => snapshot.value), check, leave, finishLeave }
+  return { isOpen: readonly(isOpen), snapshot: computed(() => snapshot.value), check, listenForReturn, leave, finishLeave }
 }

@@ -175,7 +175,9 @@ onMounted(() => {
   // The page init starts its fetch before the first await, so the recap opens over a board that is already loading (#385)
   void initializeTasksPageOnMount();
   recap.check(route.name);
+  stopRecapReturn = recap.listenForReturn(() => route.name);
 });
+let stopRecapReturn = () => {};
 
 // Watch for task updates to track when they happen
 /** Source accessor for tasks array to drive the watcher. */
@@ -206,6 +208,7 @@ function cleanupTasksPageOnUnmount() {
   document.removeEventListener("visibilitychange", handleVisibilityChange);
   window.removeEventListener("online", handleOnline);
   stopAutoRefresh();
+  stopRecapReturn();
 }
 
 onUnmounted(cleanupTasksPageOnUnmount);

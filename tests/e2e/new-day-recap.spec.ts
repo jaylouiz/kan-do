@@ -91,6 +91,57 @@ test.describe('New-day recap (#385)', () => {
     await expect(continueButton(page)).toBeFocused()
   })
 
+  test('opens on the first return of a new day without a click or navigation, not while the window stays focused (#242)', async ({ page, context }) => {
+    // Done today, the marker is today: nothing is due. The page clock is then moved a day on, as after a night.
+    await seedNewDayBoard(context, { daysAgo: 0, lastShownDay: dayKeyDaysAgo(0) })
+    await context.addInitScript(() => {
+      const RealDate = Date
+      const w = window as unknown as { __shiftMs: number }
+      w.__shiftMs = 0
+      class ShiftedDate extends RealDate {
+        constructor(...args: unknown[]) {
+          if (args.length === 0) super(RealDate.now() + w.__shiftMs)
+          else super(...(args as [number]))
+        }
+        static now() { return RealDate.now() + w.__shiftMs }
+      }
+      window.Date = ShiftedDate as unknown as DateConstructor
+    })
+    await page.goto('/tasks')
+    await expect(board(page)).toBeVisible()
+    await expect(recap(page)).toBeHidden()
+
+    await page.evaluate(() => { (window as unknown as { __shiftMs: number }).__shiftMs = 26 * 3600 * 1000 })
+    await page.waitForTimeout(300)
+    await expect(recap(page)).toBeHidden() // still focused: the user is working, nothing opens by itself
+
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+    await expect(recap(page)).toBeVisible()
+    await expect(summary(page)).toHaveText('Du hast gestern 4 von 6 Aufgaben erledigt.')
+  })
+
+  test('deck headings are centred and a Wartet card keeps the regular style (#242)', async ({ page, context }) => {
+    await seedNewDayBoard(context)
+    await page.goto('/tasks')
+    await expect(recap(page)).toBeVisible()
+    await settleAnimations(page)
+    for (const kind of ['done', 'undone'] as const) {
+      const section = deck(page, kind).locator('xpath=ancestor::section[1]')
+      const heading = section.getByTestId('recap-deck-label')
+      expect(await heading.evaluate(el => getComputedStyle(el).textAlign)).toBe('center')
+      const h = (await heading.boundingBox())!
+      const d = (await deck(page, kind).boundingBox())!
+      expect(Math.abs(h.x + h.width / 2 - (d.x + d.width / 2))).toBeLessThan(2)
+    }
+    // the Wartet card is the second undone card: the deck's second layer holds it
+    await nextChevron(page, 'undone').click()
+    await expect(counter(page, 'undone')).toHaveText('2 / 2')
+    await settleAnimations(page)
+    const waiting = deck(page, 'undone').locator('.task-waiting')
+    await expect(waiting).toHaveCount(1)
+    expect(await waiting.evaluate(el => getComputedStyle(el).filter)).toBe('none')
+  })
+
   test('switch on: "Weiter zum Board" archives without a toast and does not reopen', async ({ page, context }) => {
     await seedNewDayBoard(context)
     await page.goto('/tasks')
