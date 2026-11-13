@@ -74,4 +74,14 @@ describe('RecapDeck tab stop and name (#478)', () => {
     expect(wrapper!.get('[data-testid="recap-deck-counter"]').text()).toBe('1 / 1')
     expect(wrapper!.get('[data-testid="recap-deck-live"]').text()).toBe('')
   })
+
+  it.each([[2, 'translateY(8px) scale(0.96)'], [3, 'translateY(16px) scale(0.92)']])(
+    'a leaving card sinks to the real last layer of a %i-card deck (#243)',
+    async (n, layer) => {
+      mountDeck(n)
+      await deck().trigger('keydown', { key: 'ArrowRight' })
+      const out = wrapper!.get('.recap-deck__card--out')
+      expect(out.attributes('style')).toContain(layer)
+    },
+  )
 })
