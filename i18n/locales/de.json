@@ -351,14 +351,12 @@
       "empty": "Keine Aufgaben im ausgewählten Zeitraum"
     },
     "question": {
-      "q1": "Arbeite ich gut?",
       "q2": "Wie entwickle ich mich?",
       "q3": "Wo schätze ich falsch?",
       "q4": "Wofür nehme ich mir Zeit?",
       "q5": "Wann arbeite ich?"
     },
     "verdict": {
-      "caption": "Letzte 7 Tage, verglichen mit deinen 4 Wochen davor",
       "headline": {
         "better": "Es läuft besser als sonst.",
         "usual": "Es läuft wie sonst.",

@@ -2,20 +2,19 @@
 @component StatsVerdict
 @kind block
 @category display
-@description Q1 of the Statistik page, always open: one sentence on the last 7 days against the user's own 4 weeks before, one supporting line and a ring of the in-timebox share with a tick at the usual value
+@description The opening of the Statistik page, always open and flat on the canvas (#238): one sentence on the last 7 days against the user's own 4 weeks before, one supporting line and a ring of the in-timebox share with a tick at the usual value
 @usage Top of pages/statistics.vue
-@avoid Only the always-open Q1 of the Statistik page; the other questions are StatsTile.
+@avoid Only the always-open opening of the Statistik page; the other questions are StatsTile.
 @responsibility
+- Draw no sheet and no sub lines above the sentence (#238): the headline is the page's intro, the tiles below are the sheets that hold the data; a named `section` labelled by the headline
 - Pick the sentence from `review.state` / `review.verdict` (empty, thin, quiet, three verdict branches); never red, never praise
 - Empty state (kd#106, the Statistik form of the page empty state): where the ring will appear, its bare neutral track stands as a decorative placeholder (`aria-hidden`, no segment, no number), like the grey bars of the rhythm tile; hidden below `md`, where it would drop under the text and read as a spinner (the rhythm tile's bars right below are the graphic there); headline and line are the sentence and the subline
 - Show the filled ring only in the `verdict` state (#687: with too little history a full ring read as an achievement against the headline); its `aria-label` and the line carry the same numbers
 - Drop clauses that have no data (no timeboxed task now, no usual value) instead of showing zeros
 -->
 <template>
-  <PageSheet tag="section" aria-labelledby="stats-q1" data-testid="stats-verdict">
-    <p class="text-body text-toned">{{ t('statistics.question.q1') }}</p>
-    <p v-if="review.state !== 'empty'" class="mt-1 text-body text-toned">{{ t('statistics.verdict.caption') }}</p>
-    <div class="mt-4 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+  <section aria-labelledby="stats-q1" data-testid="stats-verdict">
+    <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
       <div>
         <SectionHeader id="stats-q1" tag="h2" size="hero" data-testid="stats-verdict-headline">
           {{ headline }}
@@ -35,11 +34,10 @@
       </StatsRing>
       <StatsRing v-else-if="review.state === 'empty'" placeholder :size="160" :thickness="14" class="max-md:hidden" data-testid="stats-verdict-placeholder" />
     </div>
-  </PageSheet>
+  </section>
 </template>
 
 <script setup lang="ts">
-import PageSheet from '~/components/ui/PageSheet.vue'
 import SectionHeader from '~/components/ui/SectionHeader.vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
