@@ -5,7 +5,7 @@
 @responsibility
 - Compose the verdict (Q1, always open), the three question tiles (Q2 to Q4, open in place), the work-rhythm tile (#600) and the list of all completed tasks
 - No period filter: the windows are fixed (7 days against the 4 weeks before, 8 weekly points); `?timeFrame=` / `?section=` links are ignored
-- No visible page header (#686, reverses #670 D1 for this page): the app bar's second segment reads "Statistik"; the layout keeps the title as an sr-only h1 and the verdict card starts at the same top offset as /settings and /trash
+- No visible page header (#686, reverses #670 D1 for this page): the app bar's second segment reads "Statistik"; the layout keeps the title as an sr-only h1 and the verdict (flat on the canvas, no sheet, #238) starts at the same top offset as /settings and /trash
 - The drill-down opens the task sheet of the board through the child route `/statistics/:id` (`TaskSheetHost`, kd#179); this page stays mounted under it. No sync button of its own (#670): ⋯ -> "Jetzt synchronisieren" syncs, the same sync also runs the archive backfill (`useManualSync`), which otherwise runs by itself daily (`plugins/statistics-backfill.client.ts`)
 -->
 

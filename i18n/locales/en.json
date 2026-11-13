@@ -351,14 +351,12 @@
       "empty": "No tasks in the selected period"
     },
     "question": {
-      "q1": "Am I working well?",
       "q2": "How am I developing?",
       "q3": "Where do I misjudge?",
       "q4": "What do I spend my time on?",
       "q5": "When do I work?"
     },
     "verdict": {
-      "caption": "Last 7 days, compared with your 4 weeks before",
       "headline": {
         "better": "Things are going better than usual.",
         "usual": "Things are going as usual.",

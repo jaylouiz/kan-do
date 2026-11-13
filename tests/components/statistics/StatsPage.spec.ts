@@ -95,6 +95,16 @@ describe('StatsVerdict', () => {
     expect(w.text()).not.toMatch(/\d \/ \d/)
   })
 
+  it('is a flat named region with no sub lines above the sentence (#238)', () => {
+    const w = mountIt(StatsVerdict, { review: fullReview() })
+    const root = w.get('[data-testid="stats-verdict"]')
+    expect(root.element.tagName).toBe('SECTION')
+    expect(root.attributes('aria-labelledby')).toBe('stats-q1')
+    expect(root.classes()).not.toContain('bg-default')
+    expect(root.find('p').attributes('data-testid')).toBe('stats-verdict-line')
+    expect(w.findAll('p')).toHaveLength(1)
+  })
+
   it('has an English text for each branch and no German leftovers', () => {
     setTestLocale('en')
     const w = mountIt(StatsVerdict, { review: fullReview() })
