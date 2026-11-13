@@ -49,6 +49,7 @@ for (const viewport of [{ name: 'desktop', width: 1280 }, { name: 'wide', width:
       // too wide: a click or focus then scrolled the whole page sideways, at random times (#269). The probe is
       // deterministic: a document wider than its layout accepts the scroll
       if (mobile) expect(await page.evaluate(() => { window.scrollTo(15, 0); const x = window.scrollX; window.scrollTo(0, 0); return x }), 'the document cannot scroll sideways').toBe(0)
+      if (mobile) expect(await page.evaluate(() => document.querySelector('.board-container')!.getBoundingClientRect().width - document.body.getBoundingClientRect().width), 'the board is as wide as the layout').toBe(0)
       await tagElements(page)
       const before = await boxes(page)
 

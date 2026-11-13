@@ -126,7 +126,7 @@
       scrollbar-gutter: stable;
     }
 
-    /* Each "page" fills exactly one viewport width */
+    /* Each "page" fills exactly one container width (never 100vw: the classic-bar gutter, #269) */
     :where(.board) > #column-open,
     :where(.board) > .column-group-mid,
     :where(.board) > #column-done {
