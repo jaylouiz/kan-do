@@ -12,7 +12,7 @@ import { setTestLocale } from '../helpers/i18n'
 
 vi.mock('nuxt/app', () => ({ navigateTo: vi.fn() }))
 vi.mock('~/composables/useTaskOperations', () => ({
-  useTaskOperations: () => ({ moveTaskToStatus: vi.fn(), canMoveToStatus: () => ({ allowed: true }) }),
+  useTaskOperations: () => ({ moveOrSwapToStatus: vi.fn(), canMoveOrSwapToStatus: () => ({ allowed: true }) }),
 }))
 vi.mock('~/composables/useTaskDeletion', () => ({ useTaskDeletion: () => ({ deleteTaskWithUndo: vi.fn() }) }))
 const moveTaskToSource = vi.fn()
