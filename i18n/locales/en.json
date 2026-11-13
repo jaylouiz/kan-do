@@ -1311,27 +1311,33 @@
   "dayClose": {
     "title": "Close the day",
     "description": "A look back at today and what is still on the board.",
-    "recap": "{n} done · {time} together",
-    "recapNoTime": "{n} done",
     "nothingDone": "Nothing done today yet.",
-    "doneHeading": "Done today",
+    "headline": "{done} of {planned} planned task done | {done} of {planned} planned tasks done",
+    "allDone": "All tasks done",
+    "totalLabel": "Total time",
+    "boxCaption": "{kept} of {total} timebox kept | {kept} of {total} timeboxes kept",
     "doneListLabel": "{n} task done today | {n} tasks done today",
-    "inFlightHeading": "Not done yet",
-    "inFlightListLabel": "{n} task not done yet | {n} tasks not done yet",
+    "rowDone": "Done",
+    "box": {
+      "within": "Within the timebox",
+      "under": "{n} min under the timebox",
+      "over": "{n} min over the timebox"
+    },
+    "tomorrowHeading": "For tomorrow",
+    "tomorrow": "No task stays on the board. | One task stays on the board. You can deselect it. | {n} tasks stay on the board. You can deselect them one by one.",
+    "showOpen": "Show open tasks",
+    "openListLabel": "Open tasks that stay on the board",
+    "backToOpen": "Goes back to Open",
+    "trash": {
+      "local": "Goes to the trash",
+      "notion": "Goes to the trash, also in Notion",
+      "todoist": "Goes to the trash, also in Todoist"
+    },
     "nothingInFlight": "Nothing left open.",
-    "putBackHint": "Done puts “{title}” back to Open. | Done puts {n} tasks back to Open.",
     "copy": "Copy summary",
     "copied": "Summary copied",
     "copiedButton": "Copied",
     "done": "Done",
-    "closing": {
-      "line0": "That is enough for today.",
-      "line1": "Tomorrow carries on.",
-      "line2": "This day needs nothing more.",
-      "line3": "Everything else can wait.",
-      "line4": "The day is closed.",
-      "line5": "The board will be here tomorrow."
-    },
     "markdown": {
       "heading": "Day summary, {date}",
       "done": "Done",

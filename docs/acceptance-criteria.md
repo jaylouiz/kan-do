@@ -22,11 +22,18 @@ Persistent functional and design invariants. All features, refactors, and improv
 
 ## Day Counter (Carried-over Cue)
 
-- A not-done card shows nothing on its first board day (no dots, numeral, sheet line or tooltip) on the card, the task sheet and the day-close row.
+- A not-done card shows nothing on its first board day (no dots, numeral, sheet line or tooltip) on the card and the task sheet; the closing sheet's open list adds "Tag n auf dem Board" to a row only from day 4 on.
 - From day 2 the cue reads as a day number: day 2 shows 2 dots, the numeral `2` and "Tag 2 auf dem Board" (tooltip and accessible name). Day 7 and later show 6 dots, a `+` and the exact numeral.
 - A board day is a local calendar date on which the board was opened; days the board stays closed do not count.
 - The triage nudge still appears after 4 carried days and its title reads "Tag 5"; Keep re-arms it unchanged.
 - Done cards, cards without a counter entry and pending syncs show nothing.
+
+## Day Closing (#98, #237)
+
+- "Tag abschließen" opens one sheet (modal from 768px, drawer below): the date, the headline "n von n geplanten Aufgaben erledigt" (planned = done today + still open), the total time and a time-box bar. With nothing left open the headline reads "Alle Aufgaben erledigt" with a green trophy. There is no motivation sentence.
+- The bar has one segment per done task with a timebox and tracked time (one aggregated segment above 10), the overrun as a dark tail, and the caption "k von n Timeboxen eingehalten"; without a boxed task there is no bar. A task counts as in its timebox when spent and planned time are less than 5 minutes apart, and as kept unless it is over.
+- Done tasks are rows: title, "Erledigt" plus "In der Timebox" / "n Min unter der Timebox" / "n Min über der Timebox", the time at the end; no buttons.
+- "Für morgen" is one sentence and a disclosure with a checkbox per open task, all selected. Escape, the scrim and swipe change nothing. "Fertig" puts a selected Jetzt task back to Offen with its timer stopped and deletes each deselected task through the shared delete (trash, 5 s undo on the board; Notion and Todoist are named on the row). The selection starts fresh on every opening.
 
 ## Drag-and-Drop Visual Behaviour
 

@@ -1311,27 +1311,33 @@
   "dayClose": {
     "title": "Tag abschließen",
     "description": "Rückblick auf heute und was noch auf dem Board liegt.",
-    "recap": "{n} erledigt · zusammen {time}",
-    "recapNoTime": "{n} erledigt",
     "nothingDone": "Heute noch nichts erledigt.",
-    "doneHeading": "Heute erledigt",
+    "headline": "{done} von {planned} geplanten Aufgabe erledigt | {done} von {planned} geplanten Aufgaben erledigt",
+    "allDone": "Alle Aufgaben erledigt",
+    "totalLabel": "Gesamtzeit",
+    "boxCaption": "{kept} von {total} Timebox eingehalten | {kept} von {total} Timeboxen eingehalten",
     "doneListLabel": "{n} heute erledigte Aufgabe | {n} heute erledigte Aufgaben",
-    "inFlightHeading": "Noch nicht erledigt",
-    "inFlightListLabel": "{n} Aufgabe noch nicht erledigt | {n} Aufgaben noch nicht erledigt",
+    "rowDone": "Erledigt",
+    "box": {
+      "within": "In der Timebox",
+      "under": "{n} Min unter der Timebox",
+      "over": "{n} Min über der Timebox"
+    },
+    "tomorrowHeading": "Für morgen",
+    "tomorrow": "Keine Aufgabe bleibt auf dem Board. | Eine Aufgabe bleibt auf dem Board. Du kannst sie abwählen. | {n} Aufgaben bleiben auf dem Board. Du kannst sie einzeln abwählen.",
+    "showOpen": "Offene Aufgaben anzeigen",
+    "openListLabel": "Offene Aufgaben, die auf dem Board bleiben",
+    "backToOpen": "Geht zurück nach Offen",
+    "trash": {
+      "local": "Kommt in den Papierkorb",
+      "notion": "Kommt in den Papierkorb, auch in Notion",
+      "todoist": "Kommt in den Papierkorb, auch in Todoist"
+    },
     "nothingInFlight": "Nichts mehr offen.",
-    "putBackHint": "Fertig legt „{title}“ zurück nach Offen. | Fertig legt {n} Aufgaben zurück nach Offen.",
     "copy": "Zusammenfassung kopieren",
     "copied": "Zusammenfassung kopiert",
     "copiedButton": "Kopiert",
     "done": "Fertig",
-    "closing": {
-      "line0": "Für heute ist genug getan.",
-      "line1": "Morgen geht es weiter.",
-      "line2": "Mehr braucht dieser Tag nicht.",
-      "line3": "Alles Weitere hat Zeit.",
-      "line4": "Der Tag ist abgeschlossen.",
-      "line5": "Das Board wartet bis morgen."
-    },
     "markdown": {
       "heading": "Tagesabschluss, {date}",
       "done": "Erledigt",

@@ -2,17 +2,16 @@
 @component DayCloseDialog
 @kind block
 @category overlay
-@description Optional, quiet closing step for the day (#98): what got done, what is not done yet, a closing line and a copyable summary.
+@description Optional, quiet closing step for the day (#98, #237): one sheet with the day in one look, what got done, what stays on the board for tomorrow, and a copyable summary.
 @usage Mounted once in pages/tasks.vue; opened through useDayClose().open() (Mehr panel row, the Erledigt CTA, command palette).
 Hosted by ResponsiveOverlay (modal at >=768px, drawer below; the same shell as TaskSheet, but not route-bound). The footer markup exists once and has no per-variant look: the theme floor makes both buttons 44px on a phone (Fertig, the one primary, `lg`: 48px) and desktop keeps `md` / `lg` (#551, #552).
 @avoid Not for a plain confirmation (UModal, ResponsiveOverlay) and not the first-start-of-day recap (NewDayRecap).
 @responsibility
 - Shell only: title, scrolling body (DayCloseBody), footer "Zusammenfassung kopieren" (neutral, first) and "Fertig" (primary, last)
 - Escape, overlay click and swipe down only close the dialog: nothing is archived, moved, deleted or stored
-- "Fertig" is the one action with an effect: it stops the timer of the Jetzt task and moves it back to Offen (useDayClose.finish)
+- "Fertig" is the one action with an effect (useDayClose.finish): the Jetzt task goes back to Offen with its timer stopped, tasks deselected in the "Für morgen" list go to the trash
 - Copy writes plain markdown in the UI locale to the clipboard; the button itself confirms ("Kopiert" with a check for 3 s,
   width kept by stacking both icon + label states) and an in-dialog live region announces it; failures go through useErrorHandler
-- "Make smaller" closes the dialog first, then opens the task sheet with the title in edit mode (never modal on modal)
 - Focus returns to the trigger, or to the board when the trigger is gone (palette)
 -->
 <template>
@@ -31,7 +30,7 @@ Hosted by ResponsiveOverlay (modal at >=768px, drawer below; the same shell as T
     <template #body>
       <!-- The button state is visual only, so the confirmation is also announced from inside -->
       <p class="sr-only" role="status" data-testid="day-close-status">{{ announcement }}</p>
-      <DayCloseBody @smaller="handleSmaller" />
+      <DayCloseBody />
     </template>
     <template #footer>
       <UButton
@@ -61,7 +60,6 @@ Hosted by ResponsiveOverlay (modal at >=768px, drawer below; the same shell as T
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { navigateTo } from 'nuxt/app'
 import { MODAL_WIDTH } from '~/utils/modalSizes'
 import { buildDaySummaryMarkdown } from '~/utils/dayClose'
 import { useDayClose, useDayCloseData } from '~/composables/useDayClose'
@@ -95,27 +93,12 @@ onBeforeUnmount(() => clearTimeout(copiedTimer))
 
 const isEmpty = computed(() => done.value.length === 0 && inFlight.value.length === 0)
 
-/** Set by "Make smaller": the sheet opens only after the dialog has left. */
-let pendingSmallerTaskId: string | null = null
-
 /** ResponsiveOverlay forwards only real changes (its echo guard), so a `false` here is a dismissal. */
 const handleOpenChange = (value: boolean) => {
   if (!value) close()
 }
 
-const handleSmaller = (taskId: string) => {
-  pendingSmallerTaskId = taskId
-  close()
-}
-
 const handleAfterLeave = () => {
-  const taskId = pendingSmallerTaskId
-  pendingSmallerTaskId = null
-  if (taskId) {
-    // The sheet takes over focus; the title goes straight into edit mode (?smaller=1).
-    void navigateTo({ path: `/tasks/${taskId}`, query: { smaller: '1' } })
-    return
-  }
   restoreFocus()
 }
 
