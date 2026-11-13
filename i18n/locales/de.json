@@ -1,6 +1,7 @@
 {
   "common": {
     "back": "Zurück",
+    "backToSettings": "Zurück zu Einstellungen",
     "completed": "Erledigt",
     "settings": "Einstellungen",
     "clickToEdit": "Zum Bearbeiten klicken",
@@ -1207,25 +1208,26 @@
       "title": "Wo sind deine Aufgaben heute?",
       "nowhere": "Noch nirgends",
       "inNotion": "In Notion",
-      "later": "Weitere Verbindungen kannst du später in den Einstellungen hinzufügen."
-    },
-    "local": {
-      "title": "Lokaler Modus",
-      "intro": "Arbeite ohne externe Verbindung. Deine Aufgaben werden lokal auf diesem Gerät gespeichert.",
-      "later": "Du kannst jederzeit später eine Integration wie Notion oder Todoist verbinden.",
-      "howToStart": "Wie möchtest du starten?",
-      "startFresh": "Neu starten",
-      "startSamples": "Mit Beispielaufgaben starten"
+      "later": "Weitere Verbindungen kannst du später in den Einstellungen hinzufügen.",
+      "exploreLead": "Willst du erstmal nur schauen?",
+      "samples": "Mit Beispielaufgaben",
+      "samplesHint": "Ein gefülltes Board zum Ausprobieren"
     },
     "flow": {
-      "backToChoice": "Zur Auswahl",
+      "backToChoice": "Zurück zur Auswahl",
       "local": {
         "label": "Lokal starten",
         "title": "Lokal starten",
         "intro": "Deine Aufgaben bleiben auf diesem Gerät. Eine Verbindung wie Notion kannst du später in den Einstellungen hinzufügen.",
-        "freshHint": "Ein leeres Board. Die erste Aufgabe legst du selbst an.",
-        "samplesHint": "Ein gefülltes Board zum Ausprobieren. Du kannst es jederzeit leeren.",
+        "emptyBoard": "Das Board startet leer. Die erste Aufgabe legst du selbst an.",
         "confirm": "Los geht’s"
+      },
+      "samples": {
+        "label": "Mit Beispielaufgaben starten",
+        "title": "Beispielaufgaben",
+        "intro": "Das Board ist gefüllt: Aufgaben in allen Spalten und mit Themen, damit du alles ausprobieren kannst.",
+        "resetNote": "Willst du mit echten Aufgaben starten, setze die App unter Einstellungen › Daten & Speicher zurück. Dann sind die Beispielaufgaben und die Statistik, die beim Ausprobieren entsteht, weg.",
+        "confirm": "Board ansehen"
       },
       "notion": {
         "label": "Mit Notion verbinden",

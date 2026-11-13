@@ -4,5 +4,7 @@
   - heading "Wo sind deine Aufgaben heute?" [level=1]
   - button "Noch nirgends"
   - button "In Notion"
+  - paragraph: Willst du erstmal nur schauen?
+  - button "Mit Beispielaufgaben Ein gefülltes Board zum Ausprobieren"
   - paragraph: Weitere Verbindungen kannst du später in den Einstellungen hinzufügen.
   - paragraph: "/Version: \\d+\\.\\d+\\.\\d+/"

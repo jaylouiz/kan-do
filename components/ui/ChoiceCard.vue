@@ -2,7 +2,7 @@
 @component ChoiceCard
 @kind primitive
 @category input
-@description The one card for a bigger choice (kd#178): a full-width answer row with an icon, a label, an optional hint line and a mark at the end. The welcome page's two answers ("Noch nirgends", "In Notion", which open a setup) and the local setup's two radio cards (empty or sample board) are this one card.
+@description The one card for a bigger choice (kd#178): a full-width answer row with an icon, a label, an optional hint line and a mark at the end. The welcome page's answers ("Noch nirgends", "In Notion", which open a setup, and the set-apart "Mit Beispielaufgaben" with a hint line, #236) are this one card. The radio form (a choice that waits for a confirmation) has no consumer at the moment.
 @usage <ChoiceCard icon="i-ph-desktop" @click="open">{{ label }}</ChoiceCard> (the mark at the end is the go-on arrow); inside a `RadioGroupRoot` give it a `value` and it is a radio card (the mark is the radio dot): <ChoiceCard value="fresh" icon="i-ph-plus-circle"><template #hint>{{ hint }}</template>{{ label }}</ChoiceCard>. Attributes (`data-testid`, `aria-*`, `disabled`) and the click land on the control.
 @avoid Not for a pick among a few short words (ChoiceChip), not for an action in a row (UButton) and not for an option inside a list (the select menu's item). A card that opens something never carries a filled look: no answer is the primary one; the wash is the checked state of a radio card only.
 @responsibility

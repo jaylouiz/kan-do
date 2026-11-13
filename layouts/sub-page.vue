@@ -3,7 +3,7 @@
 @description Shared layout for sub-pages with a scrolling header and consistent styling
 @usage Apply via definePageMeta({ layout: 'sub-page' }) in pages
 @responsibility
-- Provide consistent page structure for sub-pages (settings, statistics, etc.), below the app bar (#470); no back arrow
+- Provide consistent page structure for sub-pages (settings, statistics, etc.), below the app bar (#470); a page with `definePageMeta({ backTo })` (the settings sub-pages, #236) starts its column with the `BackButton` "Zurück zu Einstellungen", the pages the app bar leads to (Einstellungen, Papierkorb, Statistik) have none
 - Stays out of the way of the phone bar: the content pads by --phone-bar-offset
 - Render PageHeader with title/description from route meta, except on a page with `definePageMeta({ pageHeader: false })`
   (Einstellungen, Papierkorb, Statistik; #670, #686): the app bar's pill already names it, so the title stays only as a
@@ -30,6 +30,9 @@
     <div class="px-safe" :class="{ 'pt-safe': !showsHeader }">
       <main class="mx-auto max-w-5xl px-4 py-8">
         <div data-testid="sub-page-column" :class="{ 'mx-auto max-w-2xl': isNarrow }">
+          <div v-if="backTo" class="mb-4 flex">
+            <BackButton :label="t('common.backToSettings')" :to="backTo" />
+          </div>
           <slot />
         </div>
       </main>
@@ -39,6 +42,7 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
+import BackButton from '~/components/ui/BackButton.vue';
 import PageHeader from '~/components/ui/PageHeader.vue';
 
 defineOptions({ name: 'SubPageLayout' });
@@ -48,6 +52,9 @@ const { t } = useI18n();
 
 /** Named by the app bar already (#670): no visible header */
 const showsHeader = computed(() => route.meta.pageHeader !== false);
+
+/** A deeper route leads back to its parent (#236): only the settings sub-pages name one */
+const backTo = computed(() => (typeof route.meta.backTo === 'string' ? route.meta.backTo : undefined));
 
 /** One 672 px column on the axis instead of the full container (#673) */
 const isNarrow = computed(() => route.meta.pageWidth === 'narrow');
