@@ -283,10 +283,8 @@
     
     /* Task card visual transforms (scale, rotate effects during interaction) */
     --task-transform-duration: var(--duration-fast);
-    /* Add slot (#125): the soft surface (and the Jetzt slot) appears quickly on hover/focus */
+    /* Jetzt add slot (#125): the soft surface appears quickly on hover/focus */
     --add-slot-reveal-duration: var(--duration-fast);
-    /* Offen add slot (#466): the soft surface grows from label-wide into the card shape on hover/focus */
-    --add-slot-grow-duration: var(--duration-fast);
 
     /* --- Elevation (DESIGN.md "Elevation"): one warm shadow colour at four steps --- */
     /* A shadow belongs to a sheet; a control never casts one (The Sheets Cast Shadows Rule). */
@@ -310,7 +308,7 @@
     --z-titlebar: 30; /* desktop shell title bar (app.vue) */
     --z-card-layer: 30; /* inside a card's own stacking context: above the corner glyph (10) and the done layer (20) (TaskTimeboxNudge, TaskCompletionBurst) */
     --z-bar: 40; /* the app bar; the Jetzt focus overlay dims it with its own strip at 41 */
-    --z-card: 50; /* every task card is its own stacking context; also the add-slot overlay of a column */
+    --z-card: 50; /* every task card is its own stacking context; also the Jetzt add-slot overlay */
     --z-picker: 50; /* feedback element picker (above the page, below every overlay) */
     --z-card-celebrating: 51; /* the card whose completion burst plays: one step above its neighbours */
     --z-item-base: 100; /* a list item sits at this plus its --item-index (board.css), so later items overlap earlier ones */
@@ -320,7 +318,6 @@
     --z-stack-motion: 600; /* the stack (un)collapse layer, above the stack control */
     --z-focus-overlay: 1000; /* the Jetzt focus overlay */
     --z-focus-column: 1100; /* the Jetzt column while the focus overlay is on: lifts above it */
-    --z-add-slot-open: 1500; /* the open Offen add slot, sticky at the bottom of its column */
     --z-overlay: 2100; /* sheet, dialog, drawer and their scrim; the phone edge indicator */
     --z-popover: 2200; /* popover, dropdown, tooltip: above the sheet they open in */
     --z-toast: 2300; /* the toast viewport: above everything */

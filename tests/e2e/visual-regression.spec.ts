@@ -780,7 +780,7 @@ for (const { size, viewport } of CORE_VIEWPORTS) {
       await page.goto('/tasks')
       await expect(page.locator('#column-open .task-wrapper').first()).toBeVisible()
       await showColumnPage(page, 0) // the board opens on Jetzt while a task sits there (kd#191)
-      await page.locator('#column-open .add-task-button').click()
+      await page.locator('#column-open [data-testid="add-task-header-button"]').click()
       await expect(page.getByTestId('new-card-title')).toBeFocused()
     }
     const toQuestion = async (page: Page) => {

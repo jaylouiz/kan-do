@@ -15,7 +15,7 @@ const offen = (page: Page) => page.locator('#column-open')
 const card = (page: Page) => page.getByTestId('new-card-flow')
 const title = (page: Page) => page.getByTestId('new-card-title')
 const step = (page: Page) => page.getByTestId('new-card-step')
-const addButton = (page: Page) => offen(page).locator('.add-task-button')
+const addButton = (page: Page) => offen(page).getByRole('button', { name: 'Aufgabe hinzufügen' })
 const box = async (locator: Locator) => (await locator.boundingBox())!
 
 /** More than three topics and activities, so the Mehr list has something behind the three pills (kd#16) */
@@ -85,6 +85,7 @@ for (const { name, viewport, touch } of [
         })
 
       await openCard(page)
+      await settleAnimations(page) // the draft enters over 200 ms (#248): read the boxes at rest
       const title1 = await offsets()
       expect(Math.abs(title1.input! - title1.regularTitle)).toBeLessThanOrEqual(1)
       // The check is centred vertically on the card ...
@@ -321,7 +322,7 @@ for (const { name, viewport, touch } of [
 
     test('the sheet taking over cancels the card; a second card cannot be opened', async ({ page }) => {
       await openCard(page)
-      await expect(addButton(page)).toHaveJSProperty('inert', true)
+      await expect(addButton(page)).toBeDisabled()
       await title(page).fill('Wird verworfen')
       await page.locator('body').click({ position: { x: 4, y: 4 } }) // out of the input; the card has a title, so it stays
       await expect(card(page)).toBeVisible()

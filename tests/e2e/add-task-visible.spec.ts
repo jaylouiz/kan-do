@@ -3,8 +3,8 @@ import { seedLocalBoard } from './helpers/seed';
 import { showColumnPage } from './helpers/dnd';
 
 /**
- * Issue #33: the "Aufgabe hinzufügen" control is always visible (no hover), keyboard
- * reachable with a visible focus ring, and thumb-reachable on the mobile Offen tab.
+ * Issue #33, #248: the "Aufgabe hinzufügen" control (the round button in the Offen header) is always visible (no hover),
+ * keyboard reachable with a visible focus ring, and a 44px target on the mobile Offen tab.
  */
 test.describe('Add task: persistent control', () => {
   test.beforeEach(async ({ context }) => {
@@ -18,7 +18,7 @@ test.describe('Add task: persistent control', () => {
     const add = page.locator('#column-open').getByRole('button', { name: 'Aufgabe hinzufügen' });
     await expect(add).toBeVisible();
     const box = (await add.boundingBox())!;
-    expect(box.height).toBeGreaterThanOrEqual(44);
+    expect(box.height).toBeGreaterThanOrEqual(32);
 
     // Keyboard: focus shows the focus ring (DESIGN.md "States": the 3px halo); Enter opens the form.
     await add.focus();
@@ -39,8 +39,8 @@ test.describe('Add task: persistent control', () => {
     const box = (await add.boundingBox())!;
     expect(box.height).toBeGreaterThanOrEqual(44);
     expect(box.width).toBeGreaterThanOrEqual(44);
-    // Follows the last Offen card (#144) and stays fully above the 60px tab bar.
-    expect(box.y + box.height).toBeLessThanOrEqual(844 - 60);
+    // In the header at the top of the page (#248), no sticky bar above the app bar.
+    expect(box.y).toBeLessThan(120);
 
     await add.click();
     await expect(page.getByTestId('new-card-title')).toBeVisible();

@@ -1,12 +1,13 @@
 import { test, expect, type Page, type Locator } from '@playwright/test';
 import { seedLocalBoard, SEED_TASKS } from './helpers/seed';
 import { showColumnPage } from './helpers/dnd';
+import { settleAnimations } from './helpers/settle';
 
 /**
- * #125: both add controls are card-sized slots that morph into a card in the same box.
- * Offen: always-visible label; the card is the in-card flow (#649, `new-card-flow.spec.ts`). Jetzt (empty only):
- * revealed by hovering the Jetzt section or by focus, opens add-and-start (the sheet's draft card); the saved card
- * is the regular Jetzt card.
+ * #125, #248: Offen adds from a round button in its column header; the draft card (the in-card flow, #649,
+ * `new-card-flow.spec.ts`) enters at the top of the list and the list holds no add slot of its own. Jetzt (empty only):
+ * a card-sized slot revealed by hovering the Jetzt section or by focus, opens add-and-start (the sheet's draft card); the
+ * saved card is the regular Jetzt card.
  */
 
 // Mobile cards are capped at 17.5rem and centred in the column (#234); below ~312px the 1rem gutter (#220) wins
@@ -19,7 +20,8 @@ const EMPTY_JETZT = SEED_TASKS.filter((task) => task.status !== 1);
 const offen = (page: Page) => page.locator('#column-open');
 const jetzt = (page: Page) => page.locator('#column-progress');
 const slotButton = (column: Locator) => column.locator('.add-task-button');
-const slotSurface = (column: Locator) => column.locator('.add-task-button-surface');
+/** The Offen header's round add button (#248): the one add entry of Offen */
+const headerAdd = (page: Page) => offen(page).getByRole('button', { name: 'Aufgabe hinzufügen' });
 const TRANSPARENT = 'rgba(0, 0, 0, 0)';
 /** The Offen add button adds in the card itself (#649) */
 const newCard = (column: Locator) => column.getByTestId('new-card-flow');
@@ -57,140 +59,143 @@ test.describe('Add slot, desktop', () => {
       await parkPointer(page);
     });
 
-    test('Offen slot is a card-sized box holding a compact soft surface that grows to the card on hover (#466)', async ({ page }) => {
-      const button = slotButton(offen(page));
-      const surface = slotSurface(offen(page));
-      const card = offen(page).locator('.task-wrapper .task').first();
-
-      await expect(button).toHaveText('Aufgabe hinzufügen');
-      await expect(button).toHaveCSS('opacity', '1');
-      await expect(button).toHaveCSS('background-color', TRANSPARENT);
-      await expect(button).toHaveCSS('box-shadow', 'none');
-      // Soft grey at rest, same token as the old hover surface
-      await expect(surface).not.toHaveCSS('background-color', TRANSPARENT);
-      const grey = await surface.evaluate((el) => getComputedStyle(el).backgroundColor);
-
-      const slot = await box(button);
-      const cardBox = await box(card);
-      expect(Math.round(slot.height)).toBe(132);
-      expect(Math.abs(slot.width - cardBox.width)).toBeLessThanOrEqual(1);
-      expect(Math.abs(slot.x - cardBox.x)).toBeLessThanOrEqual(1);
-      await expect(button).toHaveCSS('border-radius', await card.evaluate((el) => getComputedStyle(el).borderTopLeftRadius));
-      await expect(surface).toHaveCSS('border-radius', await card.evaluate((el) => getComputedStyle(el).borderTopLeftRadius));
-
-      // Compact at rest: 36px tall, label-wide, centred in the slot
-      const compact = await box(surface);
-      expect(Math.round(compact.height)).toBe(36);
-      expect(compact.width).toBeLessThan(slot.width - 40);
-      expect(Math.abs(compact.x + compact.width / 2 - (slot.x + slot.width / 2))).toBeLessThanOrEqual(1);
-      expect(Math.abs(compact.y + compact.height / 2 - (slot.y + slot.height / 2))).toBeLessThanOrEqual(1);
-
-      // Last item of the list, after the cards
-      const lastCard = await box(offen(page).locator('.task-wrapper').last());
-      expect(slot.y).toBeGreaterThan(lastCard.y + lastCard.height);
-
-      // Hover: the surface becomes exactly the card box, the slot never moves
-      await button.hover();
-      await expect.poll(async () => Math.round((await box(surface)).height)).toBe(132);
-      expectSameBox(await box(surface), slot);
-      await expect(surface).toHaveCSS('background-color', grey);
-      await expect(button).toHaveCSS('box-shadow', 'none');
-      expectSameBox(await box(button), slot);
-      // Icon + label stay centred as a group
-      const icon = await box(button.locator('.add-task-button-icon'));
-      const label = await box(button.locator('.add-task-button-label'));
-      expect(Math.abs((icon.x + label.x + label.width) / 2 - (slot.x + slot.width / 2))).toBeLessThanOrEqual(1);
+    test('Offen has one round soft add button in its header, aligned with the cards and centred on the title; no other column has one (#248)', async ({ page }) => {
+      const add = headerAdd(page);
+      await expect(add).toHaveCount(1);
+      await expect(page.getByRole('button', { name: 'Aufgabe hinzufügen' })).toHaveCount(1);
+      const button = await box(add);
+      const title = await box(offen(page).locator('h2'));
+      const card = await box(offen(page).locator('.task-wrapper .task').first());
+      expect(Math.round(button.width)).toBe(32);
+      expect(Math.round(button.height)).toBe(32);
+      await expect(add).toHaveCSS('border-top-left-radius', '9999px');
+      await expect(add).not.toHaveCSS('background-color', TRANSPARENT);
+      // The cards' right edge, and the centre of the title line
+      expect(Math.abs(button.x + button.width - (card.x + card.width))).toBeLessThanOrEqual(1);
+      expect(Math.abs(button.y + button.height / 2 - (title.y + title.height / 2))).toBeLessThanOrEqual(1);
+      // Never over the title, which stays centred on the cards like the other columns' titles
+      expect(button.x).toBeGreaterThanOrEqual(title.x + title.width);
+      expect(Math.abs(title.x + title.width / 2 - (card.x + card.width / 2))).toBeLessThanOrEqual(1);
+      await expect(page.locator('#column-progress, #column-waiting, #column-done').getByRole('button', { name: 'Aufgabe hinzufügen' })).toHaveCount(0);
     });
 
-    test('the resting add-task surface is as high as the day-close button (#582)', async ({ page }) => {
-      const cta = page.getByTestId('day-close-cta');
-      await expect(cta).toBeVisible();
-      const surface = await box(slotSurface(offen(page)));
-      const close = await box(cta);
-      expect(Math.round(surface.height)).toBe(Math.round(close.height));
-      // The hit target is the card-sized button, far above WCAG 2.2 AA 24x24
-      const hit = await box(slotButton(offen(page)));
-      expect(hit.width).toBeGreaterThanOrEqual(24);
-      expect(hit.height).toBeGreaterThanOrEqual(24);
+    test('Offen list has no add control or reserved box: the first card sits at the top of the list, the list ends with its last card (#248)', async ({ page }) => {
+      await expect(offen(page).locator('.add-task-button, [data-add-slot="open"], [data-testid="add-task-button"]')).toHaveCount(0);
+      const list = await box(offen(page).locator('.task-list'));
+      const first = await box(offen(page).locator('.task-wrapper').first());
+      expect(Math.abs(first.y - list.y)).toBeLessThanOrEqual(1);
+      expect(await offen(page).locator('.add-task-slot').evaluate((el) => getComputedStyle(el).display)).toBe('contents');
     });
 
-    test('Offen: hover grows, leaving shrinks back, and again (A -> B -> A)', async ({ page }) => {
-      const button = slotButton(offen(page));
-      const surface = slotSurface(offen(page));
-      const slot = await box(button);
-      const height = async () => Math.round((await box(surface)).height);
+    test('Offen: the button shows the draft card at the top; the cards move down, a second click opens nothing, Escape returns focus to the button', async ({ page }) => {
+      const add = headerAdd(page);
+      const firstCard = offen(page).locator('.task-wrapper .task').first();
+      const buttonBefore = await box(add);
+      const cardBefore = await box(firstCard);
+      await add.click();
+      await expect(page).toHaveURL(/\/tasks$/); // no sheet, no route change (#649)
 
-      await button.hover();
-      await expect.poll(height).toBe(132);
-      await parkPointer(page);
-      await expect.poll(height).toBe(36);
-      await button.hover();
-      await expect.poll(height).toBe(132);
-      expectSameBox(await box(button), slot);
-    });
+      const card = newCard(offen(page));
+      await expect(card).toBeVisible();
+      // Above the first card, in the card column, a regular card's box
+      // The cards below follow the draft: the list gap between it and the first card (0.75rem)
+      await expect.poll(async () => {
+        const d = await box(card);
+        return Math.round((await box(firstCard)).y - (d.y + d.height));
+      }).toBe(12);
+      await settleAnimations(page);
+      const draft = await box(card);
+      expect(Math.abs(draft.y - cardBefore.y)).toBeLessThanOrEqual(1);
+      expect(Math.abs(draft.x - cardBefore.x)).toBeLessThanOrEqual(1);
+      expect(Math.abs(draft.width - cardBefore.width)).toBeLessThanOrEqual(1);
+      // The header stays: the button keeps its place, does nothing, and never opens a second card
+      expectSameBox(await box(add), buttonBefore);
+      await expect(add).toBeDisabled();
+      await add.click({ force: true });
+      await expect(newCard(offen(page))).toHaveCount(1);
 
-    test('Offen: keyboard focus grows the surface with the ink ring around the card box; blur shrinks it back', async ({ page }) => {
-      const button = slotButton(offen(page));
-      const surface = slotSurface(offen(page));
-      const slot = await box(button);
-      const height = async () => Math.round((await box(surface)).height);
-
-      await button.focus();
-      await page.keyboard.press('Shift+Tab');
-      await page.keyboard.press('Tab');
-      await expect(button).toBeFocused();
-      await expect.poll(height).toBe(132);
-      await expect(button).toHaveCSS('outline-style', 'solid');
-      expectSameBox(await box(button), slot);
-
-      await button.blur();
-      await expect.poll(height).toBe(36);
-      await button.focus();
-      await page.keyboard.press('Shift+Tab');
-      await page.keyboard.press('Tab');
-      await expect.poll(height).toBe(132);
-    });
-
-    test('Offen: the surface stays grown while the new card shows; Escape returns focus and it shrinks back', async ({ page }) => {
-      const button = slotButton(offen(page));
-      const surface = slotSurface(offen(page));
-      const height = async () => Math.round((await box(surface)).height);
-
-      await button.hover();
-      await button.click();
-      await expect(newCard(offen(page))).toBeVisible();
-      await parkPointer(page);
-      // Held grown under the fading label: no jump back to the compact button
-      await expect.poll(height).toBe(132);
-      await expect(offen(page).locator('.add-task-slot')).toHaveClass(/is-drafting/);
-
+      await page.getByTestId('new-card-title').fill('Angebot an Kunde');
+      await expect(card.locator('.task-title-text')).toHaveText('Angebot an Kunde');
+      await page.getByTestId('new-card-title').fill('');
       await page.keyboard.press('Escape');
       await expect(newCard(offen(page))).toHaveCount(0);
-      await expect(page).toHaveURL(/\/tasks$/);
-      await expect(button).toBeFocused();
-      // Focus returned by script, not by the keyboard: focus-visible decides whether it stays grown
-      const focusVisible = await button.evaluate((el) => el.matches(':focus-visible'));
-      await expect.poll(height).toBe(focusVisible ? 132 : 36);
-      await button.blur();
-      await expect.poll(height).toBe(36);
+      await expect(add).toBeFocused();
+      await expect(add).toBeEnabled();
+      // The cards close up again: the first card is back where it was
+      await expect.poll(async () => Math.round((await box(firstCard)).y)).toBe(Math.round(cardBefore.y));
     });
 
-    test('a drag that ends over the Offen slot leaves no stuck grown state', async ({ page }) => {
-      const surface = slotSurface(offen(page));
-      const slotBox = await box(slotButton(offen(page)));
+    test('Offen: Enter and Space on the focused button open the card; the title takes focus', async ({ page }) => {
+      const add = headerAdd(page);
+      for (const key of ['Enter', 'Space']) {
+        await add.focus();
+        await page.keyboard.press(key);
+        await expect(newCard(offen(page))).toBeVisible();
+        await expect(page.getByTestId('new-card-title')).toBeFocused();
+        await page.keyboard.press('Escape');
+        await expect(newCard(offen(page))).toHaveCount(0);
+        await expect(add).toBeFocused();
+      }
+    });
+
+    test('Offen: the draft enters in 200ms or less with the cards following, no jump (#248)', async ({ page }) => {
+      await headerAdd(page).click();
+      const timing = await offen(page).locator('.add-task-slot-draft-wrap').evaluate((el) =>
+        el.getAnimations().map((animation) => ({ property: (animation as CSSTransition).transitionProperty, duration: Number(animation.effect!.getComputedTiming().duration) })),
+      );
+      expect(timing.map((t) => t.property).sort()).toEqual(['grid-template-rows', 'margin-bottom', 'opacity']);
+      for (const { duration } of timing) expect(duration).toBeLessThanOrEqual(200);
+    });
+
+    test('Offen: save puts the card into the list, focus on it, the button is live again', async ({ page }) => {
+      await headerAdd(page).click();
+      await page.getByTestId('new-card-title').fill('Neue Aufgabe');
+      await page.keyboard.press('Enter');
+      // Thema, Aktivität and Timebox are skipped with Enter, Notiz saves
+      for (const step of ['topic', 'activity', 'timebox']) {
+        await expect(page.getByTestId('new-card-step')).toHaveAttribute('data-step', step);
+        await page.keyboard.press('Enter');
+      }
+      await expect(page.getByTestId('new-card-notes')).toBeFocused();
+      await page.keyboard.press('Enter');
+
+      const saved = offen(page).locator('.task-wrapper').filter({ hasText: 'Neue Aufgabe' });
+      await expect(saved).toHaveAttribute('aria-label', 'Neue Aufgabe');
+      await expect(saved).toBeFocused();
+      const savedId = await saved.getAttribute('data-task-id');
+      expect(savedId).toMatch(/^local_/);
+      expect(await focusedCard(page)).toEqual({ className: 'task-wrapper', taskId: savedId, tabIndex: 0, label: 'Neue Aufgabe' });
+      await expect(newCard(offen(page))).toHaveCount(0);
+      await expect(headerAdd(page)).toBeEnabled();
+    });
+
+    test('Offen: dragging a card keeps the header button in place and out of the drop targets; a drag that ends over the header leaves nothing stuck', async ({ page }) => {
+      const add = headerAdd(page);
+      const before = await box(add);
       const from = await box(offen(page).locator('.task-wrapper').first());
+      const target = await box(page.locator('#column-waiting'));
 
       await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
       await page.mouse.down();
       await page.mouse.move(from.x + from.width / 2 + 10, from.y + from.height / 2 + 10, { steps: 5 });
-      await page.mouse.move(slotBox.x + slotBox.width / 2, slotBox.y + slotBox.height / 2, { steps: 10 });
+      await page.mouse.move(target.x + target.width / 2, target.y + 120, { steps: 10 });
       await expect(page.locator('.board')).toHaveClass(/dragging/);
+      expectSameBox(await box(add), before);
+      await expect(offen(page).locator('.add-task-button')).toHaveCount(0);
       await page.mouse.up();
       await expect(page.locator('.board')).not.toHaveClass(/dragging/);
-      await expect(offen(page).locator('.add-task-slot')).toHaveCSS('visibility', 'visible');
-      // The slot may have moved down by the dropped card; the pointer is re-evaluated against the new layout
-      await parkPointer(page);
-      await expect.poll(async () => Math.round((await box(surface)).height)).toBe(36);
+      expectSameBox(await box(add), before);
+
+      // Pulled over the button and released: the card stays in Offen, nothing opens
+      const card = await box(offen(page).locator('.task-wrapper').first());
+      await page.mouse.move(card.x + card.width / 2, card.y + card.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(card.x + card.width / 2 + 10, card.y + card.height / 2 + 10, { steps: 5 });
+      await page.mouse.move(before.x + before.width / 2, before.y + before.height / 2, { steps: 10 });
+      await page.mouse.up();
+      await expect(page.locator('.board')).not.toHaveClass(/dragging/);
+      await expect(newCard(offen(page))).toHaveCount(0);
+      expectSameBox(await box(add), before);
     });
 
     test('Jetzt slot is hidden at rest and revealed by hovering the Jetzt section, not Wartet', async ({ page }) => {
@@ -200,8 +205,16 @@ test.describe('Add slot, desktop', () => {
 
       await page.locator('#column-progress h2').hover();
       await expect(button).toHaveCSS('opacity', '1');
-      // The label keeps the full text-muted colour of the Offen label (no faded resting state)
-      await expect(button).toHaveCSS('color', await slotButton(offen(page)).evaluate((el) => getComputedStyle(el).color));
+      // The label keeps the full text-muted colour (no faded resting state)
+      const muted = await page.evaluate(() => {
+        const probe = document.createElement('span');
+        probe.style.color = 'var(--ui-text-muted)';
+        document.body.appendChild(probe);
+        const color = getComputedStyle(probe).color;
+        probe.remove();
+        return color;
+      });
+      await expect(button).toHaveCSS('color', muted);
 
       await page.locator('#column-waiting .task-wrapper').first().hover();
       await expect(button).toHaveCSS('opacity', '0');
@@ -213,46 +226,6 @@ test.describe('Add slot, desktop', () => {
       await button.focus();
       await expect(button).toHaveCSS('opacity', '1');
       await expect(button).toHaveCSS('outline-style', 'solid');
-    });
-
-    test('Offen: the slot morphs into the new card in the same box, which shows the title live', async ({ page }) => {
-      const button = slotButton(offen(page));
-      const before = await box(button);
-      await button.click();
-      await expect(page).toHaveURL(/\/tasks$/); // no sheet, no route change (#649)
-
-      const card = newCard(offen(page));
-      await expect(card).toBeVisible();
-      expectSameBox(await box(card), before);
-      await expect(offen(page).locator('.add-task-button-label')).toHaveCSS('opacity', '0');
-
-      await page.getByTestId('new-card-title').fill('Angebot an Kunde');
-      await expect(card.locator('.task-title-text')).toHaveText('Angebot an Kunde');
-    });
-
-    test('Offen: save puts the card at the new card position, a fresh slot below, focus on the new card', async ({ page }) => {
-      const button = slotButton(offen(page));
-      const before = await box(button);
-      await button.click();
-      await page.getByTestId('new-card-title').fill('Neue Aufgabe');
-      await page.keyboard.press('Enter');
-      // Thema, Aktivität and Timebox are skipped with Enter, Notiz saves
-      for (const step of ['topic', 'activity', 'timebox']) {
-        await expect(page.getByTestId('new-card-step')).toHaveAttribute('data-step', step);
-        await page.keyboard.press('Enter');
-      }
-      await expect(page.getByTestId('new-card-notes')).toBeFocused();
-      await page.keyboard.press('Enter');
-
-      const saved = offen(page).locator('.task-wrapper').last();
-      await expect(saved).toHaveAttribute('aria-label', 'Neue Aufgabe');
-      expect(Math.abs((await box(saved)).y - before.y)).toBeLessThanOrEqual(1);
-      await expect(saved).toBeFocused();
-      const savedId = await saved.getAttribute('data-task-id');
-      expect(savedId).toMatch(/^local_/);
-      expect(await focusedCard(page)).toEqual({ className: 'task-wrapper', taskId: savedId, tabIndex: 0, label: 'Neue Aufgabe' });
-      await expect(newCard(offen(page))).toHaveCount(0);
-      expect((await box(button)).y).toBeGreaterThan(before.y + before.height);
     });
 
     test('Jetzt: the slot morphs into a regular-size draft with the running time; it is not a task', async ({ page }) => {
@@ -338,40 +311,19 @@ test.describe('Add slot, desktop', () => {
       });
     }
 
-    test('Offen: Space opens the new card and Escape returns focus to the slot', async ({ page }) => {
-      const button = slotButton(offen(page));
-      await button.focus();
-      await page.keyboard.press('Space');
-      await expect(newCard(offen(page))).toBeVisible();
-      await expect(page.getByTestId('new-card-title')).toBeFocused();
+  });
 
-      await page.keyboard.press('Escape');
-      await expect(newCard(offen(page))).toHaveCount(0);
-      await expect(button).toBeFocused();
-    });
-
-    test('during a drag the Offen slot keeps its box but is hidden; the Jetzt slot is gone', async ({ page }) => {
-      const button = slotButton(offen(page));
-      const before = await box(button);
-      const source = offen(page).locator('.task-wrapper').first();
-      const from = await box(source);
-      const target = await box(page.locator('#column-waiting'));
-
-      await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
-      await page.mouse.down();
-      await page.mouse.move(from.x + from.width / 2 + 10, from.y + from.height / 2 + 10, { steps: 5 });
-      await page.mouse.move(target.x + target.width / 2, target.y + 120, { steps: 10 });
-      await expect(page.locator('.board')).toHaveClass(/dragging/);
-
-      await expect(offen(page).locator('.add-task-slot')).toHaveCSS('visibility', 'hidden');
-      expect(Math.round((await box(offen(page).locator('.add-task-slot'))).height)).toBe(Math.round(before.height));
-      await expect(slotButton(jetzt(page))).toHaveCount(0);
-
-      await page.mouse.up();
-      await expect(page.locator('.board')).not.toHaveClass(/dragging/);
-      await expect(offen(page).locator('.add-task-slot')).toHaveCSS('visibility', 'visible');
-      await expect(slotButton(jetzt(page))).toHaveCount(1);
-    });
+  test('an empty Offen still has the header button; the draft opens on the empty list and cancelling leaves the drop zone (#248)', async ({ context, page }) => {
+    await seedLocalBoard(context, SEED_TASKS.filter((task) => task.status !== 0));
+    await page.goto('/tasks');
+    await expect(offen(page).locator('.task-wrapper')).toHaveCount(0);
+    await expect(headerAdd(page)).toBeVisible();
+    await headerAdd(page).click();
+    await expect(newCard(offen(page))).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(newCard(offen(page))).toHaveCount(0);
+    await expect(offen(page).locator('.column-drop-zone')).toHaveCount(1);
+    await expect(headerAdd(page)).toBeFocused();
   });
 
   test('with Jetzt occupied there is no Jetzt add control', async ({ context, page }) => {
@@ -391,14 +343,12 @@ test.describe('Add slot, desktop', () => {
       await page.goto('/tasks');
       const button = slotButton(jetzt(page));
       await expect(button).toHaveCSS('transition-duration', '0s');
-      await expect(offen(page).locator('.add-task-button-label')).toHaveCSS('transition-duration', '0s');
-      // Growth and shrink are instant on the Offen surface, with the same end states
-      const surface = slotSurface(offen(page));
-      await expect(surface).toHaveCSS('transition-duration', '0s');
-      expect(Math.round((await box(surface)).height)).toBe(36);
-      await slotButton(offen(page)).hover();
-      expect(await surface.evaluate((el) => Math.round(el.getBoundingClientRect().height))).toBe(132);
-      await parkPointer(page);
+      // The Offen draft enters without any transition: the cards below sit at their final place at once (#248)
+      await headerAdd(page).click();
+      await expect(newCard(offen(page))).toBeVisible();
+      expect(await offen(page).locator('.add-task-slot-draft-wrap').evaluate((el) => el.getAnimations().length)).toBe(0);
+      await page.keyboard.press('Escape');
+      await expect(newCard(offen(page))).toHaveCount(0);
 
       await page.locator('#column-progress h2').hover();
       await button.click();
@@ -414,106 +364,59 @@ test.describe('Add slot, desktop', () => {
 test.describe('Add slot, 390px', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test('the sticky add-task bar is as high as the day-close button (#582)', async ({ context, page }) => {
+  test('Offen: no sticky bar; the round header button (44px, cards\' right edge) shows the draft at the top (#248)', async ({ context, page }) => {
     await seedLocalBoard(context, EMPTY_JETZT);
     await page.goto('/tasks');
-    const cta = page.getByTestId('day-close-cta');
-    await cta.scrollIntoViewIfNeeded();
-    await expect(cta).toBeVisible();
-    const surface = await box(slotSurface(offen(page)));
-    const close = await box(cta);
-    expect(Math.round(surface.height)).toBe(Math.round(close.height));
-  });
+    await showColumnPage(page, 0);
+    await expect.poll(async () => Math.round((await box(offen(page).locator('.task-wrapper .task').first())).x)).toBe(Math.round(mobileCardX(390))); // the page slide has settled
+    await expect(offen(page).locator('.add-task-button, [data-add-slot="open"]')).toHaveCount(0);
+    const stickies = await offen(page).evaluate((column) => [...column.querySelectorAll('*')].filter((el) => getComputedStyle(el).position === 'sticky').length);
+    expect(stickies).toBe(0);
 
-  test('Offen keeps the sticky 48px bar; tapping it swaps the bar for the new card at the end of the list', async ({ context, page }) => {
-    await seedLocalBoard(context, EMPTY_JETZT);
-    await page.goto('/tasks');
-    const button = slotButton(offen(page));
-    await expect(button).toBeVisible();
-    expect(Math.round((await box(button)).height)).toBe(48);
-    await expect(offen(page).locator('.add-task-slot')).toHaveCSS('position', 'sticky');
-    // The surface carries the soft grey and is the bar itself (label-wide, 48px)
-    const surface = slotSurface(offen(page));
-    await expect(surface).not.toHaveCSS('background-color', TRANSPARENT);
-    await expect(button).toHaveCSS('background-color', TRANSPARENT);
-    expectSameBox(await box(surface), await box(button));
+    const add = headerAdd(page);
+    await expect(add).toBeVisible();
+    const button = await box(add);
+    const firstCard = offen(page).locator('.task-wrapper .task').first();
+    const cardBefore = await box(firstCard);
+    expect(Math.round(button.width)).toBe(44);
+    expect(Math.round(button.height)).toBe(44);
+    expect(Math.abs(button.x + button.width - (cardBefore.x + cardBefore.width))).toBeLessThanOrEqual(1);
+    const title = await box(offen(page).locator('h2'));
+    expect(button.x).toBeGreaterThanOrEqual(title.x + title.width);
 
-    await button.click();
+    await add.click();
     const card = newCard(offen(page));
     await expect(card).toBeVisible();
-    await expect(button).toBeHidden();
-    // The card follows the last card (one measurement, it scrolls itself into view)
-    const gap = await offen(page).evaluate((column) => {
-      const cards = column.querySelectorAll('.task-wrapper');
-      const last = cards[cards.length - 1]!.getBoundingClientRect();
-      return column.querySelector('[data-testid="new-card-flow"]')!.getBoundingClientRect().top - last.bottom;
-    });
-    expect(gap).toBeGreaterThanOrEqual(0);
+    await expect.poll(async () => Math.round((await box(card)).y)).toBe(Math.round(cardBefore.y));
+    await expect(card).toBeInViewport({ ratio: 1 });
+    await expect(add).toBeDisabled();
   });
 
-  test('Offen bar rests directly below the last card on a short list (#144)', async ({ context, page }) => {
-    const shortOffen = [...EMPTY_JETZT.filter((task) => task.status === 0).slice(0, 2)];
-    await seedLocalBoard(context, shortOffen);
-    await page.goto('/tasks');
-    await expect(slotButton(offen(page))).toBeVisible();
-    const gap = await offen(page).evaluate((column) => {
-      const cards = column.querySelectorAll('.task-wrapper');
-      const last = cards[cards.length - 1]!.getBoundingClientRect();
-      return column.querySelector('.add-task-slot')!.getBoundingClientRect().top - last.bottom;
-    });
-    expect(gap).toBeGreaterThanOrEqual(0);
-    expect(gap).toBeLessThanOrEqual(24);
-  });
-
-  test('Offen bar keeps the card gap below a collapsed stack and never overlaps it', async ({ context, page }) => {
-    const [first, second] = EMPTY_JETZT.filter((task) => task.status === 0);
-    const stacked = [
-      { ...first!, id: 'stack-single', topic: 'Software' },
-      { ...first!, id: 'stack-a', topic: 'Design' },
-      { ...second!, id: 'stack-b', topic: 'Design' },
-    ];
-    await seedLocalBoard(context, stacked, {}, { enabled: true, key: 'topic' });
-    // Short viewport: the bar's natural place is close to the app bar, where a doubled bar offset used to pin it up over the stack
-    await page.setViewportSize({ width: 390, height: 700 });
-    await page.goto('/tasks');
-    await expect(offen(page).locator('.task-stack')).toBeVisible();
-    await expect(slotButton(offen(page))).toBeVisible();
-    // The sticky bar must sit at its natural place after the stack, not be pinned up over it
-    const gap = await offen(page).evaluate((column) => {
-      const stack = column.querySelector('.task-stack')!.getBoundingClientRect();
-      return column.querySelector('.add-task-slot')!.getBoundingClientRect().top - stack.bottom;
-    });
-    expect(gap).toBeGreaterThanOrEqual(8);
-    expect(gap).toBeLessThanOrEqual(24);
-  });
-
-  test('Offen bar stays above the phone app bar on a long list (#144, #470)', async ({ context, page }) => {
+  test('Offen, a long list: the button sits at the top, the draft opens in view without scrolling to the end (#248)', async ({ context, page }) => {
     const template = EMPTY_JETZT.find((task) => task.status === 0)!;
     const longOffen = Array.from({ length: 12 }, (_, i) => ({ ...template, id: `long-${i}`, title: `Long ${i}` }));
     await seedLocalBoard(context, longOffen);
     await page.goto('/tasks');
-    const button = slotButton(offen(page));
-    await expect(button).toBeVisible();
-    await expect(button).toBeInViewport({ ratio: 1 });
-    const barTop = (await box(page.locator('[data-app-nav] .app-nav-pill'))).y;
-    expect((await box(button)).y + (await box(button)).height).toBeLessThanOrEqual(barTop);
+    await showColumnPage(page, 0);
+    await expect(headerAdd(page)).toBeInViewport({ ratio: 1 });
+    await headerAdd(page).click();
+    await expect(newCard(offen(page))).toBeInViewport({ ratio: 1 });
   });
 
   test.describe('touch', () => {
     test.use({ hasTouch: true, isMobile: true });
 
-    test('tapping the Offen bar leaves no grown state and keeps a 44px+ target', async ({ context, page }) => {
+    test('tapping the header button opens the draft card; cancelling brings the focus back', async ({ context, page }) => {
       await seedLocalBoard(context, EMPTY_JETZT);
       await page.goto('/tasks');
-      const button = slotButton(offen(page));
-      const surface = slotSurface(offen(page));
-      await expect(button).toBeVisible();
-      expect((await box(button)).height).toBeGreaterThanOrEqual(44);
-      await button.tap();
+      await showColumnPage(page, 0);
+      const add = headerAdd(page);
+      expect((await box(add)).height).toBeGreaterThanOrEqual(44);
+      await add.tap();
       await expect(newCard(offen(page))).toBeVisible();
       await page.keyboard.press('Escape');
       await expect(newCard(offen(page))).toHaveCount(0);
-      await expect.poll(async () => Math.round((await box(surface)).height)).toBe(48);
+      await expect(add).toBeEnabled();
     });
 
     test('the empty Jetzt tab shows the labelled slot at rest, which morphs on tap', async ({ context, page }) => {
