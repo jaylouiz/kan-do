@@ -6,6 +6,6 @@ export default {
   source: 'app',
   alternatives: ['DayCloseDialog', 'ResponsiveOverlay'],
   screen: '/tasks',
-  sampleNote: 'is the recap shown over the dimmed board on the first start of a new day: opened, it covers the page, and it reads the board and the recap state, so it has no inline sample.',
+  sampleNote: 'is the recap stage on the welcome photo under the app bar on the first start of a new day: opened, it covers the page, and it reads the board and the recap state, so it has no inline sample.',
   states: [],
 } satisfies CatalogEntry
