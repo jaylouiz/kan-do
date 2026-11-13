@@ -14,7 +14,7 @@
 - One indicator (a fill, no shadow) behind the selected segment: two springs chase the live box of the `aria-current` segment (useNavIndicator, lib/navSpring.ts). `data-moving` on the nav is set until chip and layout are idle (E2E waits on it)
 - A failing source puts a status dot on ⋯ (error for broken, else warning) and the accessible name says so; the panel explains it
 - Tag abschließen: closes the panel, returns focus to ⋯, then opens the dialog, so the dialog's return target is ⋯ and not a removed row
-- Phone: fades out and ignores pointers while a card is dragged (no drop target is covered); the pills and the veil fade
+- Phone: fades out and ignores pointers while a card is dragged (no drop target is covered); the pills and the veil fade (the veil also steps back while the new-day recap stage is mounted, #262: the photo runs behind the bar)
 - The topic focus funnel (#161, BoardFocusTrigger) sits right of ⋯ on the board route only, outside the group's flow (`.app-nav-focus`), so the pills do not re-centre when it appears
 - Desktop ⋯ tooltip "Mehr · Befehle ⌘K" on every page (the palette is mounted once in app.vue, #224); no tooltip on touch
 -->

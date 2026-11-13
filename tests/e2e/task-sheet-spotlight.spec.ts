@@ -4,6 +4,7 @@
  */
 import { test, expect, type Page } from '@playwright/test'
 import { seedLocalBoard } from './helpers/seed'
+import { settleAnimations } from './helpers/settle'
 
 const OPEN_ID = 'seed-open-1'
 const OTHER_IDS = ['seed-open-2', 'seed-progress-1', 'seed-waiting-1', 'seed-done-1']
@@ -63,6 +64,34 @@ for (const viewport of [{ name: 'desktop', width: 1280, height: 800 }, { name: '
     })
   })
 }
+
+// The board dimming behind an open sheet reaches over the app bar row (#262): at scroll 0 the row is no undimmed paper band.
+test.describe('desktop, scrolled to the top', () => {
+  test.use({ viewport: { width: 1280, height: 800 } })
+
+  test('the dimming continues behind the app bar row: the row and the board below it have one tone', async ({ page }) => {
+    await page.goto(`/tasks/${OPEN_ID}`)
+    await expect(page.getByRole('dialog')).toBeVisible()
+    await expect.poll(() => opacity(page, 'seed-open-2')).toBeLessThan(0.6)
+    await settleAnimations(page)
+    expect(await page.evaluate(() => window.scrollY)).toBe(0)
+    // The empty margin left of the first column: inside the row (y 8..40) and below it, above the column heading (y 64..90)
+    const sample = async (y: number) => {
+      const png = await page.screenshot({ clip: { x: 8, y, width: 24, height: 24 }, animations: 'disabled' })
+      return page.evaluate(async (base64) => {
+        const image = new Image()
+        image.src = `data:image/png;base64,${base64}`
+        await image.decode()
+        const ctx = Object.assign(document.createElement('canvas'), { width: image.width, height: image.height }).getContext('2d', { willReadFrequently: true })!
+        ctx.drawImage(image, 0, 0)
+        return Array.from(ctx.getImageData(image.width / 2, image.height / 2, 1, 1).data).slice(0, 3)
+      }, png.toString('base64'))
+    }
+    const row = await sample(16)
+    const below = await sample(72)
+    row.forEach((channel, i) => expect(Math.abs(channel - below[i]!), `channel ${i}: row ${row}, board ${below}`).toBeLessThanOrEqual(2))
+  })
+})
 
 test('reduced motion: fade is instant', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })

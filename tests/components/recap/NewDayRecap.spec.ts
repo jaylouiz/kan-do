@@ -77,7 +77,7 @@ describe('NewDayRecap', () => {
     setTestLocale('de')
     setDesktop(true)
     toastAddMock.mockClear()
-    document.body.innerHTML = ''
+    document.body.innerHTML = '<div id="recap-stage-host"></div>'
   })
   afterEach(() => {
     wrapper?.unmount()
@@ -101,7 +101,8 @@ describe('NewDayRecap', () => {
     expect(title.textContent).toContain('Kurzer Rückblick')
     expect(q('[data-testid="recap-summary"]').textContent).toBe('Du hast gestern 2 von 5 Aufgaben erledigt.')
     expect(q('[data-testid="recap-photo"]').getAttribute('alt')).toBe('')
-    expect(stage.parentElement).toBe(document.body)
+    expect(stage.parentElement).toBe(document.getElementById('recap-stage-host'))
+    expect(stage.hasAttribute('data-window-drag-layer')).toBe(true)
   })
 
   it('reads "alle Aufgaben" and shows only the Erledigt deck when nothing is open', async () => {
@@ -172,7 +173,7 @@ describe('NewDayRecap', () => {
       wrapper?.unmount()
       resetNewDayRecap()
       setActivePinia(createPinia())
-      document.body.innerHTML = ''
+      document.body.innerHTML = '<div id="recap-stage-host"></div>'
       await open(Array.from({ length: n }, (_, i) => doneAt(1, `x${i}`)))
       expect(visible()).toBe(expected)
     }
@@ -336,7 +337,7 @@ describe('NewDayRecap', () => {
     wrapper?.unmount()
     resetNewDayRecap()
     setActivePinia(createPinia())
-    document.body.innerHTML = ''
+    document.body.innerHTML = '<div id="recap-stage-host"></div>'
     toastAddMock.mockClear()
     await open([doneAt(1, 'a')])
     useDayRecapStore().setArchiveDone(false)
