@@ -791,5 +791,15 @@
     "avoidEn": [],
     "status": "proposed",
     "note": "Funnel \"Fokus\", pill \"Fokus: <Thema> · n ausgeblendet\", ✕ \"Fokus beenden\". The same word already names the Jetzt focus overlay (settings.focus.*, #394): two features, one word. Term question for the user: keep \"Fokus\" for both, or name this one \"Themenfokus\" / \"Filter\"."
+  },
+  {
+    "id": "board-day",
+    "concept": "The running count of days a task has been on the board; day 1 is the first day and stays silent (#121, #247)",
+    "de": "Tag {n} auf dem Board",
+    "en": "day {n} on the board",
+    "avoidDe": [],
+    "avoidEn": [],
+    "status": "proposed",
+    "note": "The count is displayDay (stored days + 1), the same number on the card dots, the label and the sheet question. The sheet question says \"seit {n} Tag/Tagen\" / \"planned for {n} day/days\" with that number, so it counts the first day too and agrees with \"Tag {n}\". Plural by vue-i18n pipe syntax."
   }
 ]
