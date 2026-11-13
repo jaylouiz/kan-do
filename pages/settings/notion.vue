@@ -286,7 +286,6 @@ defineOptions({ name: 'NotionSettingsPage' });
 
 definePageMeta({
   layout: false,
-  backTo: '/settings', // the sub-page layout shows "Zurück zu Einstellungen" (#236)
   titleKey: 'notion.settings.pageTitle',
   descriptionKey: 'notion.settings.pageDescription',
 });

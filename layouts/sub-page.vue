@@ -3,7 +3,7 @@
 @description Shared layout for sub-pages with a scrolling header and consistent styling
 @usage Apply via definePageMeta({ layout: 'sub-page' }) in pages
 @responsibility
-- Provide consistent page structure for sub-pages (settings, statistics, etc.), below the app bar (#470); a page with `definePageMeta({ backTo })` (the settings sub-pages, #236) starts its column with the `BackButton` "Zurück zu Einstellungen", the pages the app bar leads to (Einstellungen, Papierkorb, Statistik) have none
+- Provide consistent page structure for sub-pages (settings, statistics, etc.), below the app bar (#470); a settings sub-page (`/settings/*`, #236) starts its column with the `BackButton` "Zurück zu Einstellungen" that links to the tab holding it (`thirdItemOfPath`, #691), the pages the app bar leads to (Einstellungen, Papierkorb, Statistik) have none
 - Stays out of the way of the phone bar: the content pads by --phone-bar-offset
 - Render PageHeader with title/description from route meta, except on a page with `definePageMeta({ pageHeader: false })`
   (Einstellungen, Papierkorb, Statistik; #670, #686): the app bar's pill already names it, so the title stays only as a
@@ -44,6 +44,7 @@
 import { useI18n } from 'vue-i18n';
 import BackButton from '~/components/ui/BackButton.vue';
 import PageHeader from '~/components/ui/PageHeader.vue';
+import { thirdItemOfPath } from '~/composables/useAppNav';
 
 defineOptions({ name: 'SubPageLayout' });
 
@@ -53,8 +54,8 @@ const { t } = useI18n();
 /** Named by the app bar already (#670): no visible header */
 const showsHeader = computed(() => route.meta.pageHeader !== false);
 
-/** A deeper route leads back to its parent (#236): only the settings sub-pages name one */
-const backTo = computed(() => (typeof route.meta.backTo === 'string' ? route.meta.backTo : undefined));
+/** A settings sub-page leads back to the tab that holds it (#236, #691: the same link as the app bar's third segment) */
+const backTo = computed(() => (route.path.startsWith('/settings/') ? thirdItemOfPath(route.path)?.to : undefined));
 
 /** One 672 px column on the axis instead of the full container (#673) */
 const isNarrow = computed(() => route.meta.pageWidth === 'narrow');

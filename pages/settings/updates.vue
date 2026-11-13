@@ -101,7 +101,6 @@ defineOptions({ name: 'UpdatesSettingsPage' });
 definePageMeta({
   layout: false,
   pageWidth: 'narrow', // one 672 px column on the app bar's axis (#673)
-  backTo: '/settings', // the sub-page layout shows "Zurück zu Einstellungen" (#236)
   middleware: 'desktop-only',
   titleKey: 'settings.updates.pageTitle',
   descriptionKey: 'settings.updates.pageDescription',

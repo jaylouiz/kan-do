@@ -152,7 +152,7 @@ for (const { label, size } of VIEWPORTS) {
       await expect.poll(() => current(page)).toBe('app-nav-place-more')
       await waitForNavIdle(page)
       await expect(thirdItem(page)).toHaveText('Einstellungen')
-      await expect(thirdItem(page)).toHaveAttribute('href', '/settings')
+      await expect(thirdItem(page)).toHaveAttribute('href', `/settings?tab=${tabOf[path]}`) // the tab that holds the sub-page (#691)
       await expectIndicatorOn(page, thirdItem(page))
       await expect(moreButton(page)).not.toHaveAttribute('aria-current', 'page')
 
@@ -472,11 +472,12 @@ for (const { label, size } of VIEWPORTS) {
         await expect(page.getByRole('button', { name: /^Zurück/ })).toHaveCount(0)
         await expect(page.getByRole('link', { name: /^Zurück/ })).toHaveCount(0)
       }
-      for (const path of ['/settings/topics', '/settings/data', '/settings/notion']) {
+      const tabOf: Record<string, string> = { '/settings/topics': 'manage', '/settings/data': 'manage', '/settings/notion': 'sources' }
+      for (const path of Object.keys(tabOf)) {
         await page.goto(path)
         const back = page.getByRole('link', { name: 'Zurück zu Einstellungen' })
         await expect(back).toBeVisible()
-        await expect(back).toHaveAttribute('href', '/settings')
+        await expect(back).toHaveAttribute('href', `/settings?tab=${tabOf[path]}`) // the tab that holds the sub-page (#691)
         expect((await back.boundingBox())!.height).toBeGreaterThanOrEqual(44)
         await expect(back.locator('[data-slot="leadingIcon"]')).toBeVisible() // the arrow
       }
