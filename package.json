@@ -16,6 +16,7 @@
     "dev:seed": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
+    "deploy:dev": "git fetch origin main && git push origin origin/main:refs/heads/dev",
     "preview:e2e": "E2E_NOTION_STUB=1 nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",

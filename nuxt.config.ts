@@ -2,7 +2,7 @@
 import { defineNuxtConfig } from 'nuxt/config'
 import * as fs from 'fs'
 import { fileURLToPath } from 'node:url'
-import { removeDevPages, shouldShipDevPages } from './lib/devPages'
+import { isDevInstance, removeDevPages, shouldShipDevPages } from './lib/devPages'
 import { buildManifest } from './scripts/ui-manifest.mjs'
 import postcssBreakpoints, { viteBreakpointDefinitions } from './scripts/postcss-breakpoints.mjs'
 
@@ -15,8 +15,8 @@ const isDev = process.env.NODE_ENV !== 'production'
 const CLAUDE_DIR = `${fileURLToPath(new URL('./.claude', import.meta.url))}/**`
 
 // Live copy editor (#59): in `nuxt dev`, and in the E2E build (scripts/e2e-server.mjs sets the flag so the specs can
-// drive it). Every other build gets `false`, which drops `dev-tools/copy-editor/` from the bundle.
-const copyEditor = isDev || process.env.KANDO_COPY_EDITOR === '1'
+// drive it) and in the dev instance (#246, a Vercel preview of `dev`). Every other build gets `false`, which drops `dev-tools/copy-editor/` from the bundle.
+const copyEditor = isDev || process.env.KANDO_COPY_EDITOR === '1' || isDevInstance(process.env)
 
 // E2E build (#541): `scripts/e2e-server.mjs` sets this to a directory of its own, so the Playwright build never writes
 // `.nuxt` (a dev server or typecheck may be using it) or `.output` (`npm run generate` for Tauri). Unset for every other command.

@@ -9,7 +9,7 @@
     "components/board/BoardColumnYesterdayNote.vue": 3,
     "components/board/BoardPageDots.vue": 2,
     "components/board/NewCardFlow.vue": 3,
-    "components/recap/RecapDeck.vue": 8,
+    "components/recap/RecapDeck.vue": 6,
     "components/task/TaskCard.vue": 3,
     "components/task/TaskCompletionBurst.vue": 2,
     "components/task/TaskDeletedGap.vue": 12,

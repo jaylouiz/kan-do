@@ -9,12 +9,12 @@ changes size, so nothing on the page moves while it is looked at.
 @avoid Only inside NewDayRecap; a plain list of tasks uses DayCloseTaskRow rows.
 @responsibility
 - `hideHeading`: the heading row turns visually hidden (still the section's name) when the phone switcher already says which deck it is (#44)
-- Layout: heading row (`min-h-10`, `h2` above the cards), the deck (card height + 1.25rem, whatever the card content or n), the bar (chevron, counter "1 / n", chevron)
-- Cards are view-only: inert, hidden from the accessibility tree, no task sheet. Front card = newest completion (done) or Jetzt/Offen first (undone)
+- Layout: heading row (`min-h-10`, `h2` centred above the cards, #242), the deck (card height + 1.25rem, whatever the card content or n), the bar (chevron, counter "1 / n", chevron)
+- Cards are view-only, a Wartet card in the regular style (no muted filter or toned title, #242): inert, hidden from the accessibility tree, no task sheet. Front card = newest completion (done) or Jetzt/Offen first (undone)
 - With 2+ cards the deck is one tab stop: `role="group"`, `tabindex="0"`, roledescription "Stapel", name "{label}, mit Pfeiltasten wechseln"; ←/→ act only while the deck itself has focus. With 0 or 1 card there is nothing to switch to (#478): no `tabindex`, no roledescription, the name is just "{label}"; all three follow `canMove` when the count crosses 1 <-> 2
 - A visually hidden polite live region announces "2 von 4: Titel" after a settled change (the cards are inert, so this is how a screen reader hears the front card); the counter is decorative
 - Geometry: layer d (max 2) at `translateY(d*8px) scale(1 - d*0.04)`, deeper cards hidden; front card follows the pointer with `rotate(dx/24 deg)`
-- Motion (#690): the travelling card (next: front, prev: back) slides sideways 50% of the deck width at full opacity (130ms), then takes its new depth, so it passes behind the stack (next) or comes to the front (prev); settle 240ms `cubic-bezier(0.22, 1, 0.36, 1)` on transform. Nothing fades out; a card deeper than layer 2 stays visible while it travels. With prefers-reduced-motion cards swap at once (the drag still follows the pointer)
+- Motion (#690): the travelling card (next: front, prev: back) slides sideways 50% of the deck width at full opacity (130ms), then takes its new depth, so it passes behind the stack (next) or comes to the front (prev); while it slides out, a card going to the back already sinks to the last layer's height and size (#243), so the z-order flip shows no step; settle 300ms `cubic-bezier(0.34, 1.32, 0.64, 1)` (a soft overshoot) on transform. Nothing fades out; a card deeper than layer 2 stays visible while it travels. With prefers-reduced-motion cards swap at once (the drag still follows the pointer)
 - The grab area carries `data-vaul-no-drag`: on phones the deck sits in a drawer, and a card swipe must never drag it closed (closing archives the done tasks, #44)
 - Gesture, queue and timers live in `useSwipeDeck` (drag past 80px or tap = next, 6px tap slop, queue of 8)
 - Accepted trade-offs (#451): one card at a time, no list view; two chevrons per deck stay focusable (six tab stops for two decks) so keyboard users need not discover the arrow keys
@@ -121,6 +121,11 @@ const deck = useSwipeDeck({
   flyDistance: () => (grabRef.value?.offsetWidth ?? 288) * 0.5,
 })
 
+/** Deepest visible layer of this deck: a 2-card deck ends at layer 1, so a leaving card sinks to where it really lands. */
+const lastLayer = computed(() => Math.min(cards.value.length - 1, 2))
+/** Layer transform (without the pointer part): one place for the resting layers and the sink target. */
+const layerTransform = (layer: number) => `translateY(${layer * 8}px) scale(${1 - layer * 0.04})`
+
 /**
  * Layer geometry by depth; the front card follows the pointer. Deeper than the second layer is hidden, except the card that
  * travels in a move (#690): it stays visible at full opacity, so it never seems to leave the deck.
@@ -130,13 +135,18 @@ function cardStyle(index: number) {
   const m = deck.moving.value?.index === index ? deck.moving.value : null
   if (depth === 0) {
     const x = deck.frontX.value
+    // Leaving to the back (#243): while it slides out, the card already sinks to the last layer's height and size, so
+    // the z-order flip that follows hides it behind the stack without a visible step.
+    if (deck.moving.value?.index === index && deck.moving.value.type === 'next' && deck.moving.value.stage === 'out') {
+      return { zIndex: 10, transform: `translateX(${x}px) ${layerTransform(lastLayer.value)} rotate(${x / 24}deg)`, opacity: 1 }
+    }
     return { zIndex: 10, transform: `translateX(${x}px) translateY(0px) scale(1) rotate(${x / 24}deg)`, opacity: 1 }
   }
   const shown = Math.min(depth, 2)
   const x = m && m.stage === 'out' ? m.x : 0
   return {
     zIndex: 10 - depth,
-    transform: `translateX(${x}px) translateY(${shown * 8}px) scale(${1 - shown * 0.04}) rotate(${x / 24}deg)`,
+    transform: `translateX(${x}px) ${layerTransform(shown)} rotate(${x / 24}deg)`,
     opacity: depth > 2 && !m ? 0 : 1,
   }
 }
@@ -166,11 +176,20 @@ function onPointerDown(event: PointerEvent) {
 .recap-deck__heading {
   display: flex;
   align-items: center;
+  justify-content: center;
   min-height: 2.5rem;
   margin-bottom: 0.5rem;
 }
 .recap-deck__heading h2 {
-  text-align: left;
+  text-align: center;
+}
+
+/* The recap shows every task the same: a Wartet card keeps the regular look here (#242); the board mutes it */
+.recap-deck :deep(.task-waiting) {
+  filter: none;
+}
+.recap-deck :deep(.task-waiting .task-title-text) {
+  color: var(--ui-text);
 }
 
 /* Height is card height + room for the two layers, whatever the content or n */
@@ -183,6 +202,8 @@ function onPointerDown(event: PointerEvent) {
   user-select: none;
   -webkit-user-select: none;
   border-radius: var(--radius-lg);
+  /* a soft landing: the card overshoots its resting place by a few percent and eases back (#243) */
+  --deck-settle-ease: cubic-bezier(0.34, 1.32, 0.64, 1);
 }
 .recap-deck:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
@@ -194,11 +215,11 @@ function onPointerDown(event: PointerEvent) {
   display: block;
   transform-origin: 50% 100%;
   pointer-events: none;
-  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1), opacity 240ms ease;
+  transition: transform 300ms var(--deck-settle-ease), opacity 240ms ease;
 }
 .recap-deck__card--hidden {
   /* a card that drops below layer 2 stays visible until it has travelled behind the stack, then vanishes (#690) */
-  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1), opacity 0s linear 260ms;
+  transition: transform 300ms var(--deck-settle-ease), opacity 0s linear 320ms;
 }
 .recap-deck__card--out {
   transition: transform 130ms cubic-bezier(0.33, 1, 0.68, 1);
