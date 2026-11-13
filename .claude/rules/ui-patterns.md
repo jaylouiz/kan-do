@@ -29,3 +29,7 @@ Applies every time you create or change a UI element: lane work and ad-hoc edits
 5. **A `diverged from` line is also a design reason**: run skill `design-rule` on it (challenge, verdict, proposal; it never writes a rule). The PR body then carries `Rule candidate: #<n>` or `Rule candidate: none (<reason>)`.
 
 Profile: `.claude/issue-workflow.md` "Pattern check".
+
+## Doc block
+
+- Include `@component` / `@kind` (primitive, component, compound, block) / `@category` (one of the seven in `scripts/ui-manifest.mjs`) / `@description` / `@usage` / `@avoid` / `@responsibility` header doc block; the manifest behind `npm run ui:find` and `/ui` is derived from them on every run, nothing to regenerate or commit (`npm run ui:manifest` prints it); terms in `GLOSSARY.md`

@@ -15,3 +15,7 @@ The short form (what blocks, the guard list) is in root `CLAUDE.md` "Hooks".
 ## Cleanup after a merge
 
 After merge: GitHub deletes the remote head branch (repo setting "Automatically delete head branches"); the `SessionStart` hook `.claude/hooks/cleanup-merged.sh` removes local worktrees and branches of merged PRs, Orca-managed ones via `orca worktree rm` (skips dirty worktrees, worktrees a running session works in and branches with commits after the merge; a lone modified `package-lock.json` counts as clean and is discarded, because Orca's repo setup script `npm install` rewrites it with local npm 11.6). After merging a PR yourself, run it right away; `--dry-run` previews.
+
+## Guard hook
+
+A `PreToolUse` Bash hook (`.claude/hooks/guard-commands.sh`) blocks `pkill` of nuxt, `tauri dev` with the real app identity, a real release (`npm run release` without `--dry-run`, `gh workflow run release`), `npm install|i|ci` and an `rm` chained with a git command (kd#203); its message names the allowed command. Do not work around it.

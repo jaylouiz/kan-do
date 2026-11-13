@@ -38,7 +38,7 @@ PORT=3101 npm run test:e2e -- tests/e2e/visual-regression.spec.ts --update-snaps
 ### State Management
 
 - `composables/useTaskSync.ts` is the single orchestrator: the only place that mutates both store and upstream service (`createTask(draft, source)` makes every new task, #321). `useTaskSync` and `useIntegrationManager` never switch on a source name; `useTaskSources` resolves a source's `TaskSourceAdapter` (`integrations/sources/`, ADR 015).
-- **Task source and identity** (ADR 015): every `Task` has `source` (`'local' | 'notion' | 'todoist'`) and `externalId` (`string | null`). `id` is the stable app-level identity (statistics, order, carry-over, archive, timers and routes are keyed by it) and never changes; integrations receive `externalId`, never `id` (`externalIdOf()` in `lib/taskSources.ts`). `useTaskSync` routes by `task.source`. `boardConfig.sources` replaced `taskService`; read and write it only as `.claude/rules/task-sources.md` says.
+- **Task source and identity** (ADR 015): every `Task` has `source` and `externalId`. `id` is the stable app-level identity and never changes; integrations receive `externalId`, never `id`. Read and write `boardConfig.sources` only as `.claude/rules/task-sources.md` says.
 - Stores use Pinia **Setup API** (`defineStore('id', () => { ... })`). Always include `acceptHMRUpdate()`.
 - Use `Record<string, T>` (not `Map`) — serializes naturally with `pinia-plugin-persistedstate`
 - Use `mapHelpers` utilities (`utils/mapHelpers.ts`) for Record operations
@@ -67,11 +67,12 @@ Path-scoped rules in `.claude/rules/` load when you read or edit a matching file
 - `desktop.md`: desktop E2E stub, desktop CSP (ADR 012), in-app feedback (ADR 010/014)
 - `hooks.md`: Stop, per-edit and cleanup hooks in detail
 - `ci.md`: the GitHub workflow (shards, PR E2E switch, pre-push hook)
+- `i18n.md`: locale resolution, the live copy editor
 
 ### Component Conventions
 
 - `defineOptions({ name: 'ComponentName' })` on every component
-- Include `@component` / `@kind` (primitive, component, compound, block) / `@category` (one of the seven in `scripts/ui-manifest.mjs`) / `@description` / `@usage` / `@avoid` / `@responsibility` header doc block; the manifest behind `npm run ui:find` and `/ui` is derived from them on every run, nothing to regenerate or commit (`npm run ui:manifest` prints it); terms in `GLOSSARY.md`
+- Every component has the header doc block (`@component`, `@kind`, `@category`, `@description`, `@usage`, `@avoid`, `@responsibility`); allowed values and what is derived from it: `.claude/rules/ui-patterns.md` "Doc block"
 - Props via `defineProps<Props>()`, emits via `defineEmits<{...}>()`, v-model via `defineModel<T>()`
 - Never mutate Pinia state directly in templates; route through store actions
 - Gate browser APIs with `if (import.meta.client)`; guard dev logs with `if (import.meta.dev)`
@@ -95,9 +96,6 @@ Rules live in `DESIGN.md` (direction, tokens, named rules, recurring patterns; p
 - UI copy: **German by default, English supported, via i18n keys** — `import { useI18n } from 'vue-i18n'`, `const { t } = useI18n()`, never hardcoded strings in templates (ESLint `no-raw-text`). Outside component setup use `translate()` from `lib/i18n.ts`.
 - UI copy goes through the `copy-writer` skill and the term registry `docs/copy/terms.json` (rules: `docs/copy/voice.md`); only the user approves a `decided` term.
 - Locales: `i18n/locales/de.json` + `en.json` (vue-i18n syntax, not ICU); every key in both. Check with `npm run i18n:check`.
-- Locale resolution (no switcher, `plugins/i18n-locale.client.ts`): `?lang=de|en` (persisted) > `KANDO_LOCALE` (dev only, not persisted) > stored `kando-locale` > `navigator.languages` > `de`. Try it: `KANDO_LOCALE=en npm run dev` or `/tasks?lang=en`. Rationale: `docs/adr/006-i18n-routing-and-locale-detection.md`.
-
-Live copy editor (dev only, `docs/copy/live-copy-editor.md`): `dev-tools/copy-editor/` and `server/copy-editor/` exist only behind `__COPY_EDITOR__` (dev, E2E build); keep tool code there, never import it from app code.
 
 UI status labels (used in E2E assertions): `Offen`, `Jetzt`, `Wartet`, `Erledigt`
 
@@ -124,15 +122,15 @@ Mockups live on a shared FigCraft canvas, worked through the global `/ui-canvas`
 
 The `Stop` hook (`.claude/hooks/verify.sh`) runs `lint:ci`, `typecheck`, `design:detect`, `vitest run` and, after a design-path change, the rendered Impeccable scan before Claude may finish; failures are fed back (max 3 consecutive blocks). A `PostToolUse` hook lints every file an Edit, Write or Bash command changed. Both follow the edited file into its worktree and skip `proto/*` branches. Detail and limits: `.claude/rules/hooks.md`.
 
-A `PreToolUse` Bash hook (`.claude/hooks/guard-commands.sh`) blocks `pkill` of nuxt, `tauri dev` with the real app identity, a real release (`npm run release` without `--dry-run`, `gh workflow run release`), `npm install|i|ci` and an `rm` chained with a git command (kd#203); its message names the allowed command. Do not work around it. A worktree-isolated session (background job, isolated subagent) also refuses any Bash call that mixes a VCS command with a `cd`, a `-C`, a `$(…)`, a loop or a heredoc, or that only names the VCS in a text argument: run each VCS command as its own plain call, pass SHAs literally, write scripts with Write.
+A `PreToolUse` Bash hook (`.claude/hooks/guard-commands.sh`) blocks a few commands (list: `.claude/rules/hooks.md`) and names the allowed one in its message. Do not work around it. A worktree-isolated session (background job, isolated subagent) also refuses any Bash call that mixes a VCS command with a `cd`, a `-C`, a `$(…)`, a loop or a heredoc, or that only names the VCS in a text argument: run each VCS command as its own plain call, pass SHAs literally, write scripts with Write.
 
 ## Issue Workflow
 
-GitHub issues are the work queue; lanes `needs-design` → `needs-spec` → `ready`, each optional (`on-hold-after-spec` = no Build). Skills (the maintainer's personal tooling, [agent-workflow](https://github.com/jaylouiz/agent-workflow), run with Orca; vocabulary and triage rule in its README; contributors follow CONTRIBUTING.md instead): `/design-gh-issue` (UX, prototype on `proto/<n>-*` branches, never merged), `/specify-gh-issue` (never edits code), `/build-gh-issue` (never merges), `/orchestrate-gh-issues` (coordinates all plus `/code-review`, merges by default); user, Claude or sub-agents may invoke them. kan-do facts they need: `.claude/issue-workflow.md`. Issue edits (body, labels, comments) need no user approval.
+GitHub issues are the work queue; lanes `needs-design` → `needs-spec` → `ready`, each optional (`on-hold-after-spec` = no Build). Skills (the maintainer's personal tooling, [agent-workflow](https://github.com/jaylouiz/agent-workflow), run with Orca; contributors follow CONTRIBUTING.md instead): `/design-gh-issue`, `/specify-gh-issue`, `/build-gh-issue`, `/orchestrate-gh-issues`; user, Claude or sub-agents may invoke them. kan-do facts they need: `.claude/issue-workflow.md`. Issue edits (body, labels, comments) need no user approval.
 
 After merging a PR yourself, run `.claude/hooks/cleanup-merged.sh` right away (it also runs at session start and removes the worktrees and branches of merged PRs; `--dry-run` previews; what it skips: `.claude/rules/hooks.md`).
 
-Issue and PR numbers: in code, comments, test names and docs a bare `#n` always means the private archive `jaylouiz/kan-do-archive` (`gh issue view <n> -R jaylouiz/kan-do-archive`, numbers up to #704). Numbers overlap, so a reference to an issue or PR of this repo is written `kd#n` there (`gh issue view <n>`). GitHub text (issues, PRs, new commit messages) keeps the plain `#n`, which GitHub links to this repo; only commit messages up to `cda2fa7b` use bare `#n` for the archive. The issue body is the single current spec; comments hold the history. `inbox` issues (rule in `~/.claude/CLAUDE.md`) are out of scope until the user relabels or names them.
+The issue body is the single current spec; comments hold the history. `inbox` issues (rule in `~/.claude/CLAUDE.md`) are out of scope until the user relabels or names them.
 
 ## CI
 
@@ -148,7 +146,7 @@ Use `useErrorHandler()` — `handleError(message, context)` instead of `console.
 
 ## Key Reference Docs
 
-- `docs/release.md` + `docs/adr/009-release-pipeline-and-updater.md` + `docs/adr/013-signing-notarization-and-ci-release.md` — `npm run release` runs verify and the full E2E suite; the self-updater (#225), Developer ID signing and the CI release (#228; a tag push runs it, a local release stays the default). `/prepare-release` prepares version and notes and hands the user the command. Agents never touch the updater signing key, the Developer ID certificate or notarization credentials.
+- `docs/release.md` + `docs/adr/009-release-pipeline-and-updater.md` + `docs/adr/013-signing-notarization-and-ci-release.md`: releases; `/prepare-release` prepares version and notes and hands the user the command. Agents never touch the updater signing key, the Developer ID certificate or notarization credentials.
 - `docs/acceptance-criteria.md` — UAC for validation
 - `docs/application-purpose.md` — product vision and non-goals
 - `docs/adr/` — architectural decisions
