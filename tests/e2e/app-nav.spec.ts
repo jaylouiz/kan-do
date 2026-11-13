@@ -152,7 +152,7 @@ for (const { label, size } of VIEWPORTS) {
       await expect.poll(() => current(page)).toBe('app-nav-place-more')
       await waitForNavIdle(page)
       await expect(thirdItem(page)).toHaveText('Einstellungen')
-      await expect(thirdItem(page)).toHaveAttribute('href', `/settings?tab=${tabOf[path]}`) // the tab that holds the sub-page (#691)
+      await expect(thirdItem(page)).toHaveAttribute('href', '/settings')
       await expectIndicatorOn(page, thirdItem(page))
       await expect(moreButton(page)).not.toHaveAttribute('aria-current', 'page')
 
