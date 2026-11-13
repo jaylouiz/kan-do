@@ -9,9 +9,10 @@
 - Displays column title with appropriate styling
 - Shows status-specific icons (checkmark for Done column)
 - Handles visual states for different statuses (waiting, empty)
-- Offen only (`showAdd`, #248): a round soft icon-only add button at the end of the card-width track, vertically centred on
-  the title line; the title stays centred exactly like the other columns' (the button is out of the flow, so it never moves
-  the title). Click, Enter or Space emits `add`; while a draft is open (`addDisabled`) the button stays in place but is
+- Offen only (`showAdd`, #248, moved left #264): a round soft icon-only add button at the start of the card-width track (the
+  cards' left edge), vertically centred on the title line; the title stays centred exactly like the other columns' (the
+  button is out of the flow, so it never moves the title). A tooltip names it on hover and focus (UTooltip, off on the
+  phone layout like AppNav's: no hover there, and a tap focuses the button). Click, Enter or Space emits `add`; while a draft is open (`addDisabled`) the button stays in place but is
   disabled, so the header never shifts. `addButtonEl()` lets the column return focus after a cancel. Same look as the
   stack header's close button (ghost UButton, `--fill-on-canvas` fill by CSS, 32px, 44px on touch)
 -->
@@ -26,18 +27,23 @@
     </h2>
     <div v-if="showAdd" class="column-header__track">
       <div class="column-header__add-row">
-        <UButton
-          ref="addButton"
-          class="column-header__add"
-          color="neutral"
-          variant="ghost"
-          square
-          icon="i-ph-plus"
-          data-testid="add-task-header-button"
-          :aria-label="t('board.addTask')"
-          :disabled="addDisabled"
-          @click="emit('add')"
-        />
+        <UTooltip :open="tipOpen" :text="t('board.addTask')" :disabled="isPhone" @update:open="onTipOpen">
+          <UButton
+            ref="addButton"
+            class="column-header__add"
+            color="neutral"
+            variant="ghost"
+            square
+            icon="i-ph-plus"
+            data-testid="add-task-header-button"
+            :aria-label="t('board.addTask')"
+            :disabled="addDisabled"
+            @click="emit('add')"
+            @blur="tipHeldBack = false"
+            @pointermove="tipHeldBack = false"
+            @pointerleave="tipHeldBack = false"
+          />
+        </UTooltip>
       </div>
     </div>
   </div>
@@ -46,6 +52,8 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { useMediaQuery } from "@vueuse/core";
+import { BREAKPOINT_QUERIES } from "~/lib/breakpoints";
 import { TaskStatus } from "~/types/taskStatus";
 
 defineOptions({ name: "BoardColumnHeader" });
@@ -81,10 +89,26 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+// No hover on the phone layout, and a tap focuses the button: no tooltip there (as AppNav's)
+const isPhone = useMediaQuery(BREAKPOINT_QUERIES.phone);
 const addButton = ref<{ $el: HTMLElement } | null>(null);
 
-/** The add button's element, where the column returns focus after a cancelled draft; null when there is none */
-const addButtonEl = (): HTMLElement | null => addButton.value?.$el ?? null;
+/**
+ * Tooltip (kd#40 as AppNav's ⋯): the column returns focus here after a cancelled draft, and a focus-open tooltip would
+ * then appear for a mouse user who never hovered. It stays held back until the button loses focus or the pointer moves over or leaves it.
+ */
+const tipOpen = ref(false);
+const tipHeldBack = ref(false);
+const onTipOpen = (next: boolean) => {
+  tipOpen.value = next && !tipHeldBack.value;
+};
+
+/** The add button's element, where the column returns focus after a cancelled draft (holds the tooltip back); null when there is none */
+const addButtonEl = (): HTMLElement | null => {
+  const el = addButton.value?.$el ?? null;
+  if (el) { tipHeldBack.value = true; tipOpen.value = false; }
+  return el;
+};
 
 defineExpose({ addButtonEl });
 
@@ -154,7 +178,7 @@ const isWaiting = computed(() => props.status === TaskStatus.Waiting);
   }
 
   /* Add button (Offen, #248). The track mirrors the task list's side padding (board.css, BoardColumn: px-3, md:px-10) and
-     the card box inside it, so the button's right edge is the cards' right edge. Out of the flow: the title stays centred
+     the card box inside it, so the button's left edge is the cards' left edge. Out of the flow: the title stays centred
      in the header whatever the button does. Pointer events pass through everything but the button. */
   .column-header__track {
     position: absolute;
@@ -165,7 +189,7 @@ const isWaiting = computed(() => props.status === TaskStatus.Waiting);
   .column-header__add-row {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: flex-start;
     width: min(var(--task-card-width), 100%);
     max-width: var(--task-card-max-width);
     margin-inline: auto;
