@@ -35,13 +35,31 @@ describe('TaskCarryOverTriage (#99)', () => {
     store.addTask(makeTask('new'))
   })
 
-  it('renders the block with heading, dots and hint past the threshold', () => {
-    const wrapper = render({ taskId: 'a' })
-    const block = wrapper.get('[data-testid="carry-over-triage"]')
+  it('sheet block: one sentence with the day count and exactly two buttons (#247)', () => {
+    const block = render({ taskId: 'a' }).get('[data-testid="carry-over-triage"]')
     expect(block.classes()).toContain('bg-muted/50')
-    expect(block.get('h3').text()).toBe('Immer noch da: Tag 6 auf dem Board.')
-    expect(block.text()).toContain('Gehört die Aufgabe noch zu heute?')
-    expect(block.find('[data-testid="carry-over-dots"]').exists()).toBe(true)
+    expect(block.text()).toContain('Die Aufgabe ist seit 6 Tagen zur Erledigung eingeplant. Ist sie wirklich wichtig?')
+    expect(block.findAll('button').map(b => b.text())).toEqual(['Ja, behalten', 'Nein, löschen'])
+    expect(block.find('[data-testid="carry-over-smaller"]').exists()).toBe(false)
+  })
+
+  it('sheet block: Keep turns the box into a status confirmation with the tip and stays (#247)', async () => {
+    const wrapper = render({ taskId: 'a' })
+    await wrapper.get('[data-testid="carry-over-keep"]').trigger('click')
+    expect(wrapper.emitted('kept')).toHaveLength(1)
+    expect(mapHelpers.get(store.carryOverByTaskId, 'a')?.keptAtDays).toBe(5)
+    const status = wrapper.get('[data-testid="carry-over-kept-status"]')
+    expect(status.attributes('role')).toBe('status')
+    expect(status.text()).toContain('Die Aufgabe bleibt auf deinem Board')
+    expect(status.text()).toContain('Tipp: Plane zunächst den kleinstmöglichen, ersten Schritt.')
+    expect(wrapper.findAll('button')).toHaveLength(0)
+  })
+
+  it('sheet block: "Nein, löschen" only emits delete (the host confirms)', async () => {
+    const wrapper = render({ taskId: 'a' })
+    await wrapper.get('[data-testid="carry-over-delete"]').trigger('click')
+    expect(wrapper.emitted('delete')).toHaveLength(1)
+    expect(mapHelpers.get(store.carryOverByTaskId, 'a')?.keptAtDays ?? null).toBeNull()
   })
 
   it('compact: no wash, no heading or dots, the group is named by the nudge sentence', () => {
@@ -53,11 +71,10 @@ describe('TaskCarryOverTriage (#99)', () => {
     expect(block.findAll('button')).toHaveLength(3)
   })
 
-  it('all three actions are ghost buttons of the default size, in the closing step row and in the task sheet block (#551, #552)', () => {
-    const variants = (compact: boolean) => render({ taskId: 'a', compact }).findAll('button').map(b => b.attributes('variant'))
-    expect(variants(true)).toEqual(['ghost', 'ghost', 'ghost'])
-    expect(variants(false)).toEqual(['ghost', 'ghost', 'ghost'])
-    expect(render({ taskId: 'a' }).findAll('button').map(b => b.attributes('size'))).toEqual([undefined, undefined, undefined])
+  it('compact: all three actions are ghost buttons of the default size (#551)', () => {
+    const buttons = render({ taskId: 'a', compact: true }).findAll('button')
+    expect(buttons.map(b => b.attributes('variant'))).toEqual(['ghost', 'ghost', 'ghost'])
+    expect(buttons.map(b => b.attributes('size'))).toEqual([undefined, undefined, undefined])
   })
 
   it('emits the same actions in compact mode; Keep silences the nudge', async () => {
@@ -84,15 +101,15 @@ describe('TaskCarryOverTriage (#99)', () => {
     store.updateTask('w', { source: 'local', externalId: null })
     store.updateTask('fresh', { source: 'local', externalId: null })
     // 'a' is the Notion task, the board default is Local: the label must follow the task
-    expect(render({ taskId: 'a' }).get('[data-testid="carry-over-delete"]').text()).toBe('Löschen, auch in Notion')
+    expect(render({ taskId: 'a', compact: true }).get('[data-testid="carry-over-delete"]').text()).toBe('Löschen, auch in Notion')
 
     store.updateTask('a', { source: 'local', externalId: null })
-    expect(render({ taskId: 'a' }).get('[data-testid="carry-over-delete"]').text()).toBe('Löschen')
+    expect(render({ taskId: 'a', compact: true }).get('[data-testid="carry-over-delete"]').text()).toBe('Löschen')
 
     // And the other way round: a Notion task on a board that defaults to Notion keeps its label, a Local one has none
     useBoardStore().setSources({ connected: ['notion'], default: 'notion' })
-    expect(render({ taskId: 'a' }).get('[data-testid="carry-over-delete"]').text()).toBe('Löschen')
+    expect(render({ taskId: 'a', compact: true }).get('[data-testid="carry-over-delete"]').text()).toBe('Löschen')
     store.updateTask('a', { source: 'notion', externalId: 'a' })
-    expect(render({ taskId: 'a' }).get('[data-testid="carry-over-delete"]').text()).toBe('Löschen, auch in Notion')
+    expect(render({ taskId: 'a', compact: true }).get('[data-testid="carry-over-delete"]').text()).toBe('Löschen, auch in Notion')
   })
 })

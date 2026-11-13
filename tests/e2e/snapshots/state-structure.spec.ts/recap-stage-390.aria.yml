@@ -1,14 +1,12 @@
-- dialog "Kurzer Rückblick":
+- region "Kurzer Rückblick":
   - heading "Kurzer Rückblick" [level=2]
   - paragraph: Du hast gestern 4 von 6 Aufgaben erledigt.
+  - tablist "Anzeige wählen":
+    - tab "2 noch offen" [selected]
+    - tab "4 erledigt"
   - region "2 noch offen":
     - heading "2 noch offen" [level=2]
     - group "2 noch offen, mit Pfeiltasten wechseln"
-    - button "Vorherige Aufgabe"
-    - button "Nächste Aufgabe"
-  - region "4 erledigt":
-    - heading "4 erledigt" [level=2]
-    - group "4 erledigt, mit Pfeiltasten wechseln"
     - button "Vorherige Aufgabe"
     - button "Nächste Aufgabe"
   - switch "Erledigte archivieren" [checked]

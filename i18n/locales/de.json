@@ -246,15 +246,12 @@
       "localOnly": "Gilt nur in Kan-Do."
     },
     "detail": {
-      "moreActions": "Mehr Aktionen",
       "notesEmpty": "Notiz hinzufügen…",
       "notesPlaceholder": "Notiz hinzufügen…",
       "notesHint": "Markdown unterstützt • {shortcut} zum Speichern",
       "metadata": "Metadaten",
       "sourceLocal": "Lokal",
       "created": "Erstellt: {date}",
-      "copied": "Kopiert",
-      "copyId": "ID kopieren",
       "openIn": "In {source} öffnen"
     },
     "timeStats": {
@@ -297,10 +294,14 @@
     "carryOver": {
       "label": "Tag {n} auf dem Board",
       "nudgeTitle": "Immer noch da: Tag {n} auf dem Board.",
-      "nudgeHint": "Gehört die Aufgabe noch zu heute?",
       "keep": "Behalten",
       "smaller": "Kleiner machen",
-      "smallerHint": "Was ist der erste kleine Schritt?"
+      "smallerHint": "Was ist der erste kleine Schritt?",
+      "question": "Die Aufgabe ist seit {n} Tag zur Erledigung eingeplant. Ist sie wirklich wichtig? | Die Aufgabe ist seit {n} Tagen zur Erledigung eingeplant. Ist sie wirklich wichtig?",
+      "keepYes": "Ja, behalten",
+      "deleteNo": "Nein, löschen",
+      "kept": "Die Aufgabe bleibt auf deinem Board.",
+      "keptTip": "Tipp: Plane zunächst den kleinstmöglichen, ersten Schritt."
     },
     "property": {
       "setValue": "+ hinzufügen",

@@ -10,6 +10,7 @@
 - Every property is a row in a stable position; unset Thema/Aktivität show the empty "Auswählen" state (#161)
 - Order: property rows (time spent last, with the time left beside it, kd#4), notes, custom properties, metadata (#386). Desktop slideover: the metadata is pinned to the bottom, the rest scrolls
 - Provide formatted display of all task metadata
+- Bottom action row (#244, TaskSheetActions): open in source, move to source, Delete; no title-row menu, no copy id (the id is in Metadaten). Desktop: pinned with the metadata under one hairline; mobile: last in the flow
 - Render error state when task not found
 - Handle inline updates and synchronization
 - Topic and activity pickers (TopicPropertyPicker): the topic mark before each option, no control inside an option; an edit mode in the
@@ -47,11 +48,10 @@
       :task-id="task.id"
       class="mx-6 mt-4 mb-2"
       @kept="focusTitle"
-      @smaller="startSmallerStep"
       @delete="emit('delete')"
     />
 
-    <!-- Title: the sheet's one display line; the utility menu is a ghost button next to it -->
+    <!-- Title: the sheet's one display line -->
     <div class="px-6 pt-2 pb-4" data-testid="task-detail-header">
       <div class="flex items-start gap-3">
         <div class="min-w-0 flex-1">
@@ -82,18 +82,6 @@
             {{ t('task.carryOver.label', { n: carryOverDay }) }}
           </p>
         </div>
-
-        <!-- Single utility menu for all actions -->
-        <UDropdownMenu :items="utilityMenuItems" :content="{ sideOffset: 4 }">
-          <UButton
-            color="neutral"
-            variant="ghost"
-            icon="i-ph-dots-three-vertical"
-            class="shrink-0 max-md:size-11"
-            :aria-label="t('task.detail.moreActions')"
-            data-testid="task-actions-menu"
-          />
-        </UDropdownMenu>
       </div>
     </div>
 
@@ -283,27 +271,29 @@
         :created-at="formatDate(task.createdAt)"
         :task-id="task.id"
       />
+      <TaskSheetActions v-if="!pinMetadata" v-bind="actionProps" @open="openSource" @move="moveToSource" @delete="emit('delete')" />
 
     </div>
 
     </div>
 
-    <!-- Desktop slideover: the metadata is pinned to the bottom edge, the rows and notes above scroll (#386) -->
-    <TaskDetailMetadata
-      v-if="pinMetadata"
-      v-model:open="isMetadataOpen"
-      pinned
-      :source="taskSource"
-      :created-at="formatDate(task.createdAt)"
-      :task-id="task.id"
-    />
+    <!-- Desktop slideover: metadata and action row are pinned to the bottom edge under one hairline, the rows and notes above scroll (#386, #244) -->
+    <div v-if="pinMetadata" class="shrink-0 border-t border-default">
+      <TaskDetailMetadata
+        v-model:open="isMetadataOpen"
+        pinned
+        :source="taskSource"
+        :created-at="formatDate(task.createdAt)"
+        :task-id="task.id"
+      />
+      <TaskSheetActions v-bind="actionProps" class="px-6 pt-3 pb-6" @open="openSource" @move="moveToSource" @delete="emit('delete')" />
+    </div>
 
   </div>
 </template>
 
 <script setup lang="ts">
 import MinutesField from '~/components/ui/MinutesField.vue';
-import { ICONS } from '~/lib/icons'
 import { openExternal } from '~/utils/openExternal';
 import { toRef, computed, ref, watch, nextTick, useId, onMounted } from 'vue';
 import { useOverlayIsDesktop } from '~/composables/useIsDesktop';
@@ -326,6 +316,7 @@ import TaskDetailCustomFields from '~/components/task/TaskDetailCustomFields.vue
 import TaskPropertyRow from '~/components/task/TaskPropertyRow.vue';
 import TaskDetailNotes from '~/components/task/TaskDetailNotes.vue';
 import TaskDetailMetadata from '~/components/task/TaskDetailMetadata.vue';
+import TaskSheetActions from '~/components/task/TaskSheetActions.vue';
 import TaskPropertySelect from '~/components/task/TaskPropertySelect.vue';
 import DatePickerField from '~/components/task/DatePickerField.vue';
 import { doneDayBounds } from '~/lib/doneDay';
@@ -693,26 +684,6 @@ function formatDate(dateString: string | Date | null | undefined) {
   return formatDateTime(dateString, 'mediumDateShortTime');
 }
 
-// Copy ID functionality
-const idCopied = ref(false);
-let copyTimeout: ReturnType<typeof setTimeout> | null = null;
-
-async function copyTaskId() {
-  if (!task.value?.id) return;
-
-  try {
-    await navigator.clipboard.writeText(task.value.id);
-    idCopied.value = true;
-
-    if (copyTimeout) clearTimeout(copyTimeout);
-    copyTimeout = setTimeout(() => {
-      idCopied.value = false;
-    }, 2000);
-  } catch (err) {
-    console.error('Failed to copy task ID:', err);
-  }
-}
-
 // Source URL
 const sourceUrl = computed(() => {
   const taskData = task.value as { sourceUrl?: string; notionPageId?: string } | null;
@@ -724,63 +695,14 @@ const sourceUrl = computed(() => {
   return null;
 });
 
-// Utility menu items (dropdown for copy ID, open source, move to another source, delete)
-interface UtilityMenuEntry {
-  label: string;
-  icon: string;
-  iconClass?: string;
-  /** Muted second line, read with the item */
-  description?: string;
-  disabled?: boolean;
-  onSelect?: () => void;
-  children?: UtilityMenuEntry[];
+// Action row (#244): open in source, move to source, Delete
+const actionProps = computed(() => ({
+  openLabel: sourceUrl.value && taskSource.value ? t('task.detail.openIn', { source: taskSource.value }) : null,
+  moveTargets: moveTargets.value,
+  deleteLabel: t(deleteLabelKey(task.value?.source ?? 'local')),
+}));
+
+function openSource() {
+  if (sourceUrl.value) void openExternal(sourceUrl.value);
 }
-const utilityMenuItems = computed(() => {
-  const items = [] as Array<UtilityMenuEntry | { type: 'separator' }>;
-
-  // Copy ID
-  items.push({
-    label: idCopied.value ? t('task.detail.copied') : t('task.detail.copyId'),
-    icon: idCopied.value ? 'i-ph-check' : 'i-ph-copy',
-    iconClass: idCopied.value ? 'text-success' : '',
-    onSelect: copyTaskId
-  });
-
-  // Open in source (if available)
-  if (sourceUrl.value && taskSource.value) {
-    items.push({
-      label: t('task.detail.openIn', { source: taskSource.value }),
-      icon: ICONS.external,
-      onSelect: () => { void openExternal(sourceUrl.value!); }
-    });
-  }
-
-  // Move to another source (#322): one child per other connected source, none with a single source
-  if (moveTargets.value.length > 0) {
-    items.push({
-      label: t('task.contextMenu.moveToSource'),
-      icon: 'i-ph-swap',
-      children: moveTargets.value.map((target): UtilityMenuEntry => ({
-        label: target.name,
-        icon: target.icon,
-        ...(target.hint ? { description: target.hint } : {}),
-        disabled: target.disabled,
-        onSelect: () => { moveToSource(target.source); },
-      })),
-    });
-  }
-
-  // Separator before delete
-  items.push({ type: 'separator' as const });
-
-  // Delete
-  items.push({
-    label: t(deleteLabelKey(task.value?.source ?? 'local')),
-    icon: ICONS.delete,
-    iconClass: 'text-error',
-    onSelect: () => emit('delete')
-  });
-
-  return [items];
-});
 </script>
