@@ -38,9 +38,10 @@ export interface VersionInfo {
 
 /**
  * The screenshot of a report (#247). `upload` puts the image into the repo (path below) and links it;
- * `clipboard` only names the paste step (token without Contents: write, or no token at all).
+ * `clipboard` only names the paste step (token without Contents: write, or the browser path); `relay` sends the
+ * image with the report to the server route, which stores it in the private feedback repository (#268).
  */
-export type ScreenshotDelivery = 'upload' | 'clipboard'
+export type ScreenshotDelivery = 'upload' | 'clipboard' | 'relay'
 
 export interface ScreenshotInfo {
   delivery: ScreenshotDelivery
@@ -62,6 +63,9 @@ export interface IssueBodyInput {
 }
 
 export const FEEDBACK_REPO = 'jaylouiz/kan-do'
+/** Private repository the relay files reports in (#268); must match the server's `FEEDBACK_REPO`. Images sit on its default branch. */
+export const FEEDBACK_RELAY_REPO = 'jaylouiz/kan-do-feedback'
+export const FEEDBACK_RELAY_BRANCH = 'main'
 /** Orphan branch that holds the report screenshots (ADR 014). Rust only lets the feedback token write here. */
 export const FEEDBACK_ASSETS_BRANCH = 'feedback-assets'
 export const TITLE_MAX = 120

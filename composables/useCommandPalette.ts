@@ -268,7 +268,7 @@ export function useCommandPalette() {
   const notionConfig = useNotionConfigStore()
   const dayClose = useDayClose()
   const appUpdater = useAppUpdater()
-  const feedback = isTauri() ? useFeedback() : null
+  const feedback = useFeedback()
   const whatsNew = useWhatsNew()
   const appReset = useAppReset()
 
@@ -311,6 +311,8 @@ export function useCommandPalette() {
     // falls back to the board instead of the closed palette. It is mounted by the board page, so a
     // command from another page goes there first (#224, the macOS menu does the same).
     openDayClose: run(() => { afterLeave = onBoardAfterLeave(dayClose.open) }, { navigates: true }),
+    // Web and desktop (#268). Same board-first, after-leave pattern as day-close: the dialog opens once the palette is gone.
+    sendFeedback: run(() => { afterLeave = onBoardAfterLeave(() => feedback.open()) }, { navigates: true }),
     ...(isTauri()
       ? {
           openGithubSettings: run(() => { void navigateTo('/settings/github') }, { navigates: true }),
@@ -318,8 +320,6 @@ export function useCommandPalette() {
           // The check (and the dialog or page it leads to) starts only after the palette has left.
           checkForUpdates: run(() => { afterLeave = () => { void appUpdater.checkManually() } }, { navigates: true }),
           openUpdates: run(() => { void navigateTo('/settings/updates') }, { navigates: true }),
-          // Same board-first, after-leave pattern as day-close: the dialog opens once the palette is gone.
-          sendFeedback: run(() => { afterLeave = onBoardAfterLeave(() => feedback?.open()) }, { navigates: true }),
           openWhatsNew: run(() => { afterLeave = () => { void whatsNew.openReopen() } }, { navigates: true }),
         }
       : { openDataTransfer: run(() => { void navigateTo('/settings/data') }, { navigates: true }) }),

@@ -2,6 +2,7 @@ import { test, expect, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { seedLocalBoard } from './helpers/seed'
 import { githubCalls, installTauriStub, setClipboardFails, setGithubMode, stubState } from './helpers/tauriStub'
+import { failOverToBrowserPath, mockFeedbackRelay } from './helpers/feedbackRelay'
 
 /**
  * #247: screenshot in the in-app feedback, against the stubbed desktop IPC. `feedback_capture` answers a
@@ -273,8 +274,28 @@ test.describe('Feedback screenshot (desktop, no token)', () => {
     await openFeedback(page)
   })
 
-  test('opens the prefilled link and copies the image to the clipboard; no GitHub request', async ({ page }) => {
+  test('the relay gets the image with the report; nothing goes to the clipboard or GitHub (#268)', async ({ page }) => {
+    const reports = await mockFeedbackRelay(page)
     await toReviewWithShot(page)
+    await expect(page.getByTestId('feedback-delivery')).toHaveText('Wird mit dem Feedback gesendet.')
+    await page.getByTestId('feedback-send-relay').click()
+    await expect(dialog(page)).toBeHidden()
+    expect(reports).toHaveLength(1)
+    const shot = reports[0]!.screenshot!
+    expect(shot.path).toMatch(/^feedback\/\d{4}\/\d{2}\/[0-9a-f-]{36}\.png$/)
+    // A PNG: the base64 of its magic bytes
+    expect(shot.content.startsWith('iVBORw0KGgo')).toBe(true)
+    expect(reports[0]!.body).toContain(`https://github.com/jaylouiz/kan-do-feedback/blob/main/${shot.path}?raw=true`)
+    const state = await stubState(page)
+    expect(state.clipboard).toEqual([])
+    expect(state.openedUrls).toEqual([])
+    expect(await githubCalls(page)).toEqual([])
+  })
+
+  test('without a relay: opens the prefilled link and copies the image to the clipboard; no GitHub request', async ({ page }) => {
+    await mockFeedbackRelay(page, 503)
+    await toReviewWithShot(page)
+    await failOverToBrowserPath(page)
     await expect(page.getByTestId('feedback-delivery')).toContainText('Füge es auf GitHub mit ⌘V in das Issue ein.')
     await page.getByTestId('feedback-open-browser').click()
     await expect(dialog(page)).toBeHidden()
@@ -286,8 +307,10 @@ test.describe('Feedback screenshot (desktop, no token)', () => {
   })
 
   test('a clipboard failure is reported and the link still opens', async ({ page }) => {
+    await mockFeedbackRelay(page, 503)
     await setClipboardFails(page, true)
     await toReviewWithShot(page)
+    await failOverToBrowserPath(page)
     await page.getByTestId('feedback-open-browser').click()
     await expect(page.getByText('Das Bild konnte nicht in die Zwischenablage kopiert werden.').first()).toBeVisible()
     expect((await stubState(page)).openedUrls).toHaveLength(1)

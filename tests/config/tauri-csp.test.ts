@@ -49,9 +49,9 @@ describe.each([['csp'], ['devCsp']] as const)('tauri.conf.json app.security.%s',
     expect(sources(csp, 'script-src')).toContain("'self'")
   })
 
-  it('connect-src lists IPC and the one webview-side integration host, and no GitHub or release host', () => {
+  it('connect-src lists IPC, the one webview-side integration host and the feedback relay, and no GitHub or release host', () => {
     const connect = sources(csp, 'connect-src')
-    expect(connect).toEqual(expect.arrayContaining(["'self'", 'ipc:', 'http://ipc.localhost', 'https://api.todoist.com']))
+    expect(connect).toEqual(expect.arrayContaining(["'self'", 'ipc:', 'http://ipc.localhost', 'https://api.todoist.com', 'https://kan-do-zeta.vercel.app']))
     const hosts = connect.filter(s => !s.startsWith("'"))
     // GitHub (#223 github_request, #225 updater) is reached by Rust only; allowing it would let the page reach it
     expect(hosts.filter(h => /github/i.test(h))).toEqual([])
@@ -64,7 +64,14 @@ describe('production csp', () => {
   const csp = conf.app.security.csp as Csp
 
   it('allows exactly the expected connect-src hosts', () => {
-    expect(sources(csp, 'connect-src')).toEqual(["'self'", 'ipc:', 'http://ipc.localhost', 'https://api.todoist.com'])
+    expect(sources(csp, 'connect-src')).toEqual(["'self'", 'ipc:', 'http://ipc.localhost', 'https://api.todoist.com', 'https://kan-do-zeta.vercel.app'])
+  })
+
+  it('the feedback relay host is the one the build posts to (#268)', () => {
+    const config = readFileSync('nuxt.config.ts', 'utf8')
+    const url = /FEEDBACK_RELAY_PRODUCTION_URL = '([^']+)'/.exec(config)?.[1]
+    expect(url).toBeDefined()
+    expect(sources(csp, 'connect-src')).toContain(new URL(url!).origin)
   })
 
   it('has no inline script and no localhost dev host', () => {

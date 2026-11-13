@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted (#227, part of epic #221). The screenshot part is built in #247: see [ADR 014](014-feedback-screenshots.md).
+Accepted (#227, part of epic #221). The screenshot part is built in #247: see [ADR 014](014-feedback-screenshots.md). Since #268 everyone but the owner sends through a relay: see "Amendment: relay" below, which replaces the browser path as the normal path.
 
 ## Context
 
@@ -30,6 +30,21 @@ The repository `jaylouiz/kan-do` becomes public under the same name, and reports
 - **Label.** The link keeps `labels=inbox`; GitHub applies URL labels only for users with triage rights, so a public user's issue arrives unlabelled and is triaged by hand. That is accepted.
 - **Web build.** Feedback stays desktop only (the palette offers it only in Tauri); nothing changes there.
 - **Privacy.** Public issues raise the stakes of the mask: the activity value of the task sheet and the add form were not marked `data-private` (#704) and are now, with an E2E guard over the rendered text (ADR 014).
+
+## Amendment: relay into a private repository, feedback on web (2026-11-13)
+
+Owner decision (#268): feedback only makes sense for other users as an in-app experience, without a GitHub account. This replaces "the browser path is the normal path" and the rejection of a relay in the amendment above; the browser path stays as the fallback.
+
+- **Three send routes** (`useFeedback` `sendRoute`). `token`: a stored feedback token whose user may write to `jaylouiz/kan-do` sends through Rust as before (owner, collaborators; public issue, `feedback-assets` branch). `relay`: everyone else posts the report to the app's own server route. `browser`: the prefilled `issues/new` link, only when there is no relay (below) or the stored token was rejected (its note and the link to GitHub-Zugriff stay true).
+- **The relay** is `POST /api/feedback` (`server/api/feedback.post.ts`, `server/utils/feedbackRelay.ts`) on the production deployment. It files the report as an issue with label `inbox` in the private repository `jaylouiz/kan-do-feedback` and answers `201 { ok: true }`: no issue number and no URL, because the user could not open them. The body is the exact string the review step showed. The app says the report goes to the Kan-Do team and is not published.
+- **The token lives on the server only** (`FEEDBACK_GITHUB_TOKEN`, a Vercel environment variable): a fine-grained token limited to the feedback repository, Issues: write and Contents: write. It can do nothing in `jaylouiz/kan-do`, so the Contents right that needed the Rust pin of ADR 014 is harmless here. The owner creates it and stores it in Vercel; agents never see it.
+- **Screenshot.** On desktop the flattened PNG goes with the report (base64, at most 3 MB decoded: Vercel refuses request bodies over 4.5 MB). The relay checks the path (`feedback/<yyyy>/<mm>/<uuid>.png`, chosen by the client so the review shows the exact body) and the PNG magic bytes, writes it to the default branch of the feedback repository through the Contents API, then creates the issue. Nothing goes to the clipboard on this route.
+- **Abuse bound.** The route is open to every origin (`Access-Control-Allow-Origin: *`; the desktop webview and the web build both post to it, and no cookie or credential is involved). Before writing, it counts the issues created in the feedback repository in the last hour and answers 429 at `FEEDBACK_HOURLY_CAP` (30). A filled honeypot field (`website`) gets a 201 and nothing is filed. Spam therefore reaches a private repository, at most 30 an hour, and never the public tracker. Rejected for now: a per-IP limit (needs a store, and serverless instances share no memory) and a bot check (a third-party script against the desktop CSP); both are the next step if the cap proves too coarse.
+- **Fallback.** `sendToRelay` (`lib/feedbackRelay.ts`) maps a 404, 405, 503 (`FEEDBACK_NOT_CONFIGURED`) or a non-JSON answer to `unavailable`: a static host, a fork, or a deployment without the token. The dialog then says that sending directly is not possible and switches to the browser path for the rest of the session, draft kept. Offline, 429 and other 5xx keep the relay route with "Erneut versuchen".
+- **Where the relay is.** `runtimeConfig.public.feedbackRelayUrl`: `/api/feedback` in dev and in the E2E build (specs answer it with `page.route`, so no test reaches production), `https://kan-do-zeta.vercel.app/api/feedback` in every other build, the desktop app included; `NUXT_PUBLIC_FEEDBACK_RELAY_URL` overrides it and an empty value switches the relay off. The desktop CSP lists that host in `connect-src` ([ADR 012](012-desktop-csp.md)). On Vercel the Nitro preset is now `vercel` (it was `static`), so the server routes exist there at all; this also brings the Notion and Todoist proxy routes to the web deployment.
+- **Web build.** The palette entry, the dialog and the element picker exist on web too. There the version is `clientVersion`, there is no log tail and no screenshot (`feedback_capture` is native). The `data-component` marker plugin stays desktop and dev only, so a picked element on web carries its selector and test id but no component chain.
+- **The guard stays.** `lib/feedback/` and `useFeedback.ts` still never call `fetch`, read a token or touch storage (`tests/lib/feedback/screenshotCsp.test.ts`, `tests/composables/useFeedback.test.ts`). The relay call is the one network path of the feedback outside Rust and lives in its own module, which holds no token and names no GitHub host.
+- **Privacy.** A report is no longer public, but it leaves the device for a server and a private repository the owner reads. The review step, the per-item checkboxes and the capture mask are unchanged and still the audit point.
 
 ## Spike result: DOM rasterisation failed, screenshots are not built
 

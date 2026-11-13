@@ -24,10 +24,14 @@
  * owner: in-app send needs a token whose user may write to the repo (`checkWriteAccess`), not just any stored token.
  * The token state is read on `open()` so the form can say that sending needs a GitHub account; after the link
  * opens a toast says what to do on GitHub (paste the screenshot, send the issue).
+ * Relay (owner decision 2026-11-13, #268, ADR 010 "Amendment: relay"): everyone without such a token sends through
+ * the app's server route (`lib/feedbackRelay.ts`), which files the report in a private repository: no GitHub account,
+ * nothing public, the screenshot goes with it. Web has the dialog too (no native capture, no log tail there). The
+ * browser path is what is left when there is no relay (static host, fork, missing server token): `relayDown`.
  */
 import { ICONS } from '~/lib/icons'
 import { computed, hasInjectionContext, reactive, readonly, ref, shallowRef } from 'vue'
-import { useNuxtApp, useToast } from '#imports'
+import { useNuxtApp, useRuntimeConfig, useToast } from '#imports'
 import { translate, getActiveLocale } from '~/lib/i18n'
 import { buildIssueBody } from '~/lib/feedback/buildIssueBody'
 import { buildPrefilledUrl, type PrefilledUrl } from '~/lib/feedback/trimPrefilledUrl'
@@ -37,6 +41,8 @@ import {
 } from '~/lib/feedback/types'
 import { classifyUploadStatus } from '~/lib/feedback/uploadAccess'
 import { flattenToPng, isMark, readAnnotationColors, type Annotation } from '~/lib/feedback/flattenCanvas'
+import { RELAY_IMAGE_MAX_BYTES, sendToRelay } from '~/lib/feedbackRelay'
+import { isTauri } from '~/utils/isTauri'
 import { toSecretError, useSecrets } from '~/composables/useSecrets'
 import { useTasksStore } from '~/store/tasks'
 import { useElementPicker } from '~/composables/useElementPicker'
@@ -47,7 +53,9 @@ export type FeedbackStep = 'form' | 'annotate' | 'review'
 /** `present`: a token whose user may write to the repo (owner, collaborator). `readOnly`: a token without that right. */
 export type TokenState = 'unknown' | 'present' | 'absent' | 'rejected' | 'readOnly'
 /** What went wrong with the last send. The draft is kept in every case. */
-export type SendProblem = 'offline' | 'rejected' | 'blocked' | 'server' | 'unexpected' | 'uploadDenied'
+export type SendProblem = 'offline' | 'rejected' | 'blocked' | 'server' | 'unexpected' | 'uploadDenied' | 'relayBlocked' | 'relayServer' | 'relayUnexpected' | 'relayDown' | 'relayImageTooLarge'
+/** How this report leaves the app: the owner's token (Rust), the relay (server route), or a prefilled GitHub link. */
+export type SendRoute = 'token' | 'relay' | 'browser'
 /** Which request of a send is running (plain text in the review step). */
 export type SendPhase = 'idle' | 'uploading' | 'creating'
 
@@ -98,6 +106,12 @@ let assetPath: string | null = null
 let tokenFingerprint: string | null = null
 /** Write access of a token's user per fingerprint, asked once per session (`checkWriteAccess`). */
 const writeAccess = new Map<string, Promise<'write' | 'readOnly' | 'rejected'>>()
+/** URL of the relay route (runtime config, read in `useFeedback()`); empty means this build has none. */
+const relayUrl = ref('')
+/** The web build's own version (runtime config); the desktop app asks Tauri instead. */
+let webVersion: string | null = null
+/** The relay answered that it does not exist or is not configured: the browser path for the rest of the session. */
+const relayDown = ref(false)
 let returnFocusTo: HTMLElement | null = null
 const LOG_TAIL_LINES = 30
 /** The app version does not change within a session: asked once, then reused by every snapshot. */
@@ -131,6 +145,12 @@ function snapshotContext() {
  */
 async function loadNativeContext(): Promise<void> {
   const generation = snapshotGeneration
+  if (!isTauri()) {
+    // Web: the build's version, and no log file to read.
+    appVersion = webVersion
+    if (versionInfo.value) versionInfo.value = { ...versionInfo.value, version: appVersion }
+    return
+  }
   if (appVersion === null) {
     try {
       const { getVersion } = await import('@tauri-apps/api/app')
@@ -169,10 +189,19 @@ const trimmedTitle = computed(() => draft.title.trim())
 const titleValid = computed(() => trimmedTitle.value.length > 0 && trimmedTitle.value.length <= TITLE_MAX)
 const hasDraft = computed(() => !!(trimmedTitle.value || draft.description.trim() || draft.element || flat.value || rawShot.value))
 const body = computed(() => buildIssueBody(issueInput()))
-/** Present token: send through Rust. Anything else: open the prefilled link. */
+/** Present token: send through Rust. Anything else: the relay, or the prefilled link when there is no relay. */
 const canSend = computed(() => tokenState.value === 'present')
-/** The image goes into the repo only with a token that may write contents; otherwise the author pastes it. */
-const screenshotDelivery = computed<ScreenshotDelivery>(() => (canSend.value && !uploadDenied.value ? 'upload' : 'clipboard'))
+const sendRoute = computed<SendRoute>(() => {
+  if (canSend.value) return 'token'
+  // A refused token is the owner's or a collaborator's to repair: their note and the link to GitHub-Zugriff stay true.
+  if (tokenState.value === 'rejected') return 'browser'
+  return relayUrl.value && !relayDown.value ? 'relay' : 'browser'
+})
+/** Owner token that may write contents: into the repo. Relay: sent with the report. Otherwise the author pastes it. */
+const screenshotDelivery = computed<ScreenshotDelivery>(() => {
+  if (sendRoute.value === 'relay') return 'relay'
+  return canSend.value && !uploadDenied.value ? 'upload' : 'clipboard'
+})
 const wantsImage = computed(() => !!flat.value && draft.include.screenshot)
 /** Token without Contents: write (found out): the primary action sends the report without the image. */
 const sendsWithoutImage = computed(() => canSend.value && wantsImage.value && uploadDenied.value)
@@ -252,6 +281,9 @@ function httpProblem(status: number): SendProblem {
 }
 
 export function useFeedback() {
+  const publicConfig = useRuntimeConfig().public
+  relayUrl.value = String(publicConfig.feedbackRelayUrl ?? '')
+  webVersion = publicConfig.clientVersion ? String(publicConfig.clientVersion) : null
   const secrets = useSecrets()
   const picker = useElementPicker()
   const screenshotCapture = useScreenshotCapture()
@@ -486,6 +518,10 @@ export function useFeedback() {
   }
 
   async function openExternal(url: string): Promise<void> {
+    if (!isTauri()) {
+      window.open(url, '_blank', 'noopener')
+      return
+    }
     const { openUrl } = await import('@tauri-apps/plugin-opener')
     await openUrl(url)
   }
@@ -657,11 +693,68 @@ export function useFeedback() {
     }
   }
 
+  /** Relay path: the sent report is in a private repository, so the toast has no number and no link. */
+  function notifyRelaySent(): void {
+    const toast = hasInjectionContext() ? useToast() : useNuxtApp().vueApp.runWithContext(() => useToast())
+    toast.add({ title: translate('feedback.sentRelayToast'), icon: 'i-ph-chat-teardrop-text', color: 'neutral' })
+  }
+
+  /**
+   * Everyone without the owner's token: one request to the app's server route, the screenshot inside it.
+   * `unavailable` (no relay here, or it has no token) switches the session to the browser path and keeps the draft.
+   */
+  async function sendViaRelay(): Promise<void> {
+    if (sending.value || !titleValid.value || sendRoute.value !== 'relay') return
+    // The relay refuses a larger image: say so before anything is sent; unticking the screenshot sends the rest.
+    if (wantsImage.value && (flat.value?.blob.size ?? 0) > RELAY_IMAGE_MAX_BYTES) {
+      problem.value = 'relayImageTooLarge'
+      return
+    }
+    sending.value = true
+    problem.value = null
+    clipboardFailed.value = false
+    sendPhase.value = 'creating'
+    try {
+      const image = wantsImage.value ? flat.value : null
+      const result = await sendToRelay(relayUrl.value, {
+        title: trimmedTitle.value,
+        body: body.value,
+        ...(image ? { screenshot: { path: image.path, content: await toBase64(image.blob) } } : {}),
+      })
+      if (result === 'sent') {
+        resetDraft()
+        discarded.value = null
+        isOpen.value = false
+        notifyRelaySent()
+      }
+      else if (result === 'unavailable') {
+        relayDown.value = true
+        problem.value = 'relayDown'
+      }
+      else if (result === 'offline') problem.value = 'offline'
+      else if (result === 'blocked') problem.value = 'relayBlocked'
+      else if (result === 'server') problem.value = 'relayServer'
+      else {
+        problem.value = 'relayUnexpected'
+        handleError(new Error('feedback: the relay refused the report'), 'feedback')
+      }
+    }
+    catch (error) {
+      problem.value = 'relayUnexpected'
+      handleError(error as Error, 'feedback')
+    }
+    finally {
+      sending.value = false
+      sendPhase.value = 'idle'
+    }
+  }
+
   /** No-token path: opens the prefilled issue form in the browser; the image is on the clipboard for pasting. */
   async function openInBrowser(): Promise<void> {
     if (sending.value || !titleValid.value) return
     const copied = wantsImage.value ? copyImage() : null
     clipboardFailed.value = false
+    problem.value = null
     try {
       await openExternal(prefilled.value.url)
     }
@@ -697,12 +790,13 @@ export function useFeedback() {
     body,
     prefilled,
     canSend,
+    sendRoute,
     screenshotDelivery,
     wantsImage,
     sendsWithoutImage,
     contextSummary,
     limits: { title: TITLE_MAX, description: DESCRIPTION_MAX },
-    open, close, discard, undoDiscard, startPick, onDialogLeft, toReview, toForm, send, openInBrowser,
+    open, close, discard, undoDiscard, startPick, onDialogLeft, toReview, toForm, send, sendViaRelay, openInBrowser,
     startCapture, setMaskPrivate, toAnnotate, addAnnotation, undoAnnotation, clearAnnotations, removeScreenshot, finishAnnotate,
     // computed, not readonly(): a deep readonly proxy around an ImageBitmap cannot be passed to drawImage
     rawShot: computed(() => rawShot.value),
@@ -739,6 +833,7 @@ export function resetFeedbackState(): void {
   maskPrivate.value = true
   uploadDenied.value = false
   tokenFingerprint = null
+  relayDown.value = false
   writeAccess.clear()
   sendPhase.value = 'idle'
   finishing = false

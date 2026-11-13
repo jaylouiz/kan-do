@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { Blob as NodeBlob } from 'node:buffer'
 import { resetFeedbackState, useFeedback } from '~/composables/useFeedback'
-import { toastAddMock } from '../mocks/nuxt-imports'
+import { runtimeConfigMock, toastAddMock } from '../mocks/nuxt-imports'
 
 /** #247: the screenshot half of useFeedback. IPC is faked; canvas work is replaced by fixed bitmaps and a generated PNG. */
 
@@ -206,6 +206,45 @@ describe('useFeedback screenshot', () => {
     await reachReview(feedback)
     await feedback.send()
     expect(issueRequests()).toHaveLength(1)
+  })
+
+  it('relay (#268): the image goes with the report as base64; one over 3 MB is refused before anything is sent, unticking it sends the rest', async () => {
+    runtimeConfigMock.public.feedbackRelayUrl = '/api/feedback'
+    try {
+      stubIpc({ present: false })
+      const fetchMock = vi.fn(async (_url: string, _init: RequestInit) => new Response('{"ok":true}', { status: 201 }))
+      vi.stubGlobal('fetch', fetchMock)
+      flattenMock.mockResolvedValue({ blob: new NodeBlob([new Uint8Array(3 * 1024 * 1024 + 1)], { type: 'image/png' }), width: 10, height: 8 })
+      const big = useFeedback()
+      await reachReview(big)
+      expect(big.sendRoute.value).toBe('relay')
+      expect(big.screenshotDelivery.value).toBe('relay')
+      await big.sendViaRelay()
+      expect(big.problem.value).toBe('relayImageTooLarge')
+      expect(fetchMock).not.toHaveBeenCalled()
+
+      big.draft.include.screenshot = false
+      await big.sendViaRelay()
+      expect(fetchMock).toHaveBeenCalledOnce()
+      expect(JSON.parse(String(fetchMock.mock.calls[0]![1].body))).not.toHaveProperty('screenshot')
+      expect(big.isOpen.value).toBe(false)
+
+      resetFeedbackState()
+      fetchMock.mockClear()
+      flattenMock.mockResolvedValue({ blob: new NodeBlob([FIXTURE_PNG], { type: 'image/png' }), width: 10, height: 8 })
+      const small = useFeedback()
+      await reachReview(small)
+      const path = small.flat.value!.path
+      await small.sendViaRelay()
+      const sent = JSON.parse(String(fetchMock.mock.calls[0]![1].body))
+      expect(sent.screenshot).toEqual({ path, content: Buffer.from(FIXTURE_PNG).toString('base64') })
+      expect(sent.body).toContain(`jaylouiz/kan-do-feedback/blob/main/${path}`)
+      expect(clipboardWrite).not.toHaveBeenCalled()
+      expect(requests).toEqual([])
+    }
+    finally {
+      runtimeConfigMock.public.feedbackRelayUrl = ''
+    }
   })
 
   it('a retry after a failed issue reuses the uploaded path and never uploads twice', async () => {

@@ -747,6 +747,9 @@
         "composables/useElementPicker*",
         "composables/useScreenshotCapture*",
         "lib/feedback/**",
+        "lib/feedbackRelay.ts",
+        "server/api/feedback*",
+        "server/utils/feedbackRelay.ts",
         "plugins/component-name.client.ts"
       ],
       "specs": [

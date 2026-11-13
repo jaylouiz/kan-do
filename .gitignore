@@ -68,3 +68,4 @@ impeccable-report.json
 *.swp
 *.swo
 *~
+.vercel
