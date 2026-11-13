@@ -1,39 +1,57 @@
 <!--
 @component PrototypeSwitcher
-@description PROTOTYPE ONLY (#<n>). Fixed pill that switches `?variant=`; arrow keys outside inputs. Never gated on dev mode.
-@usage Copy to components/prototype/PrototypeSwitcher.vue on a proto branch, edit LABELS only (key `o` = today's look), mount once in the host page.
+@description PROTOTYPE ONLY (#<n>). Fixed pill that switches the variant query keys; arrow keys outside inputs. Never gated on dev mode.
+@usage Copy to components/prototype/PrototypeSwitcher.vue on a proto branch, edit GROUPS only (key `o` = today's look), mount once in the host page. One group = one question: a single issue keeps the one `variant` group; a design batch adds a group per independent question (its own query key, e.g. `v162`), so the user can combine the answers freely. Questions that depend on each other stay one group with combined variants.
 -->
 <template>
-  <div v-if="current" class="proto-switcher" role="group" aria-label="Variant switcher">
-    <button type="button" aria-label="Previous variant" @click="step(-1)">‹</button>
-    <span><b>{{ current.toUpperCase() }}</b> {{ LABELS[current] }}</span>
-    <button type="button" aria-label="Next variant" @click="step(1)">›</button>
+  <div v-if="shown" class="proto-switcher" role="group" aria-label="Variant switcher">
+    <div v-for="(group, key) in GROUPS" :key="key" class="proto-switcher__row" :class="{ 'is-active': key === active }" @pointerdown="active = key">
+      <button type="button" :aria-label="`Previous: ${group.title}`" @click="step(key, -1)">‹</button>
+      <span><i v-if="MANY">{{ group.title }}</i> <b>{{ value(key).toUpperCase() }}</b> {{ group.labels[value(key)] }}</span>
+      <button type="button" :aria-label="`Next: ${group.title}`" @click="step(key, 1)">›</button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
 defineOptions({ name: 'PrototypeSwitcher' })
 
-const LABELS: Record<string, string> = { o: 'Today', a: '<variant a name>', b: '<variant b name>' }
-const KEYS = Object.keys(LABELS)
+// Query key -> the question it answers and its variants. The first group must use `variant`: the switcher shows
+// when `?variant=` is in the URL (the round's Preview link), the other keys default to `o`.
+const GROUPS: Record<string, { title: string, labels: Record<string, string> }> = {
+  variant: { title: '#<n>', labels: { o: 'Today', a: '<variant a name>', b: '<variant b name>' } },
+  // v<m>: { title: '#<m>', labels: { o: 'Today', a: '<variant a name>' } },
+}
+const GROUP_KEYS = Object.keys(GROUPS)
+const MANY = GROUP_KEYS.length > 1
 const route = useRoute()
 const router = useRouter()
-const current = computed(() => {
-  const v = route.query.variant
-  return typeof v === 'string' && v in LABELS ? v : null
-})
-function step(dir: 1 | -1) {
-  const i = KEYS.indexOf(current.value ?? 'o')
-  router.replace({ query: { ...route.query, variant: KEYS[(i + dir + KEYS.length) % KEYS.length] } })
+const active = ref(GROUP_KEYS[0])
+const shown = computed(() => typeof route.query.variant === 'string' && route.query.variant in GROUPS.variant.labels)
+function value(key: string) {
+  const v = route.query[key]
+  return typeof v === 'string' && v in GROUPS[key].labels ? v : 'o'
+}
+function step(key: string, dir: 1 | -1) {
+  active.value = key
+  const keys = Object.keys(GROUPS[key].labels)
+  const i = keys.indexOf(value(key))
+  router.replace({ query: { ...route.query, [key]: keys[(i + dir + keys.length) % keys.length] } })
 }
 function onKey(e: KeyboardEvent) {
   const t = e.target as HTMLElement | null
   if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return
-  if (e.metaKey || e.ctrlKey || e.altKey) return
-  if (e.key === 'ArrowLeft' && current.value) step(-1)
-  if (e.key === 'ArrowRight' && current.value) step(1)
+  if (e.metaKey || e.ctrlKey || e.altKey || !shown.value) return
+  if (e.key === 'ArrowLeft') step(active.value, -1)
+  if (e.key === 'ArrowRight') step(active.value, 1)
+  // Up and down pick which question the left and right keys answer.
+  if (MANY && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+    const i = GROUP_KEYS.indexOf(active.value) + (e.key === 'ArrowDown' ? 1 : -1)
+    active.value = GROUP_KEYS[(i + GROUP_KEYS.length) % GROUP_KEYS.length]
+    e.preventDefault()
+  }
 }
 onMounted(() => window.addEventListener('keydown', onKey))
 onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
@@ -42,11 +60,15 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 <style>
 .proto-switcher {
   position: fixed; z-index: 3000; left: 1rem; bottom: 1rem;
-  display: flex; align-items: center; gap: .5rem;
-  padding: .25rem .5rem; border-radius: 999px;
+  display: flex; flex-direction: column; gap: .125rem;
+  padding: .25rem .5rem; border-radius: 1rem;
   background: #111; color: #fff; font: 500 .8125rem/1 system-ui, sans-serif;
   box-shadow: 0 4px 16px rgba(0,0,0,.35);
 }
+.proto-switcher__row { display: flex; align-items: center; gap: .5rem; opacity: .6; }
+.proto-switcher__row.is-active, .proto-switcher__row:only-child { opacity: 1; }
+.proto-switcher__row span { flex: 1; white-space: nowrap; }
+.proto-switcher__row i { font-style: normal; opacity: .7; margin-right: .25rem; }
 .proto-switcher button { color: #fff; font-size: 1.25rem; line-height: 1; padding: .25rem .5rem; cursor: pointer; }
 @media (max-width: 767px) { .proto-switcher { left: 50%; transform: translateX(-50%); bottom: calc(8rem + env(safe-area-inset-bottom, 0px)); } }
 </style>
