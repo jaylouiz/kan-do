@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { settleAnimations } from './helpers/settle'
+import { appNav, goToPlace, openSettings } from './helpers/appNav'
 import {
   MIXED_SEED_TASKS, atDaysAgo, dayKeyDaysAgo, newDayTasks, seedDayRecapStore, seedMixedBoard, seedNewDayBoard,
   type SeedTask,
@@ -79,8 +80,11 @@ test.describe('New-day recap (#385)', () => {
     await page.goto('/tasks')
 
     await expect(recap(page)).toBeVisible()
-    await expect(recap(page)).toHaveAttribute('role', 'dialog')
-    await expect(page.getByRole('dialog', { name: 'Kurzer Rückblick' })).toBeVisible()
+    // A stage, not a dialog (#245): a named region on the welcome photo, the board is not visible behind it
+    await expect(recap(page)).toHaveAttribute('role', 'region')
+    await expect(page.getByRole('region', { name: 'Kurzer Rückblick' })).toBeVisible()
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    await expect(page.getByTestId('recap-photo')).toBeVisible()
     await expect(summary(page)).toHaveText('Du hast gestern 4 von 6 Aufgaben erledigt.')
     await expect(deck(page, 'done')).toHaveAccessibleName('4 erledigt, mit Pfeiltasten wechseln')
     await expect(deck(page, 'undone')).toHaveAccessibleName('2 noch offen, mit Pfeiltasten wechseln')
@@ -338,7 +342,7 @@ test.describe('New-day recap (#385)', () => {
     await expect(front).toHaveText('Retrospektive nachbereiten')
     // cards are view-only: no task sheet, URL unchanged
     await expect(page).toHaveURL(/\/tasks$/)
-    await expect(page.getByRole('dialog')).toHaveCount(1)
+    await expect(page.getByRole('dialog')).toHaveCount(0)
   })
 
   test('keyboard and chevrons: ArrowRight x5 advances five, then back with ArrowLeft, only while the deck has focus', async ({ page, context }) => {
@@ -401,24 +405,28 @@ test.describe('New-day recap (#385)', () => {
     await expect.poll(() => live.textContent()).toBe('2 von 4: Steuerunterlagen sortieren')
   })
 
-  test('tab order: deck, previous, next per deck, then the switch and the button; focus starts on the button', async ({ page, context }) => {
+  test('tab order: deck, previous, next per deck, then the switch and the button; focus starts on the button, no trap (#245)', async ({ page, context }) => {
     await seedNewDayBoard(context)
     await page.goto('/tasks')
     await expect(continueButton(page)).toBeFocused()
     const order = ['recap-deck-undone', 'recap-prev-undone', 'recap-next-undone', 'recap-deck-done', 'recap-prev-done', 'recap-next-done', 'recap-archive-toggle', 'recap-continue']
     const active = () => page.evaluate(() => document.activeElement?.getAttribute('data-testid') ?? document.activeElement?.closest('[data-testid]')?.getAttribute('data-testid'))
-    // Tab wraps from the last stop to the first
-    await page.keyboard.press('Tab')
-    await expect.poll(active).toBe(order[0])
+    // Backwards from the button through every stop in reverse
+    for (const id of order.slice(0, -1).reverse()) {
+      await page.keyboard.press('Shift+Tab')
+      await expect.poll(active).toBe(id)
+    }
+    // Forwards again to the button
     for (const id of order.slice(1)) {
       await page.keyboard.press('Tab')
       await expect.poll(active).toBe(id)
     }
+    // Not a trap: the next Tab leaves the stage (the app bar is reachable), and the stage stays
     await page.keyboard.press('Tab')
-    await expect.poll(active).toBe(order[0])
-    await page.keyboard.press('Shift+Tab')
-    await expect.poll(active).toBe(order.at(-1))
-    // Escape still leaves
+    await expect.poll(() => page.evaluate(() => document.activeElement?.closest('[data-testid="new-day-recap"]') === null)).toBe(true)
+    await expect(recap(page)).toBeVisible()
+    // Escape inside the stage still leaves
+    await continueButton(page).focus()
     await page.keyboard.press('Escape')
     await expect(recap(page)).toBeHidden()
   })
@@ -483,13 +491,63 @@ test.describe('New-day recap (#385)', () => {
     expect(new Set(cardHeights).size).toBe(1)
   })
 
-  test('the command palette shortcut does not act behind the page', async ({ page, context }) => {
+  test('the command palette opens over the stage (the bar stays usable) and Escape there does not leave the recap', async ({ page, context }) => {
     await seedNewDayBoard(context)
     await page.goto('/tasks')
     await expect(recap(page)).toBeVisible()
     await page.keyboard.press('ControlOrMeta+k')
     await expect(page.getByRole('dialog')).toHaveCount(1)
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('dialog')).toHaveCount(0)
     await expect(recap(page)).toBeVisible()
+    expect(await archived(page)).toEqual([])
+  })
+
+  test('the app bar stays usable: settings and back shows the same recap again, nothing archived (#245)', async ({ page, context }) => {
+    await seedNewDayBoard(context)
+    await page.goto('/tasks')
+    await expect(recap(page)).toBeVisible()
+    await expect(appNav(page)).toBeVisible()
+    await openSettings(page)
+    await expect(recap(page)).toHaveCount(0)
+    await goToPlace(page, 'Heute')
+    await expect(recap(page)).toBeVisible()
+    await expect(summary(page)).toHaveText('Du hast gestern 4 von 6 Aufgaben erledigt.')
+    expect(await archived(page)).toEqual([])
+    expect((await marker(page))?.lastShownDay).not.toBe(dayKeyDaysAgo(0))
+  })
+
+  test('the stage covers the board; the bar is above it (#245)', async ({ page, context }) => {
+    await seedNewDayBoard(context)
+    await page.goto('/tasks')
+    await expect(recap(page)).toBeVisible()
+    const top = await page.evaluate(() => {
+      const at = (x: number, y: number) => document.elementFromPoint(x, y)?.closest('[data-testid="new-day-recap"], [data-testid="app-nav"]')?.getAttribute('data-testid') ?? null
+      return { corner: at(8, innerHeight - 8) }
+    })
+    expect(top.corner).toBe('new-day-recap')
+  })
+
+  test('curtain: only the photo slides up, the board is live from the first moment, then the stage is gone and focus is on the board (#245)', async ({ page, context }) => {
+    await seedNewDayBoard(context)
+    await page.goto('/tasks')
+    await expect(recap(page)).toBeVisible()
+    await continueButton(page).click()
+    await expect(board(page)).not.toHaveAttribute('inert', '')
+    // while the curtain runs the stage no longer takes pointer input and only its photo layer carries the transform
+    await expect(recap(page)).toHaveAttribute('data-closing', 'true')
+    await expect(recap(page)).toHaveCSS('pointer-events', 'none')
+    await expect(recap(page)).toBeHidden({ timeout: 5000 })
+    await expect(board(page)).toBeFocused()
+  })
+
+  test('reduced motion: no curtain, gone at once (#245)', async ({ page, context }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await seedNewDayBoard(context)
+    await page.goto('/tasks')
+    await expect(recap(page)).toBeVisible()
+    await continueButton(page).click()
+    await expect(recap(page)).toHaveCount(0)
   })
 
   test.describe('Notion stub (mixed board)', () => {
@@ -535,14 +593,14 @@ test.describe('New-day recap (#385)', () => {
   test.describe('390px', () => {
     test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true })
 
-    test('a drawer without scroll bar: one deck at a time under a switcher, the panel pinned, the page never scrolls', async ({ page, context }) => {
+    test('a stage without scroll bar: one deck at a time under a switcher, the panel pinned, the page never scrolls', async ({ page, context }) => {
       await seedNewDayBoard(context)
       await page.goto('/tasks')
 
       await expect(recap(page)).toBeVisible()
-      await expect(recap(page)).toHaveAttribute('data-vaul-drawer', '')
+      await expect(recap(page)).toHaveAttribute('role', 'region')
       const noScroll = () => page.evaluate(() => {
-        const body = document.querySelector('[data-testid="new-day-recap"] .overflow-y-auto') as HTMLElement
+        const body = document.querySelector('[data-testid="new-day-recap"] .recap-stage__scroll') as HTMLElement
         return { page: document.documentElement.scrollHeight <= innerHeight, pageX: document.documentElement.scrollWidth <= innerWidth, body: body.scrollHeight <= body.clientHeight }
       })
       expect(await noScroll()).toEqual({ page: true, pageX: true, body: true })
@@ -568,7 +626,8 @@ test.describe('New-day recap (#385)', () => {
       const box = (await button.boundingBox())!
       expect(toggleBox.y + toggleBox.height).toBeLessThanOrEqual(box.y)
       expect(box.width).toBeGreaterThan(390 - 2 * 40)
-      expect(box.y + box.height).toBeGreaterThan(844 * 0.8)
+      // the stage sits above the phone bar, which stays usable
+      expect(box.y + box.height).toBeLessThan(844 - 72)
 
       // a tap and a mouse drag past 80px advance the deck without moving anything
       const before = await layoutSnapshot2(page)
@@ -580,7 +639,7 @@ test.describe('New-day recap (#385)', () => {
       await expect(recap(page)).toBeHidden()
     })
 
-    test('a touch swipe on the deck advances it and never drag-closes the drawer (closing would archive the done tasks)', async ({ page, context }) => {
+    test('a touch swipe on the deck advances it and never closes the recap (closing would archive the done tasks)', async ({ page, context }) => {
       await seedNewDayBoard(context)
       await page.goto('/tasks')
       await expect(recap(page)).toBeVisible()
