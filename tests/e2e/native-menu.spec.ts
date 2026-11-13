@@ -161,7 +161,7 @@ test.describe('Desktop shell marker (#614)', () => {
     expect(await drags()).toBe(1)
   })
 
-  test('desktop: the new-day recap, a custom full-screen layer, hands its bar row to the window drag too', async ({ context, page }) => {
+  test('desktop: the new-day recap stage starts below the bar row, so the window drag keeps working over it (#245)', async ({ context, page }) => {
     await seedNewDayBoard(context)
     await installTauriStub(context, {})
     await page.goto('/tasks')
@@ -169,22 +169,20 @@ test.describe('Desktop shell marker (#614)', () => {
     await expect(recap).toBeVisible()
     const drags = async () => (await stubState(page)).calls.filter(c => c.cmd === 'plugin:window|start_dragging').length
 
-    // In the bar row, also in the middle where the recap's content wrapper sits: drag starts, recap stays
+    // The stage is not a full-screen layer: its box starts at the bar row's bottom edge
+    const rowHeight = await page.evaluate(() => Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--app-bar-offset-top')) * Number.parseFloat(getComputedStyle(document.documentElement).fontSize))
+    expect((await recap.boundingBox())!.y).toBeCloseTo(rowHeight, 0)
+
+    // The bar row is not covered: a press there lands on the window's own drag strip (native `data-tauri-drag-region`),
+    // so no layer has to hand it over and the recap stays
     for (const x of [2, 400]) {
+      expect(await page.evaluate(([px, py]) => document.elementFromPoint(px!, py!)?.classList.contains('titlebar') ?? false, [x, 10])).toBe(true)
       await page.mouse.move(x, 10)
       await page.mouse.down()
       await page.mouse.up()
     }
-    await expect.poll(drags).toBe(2)
     await expect(recap).toBeVisible()
-
-    // Below the bar row the scrim is an ordinary dismissal (`leave()`), no drag. It goes last: the recap fades out
-    // and is gone after it, so a press (or an assertion on the recap) after it races the fade-out under load
-    await page.mouse.move(2, 300)
-    await page.mouse.down()
-    await page.mouse.up()
-    await expect(recap).toBeHidden()
-    expect(await drags()).toBe(2)
+    expect(await drags()).toBe(0)
   })
 
   test('web: no drag region', async ({ context, page }) => {

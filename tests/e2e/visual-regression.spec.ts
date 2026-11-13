@@ -898,7 +898,7 @@ const RECAP_SEED: SeedTask[] = [
 ]
 
 for (const { size, viewport } of CORE_VIEWPORTS) {
-  test(`new-day recap: ${size === '1280' ? 'modal' : 'drawer'} (${size})`, async ({ context, page }) => {
+  test(`new-day recap: stage (${size})`, async ({ context, page }) => {
     await page.setViewportSize(viewport)
     await pinClockToFixedNow(context)
     await seedLocalBoard(context, RECAP_SEED, { 'nd-open-1': carriedFor(2), 'nd-waiting-1': carriedFor(3) }, undefined, { once: true })

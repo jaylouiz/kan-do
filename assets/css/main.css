@@ -13,6 +13,7 @@
 @import "./board-focus-overlay.css";
 @import "./transitions.css";
 @import "./sheet.css";
+@import "./recap-stage.css";
 
 @theme static {
   /* Page wash utility — generates `bg-page`, `bg-page/80`, etc.
