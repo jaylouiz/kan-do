@@ -226,8 +226,6 @@
     "note": "User answer (#485): a task's state is always erledigt / done; Fertig / Done only labels a button that closes a dialog; abschließen only for the day (Tag abschließen) or a setup. The allow list also exempts de errors.title.success \"Fertig\" (a success toast title, an open question); the 6 en task-state strings that said \"finished\" now say \"done\" (#491).",
     "allow": [
       "dayClose.done",
-      "dayClose.putBackHint",
-      "dayClose.closing.line4",
       "feedback.annotate.done",
       "topic.picker.done",
       "notion.modal.stepDone",

@@ -5,10 +5,8 @@
 @description Calm triage block for a card carried over CARRY_OVER_NUDGE_DAYS or more board days (#99):
 "Still here after N days." with Keep, Make smaller and Delete.
 @usage <TaskCarryOverTriage :task-id="id" @smaller="focusTitle" @delete="deleteTask" />
-`compact` for list rows that already show the dots (#98): actions only, no wash, no heading, and a quiet look (all three
-ghost, #551; the task sheet block too, #552) so the block never outweighs the primary of the surface that lists it.
-Standalone so the closing step (#98) can list it under "still open". Renders nothing when no nudge is due
-(fewer days, kept recently, Wartet or Erledigt).
+The three actions are quiet ghost buttons (#551, #552) so the block never outweighs the primary of the surface that lists it.
+Renders nothing when no nudge is due (fewer days, kept recently, Wartet or Erledigt).
 @avoid Only on cards carried over several days; not a general card menu (TaskCardContextMenu).
 @responsibility
 - Keep: silences the nudge for CARRY_OVER_NUDGE_DAYS further days (store), the dots keep counting
@@ -18,21 +16,16 @@ Standalone so the closing step (#98) can list it under "still open". Renders not
 <template>
   <section
     v-if="isNudgeDue"
-    class="carry-over-triage"
-    :class="compact ? undefined : 'rounded-lg bg-muted/50 px-4 py-3'"
-    :aria-labelledby="compact ? undefined : headingId"
-    :aria-label="compact ? title : undefined"
-    :data-compact="compact ? '' : undefined"
+    class="carry-over-triage rounded-lg bg-muted/50 px-4 py-3"
+    :aria-labelledby="headingId"
     data-testid="carry-over-triage"
   >
-    <template v-if="!compact">
-      <div class="flex items-center gap-2">
-        <TaskCarryOverDots :day="displayDay" decorative />
-        <h3 :id="headingId" class="text-sm font-medium text-highlighted">{{ title }}</h3>
-      </div>
-      <p class="mt-1 text-body text-muted">{{ t('task.carryOver.nudgeHint') }}</p>
-    </template>
-    <div class="flex flex-wrap items-center gap-2" :class="{ 'mt-3': !compact }">
+    <div class="flex items-center gap-2">
+      <TaskCarryOverDots :day="displayDay" decorative />
+      <h3 :id="headingId" class="text-sm font-medium text-highlighted">{{ title }}</h3>
+    </div>
+    <p class="mt-1 text-body text-muted">{{ t('task.carryOver.nudgeHint') }}</p>
+    <div class="mt-3 flex flex-wrap items-center gap-2">
       <UButton
         color="neutral"
         variant="ghost"
@@ -79,14 +72,9 @@ defineOptions({ name: 'TaskCarryOverTriage' })
 interface Props {
   /** Task to triage. */
   taskId: string
-  /**
-   * Embedded in a list row that already shows the dots (#98 closing step): no wash, no heading,
-   * only the three actions in a group named by the nudge sentence.
-   */
-  compact?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), { compact: false })
+const props = defineProps<Props>()
 
 const emit = defineEmits<{
   /** The user chose Keep (nudge silenced). */

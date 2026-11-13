@@ -848,9 +848,9 @@ const doneHoursAgo = (h: number) => new Date(PINNED.getTime() - h * 3_600_000).t
 
 const DAY_CLOSE_SEED: SeedTask[] = [
   coreTask({ id: 'dc-done-1', title: 'Angebot an Kunden schicken', status: 3, priority: 2, activity: 'Planung', timeSpentSeconds: 4500, timeBoxSeconds: 3600, completedAt: doneHoursAgo(1) }),
-  coreTask({ id: 'dc-done-2', title: 'Steuerunterlagen sortieren', status: 3, timeSpentSeconds: 2700, completedAt: doneHoursAgo(2) }),
+  coreTask({ id: 'dc-done-2', title: 'Steuerunterlagen sortieren', status: 3, timeSpentSeconds: 2700, timeBoxSeconds: 3600, completedAt: doneHoursAgo(2) }),
   coreTask({ id: 'dc-done-3', title: 'Kurze Rückfrage beantwortet (ohne erfasste Zeit)', status: 3, completedAt: doneHoursAgo(3) }),
-  coreTask({ id: 'dc-done-4', title: 'Sehr langer Aufgabentitel, der in der Zusammenfassung sauber umbrechen muss, ohne die Zeile zu sprengen oder die Zeit zu verdrängen', status: 3, timeSpentSeconds: 1200, completedAt: doneHoursAgo(4) }),
+  coreTask({ id: 'dc-done-4', title: 'Sehr langer Aufgabentitel, der in der Zusammenfassung sauber umbrechen muss, ohne die Zeile zu sprengen oder die Zeit zu verdrängen', status: 3, timeSpentSeconds: 1200, timeBoxSeconds: 1200, completedAt: doneHoursAgo(4) }),
   coreTask({ id: 'dc-done-old', title: 'Gestern erledigt', status: 3, timeSpentSeconds: 900, completedAt: localAt(1, 15) }),
   coreTask({ id: 'dc-progress-1', title: 'Präsentation vorbereiten', status: 1, priority: 1, activity: 'Entwicklung', topic: 'Backend', topicColorCode: '#10b981', timeSpentSeconds: 1800, timeBoxSeconds: 3600 }),
   coreTask({ id: 'dc-open-stale', title: 'Steuerberater anrufen', status: 0, priority: 2 }),
@@ -873,7 +873,7 @@ for (const { size, viewport } of CORE_VIEWPORTS) {
     await openDayClose(page)
     const dialog = page.getByRole('dialog', { name: 'Tag abschließen' })
     await expect(dialog).toBeVisible()
-    await expect(dialog.getByTestId('day-close-in-flight-row').first()).toBeVisible()
+    await expect(dialog.getByTestId('day-close-bar')).toBeVisible()
     await page.mouse.move(0, 0)
     await settle(page)
     await expect(page).toHaveScreenshot(`day-close-${size}.png`, { animations: 'disabled' })

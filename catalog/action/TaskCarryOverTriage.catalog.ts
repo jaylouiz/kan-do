@@ -9,7 +9,6 @@ export default {
   screen: '/tasks',
   variants: [
     { id: 'nudge', label: 'the card carried over longest', fixture: 'carriedOverTask' },
-    { id: 'compact', label: 'compact, inside a closing-step row', fixture: 'carriedOverTask', props: { compact: true } },
   ],
   states: [],
 } satisfies CatalogEntry

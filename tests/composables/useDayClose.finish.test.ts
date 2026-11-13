@@ -18,6 +18,15 @@ vi.mock('~/composables/useTaskOperations', () => ({
   useTaskOperations: () => ({ stopTimer: stopTimerMock, moveTaskToStatus: moveTaskToStatusMock }),
 }))
 
+const deleteTaskWithUndoMock = vi.fn((id: string) => {
+  calls.push(`delete:${id}`)
+  useTasksStore().removeTask(id)
+  return true
+})
+vi.mock('~/composables/useTaskDeletion', () => ({
+  useTaskDeletion: () => ({ deleteTaskWithUndo: deleteTaskWithUndoMock }),
+}))
+
 const makeTask = (id: string, status: TaskStatus, extra: Partial<Task> = {}): Task => ({
   id, source: 'local', externalId: null, title: `Task ${id}`, status, activity: null, topic: null, topicColorCode: null,
   priority: 1, notes: null, timeBoxSeconds: null, timeSpentSeconds: 0, timerId: null, ...extra,
@@ -29,6 +38,7 @@ describe('useDayClose finish (Fertig)', () => {
     calls.length = 0
     stopTimerMock.mockClear()
     moveTaskToStatusMock.mockClear()
+    deleteTaskWithUndoMock.mockClear()
     setActivePinia(createPinia())
     useDayClose().close()
   })
@@ -111,5 +121,88 @@ describe('useDayClose finish (Fertig)', () => {
     expect(armedTaskTimerIds()).toEqual([])
     expect(store.task('p')?.timeSpentSeconds).toBe(5)
     driver.stop()
+  })
+
+  describe('deselected tasks (#237)', () => {
+    it('deletes a deselected Offen task through the upstream-aware delete and leaves the selected ones alone', async () => {
+      const store = useTasksStore()
+      store.addTask(makeTask('o1', TaskStatus.Open))
+      store.addTask(makeTask('o2', TaskStatus.Open))
+      store.addTask(makeTask('w', TaskStatus.Waiting))
+      const dayClose = useDayClose()
+      dayClose.open()
+      dayClose.setKept('o1', false)
+      dayClose.setKept('w', false)
+      await dayClose.finish()
+      expect(calls).toEqual(['delete:o1', 'delete:w'])
+      expect(moveTaskToStatusMock).not.toHaveBeenCalled()
+      expect(store.task('o2')?.status).toBe(TaskStatus.Open)
+      expect(dayClose.isOpen.value).toBe(false)
+    })
+
+    it('a deselected Jetzt task is deleted, not put back to Offen; a selected one still goes back', async () => {
+      const store = useTasksStore()
+      store.addTask(makeTask('p', TaskStatus.Progress, { timerId: 7 }))
+      const dayClose = useDayClose()
+      dayClose.open()
+      dayClose.setKept('p', false)
+      await dayClose.finish()
+      expect(calls).toEqual(['delete:p'])
+      expect(stopTimerMock).not.toHaveBeenCalled()
+      expect(moveTaskToStatusMock).not.toHaveBeenCalled()
+
+      store.addTask(makeTask('p2', TaskStatus.Progress))
+      calls.length = 0
+      dayClose.open()
+      await dayClose.finish()
+      expect(calls).toEqual(['stop:p2', `move:p2:${TaskStatus.Open}`])
+      expect(deleteTaskWithUndoMock).toHaveBeenCalledTimes(1)
+    })
+
+    it('nothing deselected deletes nothing; a second Fertig deletes nothing again', async () => {
+      const store = useTasksStore()
+      store.addTask(makeTask('o1', TaskStatus.Open))
+      store.addTask(makeTask('o2', TaskStatus.Open))
+      const dayClose = useDayClose()
+      dayClose.open()
+      await dayClose.finish()
+      expect(deleteTaskWithUndoMock).not.toHaveBeenCalled()
+
+      dayClose.open()
+      dayClose.setKept('o1', false)
+      await dayClose.finish()
+      await dayClose.finish()
+      expect(deleteTaskWithUndoMock).toHaveBeenCalledTimes(1)
+    })
+
+    it('the selection starts fresh on every open, a new task defaults to selected, a vanished one is ignored', async () => {
+      const store = useTasksStore()
+      store.addTask(makeTask('o1', TaskStatus.Open))
+      const dayClose = useDayClose()
+      dayClose.open()
+      dayClose.setKept('o1', false)
+      dayClose.setKept('gone', false)
+      expect(dayClose.isKept('o1')).toBe(false)
+      expect(dayClose.isKept('late')).toBe(true)
+      dayClose.setKept('o1', true)
+      expect(dayClose.isKept('o1')).toBe(true)
+      dayClose.setKept('o1', false)
+      dayClose.close()
+      dayClose.open()
+      expect(dayClose.isKept('o1')).toBe(true)
+
+      dayClose.setKept('gone', false)
+      await dayClose.finish()
+      expect(deleteTaskWithUndoMock).not.toHaveBeenCalled()
+    })
+
+    it('plain close() deletes nothing even with a deselection', () => {
+      useTasksStore().addTask(makeTask('o1', TaskStatus.Open))
+      const dayClose = useDayClose()
+      dayClose.open()
+      dayClose.setKept('o1', false)
+      dayClose.close()
+      expect(deleteTaskWithUndoMock).not.toHaveBeenCalled()
+    })
   })
 })

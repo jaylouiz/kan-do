@@ -1,0 +1,35 @@
+- dialog "Tag abschließen":
+  - heading "Tag abschließen" [level=2]
+  - paragraph: Rückblick auf heute und was noch auf dem Board liegt.
+  - button "Schließen"
+  - status
+  - paragraph: /Montag, \d+\. Juni/
+  - heading "2 von 5 geplanten Aufgaben erledigt" [level=3]
+  - paragraph: "Gesamtzeit: 2 h"
+  - paragraph: 1 von 2 Timeboxen eingehalten
+  - list "2 heute erledigte Aufgaben":
+    - listitem:
+      - paragraph: Angebot schreiben
+      - paragraph: /Erledigt · \d+ Min über der Timebox/
+      - text: /1 h \d+ min/
+    - listitem:
+      - paragraph: Steuerunterlagen sortieren
+      - paragraph: /Erledigt · \d+ Min unter der Timebox/
+      - text: /\d+ min/
+  - region "Für morgen":
+    - heading "Für morgen" [level=3]
+    - paragraph: 2 Aufgaben bleiben auf dem Board. Du kannst sie einzeln abwählen.
+    - group:
+      - text: Offene Aufgaben anzeigen
+      - list "Offene Aufgaben, die auf dem Board bleiben":
+        - listitem:
+          - checkbox "Konzept ausarbeiten Offen · Kommt in den Papierkorb"
+          - text: Konzept ausarbeiten Offen · Kommt in den Papierkorb
+        - listitem:
+          - checkbox "Review schreiben Jetzt · Geht zurück nach Offen" [checked]
+          - text: Review schreiben Jetzt · Geht zurück nach Offen
+        - listitem:
+          - checkbox "Blocker klären Wartet" [checked]
+          - text: Blocker klären Wartet
+  - button "Zusammenfassung kopieren"
+  - button "Fertig"

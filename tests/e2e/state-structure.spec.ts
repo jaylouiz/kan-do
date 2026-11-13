@@ -1,6 +1,7 @@
 import { expect, test, type Page, type Route } from '@playwright/test'
 import { seedLocalBoard, seedMixedBoard, seedNewDayBoard, SEED_TASKS, type SeedTask } from './helpers/seed'
-import { openMore } from './helpers/appNav'
+import { openDayClose, openMore } from './helpers/appNav'
+import { pinClock, pinnedNow } from './helpers/clock'
 import { settleAnimations } from './helpers/settle'
 
 /**
@@ -302,6 +303,67 @@ test.describe('new-day recap (#44)', () => {
     await expect(recap(page)).toBeVisible()
     await settleAnimations(page)
     await expect(recap(page)).toMatchAriaSnapshot({ name: 'recap-drawer-all-done-390.aria.yml' })
+  })
+})
+
+test.describe('day close sheet (#237)', () => {
+  const sheet = (page: Page) => page.getByRole('dialog', { name: 'Tag abschließen' })
+  /** Fixed data on the pinned day, so the date, the sums and the facts read the same on every run. */
+  const doneAt = () => new Date(pinnedNow().getTime() - 3_600_000).toISOString()
+  const task = (id: string, title: string, status: SeedTask['status'], extra: Partial<SeedTask> = {}): SeedTask =>
+    ({ id, title, status, priority: 2, timeSpentSeconds: 0, timeBoxSeconds: null, custom: {}, ...extra })
+  const DONE: SeedTask[] = [
+    task('dc-1', 'Angebot schreiben', 3, { timeSpentSeconds: 4500, timeBoxSeconds: 3600, completedAt: doneAt() }),
+    task('dc-2', 'Steuerunterlagen sortieren', 3, { timeSpentSeconds: 2700, timeBoxSeconds: 3600, completedAt: doneAt() }),
+  ]
+  const OPEN: SeedTask[] = [
+    task('dc-3', 'Konzept ausarbeiten', 0),
+    task('dc-4', 'Review schreiben', 1, { timeSpentSeconds: 1800, timeBoxSeconds: 3600 }),
+    task('dc-5', 'Blocker klären', 2),
+  ]
+
+  test('modal: the summary, the done rows and "Für morgen" with the list open and one task deselected (1280)', async ({ context, page }) => {
+    await pinClock(context) // the sheet shows today's date
+    await seedLocalBoard(context, [...DONE, ...OPEN])
+    await page.goto('/tasks')
+    await openDayClose(page)
+    await expect(sheet(page)).toBeVisible()
+    await sheet(page).getByTestId('day-close-open-details').locator('summary').click()
+    await sheet(page).getByRole('checkbox').first().click()
+    await settleAnimations(page)
+    await expect(sheet(page)).toMatchAriaSnapshot({ name: 'day-close-modal-1280.aria.yml' })
+  })
+
+  test('drawer: the summary and "Für morgen" with the list closed (390)', async ({ context, page }) => {
+    await page.setViewportSize(MOBILE)
+    await pinClock(context)
+    await seedLocalBoard(context, [...DONE, ...OPEN])
+    await page.goto('/tasks')
+    await openDayClose(page)
+    await expect(sheet(page)).toBeVisible()
+    await settleAnimations(page)
+    await expect(sheet(page)).toMatchAriaSnapshot({ name: 'day-close-drawer-390.aria.yml' })
+  })
+
+  test('nothing left open: the trophy headline and no "Für morgen" (390)', async ({ context, page }) => {
+    await page.setViewportSize(MOBILE)
+    await pinClock(context)
+    await seedLocalBoard(context, DONE)
+    await page.goto('/tasks')
+    await openDayClose(page)
+    await expect(sheet(page)).toBeVisible()
+    await settleAnimations(page)
+    await expect(sheet(page)).toMatchAriaSnapshot({ name: 'day-close-all-done-390.aria.yml' })
+  })
+
+  test('nothing done and nothing open: the empty sheet (1280)', async ({ context, page }) => {
+    await pinClock(context)
+    await seedLocalBoard(context, [])
+    await page.goto('/tasks')
+    await openDayClose(page)
+    await expect(sheet(page)).toBeVisible()
+    await settleAnimations(page)
+    await expect(sheet(page)).toMatchAriaSnapshot({ name: 'day-close-empty-1280.aria.yml' })
   })
 })
 

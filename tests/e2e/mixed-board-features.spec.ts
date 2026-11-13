@@ -246,7 +246,7 @@ test.describe('"Gesehen" works across sources (#325)', () => {
 // ---------------------------------------------------------------------------------------------------------------
 
 test.describe('day close and statistics ignore sources (#325)', () => {
-  test('the day-close dialog lists Notion and Local tasks together without source icons; the board still shows them', async ({ context, page }) => {
+  test('the day-close sheet lists Notion and Local tasks together without source icons; the board still shows them', async ({ context, page }) => {
     await seedMixedBoard(context, ARCHIVE_TASKS.map((t) => (t.id === 'page-4' ? { ...t, completedAt: TODAY } : t)).concat([
       mixedTask({ id: 'local-open-x', title: 'Lokal: Noch offen', status: 0, source: 'local' }),
     ]), { once: true })
@@ -258,6 +258,7 @@ test.describe('day close and statistics ignore sources (#325)', () => {
     await expect(dialog).toBeVisible()
     await expect(dialog.getByText('Retrospektive nachbereiten')).toBeVisible() // Notion win
     await expect(dialog.getByText('Lokal: Heute geschafft')).toBeVisible() // Local win
+    await dialog.getByTestId('day-close-open-details').locator('summary').click() // the open tasks sit in the "Für morgen" list
     await expect(dialog.getByText(NOTION_TITLE)).toBeVisible() // Notion in flight
     await expect(dialog.getByText('Lokal: Noch offen')).toBeVisible() // Local in flight
     await expect(dialog.getByTestId('task-source-icon')).toHaveCount(0)

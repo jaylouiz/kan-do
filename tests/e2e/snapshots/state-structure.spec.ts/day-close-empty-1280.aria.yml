@@ -1,0 +1,9 @@
+- dialog "Tag abschließen":
+  - heading "Tag abschließen" [level=2]
+  - paragraph: Rückblick auf heute und was noch auf dem Board liegt.
+  - button "Schließen"
+  - status
+  - paragraph: /Montag, \d+\. Juni/
+  - paragraph: Heute noch nichts erledigt.
+  - button "Zusammenfassung kopieren" [disabled]
+  - button "Fertig"

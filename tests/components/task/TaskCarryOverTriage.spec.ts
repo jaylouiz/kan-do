@@ -21,7 +21,7 @@ function makeTask(id: string, status: TaskStatus = TaskStatus.Open): Task {
   }
 }
 
-const render = (props: { taskId: string; compact?: boolean }) =>
+const render = (props: { taskId: string }) =>
   mount(TaskCarryOverTriage, { props, global: { stubs: { UButton, UTooltip: true } } })
 
 describe('TaskCarryOverTriage (#99)', () => {
@@ -44,24 +44,13 @@ describe('TaskCarryOverTriage (#99)', () => {
     expect(block.find('[data-testid="carry-over-dots"]').exists()).toBe(true)
   })
 
-  it('compact: no wash, no heading or dots, the group is named by the nudge sentence', () => {
-    const block = render({ taskId: 'a', compact: true }).get('[data-testid="carry-over-triage"]')
-    expect(block.classes()).not.toContain('bg-muted/50')
-    expect(block.find('h3').exists()).toBe(false)
-    expect(block.find('[data-testid="carry-over-dots"]').exists()).toBe(false)
-    expect(block.attributes('aria-label')).toBe('Immer noch da: Tag 6 auf dem Board.')
-    expect(block.findAll('button')).toHaveLength(3)
-  })
-
-  it('all three actions are ghost buttons of the default size, in the closing step row and in the task sheet block (#551, #552)', () => {
-    const variants = (compact: boolean) => render({ taskId: 'a', compact }).findAll('button').map(b => b.attributes('variant'))
-    expect(variants(true)).toEqual(['ghost', 'ghost', 'ghost'])
-    expect(variants(false)).toEqual(['ghost', 'ghost', 'ghost'])
+  it('all three actions are ghost buttons of the default size in the task sheet block (#551, #552)', () => {
+    expect(render({ taskId: 'a' }).findAll('button').map(b => b.attributes('variant'))).toEqual(['ghost', 'ghost', 'ghost'])
     expect(render({ taskId: 'a' }).findAll('button').map(b => b.attributes('size'))).toEqual([undefined, undefined, undefined])
   })
 
-  it('emits the same actions in compact mode; Keep silences the nudge', async () => {
-    const wrapper = render({ taskId: 'a', compact: true })
+  it('emits its actions; Keep silences the nudge', async () => {
+    const wrapper = render({ taskId: 'a' })
     await wrapper.get('[data-testid="carry-over-smaller"]').trigger('click')
     await wrapper.get('[data-testid="carry-over-delete"]').trigger('click')
     expect(wrapper.emitted('smaller')).toHaveLength(1)
