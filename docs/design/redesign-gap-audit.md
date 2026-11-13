@@ -346,7 +346,7 @@ Every rule and paragraph of `DESIGN.md` (373 lines at commit `71abce60`, 2026-11
 | Board (desktop) | pattern | columns and card size are in the code; "the Jetzt slot is always one card tall" is the part a reader cannot see | one line |
 | Board (mobile) | component detail | `.claude/rules/mobile-board.md` already holds it | removed here |
 | Stacks | component detail | `TaskStack` doc block, `.claude/rules/drag-and-drop.md` | moves; one pattern line stays: "no lines, boxes or tints around a group" |
-| Chrome: one global app bar, no board toolbar, no back arrow | pattern | holds everywhere | one line |
+| Chrome: one global app bar, no board toolbar, no back arrow | pattern | holds for the pages the bar leads to; since #236 a flow step and a settings sub-page have the one `BackButton` (owner decision 2026-11-13) | one line |
 | Page offsets | component detail | `assets/css/app-nav.css` is "the one place" by the paragraph's own words | removed here |
 | Pages: "one flat, readable column"; "Statistik is the exception" | pattern, challenged (decided) | settings sections and statistics tiles become sheets, so the exception becomes the normal case | reworded as one pattern for every page |
 

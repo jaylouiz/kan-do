@@ -3,6 +3,8 @@ import { PERSISTED_KEYS } from '~/lib/dataStorage'
 import { SECRET_ENTRIES, SECRET_STATE_LOCATIONS } from '~/lib/secrets'
 import { CURRENT_SCHEMA_VERSION, isDataEnvelope } from '~/utils/dataFile/envelope'
 import { clearWebviewCopy, commitReset, emptyEnvelopeText, planReset, RESET_LOCAL_KEYS, RESET_SECRET_ENTRIES, secretLabels } from '~/utils/dataFile/resetApp'
+import { buildDemoBoard } from '~/lib/demo-board'
+import { TaskStatus } from '~/types/taskStatus'
 import { WebTransferError, type BlobStorage } from '~/utils/dataFile/webReplace'
 
 function memoryStorage(initial: Record<string, string>, failOn?: string): BlobStorage & { data: Record<string, string> } {
@@ -63,6 +65,30 @@ describe('commitReset (web)', () => {
     commitReset(storage)
     commitReset(storage)
     expect(Object.keys(storage.data).sort()).toEqual(['kando-last-seen-version', 'kando-locale'])
+  })
+})
+
+describe('commitReset after a samples start (#236)', () => {
+  it('leaves nothing of the sample board: its tasks, topic styles, a statistic of a finished sample task, the trash and the recap', () => {
+    const demo = buildDemoBoard()
+    const done = demo.tasks.find(task => task.status === TaskStatus.Done)!
+    const storage = memoryStorage({
+      'tasks-store': JSON.stringify({ tasks: demo.tasks, carryOverByTaskId: demo.carryOverByTaskId }),
+      'topic-styles': JSON.stringify({ styles: demo.topicStyles }),
+      taskStatistics: JSON.stringify({ completionRecords: [{ taskId: done.id }] }),
+      'trash-store': JSON.stringify({ entries: [{ task: demo.tasks[0] }] }),
+      'day-recap-store': '{"lastSeen":"2026-11-13"}',
+      'statistics-backfill-state': '{"done":true}',
+      'kando-locale': 'de',
+    })
+    commitReset(storage)
+    expect(Object.keys(storage.data)).toEqual(['kando-locale'])
+  })
+
+  it('every store that can hold sample data or a statistic is among the erased keys', () => {
+    for (const key of ['tasks-store', 'taskStatistics', 'topic-styles', 'trash-store', 'day-recap-store']) {
+      expect(PERSISTED_KEYS).toContain(key)
+    }
   })
 })
 

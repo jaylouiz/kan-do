@@ -6,6 +6,8 @@ declare module '#app' {
     pageHeader?: boolean
     /** `'narrow'`: the sub-page layout centres one 672 px column (Einstellungen, its sub-pages, Papierkorb; #673); default: the full container (Statistik, Notion) */
     pageWidth?: 'narrow' | 'wide'
+    /** A deeper route names its parent: the sub-page layout shows the back button "Zurück zu Einstellungen" leading there (settings sub-pages, #236); the pages the app bar leads to leave it out */
+    backTo?: string
   }
 }
 
@@ -14,6 +16,7 @@ declare module 'vue-router' {
     appNav?: boolean
     pageHeader?: boolean
     pageWidth?: 'narrow' | 'wide'
+    backTo?: string
   }
 }
 

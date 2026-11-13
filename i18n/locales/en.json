@@ -1,6 +1,7 @@
 {
   "common": {
     "back": "Back",
+    "backToSettings": "Back to settings",
     "completed": "Done",
     "settings": "Settings",
     "clickToEdit": "Click to edit",
@@ -1208,25 +1209,26 @@
       "title": "Where are your tasks today?",
       "nowhere": "Nowhere yet",
       "inNotion": "In Notion",
-      "later": "You can add more connections later in settings."
-    },
-    "local": {
-      "title": "Local mode",
-      "intro": "Work without an external connection. Your tasks are stored locally on this device.",
-      "later": "You can connect an integration such as Notion or Todoist at any time later.",
-      "howToStart": "How would you like to start?",
-      "startFresh": "Start fresh",
-      "startSamples": "Start with sample tasks"
+      "later": "You can add more connections later in settings.",
+      "exploreLead": "Just want to look around first?",
+      "samples": "With sample tasks",
+      "samplesHint": "A filled board to try things out"
     },
     "flow": {
-      "backToChoice": "Back to choice",
+      "backToChoice": "Back to the choice",
       "local": {
         "label": "Start locally",
         "title": "Start locally",
         "intro": "Your tasks stay on this device. You can add a connection like Notion later in settings.",
-        "freshHint": "An empty board. You add the first task yourself.",
-        "samplesHint": "A filled board to try things out. You can clear it any time.",
+        "emptyBoard": "The board starts empty. You add the first task yourself.",
         "confirm": "Let’s go"
+      },
+      "samples": {
+        "label": "Start with sample tasks",
+        "title": "Sample tasks",
+        "intro": "The board is filled: tasks in every column and with topics, so you can try everything.",
+        "resetNote": "When you want to start with real tasks, reset the app under Settings › Data & storage. Then the sample tasks and the statistics that build up while you try things out are gone.",
+        "confirm": "View board"
       },
       "notion": {
         "label": "Connect to Notion",

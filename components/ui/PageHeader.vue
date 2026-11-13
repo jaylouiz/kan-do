@@ -7,7 +7,7 @@
 @avoid Only the settings sub-pages; /settings, /trash and /statistics are named by the app bar.
 @responsibility
 - Provide consistent header styling across settings/detail pages; the title is the display role (36 px Fraunces, the size of the column names, kd#179)
-- No back arrow (#470): a page is left through the app bar (Heute, Statistik) or ⋯ -> Einstellungen
+- No back arrow of its own (#470): a page is left through the app bar (Heute, Statistik) or ⋯ -> Einstellungen; the sub-page layout adds the `BackButton` to Einstellungen below the header on a settings sub-page (#236)
 - Not sticky (#615): it scrolls away with the page and the app bar alone stays, so the page gets the room. It sits in
   the flow below the desktop bar row; on a phone the bar is at the bottom and the header is the first thing on the page
   (its `pt-safe` is the only safe-area-top cover a sub-page has: it scrolls away, and `env(safe-area-inset-top)` is 0 outside a

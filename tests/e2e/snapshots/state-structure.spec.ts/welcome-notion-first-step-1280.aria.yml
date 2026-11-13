@@ -1,5 +1,5 @@
 - region "Mit Notion verbinden":
-  - button "Zur Auswahl"
+  - button "Zurück zur Auswahl"
   - list "Fortschritt der Einrichtung":
     - listitem: Token
     - listitem: Datenbank

@@ -1,11 +1,12 @@
 <!--
 @component WelcomePage
-@description Willkommensseite: eine Frage („Wo sind deine Aufgaben heute?“) mit zwei gleichwertigen Antworten (#324)
+@description Willkommensseite: eine Frage („Wo sind deine Aufgaben heute?“) mit zwei gleichwertigen Antworten (#324) und, abgesetzt darunter, dem Ausprobieren mit Beispielaufgaben (#236)
 @usage Einstiegspunkt für neue Nutzer unter /welcome
 @responsibility
 - „Noch nirgends“ zeigt das lokale Setup auf dieser Seite (kein Dialog, #43) und endet mit Lokal als einziger Verbindung und Standard
 - „In Notion“ zeigt das Notion-Setup auf dieser Seite (Schienen-Führung, Schritte des WizardController) und endet mit Notion als verbundener Verbindung und Standard
-- Startansicht und Setup tauschen als ein Block (eine Transition, Höhe per WAAPI, Breite per CSS); reduzierte Bewegung: sofort
+- „Mit Beispielaufgaben“ (dritte Zeile unter „Willst du erstmal nur schauen?“, keine Speicherort-Antwort) öffnet einen eigenen Schritt 2: er sagt, dass ein Zurücksetzen unter Einstellungen › Daten & Speicher Beispiele und Statistik entfernt; „Board ansehen“ endet wie das lokale Setup
+- Startansicht und Setup tauschen als ein Block (eine Transition, Höhe per WAAPI, Breite per CSS); der Tausch gleitet seitwärts (vor: alt nach links hinaus, neu von rechts herein; zurück gespiegelt, 260 ms, #236); reduzierte Bewegung: sofort
 - Fokus: nach dem Tausch auf die Überschrift des Setups, beim Zurück auf die Antwortzeile, von der man kam
 - Keine gefüllte Schaltfläche: beide Antworten sind ganze Zeilen (ChoiceCard, min. 64px), keine hervorgehoben
 - Todoist wird nicht angeboten; weitere Verbindungen kommen später in den Einstellungen dazu
@@ -49,11 +50,16 @@
       <!-- One Transition for the whole content: start screen and setup swap as a single block and the block's height
            follows (setup-body), so nothing animates element by element (#43) -->
       <div ref="body" class="setup-body">
-        <Transition name="swap" mode="out-in" @before-leave="onBeforeLeave" @enter="onEnter" @after-enter="onAfterEnter">
+        <Transition :name="`slide-${direction}`" mode="out-in" @before-leave="onBeforeLeave" @enter="onEnter" @after-enter="onAfterEnter">
           <div :key="flow ?? 'start'" class="swap-block">
             <LocalSetupFlow
               v-if="flow === 'local'"
               ref="localFlow"
+              @back="leaveFlow"
+              @complete="handleLocalSetupComplete"
+            />
+            <SamplesSetupFlow
+              v-else-if="flow === 'samples'"
               @back="leaveFlow"
               @complete="handleLocalSetupComplete"
             />
@@ -77,6 +83,14 @@
             {{ choice.label }}
           </ChoiceCard>
         </div>
+        <!-- A trial is another kind of answer than a place for tasks: set apart under its own line (#236) -->
+        <div class="mt-8 flex flex-col gap-3" data-testid="welcome-explore">
+          <p class="text-body text-muted">{{ t('onboarding.page.exploreLead') }}</p>
+          <ChoiceCard icon="i-ph-sparkle" data-testid="welcome-choice-samples" @click="openFlow('samples')">
+            {{ t('onboarding.page.samples') }}
+            <template #hint>{{ t('onboarding.page.samplesHint') }}</template>
+          </ChoiceCard>
+        </div>
         <p class="mt-6 text-body text-muted">{{ t('onboarding.page.later') }}</p>
         <p class="mt-8 text-xs text-muted">
           {{ t('onboarding.page.version') }} {{ $config.public.clientVersion }}
@@ -97,6 +111,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ChoiceCard from '~/components/ui/ChoiceCard.vue';
 import LocalSetupFlow from '~/components/setup/LocalSetupFlow.vue';
+import SamplesSetupFlow from '~/components/setup/SamplesSetupFlow.vue';
 import NotionSetupFlow from '~/components/setup/NotionSetupFlow.vue';
 import DataStorageNotice from '~/components/settings/DataStorageNotice.vue';
 import { useBoardStore } from '~/store/board';
@@ -119,8 +134,11 @@ onMounted(() => {
   if (photo.value?.complete && photo.value.naturalWidth > 0) photoLoaded.value = true;
 });
 /** Which setup is shown in place of the start screen (#43) */
-const flow = ref<'local' | 'notion' | null>(null);
-const lastFlow = ref<'local' | 'notion'>('local');
+type FlowKey = 'local' | 'notion' | 'samples';
+const flow = ref<FlowKey | null>(null);
+const lastFlow = ref<FlowKey>('local');
+/** Which way the step swap slides: forward into a flow, back out of it (#236) */
+const direction = ref<'fwd' | 'back'>('fwd');
 const body = ref<HTMLElement | null>(null);
 const reducedMotion = () => import.meta.client && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -153,15 +171,17 @@ function onAfterEnter(el: Element) {
   if (flow.value) el.querySelector<HTMLElement>('h2')?.focus({ preventScroll: true });
   else el.querySelector<HTMLElement>(`[data-testid="welcome-choice-${lastFlow.value}"]`)?.focus({ preventScroll: true });
 }
-function openFlow(key: 'local' | 'notion') {
+function openFlow(key: FlowKey) {
+  direction.value = 'fwd';
   lastFlow.value = key;
   flow.value = key;
 }
 function leaveFlow() {
+  direction.value = 'back';
   flow.value = null;
 }
 
-/** Two equal answers, neither primary: where are the tasks today? */
+/** Two equal answers, neither primary: where are the tasks today? (the sample start is set apart, #236) */
 const choices = computed(() => [
   { key: 'local', icon: 'i-ph-desktop', label: t('onboarding.page.nowhere'), open: () => openFlow('local') },
   { key: 'notion', icon: 'i-simple-icons-notion', label: t('onboarding.page.inNotion'), open: () => openFlow('notion') },
@@ -237,14 +257,15 @@ const handleNotionSetupComplete = async () => {
 
 /* 12px clip margin: the Back button sits 4px outside the body and its focus ring reaches 4px beyond it (2px offset + 2px width) */
 .setup-body { position: relative; overflow: clip; overflow-clip-margin: 12px; }
-/* Leave 140 ms, enter 240 ms straight after it (no delay: a delay shows an empty sheet for a beat) */
-.swap-enter-active { transition: opacity 0.24s cubic-bezier(0.3, 0.8, 0.3, 1), transform 0.24s cubic-bezier(0.3, 0.8, 0.3, 1); }
-.swap-leave-active { transition: opacity 0.14s ease-in, transform 0.14s ease-in; }
-/* Both ends rest at .12, not 0: out-in has one frame between leave and enter, and at 0 the sheet shows an empty block for a beat */
-.swap-enter-from { opacity: 0.12; transform: translateY(8px); }
-.swap-leave-to { opacity: 0.12; transform: translateY(-4px); }
+/* Steps read as steps in a row (#236): forward leaves to the left and the next enters from the right, back mirrors it.
+   Leave 140 ms, enter 260 ms straight after it (no delay: a delay shows an empty sheet for a beat). Both ends rest at
+   .12, not 0: out-in has one frame between leave and enter, and at 0 the sheet shows an empty block for a beat */
+.slide-fwd-enter-active, .slide-back-enter-active { transition: opacity 0.26s cubic-bezier(0.3, 0.8, 0.3, 1), transform 0.26s cubic-bezier(0.3, 0.8, 0.3, 1); }
+.slide-fwd-leave-active, .slide-back-leave-active { transition: opacity 0.14s ease-in, transform 0.14s ease-in; }
+.slide-fwd-enter-from, .slide-back-leave-to { opacity: 0.12; transform: translateX(32px); }
+.slide-fwd-leave-to, .slide-back-enter-from { opacity: 0.12; transform: translateX(-32px); }
 @media (prefers-reduced-motion: reduce) {
-  .swap-enter-active, .swap-leave-active { transition: none; }
-  .swap-enter-from, .swap-leave-to { opacity: 1; transform: none; }
+  .slide-fwd-enter-active, .slide-fwd-leave-active, .slide-back-enter-active, .slide-back-leave-active { transition: none; }
+  .slide-fwd-enter-from, .slide-fwd-leave-to, .slide-back-enter-from, .slide-back-leave-to { opacity: 1; transform: none; }
 }
 </style>

@@ -3,12 +3,12 @@
 @kind block
 @category input
 @description The Notion setup as page content inside the welcome sheet (#43): guide rail (md and up) or progress bar (below md)
-  next to the existing wizard steps, Back and the proceed button. No dialog.
+  next to the existing wizard steps, the back button and the proceed button. No dialog.
 @usage <NotionSetupFlow @back="flow = null" @complete="onConnected" /> inside pages/welcome.vue
 @avoid Only the Notion setup on the welcome page; reconfiguring later is NotionSetupModal.
 @responsibility
 - Hosts WizardController (steps, validation and saving unchanged) in setup mode and drives it: Weiter, Verbinden, Zurück
-- Back goes one step, from the first step it emits `back` (the choice)
+- Back (`BackButton`, with the arrow) goes one step, from the first step it emits `back` (the choice, "Zurück zur Auswahl")
 - Step changes animate one pane (fade and 14px slide, direction by forward or back), instant under reduced motion
 - After each step change focus moves to the step heading so keyboard and screen-reader users keep their place
 - Completion shows a short "Notion ist verbunden" status beat, then emits `complete`
@@ -30,15 +30,7 @@
     </div>
 
     <template v-else>
-      <UButton
-        color="neutral"
-        variant="ghost"
-        class="-ml-2 min-h-11 self-start"
-        data-testid="setup-back"
-        @click="goBack"
-      >
-        {{ isFirst ? t('onboarding.flow.backToChoice') : t('common.back') }}
-      </UButton>
+      <BackButton :label="isFirst ? t('onboarding.flow.backToChoice') : t('common.back')" @click="goBack" />
 
       <div class="flex flex-col gap-6 md:grid md:grid-cols-[13rem_1fr] md:gap-10">
         <SetupRail
@@ -92,6 +84,7 @@
 import SectionHeader from '~/components/ui/SectionHeader.vue'
 import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue';
 import { useI18n } from 'vue-i18n';
+import BackButton from '~/components/ui/BackButton.vue';
 import SetupRail from '~/components/setup/SetupRail.vue';
 import WizardController from '~/components/notion/setup/wizard/WizardController.vue';
 import { useNotionConfigStore } from '~/store/notionConfig';

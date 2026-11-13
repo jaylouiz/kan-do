@@ -177,7 +177,7 @@ One answer per state, on every control, whoever built it.
 - **Board (desktop):** three equal columns, Offen | Jetzt with Wartet below it | Erledigt, centred on wide screens. Cards are fixed-size sheets. The Jetzt slot is always one card tall, filled or empty.
 - **Board (phone):** one column page per screen, moved by a swipe (`.claude/rules/mobile-board.md`).
 - **Groups of cards** collapse into a stack; no lines, boxes or tints around a group.
-- **Chrome:** one global app bar on every page. The board has no toolbar of its own, and there is no back arrow anywhere: the bar is the only way between pages.
+- **Chrome:** one global app bar on every page. The board has no toolbar of its own, and the bar is the way between pages. A step inside a flow (the welcome steps) and a deeper route (a settings sub-page) go back with the back button, not with the bar: see "Step back" under Components.
 
 ## Components
 
@@ -198,6 +198,7 @@ Nuxt UI components first, themed in `app.config.ts`; a shared primitive in `comp
 - **Tell the user something:** an undo toast after a reversible action or for news; `UAlert` subtle for a state inside a flow; the `UFormField` error for a field; one quiet line above the content for a state the user cannot fix now. A healthy sync is silent.
 - **Show an empty place:** `EmptyState` for a page or tab whose main content is a list that fills with use, `EmptyNote` (one muted sentence) everywhere else; empty columns stay blank.
 - **Switch a view in a page:** `UTabs`: a track on the canvas, the selected tab a white chip.
+- **Step back in a flow or a deeper route:** `BackButton`: a ghost button, `arrow-left` before the label, left-aligned, 44 px high, the label "Zurück zu <where>" names where it leads ("Zurück zur Auswahl" inside the welcome sheet, "Zurück zu Einstellungen" on a settings sub-page). It starts the flow step or the sub-page column; a page the app bar leads to (Heute, Statistik, Einstellungen, Papierkorb) has none. Steps of a flow slide sideways, forward from the right and back mirrored (owner decision, #236, 2026-11-13: replaces "no back arrow anywhere").
 - **Move between places:** the app bar. The selected place is the route and nothing else; `aria-current="page"` sits on exactly one control, and an open Mehr panel never replaces it.
 - **Charts:** hand-built SVG in the ink ramp only (`lib/inkRamp.ts`); no status colour, no topic hue.
 - **Settings:** settings that maintain the user's own content or data are grouped apart from settings that change board behaviour (owner, 2026-11-06).

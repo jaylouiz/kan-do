@@ -145,7 +145,7 @@ test.describe('error states', () => {
 })
 
 test.describe('welcome page (kd#14)', () => {
-  test('first run: wordmark, tagline, question and the two answers (1280)', async ({ page }) => {
+  test('first run: wordmark, tagline, question, the two answers and the set-apart sample row (1280)', async ({ page }) => {
     await page.goto('/welcome')
     await expect(page.getByTestId('welcome-choice-local')).toBeVisible()
     await expect(page.locator('main')).toMatchAriaSnapshot({ name: 'welcome-1280.aria.yml' })
@@ -168,11 +168,18 @@ test.describe('welcome setup on the page (#43)', () => {
     await expect(page.getByTestId('notion-setup-flow')).toMatchAriaSnapshot({ name: 'welcome-notion-first-step-1280.aria.yml' })
   })
 
-  test('Local: the two radio cards and the confirmation (1280)', async ({ page }) => {
+  test('Local: the empty board and the confirmation (1280)', async ({ page }) => {
     await page.goto('/welcome')
     await page.getByTestId('welcome-choice-local').click()
     await expect(page.getByTestId('local-confirm')).toBeVisible()
     await expect(page.getByTestId('local-setup-flow')).toMatchAriaSnapshot({ name: 'welcome-local-1280.aria.yml' })
+  })
+
+  test('Samples: step 2 with the reset note and "Board ansehen" (1280, #236)', async ({ page }) => {
+    await page.goto('/welcome')
+    await page.getByTestId('welcome-choice-samples').click()
+    await expect(page.getByRole('heading', { name: 'Beispielaufgaben' })).toBeFocused()
+    await expect(page.getByTestId('samples-setup-flow')).toMatchAriaSnapshot({ name: 'welcome-samples-1280.aria.yml' })
   })
 })
 

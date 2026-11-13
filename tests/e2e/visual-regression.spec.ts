@@ -1072,6 +1072,15 @@ for (const { size, viewport } of CORE_VIEWPORTS) {
       await settle(page)
       await expect(page).toHaveScreenshot(`local-setup-${size}.png`, { animations: 'disabled' })
     })
+
+    test('SamplesSetupFlow (#236)', async ({ page }) => {
+      await page.goto('/welcome')
+      await page.getByTestId('welcome-choice-samples').click()
+      await expect(page.getByTestId('samples-confirm')).toBeVisible()
+      await page.mouse.move(0, 0)
+      await settle(page)
+      await expect(page).toHaveScreenshot(`samples-setup-${size}.png`, { animations: 'disabled' })
+    })
   })
 }
 

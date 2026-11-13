@@ -465,13 +465,26 @@ for (const { label, size } of VIEWPORTS) {
       }
     })
 
-    test('there is no back arrow on any page', async ({ page }) => {
-      for (const path of ['/settings', '/settings/topics', '/trash', '/statistics']) {
+    test('the pages the bar leads to have no back control; a settings sub-page leads back to Einstellungen (#236)', async ({ page }) => {
+      for (const path of ['/settings', '/trash', '/statistics']) {
         await page.goto(path)
         await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-        await expect(page.getByRole('button', { name: 'Zurück' })).toHaveCount(0)
-        await expect(page.getByRole('link', { name: 'Zurück' })).toHaveCount(0)
+        await expect(page.getByRole('button', { name: /^Zurück/ })).toHaveCount(0)
+        await expect(page.getByRole('link', { name: /^Zurück/ })).toHaveCount(0)
       }
+      const tabOf: Record<string, string> = { '/settings/topics': 'manage', '/settings/data': 'manage', '/settings/notion': 'sources' }
+      for (const path of Object.keys(tabOf)) {
+        await page.goto(path)
+        const back = page.getByRole('link', { name: 'Zurück zu Einstellungen' })
+        await expect(back).toBeVisible()
+        await expect(back).toHaveAttribute('href', `/settings?tab=${tabOf[path]}`) // the tab that holds the sub-page (#691)
+        expect((await back.boundingBox())!.height).toBeGreaterThanOrEqual(44)
+        await expect(back.locator('[data-slot="leadingIcon"]')).toBeVisible() // the arrow
+      }
+      await page.goto('/settings/topics')
+      await page.getByRole('link', { name: 'Zurück zu Einstellungen' }).click()
+      await expect(page).toHaveURL(/\/settings(\?.*)?$/)
+      await expect(page.getByRole('link', { name: 'Zurück zu Einstellungen' })).toHaveCount(0)
     })
 
     test('keyboard: Tab order through the bar and the panel, Enter on a row, Escape returns focus to ⋯', async ({ page }) => {

@@ -16,8 +16,10 @@
  * (already one table, `utils/taskStatusMappings.ts`); source icons live in `utils/sourceMeta.ts`.
  */
 export const ICONS = {
-  /** Step back (recap deck, new-card flow, setup flows, board edge indicator). */
+  /** Step back (recap deck, new-card flow, board edge indicator). */
   back: 'i-ph-caret-left',
+  /** Back to the previous step of a flow or to the parent route: the arrow of `BackButton` (#236). */
+  stepBack: 'i-ph-arrow-left',
   /** Step forward / skip. */
   forward: 'i-ph-caret-right',
   /** "Go on" affordance of a row or CTA; a different job than stepping. */

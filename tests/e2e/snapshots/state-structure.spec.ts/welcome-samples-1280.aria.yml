@@ -1,0 +1,6 @@
+- region "Mit Beispielaufgaben starten":
+  - button "Zurück zur Auswahl"
+  - heading "Beispielaufgaben" [level=2]
+  - paragraph: "Das Board ist gefüllt: Aufgaben in allen Spalten und mit Themen, damit du alles ausprobieren kannst."
+  - paragraph: Willst du mit echten Aufgaben starten, setze die App unter Einstellungen › Daten & Speicher zurück. Dann sind die Beispielaufgaben und die Statistik, die beim Ausprobieren entsteht, weg.
+  - button "Board ansehen"
