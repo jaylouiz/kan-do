@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { parse } from 'yaml'
 
-// Guards for the deploy and CI triggers: Vercel deploys only `main` and `proto/*` (#355); GitHub Actions runs
+// Guards for the deploy and CI triggers: Vercel deploys only `main`, `proto/*` and `dev` (#355, #246); GitHub Actions runs
 // `quality` on pull requests and pushes to main with a read-only token and no secrets, and pins third-party
 // actions by commit SHA. All of it only shows its faults on a real push, so the shape is pinned here.
 
@@ -11,10 +11,10 @@ const root = resolve(__dirname, '../..')
 const read = (relative: string) => readFileSync(resolve(root, relative), 'utf8')
 
 describe('vercel.json', () => {
-  it('limits Git deployments to main and proto/** and holds nothing else', () => {
+  it('limits Git deployments to main, proto/** and dev (#246) and holds nothing else', () => {
     expect(JSON.parse(read('vercel.json'))).toEqual({
       $schema: 'https://openapi.vercel.sh/vercel.json',
-      git: { deploymentEnabled: { '**': false, 'main': true, 'proto/**': true } },
+      git: { deploymentEnabled: { '**': false, 'main': true, 'proto/**': true, 'dev': true } },
     })
   })
 })
