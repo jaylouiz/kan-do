@@ -18,8 +18,11 @@ const at = new Date().toISOString()
 const designTask = (id: string, title: string): SeedTask => ({
   id, title, status: 0, priority: 1, topic: 'Design', timeSpentSeconds: 0, timeBoxSeconds: null, custom: {}, createdAt: at, updatedAt: at,
 })
-/** One stack of three, nothing else: collapsed it is short, expanded it is taller by two cards. */
-const STACK = [designTask('d1', 'Konzept ausarbeiten'), designTask('d2', 'Farben abstimmen'), designTask('d3', 'Raster festlegen')]
+/** One stack of five, nothing else: collapsed it is short, expanded it is four cards taller (a phone's 700px column overflows only then, #260). */
+const STACK = [
+  designTask('d1', 'Konzept ausarbeiten'), designTask('d2', 'Farben abstimmen'), designTask('d3', 'Raster festlegen'),
+  designTask('d4', 'Schrift wählen'), designTask('d5', 'Prototyp bauen'),
+]
 const GROUP_BY_TOPIC = { enabled: true, key: 'topic' }
 
 /** Whether the document is taller than the viewport, i.e. whether a bar is drawn. */
@@ -35,17 +38,20 @@ for (const viewport of [{ name: 'desktop', width: 1280 }, { name: 'wide', width:
       await page.goto('/tasks')
       const stack = page.locator('#column-open-list .task-stack[data-stack-key="Design"]')
       await expect(stack).toBeVisible()
-      // Shrink the viewport to the collapsed page, so only the expanded stack overflows (the board scrolls inside its column on mobile)
-      const height = await page.evaluate(() => document.documentElement.scrollHeight)
-      await page.setViewportSize({ width: viewport.width, height })
+      const mobile = viewport.width <= 767
+      // Shrink a desktop viewport to the collapsed page, so only the expanded stack overflows. A phone keeps its height: the board
+      // scrolls inside its column, and a viewport shorter than the Jetzt page needs would scroll the document for a reason of its own
+      if (!mobile) await page.setViewportSize({ width: viewport.width, height: await page.evaluate(() => document.documentElement.scrollHeight) })
       const columnScrolls = () => page.locator('#column-open').evaluate(el => el.scrollHeight > el.clientHeight)
-      const overflowing = () => (viewport.width > 767 ? scrolls(page) : columnScrolls())
+      const overflowing = () => (mobile ? columnScrolls() : scrolls(page))
       expect(await overflowing(), 'collapsed: fits, no bar').toBe(false)
       await tagElements(page)
       const before = await boxes(page)
 
       await stack.click()
       await expect.poll(overflowing, { message: 'expanded: the page scrolls, a bar would be drawn' }).toBe(true)
+      // The phone's document never scrolls itself, its column does (#260)
+      if (mobile) expect(await scrolls(page), 'expanded: the column scrolls, not the page').toBe(false)
       expect(moved(before, await boxes(page))).toEqual([])
 
       await page.locator('#column-open-list [data-stack-header="Design"] button').click()

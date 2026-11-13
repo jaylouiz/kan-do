@@ -661,6 +661,7 @@
         "new-card-flow",
         "task-draft-card",
         "source-icon-footer",
+        "scrollbar-gutter",
         "visual-regression"
       ]
     },
