@@ -27,7 +27,7 @@ if [ "$blocks" -ge 3 ]; then
   exit 0
 fi
 
-# One row per run for the workflow retro (agent-workflow `workflow-retro`, profile "Retro"): date, hook, ref, tier, specs, seconds, result, flaky.
+# One row per run for the workflow retro (agent-workflow `workflow-retro`, profile "Retro"): date, hook, ref, tier, specs, seconds, result, flaky, tree fingerprint.
 log_check() {
   local f
   f="$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)/agent-ledgers/checks.tsv" || return 0
@@ -67,13 +67,19 @@ verify_root() {
   # Through the script, so a worktree without its own file follows the main checkout (kd#222)
   [ "$(node scripts/testing-mode.mjs "$PWD" 2>/dev/null)" = fast ] && mode=fast tier=fast
 
+  # Fingerprint of what the checks read (commit, uncommitted changes, untracked files, mode), logged as the last
+  # column of the row. Observation only (owner decision 2026-11-13): it shows how many runs repeat a pass on an
+  # unchanged tree, before anyone decides whether such a run may be skipped. Nothing is skipped here.
+  local fp
+  fp=$({ git rev-parse HEAD; git diff HEAD; git ls-files --others --exclude-standard -z | xargs -0 shasum 2>/dev/null; echo "$mode"; } 2>/dev/null | shasum | cut -c1-12)
+
   run() {
     local label=$1
     shift
     local out
     if ! out=$("$@" 2>&1); then
       echo $((blocks + 1)) >"$counter"
-      log_check verify "${branch:--}" "$tier" - "$SECONDS" "fail:$label" -
+      log_check verify "${branch:--}" "$tier" - "$SECONDS" "fail:$label" - "$fp"
       {
         echo "Verification failed${where} at: $label ($*)"
         echo "Fix the problems below, then finish again."
@@ -103,7 +109,7 @@ verify_root() {
       2) messages+=("verify hook${where}: rendered design scan could not run, skipped: $(printf '%s' "$scan_out" | tail -5)") ;;
       *)
         echo $((blocks + 1)) >"$counter"
-        log_check verify "${branch:--}" "$tier" - "$SECONDS" fail:design-scan -
+        log_check verify "${branch:--}" "$tier" - "$SECONDS" fail:design-scan - "$fp"
         {
           echo "Verification failed${where} at: design-scan (node scripts/design-scan.mjs)"
           echo "Fix the problems below, then finish again."
@@ -113,7 +119,7 @@ verify_root() {
         ;;
     esac
   fi
-  log_check verify "${branch:--}" "$tier" - "$SECONDS" pass -
+  log_check verify "${branch:--}" "$tier" - "$SECONDS" pass - "$fp"
 }
 
 roots=("$main")
