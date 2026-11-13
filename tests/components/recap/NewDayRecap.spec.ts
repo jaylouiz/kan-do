@@ -20,13 +20,6 @@ vi.mock('~/store/taskStatistics', () => ({
 // Thursday 22 Oct 2026, 09:00 local
 const NOW = new Date(2026, 9, 22, 9, 0)
 
-/** Slot-rendering shell for UModal / UDrawer (jsdom has no portal or dialog support); emits like the real ones. */
-const OverlayShell = {
-  props: ['open', 'title', 'content', 'ui', 'close'],
-  emits: ['update:open', 'after:leave', 'after:enter'],
-  template: `<div v-if="open" role="dialog" :aria-label="title" :data-testid="content?.['data-testid']"><header><h2 data-slot="title"><slot name="title">{{ title }}</slot></h2><slot name="description" /></header><slot name="body" /><slot name="footer" /></div>`,
-}
-
 function setDesktop(matches: boolean) {
   // Only the desktop breakpoint query matches; prefers-reduced-motion stays off
   window.matchMedia = vi.fn((query: string) => ({
@@ -35,8 +28,6 @@ function setDesktop(matches: boolean) {
 }
 
 const stubs = {
-  UModal: OverlayShell,
-  UDrawer: OverlayShell,
   TaskCard: { props: ['task'], template: '<div class="task-card">{{ task.title }}</div>' },
   USwitch: {
     inheritAttrs: false,
@@ -100,12 +91,17 @@ describe('NewDayRecap', () => {
     expect(page()).toBeNull()
   })
 
-  it('is hosted by the overlay, titled "Kurzer Rückblick", with the partial sentence', async () => {
+  it('is a non-modal region named "Kurzer Rückblick" on the photo, with the partial sentence', async () => {
     await open([doneAt(1, 'a'), doneAt(1, 'b'), task('o', TaskStatus.Open), task('w', TaskStatus.Waiting), task('j', TaskStatus.Progress)])
-    expect(q('[role="dialog"]').getAttribute('aria-label')).toBe('Kurzer Rückblick')
-    expect(q('header [data-slot="title"]').textContent).toContain('Kurzer Rückblick')
+    const stage = page()!
+    expect(stage.getAttribute('role')).toBe('region')
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
+    const title = q('[data-slot="title"]')
+    expect(stage.getAttribute('aria-labelledby')).toBe(title.id)
+    expect(title.textContent).toContain('Kurzer Rückblick')
     expect(q('[data-testid="recap-summary"]').textContent).toBe('Du hast gestern 2 von 5 Aufgaben erledigt.')
-    expect(wrapper!.findComponent({ name: 'ResponsiveOverlay' }).props('closeButton')).toBe(false)
+    expect(q('[data-testid="recap-photo"]').getAttribute('alt')).toBe('')
+    expect(stage.parentElement).toBe(document.body)
   })
 
   it('reads "alle Aufgaben" and shows only the Erledigt deck when nothing is open', async () => {
@@ -129,7 +125,7 @@ describe('NewDayRecap', () => {
   it('has English copy', async () => {
     setTestLocale('en')
     await open([doneAt(3), task('o', TaskStatus.Open)])
-    expect(q('header [data-slot="title"]').textContent).toContain('Quick look back')
+    expect(q('[data-slot="title"]').textContent).toContain('Quick look back')
     expect(q('[data-testid="recap-summary"]').textContent).toBe('You got 1 of 2 tasks done on Monday.')
   })
 
@@ -329,12 +325,11 @@ describe('NewDayRecap', () => {
     expect(useNewDayRecap().isOpen.value).toBe(false)
   })
 
-  /** Escape, scrim click and swipe down all reach the host as `update:open` = false. */
-  const dismiss = () => wrapper!.findComponent(OverlayShell).vm.$emit('update:open', false)
+  const pressEscape = () => q('[data-testid="recap-continue"]').dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
 
-  it('a dismissal (Escape, scrim, swipe) does what the button does: archives when the switch is on, nothing when it is off', async () => {
+  it('Escape in the stage does what the button does: archives when the switch is on, nothing when it is off', async () => {
     await open([doneAt(1, 'a')])
-    dismiss()
+    pressEscape()
     await nextTick()
     expect(useTasksStore().archivedTaskIds).toEqual(['a'])
 
@@ -345,23 +340,105 @@ describe('NewDayRecap', () => {
     toastAddMock.mockClear()
     await open([doneAt(1, 'a')])
     useDayRecapStore().setArchiveDone(false)
-    dismiss()
+    pressEscape()
     await nextTick()
     expect(useTasksStore().archivedTaskIds).toEqual([])
     expect(toastAddMock).not.toHaveBeenCalled()
     expect(useNewDayRecap().isOpen.value).toBe(false)
   })
 
-  it('hands focus to the button on open and keeps the browser from restoring focus on close', async () => {
+  it('moves focus to the button on open', async () => {
     await open([doneAt(1, 'a')])
-    const content = wrapper!.findComponent(OverlayShell).props('content') as Record<string, (e: Event) => void>
-    const event = new Event('focus', { cancelable: true })
-    content.onCloseAutoFocus!(event)
-    expect(event.defaultPrevented).toBe(true)
-    const open2 = new Event('focus', { cancelable: true })
-    content.onOpenAutoFocus!(open2)
-    expect(open2.defaultPrevented).toBe(true)
+    await new Promise(resolve => requestAnimationFrame(() => resolve(null)))
     expect(document.activeElement).toBe(q('[data-testid="recap-continue"]'))
+  })
+
+  it('a remount with the recap already open (back from settings) focuses the button again', async () => {
+    await open([doneAt(1, 'a')])
+    wrapper!.unmount()
+    wrapper = mount(NewDayRecap, { global: { stubs }, attachTo: document.body })
+    await nextTick()
+    await new Promise(resolve => requestAnimationFrame(() => resolve(null)))
+    expect(document.activeElement).toBe(q('[data-testid="recap-continue"]'))
+  })
+
+  describe('curtain', () => {
+    const photo = () => q('.recap-stage__photo')
+    const slide = () => photo().dispatchEvent(Object.assign(new Event('transitionend'), { propertyName: 'transform' }))
+
+    it('closes the recap at once, keeps the stage until the photo has slid off, then hands focus to the board', async () => {
+      document.body.insertAdjacentHTML('beforeend', '<main data-task-sheet-return></main>')
+      await open([doneAt(1, 'a')])
+      q('[data-testid="recap-continue"]').click()
+      await nextTick()
+      expect(useNewDayRecap().isOpen.value).toBe(false)
+      expect(useTasksStore().archivedTaskIds).toEqual(['a'])
+      expect(page()).not.toBeNull()
+      expect(page()!.hasAttribute('data-closing')).toBe(true)
+      expect(useNewDayRecap().snapshot.value).not.toBeNull()
+
+      // a fade of the image inside the photo is not the curtain
+      q('[data-testid="recap-photo"]').dispatchEvent(Object.assign(new Event('transitionend', { bubbles: true }), { propertyName: 'opacity' }))
+      await nextTick()
+      expect(page()).not.toBeNull()
+
+      slide()
+      await nextTick()
+      expect(page()).toBeNull()
+      expect(useNewDayRecap().snapshot.value).toBeNull()
+      expect(document.activeElement).toBe(q('main[data-task-sheet-return]'))
+    })
+
+    it('keeps focus on a control the user moved to during the curtain', async () => {
+      document.body.insertAdjacentHTML('beforeend', '<main data-task-sheet-return><button id="other">x</button></main>')
+      await open([doneAt(1, 'a')])
+      q('[data-testid="recap-continue"]').click()
+      await nextTick()
+      q('#other').focus()
+      slide()
+      await nextTick()
+      expect(page()).toBeNull()
+      expect(document.activeElement).toBe(q('#other'))
+    })
+
+    it('a second click or Escape while the curtain runs does nothing', async () => {
+      await open([doneAt(1, 'a'), doneAt(1, 'b')])
+      q('[data-testid="recap-continue"]').click()
+      await nextTick()
+      useDayRecapStore().setArchiveDone(false)
+      q('[data-testid="recap-continue"]').click()
+      pressEscape()
+      await nextTick()
+      expect(useTasksStore().archivedTaskIds).toEqual(['a', 'b'])
+    })
+
+    it('ends by its own timer when the transition never fires', async () => {
+      vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] })
+      vi.setSystemTime(NOW)
+      await open([doneAt(1, 'a')])
+      q('[data-testid="recap-continue"]').click()
+      await nextTick()
+      expect(page()).not.toBeNull()
+      await vi.advanceTimersByTimeAsync(200)
+      expect(page()).toBeNull()
+    })
+
+    it('with reduced motion: no curtain, the stage is gone at once', async () => {
+      await open([doneAt(1, 'a')])
+      window.matchMedia = vi.fn(() => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })) as unknown as typeof window.matchMedia
+      q('[data-testid="recap-continue"]').click()
+      await nextTick()
+      expect(page()).toBeNull()
+    })
+
+    it('unmounting mid-curtain drops the snapshot', async () => {
+      await open([doneAt(1, 'a')])
+      q('[data-testid="recap-continue"]').click()
+      await nextTick()
+      wrapper!.unmount()
+      wrapper = null
+      expect(useNewDayRecap().snapshot.value).toBeNull()
+    })
   })
 
   describe('on a phone', () => {

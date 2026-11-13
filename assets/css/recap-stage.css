@@ -1,0 +1,73 @@
+/**
+ * New-day recap stage (#245): the welcome photo plus one paper sheet, fixed between the app bar and the page.
+ * Not modal: the app bar (z-bar) paints above it, the board stays inert behind it (pages/tasks.vue).
+ * Curtain on close: only the photo layer lifts (700 ms, ease in-out) with a feathered bottom edge; the sheet fades
+ * out (--duration-base). The photo layer reaches --recap-feather below the stage, so the feathered edge is off screen
+ * at rest and sweeps through while it slides up. Reduced motion: no fade, no slide (the component closes at once).
+ */
+@layer components {
+  .recap-stage {
+    --recap-feather: 4rem;
+    --recap-curtain-duration: 700ms; /* the photo lifting off; the component waits for it (NewDayRecap.vue) */
+    --recap-enter-duration: 500ms;
+    position: fixed;
+    inset: var(--app-bar-offset-top) 0 0 0;
+    z-index: var(--z-titlebar);
+    overflow: hidden;
+    padding: calc(env(safe-area-inset-top, 0px) + 0.75rem) 1rem calc(var(--phone-bar-offset) + 0.75rem);
+    animation: recap-stage-in var(--recap-enter-duration) var(--ease-emphasized) both;
+  }
+
+  .recap-stage__photo {
+    position: absolute;
+    inset: 0 0 calc(var(--recap-feather) * -1) 0;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(to bottom, var(--ui-bg) calc(100% - var(--recap-feather)), transparent);
+    mask-image: linear-gradient(to bottom, var(--ui-bg) calc(100% - var(--recap-feather)), transparent);
+  }
+
+  .recap-stage__scroll {
+    position: relative;
+    display: flex;
+    height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .recap-stage__sheet {
+    margin: auto;
+    width: 100%;
+    max-width: 44rem;
+    border-radius: var(--ui-radius);
+    background: var(--ui-bg);
+    box-shadow: var(--shadow-task);
+    padding: 1.25rem;
+  }
+
+  .recap-stage[data-closing] {
+    pointer-events: none;
+    animation: none;
+  }
+
+  .recap-stage[data-closing] .recap-stage__photo {
+    transform: translateY(-100%);
+    transition: transform var(--recap-curtain-duration) var(--ease-standard);
+  }
+
+  .recap-stage[data-closing] .recap-stage__scroll {
+    opacity: 0;
+    transform: scale(0.98);
+    transition: opacity var(--duration-base) ease-out, transform var(--duration-base) ease-out;
+  }
+
+  @keyframes recap-stage-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .recap-stage { animation: none; }
+    .recap-stage[data-closing] .recap-stage__photo,
+    .recap-stage[data-closing] .recap-stage__scroll { transition: none; }
+  }
+}

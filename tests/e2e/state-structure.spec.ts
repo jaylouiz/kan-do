@@ -279,30 +279,30 @@ test.describe('guided new card (#649)', () => {
 test.describe('new-day recap (#44)', () => {
   const recap = (page: Page) => page.getByTestId('new-day-recap')
 
-  test('modal over the board with both decks (1280)', async ({ context, page }) => {
+  test('stage on the photo with both decks (1280)', async ({ context, page }) => {
     await seedNewDayBoard(context)
     await page.goto('/tasks')
     await expect(recap(page)).toBeVisible()
     await settleAnimations(page)
-    await expect(recap(page)).toMatchAriaSnapshot({ name: 'recap-modal-1280.aria.yml' })
+    await expect(recap(page)).toMatchAriaSnapshot({ name: 'recap-stage-1280.aria.yml' })
   })
 
-  test('drawer with the deck switcher (390)', async ({ context, page }) => {
+  test('stage with the deck switcher (390)', async ({ context, page }) => {
     await page.setViewportSize(MOBILE)
     await seedNewDayBoard(context)
     await page.goto('/tasks')
     await expect(recap(page)).toBeVisible()
     await settleAnimations(page)
-    await expect(recap(page)).toMatchAriaSnapshot({ name: 'recap-drawer-390.aria.yml' })
+    await expect(recap(page)).toMatchAriaSnapshot({ name: 'recap-stage-390.aria.yml' })
   })
 
-  test('nothing open: the drawer shows only the done deck, no switcher (390)', async ({ context, page }) => {
+  test('nothing open: the stage shows only the done deck, no switcher (390)', async ({ context, page }) => {
     await page.setViewportSize(MOBILE)
     await seedNewDayBoard(context, { allDone: true })
     await page.goto('/tasks')
     await expect(recap(page)).toBeVisible()
     await settleAnimations(page)
-    await expect(recap(page)).toMatchAriaSnapshot({ name: 'recap-drawer-all-done-390.aria.yml' })
+    await expect(recap(page)).toMatchAriaSnapshot({ name: 'recap-stage-all-done-390.aria.yml' })
   })
 })
 

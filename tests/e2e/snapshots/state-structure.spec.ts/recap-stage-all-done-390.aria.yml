@@ -1,4 +1,4 @@
-- dialog "Kurzer Rückblick":
+- region "Kurzer Rückblick":
   - heading "Kurzer Rückblick" [level=2]
   - paragraph: Du hast gestern alle Aufgaben erledigt.
   - region "4 erledigt":

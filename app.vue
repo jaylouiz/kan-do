@@ -139,7 +139,7 @@ onUnmounted(() => {
 /* Desktop app (#614): no native title bar (tauri.conf.json `titleBarStyle: Overlay`), the traffic lights sit in the
    app bar row. The strip is the window's drag area (`data-tauri-drag-region`, capability core:window:allow-start-dragging;
    double click zoom is in core:default): fixed so it stays after the page scrolled, the height of the app bar row, below the bar
-   (z-40) so the pills stay clickable, also on routes without the bar (welcome, whose notice therefore starts below the row). Full-screen layers cover it (overlay scrims, also the new-day recap modal, #44; custom layers with `data-window-drag-layer`):
+   (z-40) so the pills stay clickable, also on routes without the bar (welcome, whose notice therefore starts below the row). Full-screen layers cover it (overlay scrims, custom layers with `data-window-drag-layer`):
    `plugins/desktop-shell.client.ts` starts the drag from a press in the row (lib/windowDrag.ts). */
 html[data-shell="desktop"] .titlebar {
   position: fixed;
