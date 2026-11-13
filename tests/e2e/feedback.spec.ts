@@ -2,6 +2,7 @@ import { test, expect, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { seedLocalBoard } from './helpers/seed'
 import { githubCalls, installTauriStub, markRejected, setGithubMode, stubState } from './helpers/tauriStub'
+import { failOverToBrowserPath, mockFeedbackRelay } from './helpers/feedbackRelay'
 
 /** #227: in-app feedback against the stubbed desktop IPC. `github_request` never reaches GitHub. */
 
@@ -44,15 +45,73 @@ async function toReview(page: Page, title = 'Karte wird abgeschnitten') {
 }
 
 test.describe('Feedback (web)', () => {
-  test('the palette has no "Feedback senden" entry', async ({ context, page }) => {
+  test.beforeEach(async ({ context, page }) => {
     await seedLocalBoard(context)
     await page.goto('/tasks')
     await expect(page.locator('#column-open-list .task-wrapper')).toHaveCount(2)
-    await page.keyboard.press('ControlOrMeta+k')
-    const palette = page.getByRole('dialog', { name: 'Befehlspalette' })
-    await expect(palette.getByText('Statistik öffnen')).toBeVisible()
-    await expect(palette.getByText('Feedback senden')).toHaveCount(0)
-    await expect(page.getByTestId('element-picker-bar')).toHaveCount(0)
+  })
+
+  test('sends through the relay: private note, exact body, no screenshot offer, quiet toast (#268)', async ({ page }) => {
+    const reports = await mockFeedbackRelay(page)
+    await openFeedback(page)
+    await expect(page.getByTestId('feedback-private-note')).toHaveText('Dein Feedback geht direkt an das Kan-Do-Team. Es wird nicht veröffentlicht.')
+    await expect(page.getByTestId('feedback-public-note')).toHaveCount(0)
+    // The native capture is desktop only
+    await expect(page.getByTestId('feedback-screenshot')).toHaveCount(0)
+    await pickCard(page, 'seed-open-1')
+    await toReview(page)
+    await expect(page.getByTestId('feedback-review-intro')).toContainText('an das Kan-Do-Team und wird nicht veröffentlicht')
+    await expect(page.getByTestId('feedback-include-log')).toHaveCount(0)
+    const shown = await page.getByTestId('feedback-body-preview').textContent()
+    expect(shown).toContain('| Version |')
+
+    await page.getByTestId('feedback-send-relay').click()
+    await expect(dialog(page)).toBeHidden()
+    await expect(page.getByText('Danke, dein Feedback ist angekommen.', { exact: true })).toBeVisible()
+    expect(reports).toEqual([{ title: 'Karte wird abgeschnitten', body: shown }])
+  })
+
+  test('a rate-limited relay keeps the draft; "Erneut versuchen" sends', async ({ page }) => {
+    let limited = true
+    const bodies: string[] = []
+    await page.route('**/api/feedback', async (route) => {
+      bodies.push(route.request().postData() ?? '')
+      if (limited) await route.fulfill({ status: 429, json: { data: { error: 'FEEDBACK_RATE_LIMITED' } } })
+      else await route.fulfill({ status: 201, json: { ok: true } })
+    })
+    await openFeedback(page)
+    await toReview(page)
+    await page.getByTestId('feedback-send-relay').click()
+    await expect(page.getByTestId('feedback-problem')).toContainText('Gerade kommt zu viel Feedback an.')
+    await expect(page.getByTestId('feedback-send-relay')).toHaveText('Erneut versuchen')
+    limited = false
+    await page.getByTestId('feedback-send-relay').click()
+    await expect(dialog(page)).toBeHidden()
+    expect(bodies).toHaveLength(2)
+  })
+
+  test('without a relay the dialog falls back to GitHub in a new tab and keeps the draft', async ({ page, context }) => {
+    await mockFeedbackRelay(page, 503)
+    await openFeedback(page)
+    await toReview(page, 'Ohne Relay')
+    await failOverToBrowserPath(page)
+    await expect(page.getByTestId('feedback-problem')).toContainText('Direktes Senden ist gerade nicht möglich.')
+    await expect(page.getByTestId('feedback-review-intro')).toContainText('öffentliches Issue an jaylouiz/kan-do')
+    await context.route('https://github.com/**', route => route.fulfill({ status: 200, contentType: 'text/html', body: '<title>stub</title>' }))
+    const [popup] = await Promise.all([context.waitForEvent('page'), page.getByTestId('feedback-open-browser').click()])
+    const url = new URL(popup.url())
+    expect(`${url.origin}${url.pathname}`).toBe('https://github.com/jaylouiz/kan-do/issues/new')
+    expect(url.searchParams.get('title')).toBe('Ohne Relay')
+    await expect(dialog(page)).toBeHidden()
+  })
+
+  test('review passes axe on the relay route', async ({ page }) => {
+    await mockFeedbackRelay(page)
+    await openFeedback(page)
+    await toReview(page)
+    await settleAnimations(page)
+    const review = await new AxeBuilder({ page }).include('[data-testid="feedback-dialog"]').analyze()
+    expect(review.violations).toEqual([])
   })
 })
 
@@ -338,7 +397,7 @@ test.describe('Feedback (desktop)', () => {
   })
 })
 
-test.describe('Feedback fallback without a token (desktop)', () => {
+test.describe('Feedback without a token (desktop)', () => {
   test.beforeEach(async ({ context, page }) => {
     await seedLocalBoard(context)
     await installTauriStub(context)
@@ -346,12 +405,32 @@ test.describe('Feedback fallback without a token (desktop)', () => {
     await expect(page.locator('#column-open-list .task-wrapper')).toHaveCount(2)
   })
 
-  test('opens a prefilled issues/new link through the opener and sends nothing', async ({ page }) => {
+  test('sends through the relay: no GitHub request, no browser, log tail in the body (#268)', async ({ page }) => {
+    const reports = await mockFeedbackRelay(page)
     await openFeedback(page)
-    // Public repository: the form says so before anything is written, and that sending needs a GitHub account
-    await expect(page.getByTestId('feedback-public-note')).toHaveText('Dein Feedback wird ein öffentliches Issue auf GitHub. Zum Absenden brauchst du ein GitHub-Konto.')
+    await expect(page.getByTestId('feedback-private-note')).toBeVisible()
+    await toReview(page, 'Titel mit Ümläut & Zeichen')
+    await expect(page.getByTestId('feedback-send')).toHaveCount(0)
+    await expect(page.getByTestId('feedback-open-browser')).toHaveCount(0)
+    const shown = await page.getByTestId('feedback-body-preview').textContent()
+    await page.getByTestId('feedback-send-relay').click()
+    await expect(dialog(page)).toBeHidden()
+    await expect(page.getByText('Danke, dein Feedback ist angekommen.', { exact: true })).toBeVisible()
+    expect(reports).toEqual([{ title: 'Titel mit Ümläut & Zeichen', body: shown }])
+    expect((await stubState(page)).openedUrls).toEqual([])
+    expect(await githubCalls(page)).toEqual([])
+  })
+
+  test('without a relay: opens a prefilled issues/new link through the opener and sends nothing', async ({ page }) => {
+    await mockFeedbackRelay(page, 503)
+    await openFeedback(page)
     await pickCard(page, 'seed-open-1')
     await toReview(page, 'Titel mit Ümläut & Zeichen')
+    await failOverToBrowserPath(page)
+    // Back on the form the public repository and the GitHub account are named, as before the relay existed
+    await page.getByTestId('feedback-back').click()
+    await expect(page.getByTestId('feedback-public-note')).toHaveText('Dein Feedback wird ein öffentliches Issue auf GitHub. Zum Absenden brauchst du ein GitHub-Konto.')
+    await page.getByTestId('feedback-next').click()
     await expect(page.getByTestId('feedback-review-intro')).toContainText('öffentliches Issue an jaylouiz/kan-do, angemeldet mit deinem GitHub-Konto')
     await expect(page.getByTestId('feedback-fallback-note')).toHaveCount(0)
     await expect(page.getByTestId('feedback-send')).toHaveCount(0)
@@ -372,19 +451,21 @@ test.describe('Feedback fallback without a token (desktop)', () => {
 
 test.describe('Feedback with a token of a user without write access (desktop)', () => {
   // A public user may store a token (the updates token is optional too): only write access to the repo means in-app send.
-  test('takes the browser path; the only request is the read-only access check', async ({ context, page }) => {
+  test('takes the relay; the only GitHub request is the read-only access check', async ({ context, page }) => {
     await seedLocalBoard(context)
     await installTauriStub(context, { entries: { 'github-feedback': TOKEN }, githubMode: 'read-only' })
     await page.goto('/tasks')
     await expect(page.locator('#column-open-list .task-wrapper')).toHaveCount(2)
+    const reports = await mockFeedbackRelay(page)
     await openFeedback(page)
-    await expect(page.getByTestId('feedback-public-note')).toContainText('Zum Absenden brauchst du ein GitHub-Konto.')
+    await expect(page.getByTestId('feedback-private-note')).toBeVisible()
     await toReview(page, 'Ohne Schreibrecht')
     await expect(page.getByTestId('feedback-send')).toHaveCount(0)
     await expect(page.getByTestId('feedback-fallback-note')).toHaveCount(0)
-    await page.getByTestId('feedback-open-browser').click()
+    await page.getByTestId('feedback-send-relay').click()
     await expect(dialog(page)).toBeHidden()
-    expect((await stubState(page)).openedUrls).toHaveLength(1)
+    expect(reports).toHaveLength(1)
+    expect((await stubState(page)).openedUrls).toEqual([])
     expect((await githubCalls(page, { accessCheck: true })).map(call => `${call.method} ${call.path}`)).toEqual(['GET /repos/jaylouiz/kan-do'])
   })
 })

@@ -27,7 +27,7 @@ const globalItems = () => {
   return { palette, items: palette.groups.value.filter(g => g.id.startsWith('global-')).flatMap(g => g.items as Item[]) }
 }
 
-describe('command palette: send feedback (desktop only)', () => {
+describe('command palette: send feedback', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.mocked(navigateTo).mockClear()
@@ -36,9 +36,9 @@ describe('command palette: send feedback (desktop only)', () => {
   })
   afterEach(() => setDesktop(false))
 
-  it('web does not list the entry', () => {
+  it('web lists the entry too (#268: the relay needs no token)', () => {
     setDesktop(false)
-    expect(globalItems().items.map(i => i.id)).not.toContain('send-feedback')
+    expect(globalItems().items.map(i => i.id)).toContain('send-feedback')
   })
 
   it('desktop closes the palette first and opens the dialog only after the palette has left', async () => {

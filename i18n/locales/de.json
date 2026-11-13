@@ -1428,11 +1428,16 @@
       "delivery": {
         "upload": "Wird mit dem Issue hochgeladen.",
         "clipboardIssue": "Das Token darf keine Dateien speichern: Das Bild landet in der Zwischenablage, das Issue wird ohne Bild angelegt.",
-        "clipboardUrl": "Das Bild kommt in die Zwischenablage. Füge es auf GitHub mit ⌘V in das Issue ein."
+        "clipboardUrl": "Das Bild kommt in die Zwischenablage. Füge es auf GitHub mit ⌘V in das Issue ein.",
+        "relay": "Wird mit dem Feedback gesendet."
       },
       "uploading": "Bild wird hochgeladen…",
       "creating": "Issue wird angelegt…",
-      "sendWithoutImage": "Ohne Bild senden"
+      "sendWithoutImage": "Ohne Bild senden",
+      "introRelay": "Das geht genau so an das Kan-Do-Team und wird nicht veröffentlicht. Vorher verlässt nichts die App.",
+      "previewHeadingRelay": "Text des Feedbacks",
+      "sendRelay": "Feedback senden",
+      "sendingRelay": "Feedback wird gesendet…"
     },
     "fallback": {
       "rejected": "GitHub hat das Feedback-Token abgelehnt. Das Issue öffnet Kan-Do stattdessen auf GitHub im Browser.",
@@ -1448,7 +1453,11 @@
       "server": "GitHub hat gerade Probleme. Versuche es gleich erneut. Dein Entwurf bleibt erhalten.",
       "unexpected": "Das Issue konnte nicht angelegt werden. Dein Entwurf bleibt erhalten.",
       "uploadDenied": "Das Bild konnte nicht hochgeladen werden. Es kommt in die Zwischenablage, das Issue entsteht ohne Bild. Dein Entwurf bleibt erhalten.",
-      "clipboardFailed": "Das Bild konnte nicht in die Zwischenablage kopiert werden. Du kannst es im Browser neu aufnehmen."
+      "clipboardFailed": "Das Bild konnte nicht in die Zwischenablage kopiert werden. Du kannst es im Browser neu aufnehmen.",
+      "relayBlocked": "Gerade kommt zu viel Feedback an. Versuche es später erneut. Dein Entwurf bleibt erhalten.",
+      "relayServer": "Das Feedback konnte gerade nicht gesendet werden. Versuche es gleich erneut. Dein Entwurf bleibt erhalten.",
+      "relayUnexpected": "Das Feedback konnte nicht gesendet werden. Dein Entwurf bleibt erhalten.",
+      "relayDown": "Direktes Senden ist gerade nicht möglich. Öffne das Feedback stattdessen auf GitHub. Dein Entwurf bleibt erhalten."
     },
     "sentToast": "Danke, das Feedback ist als Issue #{number} angelegt.",
     "picker": {
@@ -1487,7 +1496,9 @@
     "public": "Dein Feedback wird ein öffentliches Issue auf GitHub.",
     "publicAccount": "Zum Absenden brauchst du ein GitHub-Konto.",
     "openedToast": "GitHub ist im Browser geöffnet. Sende das Issue dort ab.",
-    "openedToastImage": "GitHub ist im Browser geöffnet. Füge den Screenshot mit ⌘V ein und sende das Issue ab."
+    "openedToastImage": "GitHub ist im Browser geöffnet. Füge den Screenshot mit ⌘V ein und sende das Issue ab.",
+    "private": "Dein Feedback geht direkt an das Kan-Do-Team. Es wird nicht veröffentlicht.",
+    "sentRelayToast": "Danke, dein Feedback ist angekommen."
   },
   "trash": {
     "title": "Papierkorb",

@@ -19,8 +19,8 @@
     </TaskSheetHost>
     <DayCloseDialog />
     <NewDayRecap />
-    <FeedbackDialog v-if="isDesktopApp" />
-    <ElementPickerBar v-if="isDesktopApp" />
+    <FeedbackDialog />
+    <ElementPickerBar />
 
     <!-- Sync Warning Modal -->
     <SyncWarningModal
@@ -57,12 +57,9 @@ import NewDayRecap from "~/components/recap/NewDayRecap.vue";
 import { useNewDayRecap } from "~/composables/useNewDayRecap";
 import FeedbackDialog from "~/components/feedback/FeedbackDialog.vue";
 import ElementPickerBar from "~/components/feedback/ElementPickerBar.vue";
-import { isTauri } from "~/utils/isTauri";
 
 const { t } = useI18n();
 const route = useRoute();
-/** Feedback (#227) is desktop only: no entry, dialog or picker on web. */
-const isDesktopApp = isTauri();
 const tasksStore = useTasksStore();
 const { fetchTasks, isIntegrationConfigured } = useIntegrationManager();
 const { unavailable: keychainUnavailable } = useKeychainStatus();

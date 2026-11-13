@@ -23,3 +23,10 @@ const vueApp = createApp({})
 export function useNuxtApp() {
   return { vueApp }
 }
+
+/** Public runtime config of the test app. The feedback relay is off unless a test sets its URL (#268). */
+export const runtimeConfigMock: { public: Record<string, unknown> } = { public: { clientVersion: '9.9.9', feedbackRelayUrl: '' } }
+
+export function useRuntimeConfig() {
+  return runtimeConfigMock
+}

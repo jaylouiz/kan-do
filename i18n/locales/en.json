@@ -1428,11 +1428,16 @@
       "delivery": {
         "upload": "Uploaded with the issue.",
         "clipboardIssue": "The token may not store files: the image goes to the clipboard and the issue is created without it.",
-        "clipboardUrl": "The image goes to the clipboard. Paste it into the issue on GitHub with ⌘V."
+        "clipboardUrl": "The image goes to the clipboard. Paste it into the issue on GitHub with ⌘V.",
+        "relay": "Sent with the feedback."
       },
       "uploading": "Uploading image…",
       "creating": "Creating issue…",
-      "sendWithoutImage": "Send without image"
+      "sendWithoutImage": "Send without image",
+      "introRelay": "This goes to the Kan-Do team exactly as shown and is not published. Nothing leaves the app before that.",
+      "previewHeadingRelay": "Feedback text",
+      "sendRelay": "Send feedback",
+      "sendingRelay": "Sending feedback…"
     },
     "fallback": {
       "rejected": "GitHub rejected the feedback token. Kan-Do opens the issue on GitHub in your browser instead.",
@@ -1448,7 +1453,11 @@
       "server": "GitHub is having trouble right now. Try again in a moment. Your draft is kept.",
       "unexpected": "The issue could not be created. Your draft is kept.",
       "uploadDenied": "The image could not be uploaded. It goes to the clipboard and the issue is created without it. Your draft is kept.",
-      "clipboardFailed": "The image could not be copied to the clipboard. You can take it again in the browser."
+      "clipboardFailed": "The image could not be copied to the clipboard. You can take it again in the browser.",
+      "relayBlocked": "Too much feedback is arriving right now. Try again later. Your draft is kept.",
+      "relayServer": "The feedback could not be sent right now. Try again in a moment. Your draft is kept.",
+      "relayUnexpected": "The feedback could not be sent. Your draft is kept.",
+      "relayDown": "Sending directly is not possible right now. Open the feedback on GitHub instead. Your draft is kept."
     },
     "sentToast": "Thanks, your feedback is now issue #{number}.",
     "picker": {
@@ -1487,7 +1496,9 @@
     "public": "Your feedback becomes a public issue on GitHub.",
     "publicAccount": "Sending it needs a GitHub account.",
     "openedToast": "GitHub is open in your browser. Send the issue there.",
-    "openedToastImage": "GitHub is open in your browser. Paste the screenshot with ⌘V, then send the issue."
+    "openedToastImage": "GitHub is open in your browser. Paste the screenshot with ⌘V, then send the issue.",
+    "private": "Your feedback goes straight to the Kan-Do team. It is not published.",
+    "sentRelayToast": "Thanks, your feedback has arrived."
   },
   "trash": {
     "title": "Trash",

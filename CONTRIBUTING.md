@@ -41,7 +41,7 @@ cp .env.example .env        # only needed for Notion/Todoist work, see below
 
 Dependencies: install and add packages with `npx npm@11.19.0 install <pkg>`. Local npm 11.6 silently drops `@emnapi` lockfile entries that CI needs. Plain `npm install|i|ci` is blocked for agents by a hook for the same reason; do not use it for lockfile changes.
 
-Environment (`.env.example`): `NOTION_KEY`, `NOTION_PAGE_ID` (Notion integration), `TODOIST_CLIENT_ID`, `TODOIST_CLIENT_SECRET` (Todoist OAuth, web only). You do not need any of them for UI work: a Local board and the Notion stub cover it. Build-time variables (`BASE_URL`, `NITRO_PRESET`, ...) are listed under [Building and deploying](#building-and-deploying).
+Environment (`.env.example`): `NOTION_KEY`, `NOTION_PAGE_ID` (Notion integration), `TODOIST_CLIENT_ID`, `TODOIST_CLIENT_SECRET` (Todoist OAuth, web only), `FEEDBACK_GITHUB_TOKEN` (feedback relay, server only; without it the feedback dialog falls back to a GitHub link). You do not need any of them for UI work: a Local board and the Notion stub cover it. Build-time variables (`BASE_URL`, `NITRO_PRESET`, ...) are listed under [Building and deploying](#building-and-deploying).
 
 ### Run the web app
 
@@ -185,7 +185,8 @@ Build-time environment variables (read in `nuxt.config.ts`):
 | Variable | Default | Meaning | Example |
 |---|---|---|---|
 | `BASE_URL` | `/` | App base path (trailing slash matters) | `/my-app/` |
-| `NITRO_PRESET` | `static` | Build preset | `node-server` |
+| `NITRO_PRESET` | `static` (`vercel` on Vercel) | Build preset | `node-server` |
+| `NUXT_PUBLIC_FEEDBACK_RELAY_URL` | production relay (`/api/feedback` in dev) | Where the feedback dialog posts reports; empty switches the relay off (a fork should set it empty or to its own relay) | `https://example.org/api/feedback` |
 | `APP_TITLE` | `kan-do` | Browser title | `My Kan-Do` |
 | `APP_LANG` | `de` | HTML `lang` attribute | `en` |
 
@@ -193,7 +194,7 @@ Scenarios:
 
 - **Static host under a sub-path** (GitHub Pages, Netlify): `BASE_URL=/repo-name/ npm run build`, publish the generated output (Netlify: `dist`). Example: GitHub Pages `username/kan-do` is served at `https://username.github.io/kan-do/` with `BASE_URL=/kan-do/`.
 - **Node server** (Vercel, Railway, any Node host): `BASE_URL=/ NITRO_PRESET=node-server npm run build`, run `node .output/server/index.mjs`. Optional `PORT` (default 3000) and `HOST`.
-- **Vercel** for this repository: `vercel.json` deploys only `main` and `proto/*` branches.
+- **Vercel** for this repository: `vercel.json` deploys only `main` and `proto/*` branches. On Vercel the preset defaults to `vercel` (server routes run: the Notion and Todoist proxies and the feedback relay `POST /api/feedback`); `NITRO_PRESET` still wins.
 - **Docker**: a multi-stage or single-stage Node image that runs `RUN BASE_URL=/ NITRO_PRESET=node-server npm run build` and `CMD ["node", ".output/server/index.mjs"]`, `EXPOSE 3000`.
 - **Multiple environments**: keep separate `.env.production` / `.env.staging` files with different `BASE_URL`.
 

@@ -5,14 +5,17 @@
 @description In-app feedback (#227, Direction A; screenshot #247): one UModal, three steps. Form (title, description,
 optional element, optional screenshot, automatic context line), the annotate step (only after a capture), then
 "Prüfen und senden", which shows exactly what is sent.
-@usage Mounted once in pages/tasks.vue; opened from the command palette through useFeedback().open() (desktop only).
-@avoid Desktop feedback flow only; other dialogs use ResponsiveOverlay or UModal.
+@usage Mounted once in pages/tasks.vue; opened from the command palette through useFeedback().open() (web and desktop).
+@avoid Feedback flow only; other dialogs use ResponsiveOverlay or UModal.
 @responsibility
 - Form: title (required, ≤ 120), description (≤ 4000), "Element auswählen" (hides the dialog while picking), draft discard
 - Screenshot: "Screenshot hinzufügen" hides the dialog while the window is captured, then opens the annotate step
 - Review: the exact issue body and image, each context item removable; the primary action is the only way anything leaves
-- With a feedback token whose user may write to the repo: "Als Issue senden"; otherwise (absent, rejected, read only):
-  "Auf GitHub öffnen" with a prefilled link
+- Three send routes (useFeedback `sendRoute`): a feedback token whose user may write to the repo sends "Als Issue
+  senden" (owner); everyone else sends through the relay, "Feedback senden" (#268: private, no GitHub account, the
+  screenshot goes with it); only when there is no relay: "Auf GitHub öffnen" with a prefilled link
+- The relay route says the report goes to the Kan-Do team and is not published; the lines about a public issue
+  and a GitHub account below belong to the other two routes
 - The repository is public: the form says the report becomes a public GitHub issue, and on the browser path (no
   token) that sending needs the user's own GitHub account; the review intro repeats both. After the link opens, a
   toast on the board says to paste the screenshot (clipboard) and send the issue there
@@ -133,7 +136,10 @@ optional element, optional screenshot, automatic context line), the annotate ste
           />
         </div>
 
-        <p class="text-body text-toned" data-testid="feedback-public-note">
+        <p v-if="routeKnown && sendRoute === 'relay'" class="text-body text-toned" data-testid="feedback-private-note">
+          {{ t('feedback.private') }}
+        </p>
+        <p v-else-if="routeKnown" class="text-body text-toned" data-testid="feedback-public-note">
           {{ t('feedback.public') }}
           <template v-if="fallbackKnown">{{ t('feedback.publicAccount') }}</template>
         </p>
@@ -149,7 +155,7 @@ optional element, optional screenshot, automatic context line), the annotate ste
       <FeedbackAnnotator v-else-if="step === 'annotate'" />
 
       <div v-else class="flex flex-col gap-5" data-testid="feedback-review">
-        <p ref="introRef" tabindex="-1" class="text-body text-toned outline-none" data-testid="feedback-review-intro">{{ t(canSend ? 'feedback.review.intro' : 'feedback.review.introBrowser', { repo: FEEDBACK_REPO }) }}</p>
+        <p ref="introRef" tabindex="-1" class="text-body text-toned outline-none" data-testid="feedback-review-intro">{{ t(introKey, { repo: FEEDBACK_REPO }) }}</p>
 
         <fieldset class="flex flex-col gap-2">
           <legend class="mb-1 text-sm font-medium">{{ t('feedback.review.contextHeading') }}</legend>
@@ -193,12 +199,12 @@ v-if="logTail" v-model="draft.include.log" :label="t('feedback.review.itemLog')"
         </section>
 
         <section>
-          <h3 class="mb-1 text-sm font-medium">{{ t('feedback.review.previewHeading') }}</h3>
+          <h3 class="mb-1 text-sm font-medium">{{ previewHeading }}</h3>
           <p class="mb-2 text-body text-toned">{{ draft.title.trim() }}</p>
           <!-- tabindex: a scrollable region must be reachable by keyboard -->
           <pre
             role="region"
-            :aria-label="t('feedback.review.previewHeading')"
+            :aria-label="previewHeading"
             class="max-h-64 overflow-auto rounded-lg bg-muted p-3 font-mono text-xs wrap-break-word whitespace-pre-wrap text-toned"
             tabindex="0"
             data-testid="feedback-body-preview"
@@ -261,6 +267,11 @@ v-if="logTail" v-model="draft.include.log" :label="t('feedback.review.itemLog')"
           {{ sendLabel }}
         </UButton>
         <UButton
+          size="lg" v-else-if="routeKnown && sendRoute === 'relay'" color="primary" :loading="sending"
+          data-testid="feedback-send-relay" @click="sendViaRelay">
+          {{ problem ? t('feedback.review.retry') : t('feedback.review.sendRelay') }}
+        </UButton>
+        <UButton
           size="lg"
           v-else color="primary" :icon="ICONS.external" :disabled="tokenState === 'unknown'" :loading="tokenState === 'unknown'"
           data-testid="feedback-open-browser" @click="openInBrowser">
@@ -285,8 +296,8 @@ defineOptions({ name: 'FeedbackDialog' })
 
 const { t } = useI18n()
 const {
-  isOpen, step, draft, sending, problem, tokenState, titleValid, hasDraft, canUndoDiscard, body, prefilled, canSend, contextSummary, limits, logTail,
-  close, discard, undoDiscard, startPick, onDialogLeft, toReview, toForm, send, openInBrowser,
+  isOpen, step, draft, sending, problem, tokenState, titleValid, hasDraft, canUndoDiscard, body, prefilled, canSend, sendRoute, contextSummary, limits, logTail,
+  close, discard, undoDiscard, startPick, onDialogLeft, toReview, toForm, send, sendViaRelay, openInBrowser,
   rawShot, flat, annotations, capturePending, captureFailure, captureAvailable, sendPhase, sendsWithoutImage, screenshotDelivery, clipboardFailed,
   startCapture, toAnnotate, removeScreenshot, finishAnnotate,
 } = useFeedback()
@@ -299,6 +310,7 @@ const stepTitle = computed(() => {
 /** One line on what happens to the image (review step). */
 const deliveryText = computed(() => {
   if (screenshotDelivery.value === 'upload') return t('feedback.review.delivery.upload')
+  if (screenshotDelivery.value === 'relay') return t('feedback.review.delivery.relay')
   return t(canSend.value ? 'feedback.review.delivery.clipboardIssue' : 'feedback.review.delivery.clipboardUrl')
 })
 
@@ -308,6 +320,7 @@ const sendLabel = computed(() => {
 })
 
 const sendingText = computed(() => {
+  if (sendRoute.value === 'relay') return t('feedback.review.sendingRelay')
   if (sendPhase.value === 'uploading') return t('feedback.review.uploading')
   return sendPhase.value === 'creating' ? t('feedback.review.creating') : t('feedback.review.sending')
 })
@@ -322,8 +335,23 @@ watch(step, async (value) => {
   else document.querySelector<HTMLElement>('[data-testid="feedback-title"]')?.focus({ preventScroll: true })
 })
 
-// The fallback notes only make sense once the token check answered; before that the review is neutral.
-const fallbackKnown = computed(() => !canSend.value && tokenState.value !== 'unknown')
+// A send problem appears below the body preview: bring it into view, so a failed send is never silent on a short screen.
+watch(problem, async (value) => {
+  if (!value) return
+  await nextTick()
+  document.querySelector<HTMLElement>('[data-testid="feedback-problem"]')?.scrollIntoView({ block: 'nearest' })
+})
+
+// The route is only known once the token check answered; before that the dialog names none.
+const routeKnown = computed(() => tokenState.value !== 'unknown')
+// The fallback notes belong to the browser path (no relay here, or it answered that it is not available).
+const fallbackKnown = computed(() => routeKnown.value && sendRoute.value === 'browser')
+
+const introKey = computed(() => {
+  if (canSend.value) return 'feedback.review.intro'
+  return sendRoute.value === 'relay' ? 'feedback.review.introRelay' : 'feedback.review.introBrowser'
+})
+const previewHeading = computed(() => t(sendRoute.value === 'relay' ? 'feedback.review.previewHeadingRelay' : 'feedback.review.previewHeading'))
 
 const elementName = computed(() => draft.element?.chain[0] ?? draft.element?.testId ?? draft.element?.selector ?? '')
 
@@ -338,6 +366,10 @@ const problemText = computed(() => {
     case 'server': return t('feedback.problem.server')
     case 'rejected': return t('feedback.fallback.rejected')
     case 'uploadDenied': return t('feedback.problem.uploadDenied')
+    case 'relayBlocked': return t('feedback.problem.relayBlocked')
+    case 'relayServer': return t('feedback.problem.relayServer')
+    case 'relayUnexpected': return t('feedback.problem.relayUnexpected')
+    case 'relayDown': return t('feedback.problem.relayDown')
     default: return t('feedback.problem.unexpected')
   }
 })

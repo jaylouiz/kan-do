@@ -799,5 +799,15 @@
     "avoidEn": [],
     "status": "proposed",
     "note": "The count is displayDay (stored days + 1), the same number on the card dots, the label and the sheet question. The sheet question says \"seit {n} Tag/Tagen\" / \"planned for {n} day/days\" with that number, so it counts the first day too and agrees with \"Tag {n}\". Plural by vue-i18n pipe syntax."
+  },
+  {
+    "id": "feedback-recipient",
+    "concept": "Who receives in-app feedback sent through the relay (#268): the people behind the app, named without a speaker",
+    "de": "Kan-Do-Team",
+    "en": "Kan-Do team",
+    "avoidDe": [],
+    "avoidEn": [],
+    "status": "proposed",
+    "note": "The relay path files reports privately; the dialog must name a recipient without \"wir\" / \"we\" (voice: the app has no speaker). Chosen over \"Entwickler\" / \"developer\" to stay neutral; the project has one maintainer today."
   }
 ]

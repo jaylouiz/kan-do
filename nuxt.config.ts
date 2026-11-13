@@ -21,6 +21,8 @@ const copyEditor = isDev || process.env.KANDO_COPY_EDITOR === '1' || isDevInstan
 // E2E build (#541): `scripts/e2e-server.mjs` sets this to a directory of its own, so the Playwright build never writes
 // `.nuxt` (a dev server or typecheck may be using it) or `.output` (`npm run generate` for Tauri). Unset for every other command.
 const e2eBuildDir = process.env.KANDO_E2E_BUILD_DIR
+/** Production relay route; its host is also in the desktop CSP `connect-src` (ADR 012). */
+const FEEDBACK_RELAY_PRODUCTION_URL = 'https://kan-do-zeta.vercel.app/api/feedback'
 
 // The /ui manifest (#117): derived from the doc blocks and catalog/, never committed. Only the builds that ship /ui compute it
 // (`nuxi prepare`, typecheck and every production build get `[]`). A broken doc block must not stop `nuxt dev`: the unit tests report it.
@@ -189,7 +191,9 @@ export default defineNuxtConfig({
         ],
       } as Record<string, unknown>
     : {
-        preset: process.env.NITRO_PRESET || 'static',
+        // On Vercel the server routes run (Notion and Todoist proxies, the feedback relay, #268); every other
+        // build stays static unless NITRO_PRESET says otherwise.
+        preset: process.env.NITRO_PRESET || (process.env.VERCEL ? 'vercel' : 'static'),
         ...(e2eBuildDir ? { output: { dir: `${e2eBuildDir}/output` } } : {}),
       },
 
@@ -227,6 +231,11 @@ export default defineNuxtConfig({
       clientVersion: version,
       // Dev-only locale override (`KANDO_LOCALE=en npm run dev`); ignored outside import.meta.dev
       localeOverride: process.env.KANDO_LOCALE || '',
+      // Feedback relay (#268): the server route that files reports privately. Dev and the E2E build post to
+      // their own origin (E2E answers it with `page.route`, so no test reaches production); every other build,
+      // the desktop app included, posts to the production deployment. Empty switches the relay off.
+      feedbackRelayUrl: process.env.NUXT_PUBLIC_FEEDBACK_RELAY_URL
+        ?? (isDev || e2eBuildDir ? '/api/feedback' : FEEDBACK_RELAY_PRODUCTION_URL),
     }
   },
 

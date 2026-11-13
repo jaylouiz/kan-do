@@ -54,8 +54,8 @@ test.describe('Command palette', () => {
   test('the global commands come in groups by kind, in order, and the board offers no row for itself (#234)', async ({ page }) => {
     await page.keyboard.press('ControlOrMeta+k')
     await expect(palette(page)).toBeVisible()
-    // web: no "App" group (desktop only); a dev build adds its own "Developer" group after these (extension groups keep their place)
-    await expect(palette(page).getByRole('group', { name: 'App', exact: true })).toHaveCount(0)
+    // web: the "App" group holds only the feedback row (#268; updates and "Was ist neu" are desktop only); a dev build adds its own "Developer" group after these (extension groups keep their place)
+    await expect(palette(page).getByRole('group', { name: 'App', exact: true }).getByRole('option')).toHaveText([/Feedback senden/])
     await expect(palette(page).getByRole('group').nth(0)).toContainText('Aktionen')
     await expect(palette(page).getByRole('group').nth(1)).toContainText('Gehe zu')
     await expect(palette(page).getByRole('group').nth(2)).toContainText('Daten & Speicher')
