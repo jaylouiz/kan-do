@@ -188,6 +188,11 @@ const isWaiting = computed(() => props.status === TaskStatus.Waiting);
     cursor: pointer;
   }
 
+  /* Disabled while a draft is open (DESIGN.md "Disabled"): the dimmed look, no hover answer, and the cursor says so */
+  .column-header__add:disabled {
+    cursor: not-allowed;
+  }
+
   .column-header__add:hover:not(:disabled) {
     background-color: var(--fill-on-canvas-hover);
   }
