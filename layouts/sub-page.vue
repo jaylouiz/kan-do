@@ -3,7 +3,7 @@
 @description Shared layout for sub-pages with a scrolling header and consistent styling
 @usage Apply via definePageMeta({ layout: 'sub-page' }) in pages
 @responsibility
-- Provide consistent page structure for sub-pages (settings, statistics, etc.), below the app bar (#470); a settings sub-page (`/settings/*`, #236) starts its column with the `BackButton` "Zurück zu Einstellungen" that links to the tab holding it (`thirdItemOfPath`, #691), the pages the app bar leads to (Einstellungen, Papierkorb, Statistik) have none
+- Provide consistent page structure for sub-pages (settings, statistics, etc.), below the app bar (#470); a settings sub-page (`/settings/*`, #236) opens its header with the `BackButton` "Zurück zu Einstellungen" above the title (#263; in the column when a page has no header) that links to the tab holding it (`thirdItemOfPath`, #691), the pages the app bar leads to (Einstellungen, Papierkorb, Statistik) have none
 - Stays out of the way of the phone bar: the content pads by --phone-bar-offset
 - Render PageHeader with title/description from route meta, except on a page with `definePageMeta({ pageHeader: false })`
   (Einstellungen, Papierkorb, Statistik; #670, #686): the app bar's pill already names it, so the title stays only as a
@@ -21,6 +21,9 @@
       :description="pageDescription"
       :narrow="isNarrow"
     >
+      <template v-if="backTo" #back>
+        <BackButton :label="t('common.backToSettings')" :to="backTo" />
+      </template>
       <template v-if="$slots.actions" #actions>
         <slot name="actions" />
       </template>
@@ -30,7 +33,7 @@
     <div class="px-safe" :class="{ 'pt-safe': !showsHeader }">
       <main class="mx-auto max-w-5xl px-4 py-8">
         <div data-testid="sub-page-column" :class="{ 'mx-auto max-w-2xl': isNarrow }">
-          <div v-if="backTo" class="mb-4 flex">
+          <div v-if="backTo && !showsHeader" class="mb-4 flex">
             <BackButton :label="t('common.backToSettings')" :to="backTo" />
           </div>
           <slot />

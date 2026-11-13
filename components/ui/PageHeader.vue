@@ -7,7 +7,7 @@
 @avoid Only the settings sub-pages; /settings, /trash and /statistics are named by the app bar.
 @responsibility
 - Provide consistent header styling across settings/detail pages; the title is the display role (36 px Fraunces, the size of the column names, kd#179)
-- No back arrow of its own (#470): a page is left through the app bar (Heute, Statistik) or ⋯ -> Einstellungen; the sub-page layout adds the `BackButton` to Einstellungen below the header on a settings sub-page (#236)
+- No back arrow of its own (#470): a page is left through the app bar (Heute, Statistik) or ⋯ -> Einstellungen; the sub-page layout adds the `BackButton` to Einstellungen above the title, through the `back` slot, on a settings sub-page (#236, #263)
 - Not sticky (#615): it scrolls away with the page and the app bar alone stays, so the page gets the room. It sits in
   the flow below the desktop bar row; on a phone the bar is at the bottom and the header is the first thing on the page
   (its `pt-safe` is the only safe-area-top cover a sub-page has: it scrolls away, and `env(safe-area-inset-top)` is 0 outside a
@@ -15,11 +15,15 @@
 - `bg-page` surface, same as the page it sits on. A sticky element below it (.sticky-below-page-header) sticks under the
   app bar, not under this header
 - Support page-specific actions via slot
+- `back` slot (#263): the sub-page layout puts the `BackButton` there, the first line of the head above the title (title and description follow it); it spans the column, the actions stay beside the title
 - `narrow`: the title and actions sit in the same 672 px column as the content below (sub-page layout, `pageWidth: 'narrow'`, #673)
 -->
 <template>
   <header class="page-header pt-safe px-safe bg-page">
     <div class="mx-auto max-w-5xl px-4 py-6">
+      <div v-if="$slots.back" class="mb-2 flex" :class="{ 'mx-auto max-w-2xl': narrow }" data-testid="page-header-back">
+        <slot name="back" />
+      </div>
       <div class="flex items-center justify-between" :class="{ 'mx-auto max-w-2xl': narrow }">
         <div>
           <h1 class="font-display text-display tracking-display text-highlighted">{{ title }}</h1>
