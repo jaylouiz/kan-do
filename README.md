@@ -10,11 +10,11 @@ It is built for one person managing their own day: short, frequent sessions wher
 
 Want to help build kan-do? See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-![The board: Open, Now, Waiting and Done, with one task running in Now](docs/images/readme-board.png)
+![A day with kan-do in four screenshots: the welcome page on first start, the morning look back at yesterday, one task in Now with its timebox running during the day, and closing the day in the evening](docs/images/readme-day.jpg)
 
 ![The statistics page: how the last 7 days went compared with the 4 weeks before](docs/images/readme-statistics.png)
 
-<sub>Screenshots of the demo board with the English interface. The demo tasks ship in German; they were shown in English here.</sub>
+<sub>A day with kan-do, from first start to closing the day. Screenshots of the demo board with the English interface. The demo tasks ship in German; they were shown in English here.</sub>
 
 ## What you get
 
