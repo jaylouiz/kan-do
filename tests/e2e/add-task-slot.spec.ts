@@ -132,6 +132,7 @@ test.describe('Add slot, desktop', () => {
       await expect(newCard(offen(page))).toHaveCount(0);
       await expect(add).toBeFocused();
       await expect(add).toBeEnabled();
+      await expect(page.getByRole('tooltip')).toHaveCount(0); // focus returned by the column, not hover: no tooltip (kd#40)
       // The cards close up again: the first card is back where it was
       await expect.poll(async () => Math.round((await box(firstCard)).y)).toBe(Math.round(cardBefore.y));
     });
