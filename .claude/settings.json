@@ -135,5 +135,8 @@
   },
   "skillOverrides": {
     "diagram-design": "off"
+  },
+  "env": {
+    "SLASH_COMMAND_TOOL_CHAR_BUDGET": "16000"
   }
 }
