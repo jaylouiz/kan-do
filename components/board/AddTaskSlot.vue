@@ -341,11 +341,11 @@ defineExpose({ open, isDrafting });
 }
 
 @media (--phone) {
-  /* Mobile cards are 8rem tall (TaskCard): the Jetzt slot keeps a card's box there too */
+  /* Mobile cards are --task-card-height tall (8.75rem, #274; TaskCard): the Jetzt slot keeps a card's box there too */
   .add-task-slot--progress,
   .add-task-slot--progress .add-task-button,
   .add-task-slot--progress .add-task-button .add-task-button-surface {
-    min-height: 8rem;
+    min-height: var(--task-card-height);
   }
 }
 

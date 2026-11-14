@@ -13,7 +13,6 @@ const EN_HEADERS = ['Open', 'Now', 'Waiting', 'Done']
 const DE_HEADERS = ['Offen', 'Jetzt', 'Wartet', 'Erledigt']
 
 function columnHeading(page: Page, name: string) {
-  // The Done header carries a decorative check icon (aria-hidden), so the name is the label alone.
   return page.getByRole('heading', { level: 2, name: new RegExp(`^${name}$`) })
 }
 

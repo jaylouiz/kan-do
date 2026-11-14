@@ -7,7 +7,7 @@
 @avoid Not a page header (PageHeader) and not the header of an expanded stack (TaskStackHeader).
 @responsibility
 - Displays column title with appropriate styling
-- Shows status-specific icons (checkmark for Done column)
+- Shows the title as plain text in every column, Erledigt included (#273: its check icon is gone; the done cards keep their corner check)
 - Handles visual states for different statuses (waiting, empty)
 - Offen only (`showAdd`, #248, moved left #264): a round soft icon-only add button at the start of the card-width track (the
   cards' left edge), vertically centred on the title line; the title stays centred exactly like the other columns' (the
@@ -22,7 +22,6 @@
     class="relative flex items-center justify-center"
   >
     <h2 class="font-display" :class="{ 'column-header__marked': status === TaskStatus.Progress }">
-      <UIcon v-if="status === TaskStatus.Done" name="i-ph-check-bold" class="column-header__mark" aria-hidden="true" />
       {{ title }}
     </h2>
     <div v-if="showAdd" class="column-header__track">
@@ -141,17 +140,6 @@ const isWaiting = computed(() => props.status === TaskStatus.Waiting);
     border-radius: var(--radius-sm) var(--radius-md) var(--radius-sm) var(--radius-md);
     background: var(--marker);
     rotate: -1.6deg;
-  }
-
-  /* The done mark before "Erledigt" is the check icon the done cards use, not a text glyph: the display face has no
-     check, and a fallback glyph changes with the font. Sized to the headline's x-height region and set on its
-     baseline; decorative (aria-hidden), the column name carries the meaning. */
-  .column-header__mark {
-    display: inline-block; /* an svg is a block by the base styles */
-    width: 0.8em;
-    height: 0.8em;
-    margin-inline-end: -0.05em;
-    vertical-align: -0.06em;
   }
 
   h2 {

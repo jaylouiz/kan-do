@@ -295,10 +295,10 @@ test.describe('timebox nudge on touch (390px)', () => {
   test('a tap on the face does nothing, buttons are 44px, a drag from the face moves the card and ends the nudge', async ({ context, page }) => {
     const touch = await touchIntoJetzt(context, page)
 
-    // 280 x 128 card at rest (the set-down after the drop scales it for 200 ms, kd#181), 44px buttons
+    // 308 x 140 card at rest (#274) (the set-down after the drop scales it for 200 ms, kd#181), 44px buttons
     await dropSettled(page)
     const card = (await jetzt(page).locator('.task').boundingBox())!
-    expect([Math.round(card.width), Math.round(card.height)]).toEqual([280, 128])
+    expect([Math.round(card.width), Math.round(card.height)]).toEqual([308, 140])
     expect(Math.round((await nudgeBtn(page, '15 min').boundingBox())!.height)).toBe(44)
 
     // A tap on the face outside the buttons neither opens the sheet nor ends the nudge
