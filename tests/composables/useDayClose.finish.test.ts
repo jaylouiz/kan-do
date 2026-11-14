@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
+import { liveTimeSpent } from '~/lib/liveTime'
 import { useTasksStore } from '~/store/tasks'
 import { useDayClose, useDayCloseData } from '~/composables/useDayClose'
 import { TaskStatus } from '~/types/taskStatus'
@@ -118,7 +119,7 @@ describe('useDayClose finish (Fertig)', () => {
     expect(store.task('p')?.status).toBe(TaskStatus.Progress)
     expect(armedTaskTimerIds()).toEqual(['p'])
     vi.advanceTimersByTime(3000)
-    expect(store.task('p')?.timeSpentSeconds).toBe(5)
+    expect(liveTimeSpent(store.task('p')!)).toBe(5)
 
     // The move goes through: the task leaves Jetzt and nothing is armed afterwards
     stopTimerMock.mockImplementationOnce((id: string) => { stopTaskTimer(id) })
@@ -126,7 +127,8 @@ describe('useDayClose finish (Fertig)', () => {
     await useDayClose().finish()
     vi.advanceTimersByTime(3000)
     expect(armedTaskTimerIds()).toEqual([])
-    expect(store.task('p')?.timeSpentSeconds).toBe(5)
+    expect(store.task('p')?.timeSpentSeconds).toBe(5) // the stop wrote the open seconds
+    expect(liveTimeSpent(store.task('p')!)).toBe(5)
     driver.stop()
   })
 

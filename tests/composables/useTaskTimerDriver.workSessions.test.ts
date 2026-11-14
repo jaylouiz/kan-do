@@ -9,6 +9,7 @@ import { useTasksStore } from '~/store/tasks'
 import { useBoardStore } from '~/store/board'
 import { useTaskStatisticsStore } from '~/store/taskStatistics'
 import { disarmAllTaskTimers } from '~/lib/taskTimers'
+import { clearAllLiveSeconds, liveTimeSpent } from '~/lib/liveTime'
 import { dataState } from '~/lib/dataStorage'
 import { TaskStatus } from '~/types/taskStatus'
 import type { Task } from '~/types/task'
@@ -46,6 +47,7 @@ describe('work sessions written by the timer driver (#600)', () => {
     driver.stop()
     endAllWorkSessions()
     disarmAllTaskTimers()
+    clearAllLiveSeconds()
     vi.useRealTimers()
     vi.restoreAllMocks()
   })
@@ -74,7 +76,9 @@ describe('work sessions written by the timer driver (#600)', () => {
     const extend = vi.spyOn(stats, 'extendWorkSession')
     vi.advanceTimersByTime(59 * SEC)
     expect(extend).not.toHaveBeenCalled()
-    expect(tasks.task('a')!.timeSpentSeconds).toBe(59)
+    // Stored time is checkpointed every 10 s (#286); the 59th second is still open
+    expect(tasks.task('a')!.timeSpentSeconds).toBe(50)
+    expect(liveTimeSpent(tasks.task('a')!)).toBe(59)
     vi.advanceTimersByTime(3 * MIN)
     expect(extend).toHaveBeenCalledTimes(3)
     expect(open).not.toHaveBeenCalled()

@@ -50,6 +50,7 @@ import { useSourceConnections } from '~/composables/useSourceConnections'
 import { useIntegrationManager } from '~/composables/useIntegrationManager'
 import { useSyncValidation, resetSyncValidation } from '~/composables/useSyncValidation'
 import { useBoardStore } from '~/store/board'
+import { liveTimeSpent } from '~/lib/liveTime'
 import { useTasksStore } from '~/store/tasks'
 import { useNotionConfigStore } from '~/store/notionConfig'
 import { useIntegrationHealthStore } from '~/store/integrationHealth'
@@ -390,18 +391,18 @@ describe('useSourceConnections', () => {
       expect(armedTaskTimerIds()).toEqual(['n-run'])
       expect(vi.getTimerCount()).toBe(1)
       expect(tasks.task('n-run')?.timerId).not.toBeNull()
-      const afterFailure = tasks.task('n-run')?.timeSpentSeconds ?? 0
+      const afterFailure = liveTimeSpent(tasks.task('n-run')!)
       vi.advanceTimersByTime(2000)
-      expect(tasks.task('n-run')?.timeSpentSeconds).toBe(afterFailure + 2)
+      expect(liveTimeSpent(tasks.task('n-run')!)).toBe(afterFailure + 2)
 
       // The Keychain refuses: credentials
       removeSecret.mockRejectedValueOnce(new Error('keychain'))
       expect(await connections.disconnectSource('notion')).toEqual({ ok: false, reason: 'credentials' })
       expect(armedTaskTimerIds()).toEqual(['n-run'])
       expect(vi.getTimerCount()).toBe(1)
-      const afterKeychain = tasks.task('n-run')?.timeSpentSeconds ?? 0
+      const afterKeychain = liveTimeSpent(tasks.task('n-run')!)
       vi.advanceTimersByTime(2000)
-      expect(tasks.task('n-run')?.timeSpentSeconds).toBe(afterKeychain + 2)
+      expect(liveTimeSpent(tasks.task('n-run')!)).toBe(afterKeychain + 2)
 
       // A disconnect that goes through still ends the timer with the source
       expect(await connections.disconnectSource('notion')).toMatchObject({ ok: true })

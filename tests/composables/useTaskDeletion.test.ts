@@ -3,6 +3,7 @@ import { setActivePinia, createPinia } from 'pinia'
 import { flushPromises } from '@vue/test-utils'
 import { useTaskDeletion, resetTaskDeletionState, DELETE_UNDO_WINDOW_MS } from '~/composables/useTaskDeletion'
 import { GAP_CLOSE_MS } from '~/lib/deleteGapState'
+import { liveTimeSpent } from '~/lib/liveTime'
 import { useTasksStore } from '~/store/tasks'
 import { useBoardStore } from '~/store/board'
 import { useTrashStore } from '~/store/trash'
@@ -397,7 +398,7 @@ describe('useTaskDeletion (upstream-aware delete with deferred commit)', () => {
       const driver = useTaskTimerDriver()
       driver.start()
       vi.advanceTimersByTime(2000)
-      const spent = tasksStore.task('a')!.timeSpentSeconds
+      const spent = liveTimeSpent(tasksStore.task('a')!)
       expect(spent).toBe(2)
 
       useTaskDeletion().deleteTaskWithUndo('a')
@@ -407,7 +408,7 @@ describe('useTaskDeletion (upstream-aware delete with deferred commit)', () => {
 
       useTaskDeletion().undoDelete('a')
       vi.advanceTimersByTime(3000)
-      expect(tasksStore.task('a')!.timeSpentSeconds).toBe(spent + 3)
+      expect(liveTimeSpent(tasksStore.task('a')!)).toBe(spent + 3)
       expect(armedTaskTimerIds()).toEqual(['a'])
       driver.stop()
     })

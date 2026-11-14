@@ -16,6 +16,7 @@ import { advanceCarryOverEntry, createCarryOverEntry } from "~/utils/carryOver";
 import { isKnownSource } from "~/utils/sourceMeta";
 import type { IntegrationSourceId, SourceId } from "~/types/taskSource";
 import { disarmTaskTimer } from "~/lib/taskTimers";
+import { discardLiveSeconds } from "~/lib/liveTime";
 import { generateTaskId, legacyTaskSource, normalizePendingDeletes, normalizeTasks, sourceSyncsTime } from "~/lib/taskSources";
 import { normalizePriority } from "~/lib/priority";
 import { renameField, type NameKind } from "~/lib/topicNames";
@@ -590,6 +591,31 @@ export const useTasksStore = defineStore("tasks", () => {
   }
 
   /**
+   * Writes seconds a task timer collected (#286, `lib/liveTime`): the one store write of a checkpoint. Unlike
+   * `updateTaskTimespent` it queues the new total for a source that stores time whatever the task's status is
+   * now: the stop flush of a task that just left Jetzt runs after its status changed, and that move must leave the
+   * queued entry in place, as the last per-second tick did before the checkpoints.
+   * @returns false for an unknown task, a count that is not a positive number, or while a batch operation holds updates
+   */
+  function addTrackedSeconds(taskId: string, seconds: number): boolean {
+    const task = tasks.value.find((el) => el.id === taskId);
+    if (!task || !Number.isFinite(seconds) || seconds <= 0 || batchOperationInProgress.value) return false;
+
+    const total = task.timeSpentSeconds + seconds;
+    updateTask(taskId, { timeSpentSeconds: total });
+
+    if (sourceSyncsTime(task.source)) {
+      const existing = mapHelpers.get(pendingTimeUpdates.value, taskId);
+      if (existing) {
+        existing.timeSpentSeconds = total;
+      } else {
+        mapHelpers.set(pendingTimeUpdates.value, taskId, createPendingTimeUpdate(taskId, total));
+      }
+    }
+    return true;
+  }
+
+  /**
    * A user's edit of a task's total time spent (kd#4). Unlike the timer tick (`updateTaskTimespent`, which
    * accumulates and queues only for a task in Jetzt) the edit is absolute, for any status: the total is
    * written at once and, for a source that stores time, queued as an `absolute` entry. While that entry
@@ -602,6 +628,8 @@ export const useTasksStore = defineStore("tasks", () => {
     const task = tasks.value.find((el) => el.id === taskId);
     if (!task || !Number.isFinite(seconds) || seconds < 0) return false;
 
+    // The edit is the new total: the seconds a running timer has collected but not written (#286) are not added on top
+    discardLiveSeconds(taskId);
     updateTask(taskId, { timeSpentSeconds: seconds });
 
     if (sourceSyncsTime(task.source)) {
@@ -1307,6 +1335,7 @@ export const useTasksStore = defineStore("tasks", () => {
     removeTask,
     replaceTasksWith,
     updateTaskTimespent,
+    addTrackedSeconds,
     setTimeSpent,
     setCompletedAt,
     clearPendingTimeUpdate,

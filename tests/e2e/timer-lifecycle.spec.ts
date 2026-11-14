@@ -21,7 +21,15 @@ const storedTask = (page: Page, id = JETZT_ID) =>
     return (raw.tasks ?? []).find((task) => task.id === taskId) ?? null
   }, id) as Promise<StoredTask | null>
 
-const spent = async (page: Page, id = JETZT_ID) => (await storedTask(page, id))?.timeSpentSeconds ?? -1
+/**
+ * The stored time of a task. A running timer writes the store only every 10 s (#286), so a read between two
+ * checkpoints first lets the page flush the way it does when it goes away (`pagehide`): the collected seconds are
+ * then in the stored total, and the delta of two reads is exact.
+ */
+const spent = async (page: Page, id = JETZT_ID) => {
+  await page.evaluate(() => window.dispatchEvent(new Event('pagehide')))
+  return (await storedTask(page, id))?.timeSpentSeconds ?? -1
+}
 const live1sIntervals = (page: Page) => page.evaluate(() => (window as unknown as { __live1s: Set<number> }).__live1s.size)
 const card = (page: Page, title: string) => page.locator('.task-wrapper', { hasText: title }).first()
 
@@ -107,6 +115,28 @@ test.describe('Jetzt timer lifecycle (#352)', () => {
     const closed = (await sessions())[0]!
     await elapse(page, 130_000)
     expect(await sessions()).toEqual([closed])
+  })
+
+  test('checkpoints (#286): the store is written every 10 s, not every second; hiding the page writes the rest', async ({ page }) => {
+    await page.goto('/tasks')
+    await expect(card(page, JETZT_TITLE)).toBeVisible()
+    await expect.poll(() => live1sIntervals(page)).toBe(1)
+    await expect.poll(async () => (await storedTask(page))?.timerId).not.toBeNull()
+    const base = (await storedTask(page))!.timeSpentSeconds
+
+    // Within one checkpoint the stored time stays (the board paints from the collected seconds)
+    await elapse(page, 4000)
+    const mid = (await storedTask(page))!.timeSpentSeconds
+    expect(mid).toBeLessThanOrEqual(base + 1) // a first checkpoint may be due from the real seconds before the clock went on
+    // A checkpoint later it is written
+    await elapse(page, 12_000)
+    await expect.poll(async () => (await storedTask(page))!.timeSpentSeconds).toBeGreaterThanOrEqual(base + 10)
+
+    // The seconds after the last checkpoint reach the store when the page goes away
+    const checkpointed = (await storedTask(page))!.timeSpentSeconds
+    await elapse(page, 3000)
+    await page.evaluate(() => window.dispatchEvent(new Event('pagehide')))
+    await expect.poll(async () => (await storedTask(page))!.timeSpentSeconds).toBeGreaterThan(checkpointed)
   })
 
   test('client-side to the statistics page counts there too', async ({ page }) => {
