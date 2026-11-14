@@ -79,11 +79,9 @@ const { t } = useI18n()
 const tasksStore = useTasksStore()
 
 const { onBoard } = useAppNav()
-const { isOpen, groups, hasCard, open, restoreFocus } = useCommandPalette()
+const { isOpen, groups, hasCard, restoreFocus } = useCommandPalette()
 
-// Not usingInput: the shortcut stays silent while typing in fields. Desktop keyboards only.
-// Nuxt UI maps `meta_k` to Ctrl+K off macOS (Cmd+K on macOS); the explicit `ctrl_k` also gives macOS a Ctrl+K (kd#23).
-defineShortcuts({ meta_k: open, ctrl_k: open })
+// Cmd/Ctrl+K is registered in app.vue: this component loads on first open (#288).
 
 const modalUi = {
   content: 'sm:top-20 sm:translate-y-0 sm:max-w-xl overflow-hidden',
