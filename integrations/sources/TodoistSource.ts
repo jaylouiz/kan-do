@@ -74,7 +74,8 @@ export class TodoistSource implements TaskSourceAdapter {
   async update(task: Task, change: { previousStatus?: TaskStatus } = {}): Promise<Task | null> {
     const token = this.token()
     const write = task.status === TaskStatus.Done ? 'complete' : change.previousStatus === TaskStatus.Done ? 'reopen' : null
-    const externalId = write ? externalIdOf(task) : null
+    if (!write) return null // nothing to write: do not load the SDK chunk (offline it would reject and strand a pendingSync)
+    const externalId = externalIdOf(task)
     const todoist = await this.load(token)
     if (write === 'complete' && externalId) await todoist.completeTask(externalId)
     else if (write === 'reopen' && externalId) await todoist.reopenTask(externalId)
