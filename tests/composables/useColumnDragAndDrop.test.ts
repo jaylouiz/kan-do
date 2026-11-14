@@ -25,6 +25,7 @@ const mockTasksStore = {
   tasksWaiting: [] as Task[],
   tasksDone: [] as Task[],
   tasksDoneToday: [] as Task[],
+  task: (id: string) => mockTasksStore.tasksOpen.find(t => t.id === id),
   updateTask: vi.fn(),
 }
 

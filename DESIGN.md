@@ -93,7 +93,7 @@ Token values live in `assets/css/main.css` and `app.config.ts`; these tables nam
 
 **The One Lamp Rule.** One solid green button per view. Marks, selected options, links and the focus ring are green without being a fill.
 
-**The Status Is Not Decoration Rule.** Green means action or done, orange attention, red destructive or failed. None of them appears for emphasis, branding or variety; integration brand colours do not appear at all.
+**The Status Is Not Decoration Rule.** Green means action or done, orange attention, red destructive or failed. None of them appears for emphasis, branding or variety (the completion burst is the one recorded exception, see "Earned celebration"); integration brand colours do not appear at all.
 
 **The Topic Mark Rule.** A topic carries its hue and symbol on its mark only: a small dot or glyph before the name. Never a coloured chip, card, column or surface, never a hue on a name, and no topic hue in a chart (charts use the ink ramp).
 
@@ -210,7 +210,7 @@ Nuxt UI components first, themed in `app.config.ts`; a shared primitive in `comp
 - **Optimistic moves.** Moves apply at once; sync runs in the background and surfaces only on failure.
 - **No modal on modal.** A sub-flow replaces the dialog or happens inside it.
 - **Quiet notices over interruptions.** System states and news are a notice, a toast or a popover, never a dialog that opens by itself.
-- **Earned celebration.** Everyday actions confirm quietly; completing a task earns a short celebration around the card: once per completion, about a second, design-system colours, no sound, no praise text, never blocking. Recorded exception (owner, 2026-11-06): rewarding achievements supports motivation.
+- **Earned celebration.** Everyday actions confirm quietly; completing a task earns a short celebration around the card: once per completion, about a second, design-system colours, no sound, never blocking. Recorded exception (owner, 2026-11-06): rewarding achievements supports motivation. Recorded exception (owner, #295, 2026-11-14): a task finished below its timebox shows one praise line on the confirmation layer ("Sehr gut! Schneller als geplant."), and the burst is bolder and carries green, warning orange, sky and marker yellow (never raspberry, never a topic hue); this is the only praise text.
 - **Keyboard.** Everything is keyboard-reachable, including board moves; `⌘K` opens the command palette. Announcements name the task and the column, never ids.
 - **Accessibility.** WCAG 2.2 AA (text 4.5:1, non-text 3:1), with the recorded exceptions named in the a11y test.
 

@@ -19,10 +19,16 @@ export interface IUpdateTaskOrderPayload {
 }
 
 /**
- * Length of the in-card done confirmation (#124): 180ms in, ~400ms hold, 220ms out. Single source:
+ * Length of the in-card done confirmation (#124, #295): 180ms in, 900ms hold, 220ms out. Single source:
  * TaskCard sets `--done-confirm-duration` on the layer from it, so the animation and the flag end together.
  */
-export const DONE_CONFIRMATION_MS = 800;
+export const DONE_CONFIRMATION_MS = 1300;
+
+/**
+ * Length of the confirmation that carries the "faster than planned" message (#295): the same 180ms in and 220ms out,
+ * a 1800ms hold so the sentence can be read. TaskCard picks this one for a card in `fasterThanPlanTaskIds`.
+ */
+export const FASTER_CONFIRMATION_MS = 2200;
 
 /**
  * Length of the timebox nudge's countdown (#389): the hairline drains over this long, then the layer
@@ -114,6 +120,11 @@ export const useBoardStore = defineStore("board", () => {
    * Erledigt. Transient and client-only: not in the persist `pick` list. One timer per id.
    */
   const confirmingTaskIds = ref<string[]>([]);
+  /**
+   * Faster than planned (#295): the subset of `confirmingTaskIds` whose layer shows the message instead of the check
+   * (`lib/completionPace`). Transient like `confirmingTaskIds`; cleared together with it.
+   */
+  const fasterThanPlanTaskIds = ref<string[]>([]);
   const confirmationTimers: Record<string, number> = {};
 
   /**
@@ -335,13 +346,20 @@ export const useBoardStore = defineStore("board", () => {
     scrollPosition.value = pos;
   }
 
-  /** Flags `taskId` for the in-card done confirmation; it clears itself after `durationMs`. */
-  function startConfirmation(taskId: string, durationMs: number = DONE_CONFIRMATION_MS) {
+  /**
+   * Flags `taskId` for the in-card done confirmation; it clears itself when the layer ends. `fasterThanPlan` (#295)
+   * swaps the check for the message and lengthens the layer to `FASTER_CONFIRMATION_MS`.
+   */
+  function startConfirmation(taskId: string, fasterThanPlan = false) {
     const running = mapHelpers.get(confirmationTimers, taskId);
     if (running !== undefined) window.clearTimeout(running);
     if (!confirmingTaskIds.value.includes(taskId)) {
       confirmingTaskIds.value = [...confirmingTaskIds.value, taskId];
     }
+    const isFaster = fasterThanPlanTaskIds.value.includes(taskId);
+    if (fasterThanPlan && !isFaster) fasterThanPlanTaskIds.value = [...fasterThanPlanTaskIds.value, taskId];
+    if (!fasterThanPlan && isFaster) fasterThanPlanTaskIds.value = fasterThanPlanTaskIds.value.filter(id => id !== taskId);
+    const durationMs = fasterThanPlan ? FASTER_CONFIRMATION_MS : DONE_CONFIRMATION_MS;
     mapHelpers.set(confirmationTimers, taskId, window.setTimeout(() => clearConfirmation(taskId), durationMs));
   }
 
@@ -352,6 +370,9 @@ export const useBoardStore = defineStore("board", () => {
     mapHelpers.delete(confirmationTimers, taskId);
     if (confirmingTaskIds.value.includes(taskId)) {
       confirmingTaskIds.value = confirmingTaskIds.value.filter(id => id !== taskId);
+    }
+    if (fasterThanPlanTaskIds.value.includes(taskId)) {
+      fasterThanPlanTaskIds.value = fasterThanPlanTaskIds.value.filter(id => id !== taskId);
     }
   }
 
@@ -549,6 +570,7 @@ export const useBoardStore = defineStore("board", () => {
     renameFocusTopic,
     scrollPosition,
     confirmingTaskIds,
+    fasterThanPlanTaskIds,
     doneLeaving,
     timeboxNudgeTaskId,
     

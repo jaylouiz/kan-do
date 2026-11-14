@@ -49,7 +49,7 @@
   @media (--desktop) {
     :where(.board) {
       padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
-      /* The completion burst (#692) flies ~230 px sideways past a card; in the right-hand column at the narrowest
+      /* The completion burst (#692) flies up to ~310 px sideways past a card; in the right-hand column at the narrowest
          desktop width that grew the page sideways (a scrollbar while it plays). Clip the x axis at the board edge, like
          .board-container does on mobile; y stays visible (a drag shadow below the last card, and the burst never grew
          the page vertically). The cards sit 2.5rem inside the columns, so no shadow reaches the clipped edge. */

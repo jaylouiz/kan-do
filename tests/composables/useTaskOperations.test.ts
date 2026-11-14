@@ -249,7 +249,15 @@ describe('useTaskOperations', () => {
       expect(startConfirmationMock).not.toHaveBeenCalled()
 
       await moveTaskToStatus('task-1', TaskStatus.Done)
-      expect(startConfirmationMock).toHaveBeenCalledExactlyOnceWith('task-1')
+      expect(startConfirmationMock).toHaveBeenCalledExactlyOnceWith('task-1', false)
+    })
+
+    it('tells the confirmation when the task finished below its timebox (#295)', async () => {
+      taskMock.mockReturnValue(makeTask({ id: 'task-1', source: 'local', externalId: null, status: TaskStatus.Progress, timeBoxSeconds: 2700, timeSpentSeconds: 1200 }))
+      const { moveTaskToStatus } = useTaskOperations()
+
+      await moveTaskToStatus('task-1', TaskStatus.Done)
+      expect(startConfirmationMock).toHaveBeenCalledExactlyOnceWith('task-1', true)
     })
 
     it('does not start the confirmation when the task is already Done (no-op move)', async () => {

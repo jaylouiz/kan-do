@@ -249,6 +249,22 @@ describe('useBoardDndKit: in-card done confirmation (#124)', () => {
     expect(useBoardStore().confirmingTaskIds).toEqual(['t1'])
   })
 
+  it('flags a drop below the timebox for the faster-than-planned message, and no other (#295)', () => {
+    const tasksStore = useTasksStore()
+    const base = { source: 'local', externalId: null, status: TaskStatus.Progress } as const
+    tasksStore.addTask(makeTask({ ...base, id: 'fast', timeBoxSeconds: 2700, timeSpentSeconds: 1200 }))
+    tasksStore.addTask(makeTask({ ...base, id: 'over', status: TaskStatus.Open, timeBoxSeconds: 600, timeSpentSeconds: 900 }))
+    tasksStore.addTask(makeTask({ ...base, id: 'idle', status: TaskStatus.Open, timeBoxSeconds: 2700, timeSpentSeconds: 0 }))
+
+    const { onDragEnd } = useBoardDndKit()
+    onDragEnd(drop('fast', TaskStatus.Progress, TaskStatus.Done, 0))
+    onDragEnd(drop('over', TaskStatus.Open, TaskStatus.Done, 0))
+    onDragEnd(drop('idle', TaskStatus.Open, TaskStatus.Done, 0))
+
+    expect(useBoardStore().confirmingTaskIds).toEqual(['fast', 'over', 'idle'])
+    expect(useBoardStore().fasterThanPlanTaskIds).toEqual(['fast'])
+  })
+
   it('keeps the drop index in Erledigt', () => {
     const tasksStore = useTasksStore()
     const boardStore = useBoardStore()

@@ -230,6 +230,7 @@
     "progressRunning": "Timebox progress, timer running, {time} spent",
     "elapsedAria": "Time spent: {time}",
     "savePending": "Not saved to {source} yet. The change is safe locally.",
+    "fasterThanPlan": "Well done! Faster than planned.",
     "underOneMinute": "<1",
     "field": {
       "title": "Title",

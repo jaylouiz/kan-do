@@ -3,7 +3,8 @@ import { mount } from '@vue/test-utils'
 import { setActivePinia, createPinia } from 'pinia'
 import { nextTick, onMounted } from 'vue'
 import TaskCard from '~/components/task/TaskCard.vue'
-import { useBoardStore } from '~/store/board'
+import { useBoardStore, DONE_CONFIRMATION_MS, FASTER_CONFIRMATION_MS } from '~/store/board'
+import { setTestLocale } from '../../helpers/i18n'
 import { TaskStatus } from '~/types/taskStatus'
 import type { Task } from '~/types/task'
 
@@ -104,6 +105,36 @@ describe('TaskCard done (#124)', () => {
     expect(w.element).toBe(root)
   })
 
+  describe('faster than planned (#295)', () => {
+    it('shows the rocket and the sentence instead of the check, for the longer layer', async () => {
+      const w = render(makeTask())
+      const board = useBoardStore()
+      board.startConfirmation('t1', true)
+      await nextTick()
+      const layer = w.find('.task-confirm')
+      expect(layer.classes()).toContain('task-confirm--faster')
+      expect(layer.attributes('aria-hidden')).toBe('true')
+      expect(layer.find('.task-confirm__message').text()).toBe('Sehr gut! Schneller als geplant.')
+      expect(layer.find('.task-confirm__icon').exists()).toBe(false)
+      expect(layer.attributes('style')).toContain(`--done-confirm-duration: ${FASTER_CONFIRMATION_MS}ms`)
+    })
+
+    it('shows the English sentence in en', async () => {
+      setTestLocale('en')
+      useBoardStore().startConfirmation('t1', true)
+      const w = render(makeTask())
+      expect(w.find('.task-confirm__message').text()).toBe('Well done! Faster than planned.')
+    })
+
+    it('keeps the plain bold check on an ordinary completion', async () => {
+      useBoardStore().startConfirmation('t1')
+      const w = render(makeTask())
+      expect(w.find('.task-confirm__message').exists()).toBe(false)
+      expect(w.find('.task-confirm--faster').exists()).toBe(false)
+      expect(w.find('.task-confirm').attributes('style')).toContain(`--done-confirm-duration: ${DONE_CONFIRMATION_MS}ms`)
+    })
+  })
+
   it('never plays the confirmation on the drag preview or a card that is not done', async () => {
     useBoardStore().startConfirmation('t1')
     await nextTick()
@@ -126,15 +157,14 @@ describe('TaskCard done (#124)', () => {
       useBoardStore().startConfirmation('t1')
       await nextTick()
       expect(burst(w).attributes('aria-hidden')).toBe('true')
-      expect(burst(w).findAll('i')).toHaveLength(24)
+      expect(burst(w).findAll('i')).toHaveLength(40)
       expect(w.classes()).toContain('task--celebrating') // the card rises above its neighbours while it plays
 
-      // The store flag ends at 800 ms; the burst outlives it and then goes
-      vi.advanceTimersByTime(850)
+      // The burst ends itself after its last piece (the fallback timer here, jsdom has no animation events), whatever the store flag does
+      vi.advanceTimersByTime(1000)
       await nextTick()
-      expect(w.classes()).not.toContain('task--confirming')
       expect(burst(w).exists()).toBe(true)
-      vi.advanceTimersByTime(400)
+      vi.advanceTimersByTime(500)
       await nextTick()
       expect(burst(w).exists()).toBe(false)
       expect(w.classes()).not.toContain('task--celebrating')
