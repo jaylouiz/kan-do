@@ -327,7 +327,7 @@ import TopicEditorHost from '~/components/topic/TopicEditorHost.vue';
 import TaskCarryOverTriage from '~/components/task/TaskCarryOverTriage.vue';
 import TaskCarryOverDots from '~/components/task/TaskCarryOverDots.vue';
 import { useTaskCarryOver } from '~/composables/useCarryOver';
-import { deleteLabelKey } from '~/lib/taskSources';
+import { deleteLabelKey, sourceTaskUrl } from '~/lib/taskSources';
 import { normalizePriority } from '~/lib/priority';
 import type { Task, TaskCustomValue } from '~/types/task';
 import type { NameKind } from '~/lib/topicNames';
@@ -684,16 +684,8 @@ function formatDate(dateString: string | Date | null | undefined) {
   return formatDateTime(dateString, 'mediumDateShortTime');
 }
 
-// Source URL
-const sourceUrl = computed(() => {
-  const taskData = task.value as { sourceUrl?: string; notionPageId?: string } | null;
-  if (!taskData) return null;
-  if (taskData.sourceUrl) return taskData.sourceUrl;
-  if (taskData.notionPageId) {
-    return `https://notion.so/${taskData.notionPageId.replace(/-/g, '')}`;
-  }
-  return null;
-});
+// Source URL (#303): derived from source + externalId, null for Local and a pending create
+const sourceUrl = computed(() => (task.value ? sourceTaskUrl(task.value) : null));
 
 // Action row (#244): open in source, move to source, Delete
 const actionProps = computed(() => ({

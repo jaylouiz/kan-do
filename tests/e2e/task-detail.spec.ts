@@ -638,6 +638,17 @@ test.describe('Task Detail View', () => {
     await expect(page.getByTestId('date-picker-calendar')).toBeVisible();
   });
 
+  // #303: the link is derived from source + externalId; Local has none
+  test('a Notion task shows "In Notion öffnen" in the sheet, a Local task does not', async ({ page, baseURL }) => {
+    await openSheet(page, baseURL, 'test-task-5');
+    await expect(page.getByTestId('task-open-source')).toBeVisible();
+    await expect(page.getByTestId('task-open-source')).toContainText('Notion');
+
+    await openSheet(page, baseURL, 'test-task-1');
+    await expect(page.getByTestId('task-sheet-actions')).toBeVisible();
+    await expect(page.getByTestId('task-open-source')).toHaveCount(0);
+  });
+
   test('Escape with the date picker open closes the picker only, not the sheet', async ({ page, baseURL }) => {
     await openSheet(page, baseURL, 'test-task-5');
 
