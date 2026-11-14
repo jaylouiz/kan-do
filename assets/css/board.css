@@ -173,7 +173,11 @@
     /* Mobile task card: fill full column width */
     :root {
       --task-card-width: 100%;
-      --task-card-max-width: 17.5rem; /* 280px cap, centred in the column (#234); below ~312px screens the 100% width keeps the 1rem gutter */
+      /* Phone card box (#274): the desktop card (18rem x 8.25rem) scaled about 10 %, so the ratio stays (2.2 : 1 against 2.18).
+         Centred in the column (#234); below ~340px screens the 100% width keeps the 1rem gutter. Cards, stacks, the Jetzt slot,
+         the drop zone and the trash rows all read these two tokens, so they stay the same size as each other. */
+      --task-card-max-width: 19.25rem; /* 308px */
+      --task-card-height: 8.75rem; /* 140px */
       --task-stack-max-width: var(--task-card-max-width);
     }
   }

@@ -12,6 +12,7 @@ The row that would navigate to the page the user is already on is left out (`bui
 - Show the shortcut hints of the commands (`kbds`) and the palette's own keys in the footer
 - The "focus a task with Tab" hint only on the board, the one place a card can have focus
 - Empty and loading states; screen-reader result status via role="status"
+- The heading of the card's move group names the card ("Verschieben: {title}"), so it is `data-private` and masked in a feedback screenshot (#254); the app groups' headings are not
 -->
 <template>
   <UModal
@@ -36,6 +37,10 @@ The row that would navigate to the page the user is already on is left out (`bui
           <EmptyNote role="status" class="px-4 py-6">
             {{ t('commandPalette.empty', { term: searchTerm }) }}
           </EmptyNote>
+        </template>
+        <!-- The card group's heading names the card ("Verschieben: {title}"): task text, masked in a feedback screenshot (#254). The app groups' headings are app copy. -->
+        <template #group-label="{ group, label }">
+          <span :data-private="group.id === 'card-move' ? '' : undefined">{{ label }}</span>
         </template>
         <template #footer>
           <p v-if="onBoard && !hasCard" class="px-3 pt-2 text-xs text-muted">

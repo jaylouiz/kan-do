@@ -10,8 +10,8 @@ import { settleAnimations } from './helpers/settle';
  * saved card is the regular Jetzt card.
  */
 
-// Mobile cards are capped at 17.5rem and centred in the column (#234); below ~312px the 1rem gutter (#220) wins
-const MOBILE_CARD_MAX_PX = 280;
+// Mobile cards are capped at 19.25rem (#274) and centred in the column (#234); below ~340px the 1rem gutter (#220) wins
+const MOBILE_CARD_MAX_PX = 308;
 const MOBILE_GUTTER_PX = 16;
 const mobileCardX = (viewportWidth: number) =>
   Math.max(MOBILE_GUTTER_PX, (viewportWidth - MOBILE_CARD_MAX_PX) / 2);

@@ -121,7 +121,7 @@ const showGhost = computed(() =>
 
 @media (--phone) {
   .column-drop-zone__ghost {
-    height: 8rem;
+    height: var(--task-card-height); /* a phone card's height (8.75rem, #274) */
   }
 }
 </style>

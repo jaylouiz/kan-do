@@ -45,7 +45,7 @@ async function openBoard(page: Page, context: Parameters<typeof seedLocalBoard>[
 for (const [label, viewportWidth, cardWidth] of [
   ['800px desktop app window', 800, 187],
   ['1280px desktop', 1280, 288],
-  ['390px mobile', 390, 280],
+  ['390px mobile', 390, 308],
 ] as const) {
   test(`a collapsed stack is as wide as a plain card in its column, ${label} (#641)`, async ({ page, context }) => {
     await openBoard(page, context, viewportWidth)
