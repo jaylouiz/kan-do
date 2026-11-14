@@ -1,6 +1,11 @@
 - region "Lokal starten":
-  - button "Zurück zur Auswahl"
-  - heading "Lokal starten" [level=2]
-  - paragraph: Deine Aufgaben bleiben auf diesem Gerät. Eine Verbindung wie Notion kannst du später in den Einstellungen hinzufügen.
-  - paragraph: Das Board startet leer. Die erste Aufgabe legst du selbst an.
-  - button "Los geht’s"
+  - button "Zurück"
+  - heading "Lokal ist immer dabei" [level=2]
+  - paragraph: Deine Aufgaben liegen standardmäßig auf diesem Gerät, lokale Aufgaben sind jederzeit möglich. Weitere Dienste verbindest du jetzt oder später in den Einstellungen.
+  - group "Zusätzlich verbinden":
+    - text: ""
+    - checkbox "Notion"
+    - text: Notion
+    - checkbox "Todoist (kommt später)" [disabled]
+    - text: Todoist (kommt später)
+  - button "Zum Board"

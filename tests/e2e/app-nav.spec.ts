@@ -727,7 +727,7 @@ test.describe('App bar: resize and routes without a bar', () => {
     try {
       const page = await fresh.newPage()
       await page.goto('/welcome')
-      await expect(page.getByRole('button', { name: 'Noch nirgends' })).toBeVisible()
+      await expect(page.getByRole('button', { name: 'Loslegen' })).toBeVisible()
       await expect(page.getByTestId('app-nav')).toHaveCount(0)
       await expect(page.getByRole('navigation', { name: 'Hauptnavigation' })).toHaveCount(0)
     } finally {

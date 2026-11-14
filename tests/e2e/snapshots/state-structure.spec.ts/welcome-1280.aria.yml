@@ -1,10 +1,8 @@
 - main:
   - paragraph: kan-do
   - paragraph: Ein ruhiges Board für die Aufgaben des Tages.
-  - heading "Wo sind deine Aufgaben heute?" [level=1]
-  - button "Noch nirgends"
-  - button "In Notion"
-  - paragraph: Willst du erstmal nur schauen?
-  - button "Mit Beispielaufgaben Ein gefülltes Board zum Ausprobieren"
-  - paragraph: Weitere Verbindungen kannst du später in den Einstellungen hinzufügen.
+  - heading "Deine Aufgaben bleiben bei dir" [level=1]
+  - paragraph: Standardmäßig liegen sie lokal auf diesem Gerät. Externe Aufgabenlisten wie Notion verbindest du bei der Einrichtung oder jederzeit später.
+  - button "Loslegen"
+  - button "Mit Beispielaufgaben starten"
   - paragraph: "/Version: \\d+\\.\\d+\\.\\d+/"

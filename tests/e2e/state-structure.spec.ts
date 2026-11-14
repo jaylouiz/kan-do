@@ -145,7 +145,7 @@ test.describe('error states', () => {
 })
 
 test.describe('welcome page (kd#14)', () => {
-  test('first run: wordmark, tagline, question, the two answers and the set-apart sample row (1280)', async ({ page }) => {
+  test('first run: wordmark, tagline, statement, "Loslegen" and the sample start (1280)', async ({ page }) => {
     await page.goto('/welcome')
     await expect(page.getByTestId('welcome-choice-local')).toBeVisible()
     await expect(page.locator('main')).toMatchAriaSnapshot({ name: 'welcome-1280.aria.yml' })
@@ -163,12 +163,14 @@ test.describe('welcome page (kd#14)', () => {
 test.describe('welcome setup on the page (#43)', () => {
   test('Notion: first step with the guide rail (1280)', async ({ page }) => {
     await page.goto('/welcome')
-    await page.getByTestId('welcome-choice-notion').click()
+    await page.getByTestId('welcome-choice-local').click()
+    await page.getByTestId('local-source-notion').click()
+    await page.getByTestId('local-confirm').click()
     await expect(page.getByRole('heading', { name: 'Notion-Token' })).toBeFocused()
     await expect(page.getByTestId('notion-setup-flow')).toMatchAriaSnapshot({ name: 'welcome-notion-first-step-1280.aria.yml' })
   })
 
-  test('Local: the empty board and the confirmation (1280)', async ({ page }) => {
+  test('Local: step 2 with the source checklist (1280, #294)', async ({ page }) => {
     await page.goto('/welcome')
     await page.getByTestId('welcome-choice-local').click()
     await expect(page.getByTestId('local-confirm')).toBeVisible()
