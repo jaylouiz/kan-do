@@ -18,6 +18,7 @@ WF_RISK_GLOBS=(
 WF_IGNORE_GLOBS=(package-lock.json 'tests/e2e/snapshots/**' '*.md' 'docs/**')
 WF_REVIEW_LINES=400
 WF_HOLD_LABELS="on-hold-after-spec do-not-merge"
+WF_NO_WAIT_CI=1   # owner decision 2026-11-12: never wait for PR CI
 WF_CHECKS_TSV="$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)/agent-ledgers/checks.tsv"
 
 # cwd: the PR worktree (base merged in).
