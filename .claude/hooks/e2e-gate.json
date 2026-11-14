@@ -743,6 +743,18 @@
     },
     {
       "paths": [
+        "composables/useOpenedOnce*"
+      ],
+      "specs": [
+        "command-palette",
+        "day-close",
+        "new-day-recap",
+        "feedback",
+        "whats-new"
+      ]
+    },
+    {
+      "paths": [
         "components/feedback/**",
         "composables/useFeedback*",
         "composables/useElementPicker*",
