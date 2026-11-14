@@ -57,8 +57,20 @@ export default defineNuxtConfig({
       }
     },
     // `@media (--phone)` (lib/breakpoints.ts): main.css needs the definitions before Tailwind compiles it (#70)
-    'vite:extendConfig'(config) {
+    'vite:extendConfig'(config, { isClient }) {
       config.plugins?.unshift(viteBreakpointDefinitions())
+      // The Todoist SDK imports `undici` (Node's HTTP client, a 504 kB chunk) only behind an `isNodeEnvironment()` check, so
+      // a browser or the desktop webview never reaches it (#289). The client build gets an empty module in its place; the
+      // server build keeps the real package.
+      if (isClient) {
+        const EMPTY_UNDICI = '\0kd:empty-undici'
+        config.plugins?.unshift({
+          name: 'kd:empty-undici',
+          enforce: 'pre',
+          resolveId: id => (id === 'undici' ? EMPTY_UNDICI : null),
+          load: id => (id === EMPTY_UNDICI ? 'export {}' : null),
+        })
+      }
     },
   },
 
@@ -214,23 +226,26 @@ export default defineNuxtConfig({
     families: [
       {
         name: 'Figtree',
-        src: '/fonts/Figtree-VariableFont_wght.ttf',
+        src: '/fonts/Figtree-VariableFont_wght.woff2',
         weight: '300 900',
         style: 'normal',
         global: true
       },
       {
         name: 'Figtree',
-        src: '/fonts/Figtree-Italic-VariableFont_wght.ttf',
+        src: '/fonts/Figtree-Italic-VariableFont_wght.woff2',
         weight: '300 900',
         style: 'italic',
         global: true
       },
       // The display face (DESIGN.md "Type"): headings only. Bundled like Figtree, no web font request (ADR 012).
+      // The file is the variable font pinned to weight 500 (the only heading weight; SOFT 0 and WONK 1 are the font's own
+      // defaults), optical size and every code point kept (#287): 190 kB became 58 kB. The range stops @nuxt/fonts from adding a
+      // `local(Fraunces Medium)` source, which a single weight gets and which would prefer an installed copy.
       {
         name: 'Fraunces',
         src: '/fonts/Fraunces-Variable.woff2',
-        weight: '100 900',
+        weight: '400 600',
         style: 'normal',
         global: true
       }

@@ -30,8 +30,7 @@
    Scrollbar lock (#580): an open overlay removes a classic document scrollbar (Reka's body scroll lock) and pads the body
    by its width, so the board does not move. Elements outside the body flow (fixed, or absolute against the viewport)
    would jump by that width: they subtract `--scrollbar-width`, which Reka sets on <html> only while the lock removes a
-   scrollbar (unset otherwise, and on overlay scrollbars, so the fallback 0 applies). Also: `.titlebar` (app.vue) and
-   `.background-img` (board.css). With the gutter the lock removes nothing, but Reka still reads `innerWidth -
+   scrollbar (unset otherwise, and on overlay scrollbars, so the fallback 0 applies). Also: `.titlebar` (app.vue). With the gutter the lock removes nothing, but Reka still reads `innerWidth -
    clientWidth` (the gutter) and would compensate a second time: the block below zeroes both writes, where the gutter
    exists only (an engine without it keeps the compensation). `tests/e2e/scrollbar-shift.spec.ts` measures every element
    for the lock, `tests/e2e/scrollbar-gutter.spec.ts` for the bar coming and going. */

@@ -2,7 +2,7 @@
  * E2E: no layout shift from the document scrollbar (issue #580). An open overlay (card context menu,
  * command palette, dialog, task sheet) locks the page scroll, which removes a classic scrollbar. Nothing on
  * the page may move horizontally for that: not the board, and not the elements outside the body flow
- * (fixed toasts, the background image, the titlebar): they subtract `--scrollbar-width` (assets/css/utilities.css).
+ * (fixed toasts, the titlebar): they subtract `--scrollbar-width` (assets/css/utilities.css).
  *
  * Headless Chromium hides scrollbars by default (overlay-like, width 0), which would pass without the fix:
  * this spec launches with classic ones and asserts that the scrollbar is really there first. A macOS host with
