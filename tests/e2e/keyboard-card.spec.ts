@@ -160,11 +160,15 @@ test.describe('Keyboard: delete the focused card (#579)', () => {
       await page.keyboard.press('Shift+F10');
       await expect(menu(page)).toBeVisible();
       const items = menu(page).getByRole('menuitem');
-      await expect(items.first()).toBeFocused(); // opened by key: the first item takes focus
+      await expect(items.first()).toBeFocused(); // opened by key: the first item (Jetzt starten, #296) takes focus
+      await page.keyboard.press('ArrowDown'); // Als erledigt markieren
+      await page.keyboard.press('ArrowDown');
+      const details = menu(page).getByRole('menuitem', { name: 'Details öffnen' });
+      await expect(details).toBeFocused();
       await page.keyboard.press('ArrowDown');
       await expect(menu(page).getByRole('menuitemcheckbox').first()).toBeFocused();
       await page.keyboard.press('ArrowUp');
-      await expect(items.first()).toBeFocused();
+      await expect(details).toBeFocused();
       await page.keyboard.press('Enter');
       await expect(page).toHaveURL(new RegExp(`/tasks/${firstId}`));
     });

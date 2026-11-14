@@ -24,6 +24,10 @@
   spring, around the card for ~0.9 s; decorative, none under reduced motion
 - Timebox nudge (#389): a Jetzt card without a timebox shows the in-card question (board store
   `timeboxNudgeTaskId`); its own content is hidden under it (`task--nudged`, rules in TaskTimeboxNudge)
+- Menu button (#296): inside a `TaskCardContextMenu` (it provides the opener, `lib/taskCardMenu.ts`) the card shows a
+  soft 28 px round button in its top-right corner on phone width and touch-only devices (44 px target, `ghost` by the
+  ladder in the neutral soft fill); a tap opens the card menu anchored at it and never opens the sheet nor starts a drag.
+  A done card keeps its check, which sits left of the button; title and topic keep room for both
 - Opens the task sheet on a click or tap (kd#25, one gesture for every pointer; Enter via SortableTaskWrapper); its sheet
   turns one step darker (`--task-card-hover-bg`) under a hovering pointer and while pressed, on touch too; it never
   moves and its shadow stays (kd#225, replaces the 2 px lift of kd#181); a collapsed stack's cards never open
@@ -49,21 +53,34 @@
     <span
       v-if="isDone"
       class="task-progress-corner task-done-check"
-      :class="{ 'task-done-check--pop': checkPopping }"
+      :class="{ 'task-done-check--pop': checkPopping, 'task-done-check--beside-menu': openCardMenu }"
       :style="checkPopping ? confirmStyle : undefined"
       aria-hidden="true"
       @animationend="checkPopping = false"
     >
       <UIcon name="i-ph-check" class="size-5" />
     </span>
+    <!-- Menu button (#296): phone width and touch-only devices; a press on it is never a drag or a card open -->
+    <UButton
+      v-if="openCardMenu"
+      class="task-menu-btn"
+      color="neutral"
+      variant="ghost"
+      square
+      icon="i-ph-dots-three-bold"
+      :aria-label="t('task.contextMenu.button')"
+      data-testid="task-menu-button"
+      @pointerdown.stop
+      @click.stop.prevent="openCardMenu($event.currentTarget as HTMLElement)"
+    />
     <!-- Topic first (#584): the topic row leads, the title sits below it. Both keep room for the Done corner check. -->
-    <p v-if="task.topic" class="task-topic mb-0.5 flex min-w-0 items-center gap-1.5 text-sm text-muted" :class="{ 'pr-9': isDone }" data-private>
+    <p v-if="task.topic" class="task-topic mb-0.5 flex min-w-0 items-center gap-1.5 text-sm text-muted" :class="textRoom" data-private>
       <TopicMark :topic="task.topic" :task="task" />
       <span class="truncate">{{ task.topic }}</span>
     </p>
     <p
       class="task-title-text"
-      :class="{ 'pr-9': isDone }"
+      :class="textRoom"
       :title="task.title"
       data-private
     >
@@ -137,7 +154,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onBeforeUnmount } from "vue";
+import { ref, computed, watch, onBeforeUnmount, inject } from "vue";
+import { TASK_CARD_MENU_KEY } from "~/lib/taskCardMenu";
 import { TaskStatus } from "~/types/taskStatus";
 import type { Task } from "~/types/task";
 import { useI18n } from "vue-i18n";
@@ -200,8 +218,18 @@ const computeTaskClass = (): string =>
 
 const taskClass = computed(computeTaskClass);
 
+/** The corner menu button (#296): provided by TaskCardContextMenu around this card; CSS shows it on touch devices only */
+const openCardMenu = inject(TASK_CARD_MENU_KEY, null);
+
 const computeIsDone = (): boolean => props.task.status === TaskStatus.Done;
 const isDone = computed(computeIsDone);
+
+/** Room on the right of the topic and title: the done check (pr-9), and on touch the menu button too (#296, TaskCard.vue style) */
+const textRoom = computed(() => ({
+  'pr-9': isDone.value,
+  'task-text--menu': !!openCardMenu,
+  'task-text--menu-done': !!openCardMenu && isDone.value,
+}));
 
 /** Only High gets a badge on the card (#617); a stored 4 (the former urgent) counts as High */
 const isHighPriority = computed(() => normalizePriority(props.task.priority) === HIGH);
@@ -356,6 +384,53 @@ const openDetails = (event: MouseEvent) => {
   right: var(--ui-radius);
   z-index: 10;
   pointer-events: none;
+}
+
+/* Menu button (#296, owner's design round 2): a soft 28 px round button in the top-right corner, 6 px from the card's
+   edges, its 44 px target a pseudo-element around it. Phone width and touch-only devices (no right-click, and the hold
+   belongs to the drag); a mouse desktop never shows it. A `ghost` button by the ladder (an icon-only button is ghost,
+   kd#177) that wears the neutral soft fill (`--fill-on-canvas`, the owner's soft style); no main action stands beside it.
+   The 28 px is outside the 32/36 button ladder on purpose (the owner's call); the target is what keeps it usable. */
+.task-menu-btn {
+  display: none;
+  position: absolute;
+  top: 0.375rem;
+  right: 0.375rem;
+  z-index: 10;
+  width: 1.75rem;
+  height: 1.75rem;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border-radius: 9999px;
+  color: var(--ui-text-muted);
+  background-color: var(--fill-on-canvas);
+}
+.task-menu-btn:hover,
+.task-menu-btn:active {
+  background-color: var(--fill-on-canvas-hover);
+}
+.task-menu-btn::after {
+  content: "";
+  position: absolute;
+  inset: -0.5rem;
+}
+
+@media (--phone), (hover: none) {
+  .task-menu-btn {
+    display: inline-flex;
+  }
+
+  /* Title and topic keep 30 px on the right for the button; a done card also keeps its check, which sits left of it */
+  .task-text--menu {
+    padding-right: 1.875rem;
+  }
+  .task-text--menu-done {
+    padding-right: 4.5rem;
+  }
+  .task-done-check--beside-menu {
+    right: 2.375rem;
+  }
 }
 
 /* Completion burst (#692): every card is its own stacking context (z-index 50), so a later card would paint over the

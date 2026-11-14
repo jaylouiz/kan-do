@@ -277,6 +277,13 @@
       "saveInAttention": "Check connection · saved later"
     },
     "contextMenu": {
+      "startNow": "Start now",
+      "markDone": "Mark as done",
+      "copyTitle": "Copy title",
+      "duplicate": "Duplicate",
+      "titleCopied": "Title copied",
+      "duplicated": "Task duplicated",
+      "button": "Task actions",
       "openDetails": "Open details",
       "markPlanned": "Mark as planned",
       "markUnplanned": "Mark as unplanned",
@@ -551,6 +558,7 @@
     "taskCreateFailed": "The task could not be created. Try again.",
     "taskDeleteFailed": "The task could not be deleted and is back on the board.",
     "clipboardFailed": "The summary could not be copied.",
+    "copyTitleFailed": "The title could not be copied.",
     "secretsFailed": "The macOS Keychain did not accept the change.",
     "secretsResetFailed": "The macOS Keychain is not reachable, so the setup was not reset. Unlock the Keychain and try again.",
     "externalLinkFailed": "The link could not be opened.",

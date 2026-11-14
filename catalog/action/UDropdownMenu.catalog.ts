@@ -13,7 +13,7 @@ export default {
   category: 'action',
   description: 'A menu of actions or choices that opens from a button: items with a leading icon, labels, descriptions, checkbox or radio items and groups.',
   usage: 'Several secondary actions behind one trigger. The trigger is a ghost neutral `UButton`, icon-only ones set an aria-label (task sheet "more actions"); a menu that picks one of a few values shows the active one in the trigger (column sort). Action items carry a leading `i-ph-*` icon (a meaning that has an `ICONS` entry takes the glyph from there) and an i18n label; choice items (checkbox, radio) show their check instead of an icon. A destructive item sets `color: \'error\'`. `:ui` only places (width, wrapping), identity lives in the theme.',
-  avoid: 'Not for navigation between places (AppNav, tabs), not for right-click or long-press on a card (TaskCardContextMenu) and not for one action (a `UButton`). Not inside a drawer that has no menu primitive (NewCardFlow keeps plain buttons).',
+  avoid: 'Not for navigation between places (AppNav, tabs), not for right-click or the corner button on a card (TaskCardContextMenu) and not for one action (a `UButton`). Not inside a drawer that has no menu primitive (NewCardFlow keeps plain buttons).',
   alternatives: ['UButton', 'TaskCardContextMenu', 'ColumnSortingControl'],
   theme: 'dropdown-menu',
   sampleNote:

@@ -296,20 +296,4 @@
   .task-stack {
     -webkit-touch-callout: none;
   }
-
-  /* ========================================
-   * Long-press visual feedback
-   * Applied by TaskCardContextMenu via useLongPress isPressing state.
-   * Gives a subtle visual cue that a long press is being registered.
-   * ======================================== */
-  @keyframes kando-long-press-pulse {
-    0%   { box-shadow: 0 0 0 0px color-mix(in srgb, var(--ui-primary) 40%, transparent); }
-    100% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--ui-primary) 0%, transparent); }
-  }
-
-  .kando-long-press-active .task {
-    animation: kando-long-press-pulse 750ms var(--ease-standard) forwards; /* 750 ms is the long-press delay itself (useLongPress) */
-    scale: 0.98;
-    transition: scale var(--duration-fast) var(--ease-standard);
-  }
 }

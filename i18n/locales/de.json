@@ -277,6 +277,13 @@
       "saveInAttention": "Verbindung prüfen · wird später gespeichert"
     },
     "contextMenu": {
+      "startNow": "Jetzt starten",
+      "markDone": "Als erledigt markieren",
+      "copyTitle": "Titel kopieren",
+      "duplicate": "Duplizieren",
+      "titleCopied": "Titel kopiert",
+      "duplicated": "Aufgabe dupliziert",
+      "button": "Aktionen für diese Aufgabe",
       "openDetails": "Details öffnen",
       "markPlanned": "Als geplant markieren",
       "markUnplanned": "Als ungeplant markieren",
@@ -551,6 +558,7 @@
     "taskCreateFailed": "Die Aufgabe konnte nicht erstellt werden. Versuche es erneut.",
     "taskDeleteFailed": "Die Aufgabe konnte nicht gelöscht werden und ist wieder auf dem Board.",
     "clipboardFailed": "Die Zusammenfassung konnte nicht kopiert werden.",
+    "copyTitleFailed": "Der Titel konnte nicht kopiert werden.",
     "secretsFailed": "Der macOS-Schlüsselbund hat die Änderung nicht angenommen.",
     "secretsResetFailed": "Der macOS-Schlüsselbund ist nicht erreichbar, die Einrichtung wurde nicht zurückgesetzt. Entsperre den Schlüsselbund und versuche es erneut.",
     "externalLinkFailed": "Der Link konnte nicht geöffnet werden.",

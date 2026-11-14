@@ -2,13 +2,19 @@ import { computed, type Ref } from "vue";
 import { useI18n } from "vue-i18n";
 import type { ContextMenuItem } from "@nuxt/ui";
 import type { Task } from "~/types/task";
-import type { TaskStatus } from "~/types/taskStatus";
+import { TaskStatus } from "~/types/taskStatus";
 import { useTasksStore } from "~/store/tasks";
-import { deleteLabelKey } from "~/lib/taskSources";
+import { deleteLabelKey, sourceCanCreate, sourceTaskUrl } from "~/lib/taskSources";
 import { getPriorityLabel } from "~/utils/taskStatusMappings";
 import { normalizePriority } from "~/lib/priority";
 import { useTaskOperations } from "~/composables/useTaskOperations";
 import { navigateTo } from "nuxt/app";
+import { useToast } from "#imports";
+import { duplicateDraft } from "~/lib/duplicateDraft";
+import { SOURCE_META } from "~/utils/sourceMeta";
+import { openExternal } from "~/utils/openExternal";
+import { useTaskSync } from "~/composables/useTaskSync";
+import { useErrorHandler } from "~/composables/useErrorHandler";
 import { useTaskDeletion } from "~/composables/useTaskDeletion";
 import { useTaskMoveTargets } from "~/composables/useTaskMoveTargets";
 import { PRIORITY_OPTIONS, STATUS_OPTIONS, TIMEBOX_PRESETS } from "~/utils/taskMenuOptions";
@@ -33,6 +39,9 @@ export const useTaskContextMenu = (
   const { deleteTaskWithUndo } = useTaskDeletion();
   const { targets: moveTargets, move: moveToSource } = useTaskMoveTargets(task);
   const { t } = useI18n();
+  const { createTask } = useTaskSync();
+  const { handleError } = useErrorHandler();
+  const toast = useToast();
 
   /**
    * Opens task details page
@@ -92,10 +101,64 @@ export const useTaskContextMenu = (
   };
 
   /**
+   * Copies the title as plain text (#296); a failure is reported, a success confirmed with a short toast
+   */
+  const copyTitle = async () => {
+    try {
+      await navigator.clipboard.writeText(task.value.title);
+    } catch (error) {
+      handleError(error instanceof Error ? error : String(error), 'copy_title');
+      return;
+    }
+    toast.add({ title: t('task.contextMenu.titleCopied'), duration: 2500 });
+  };
+
+  /**
+   * Adds a copy of the task to Offen in the same source (#296); the toast opens the copy's details
+   */
+  const duplicateTask = async () => {
+    let created: Task;
+    try {
+      created = await createTask(duplicateDraft(task.value), task.value.source);
+    } catch (error) {
+      handleError(error instanceof Error ? error : String(error), 'task_create');
+      return;
+    }
+    toast.add({
+      title: t('task.contextMenu.duplicated'),
+      orientation: 'horizontal',
+      duration: 5000,
+      actions: [{
+        label: t('board.quickAdd.details'),
+        color: 'neutral',
+        variant: 'soft',
+        onClick: () => void navigateTo(`/tasks/${created.id}`),
+      }],
+    });
+  };
+
+  /**
    * Generates context menu items based on current task state
    */
   const menuItems = computed<ContextMenuItem[][]>(() => {
     const currentTask = task.value;
+
+    // Group 0 (#296): quick status. Start now is the "Jetzt" entry of Change status, so it follows the same
+    // swap and limit rules (disabled with the reason when Jetzt is full and no swap applies).
+    const startRefused = !canMoveOrSwapToStatus(currentTask.id, TaskStatus.Progress).allowed;
+    const startLabel = t('task.contextMenu.startNow');
+    const quickGroup: ContextMenuItem[] = [
+      {
+        label: startRefused ? t('task.contextMenu.maxReached', { label: startLabel }) : startLabel,
+        disabled: currentTask.status === TaskStatus.Progress || startRefused,
+        onSelect: () => changeStatus(TaskStatus.Progress),
+      },
+      {
+        label: t('task.contextMenu.markDone'),
+        disabled: currentTask.status === TaskStatus.Done,
+        onSelect: () => changeStatus(TaskStatus.Done),
+      },
+    ];
 
     // Group 1: Open details
     const detailsGroup: ContextMenuItem[] = [
@@ -203,6 +266,19 @@ export const useTaskContextMenu = (
       },
     ];
 
+    // Group 6b (#296): copy title, duplicate and, for a task its source holds, open it there
+    const url = sourceTaskUrl(currentTask);
+    const copyGroup: ContextMenuItem[] = [
+      { label: t('task.contextMenu.copyTitle'), onSelect: copyTitle },
+      ...(sourceCanCreate(currentTask.source) ? [{ label: t('task.contextMenu.duplicate'), onSelect: duplicateTask }] : []),
+      ...(url
+        ? [{
+            label: t('task.detail.openIn', { source: t(SOURCE_META[currentTask.source].nameKey) }),
+            onSelect: () => { void openExternal(url); },
+          }]
+        : []),
+    ];
+
     // Group 7: Delete (danger zone)
     const deleteGroup: ContextMenuItem[] = [
       {
@@ -213,12 +289,14 @@ export const useTaskContextMenu = (
     ];
 
     return [
+      quickGroup,
       detailsGroup,
       unplannedGroup,
       statusGroup,
       priorityGroup,
       timeboxGroup,
       ...(sourceGroup.length ? [sourceGroup] : []),
+      copyGroup,
       deleteGroup,
     ];
   });
@@ -232,5 +310,7 @@ export const useTaskContextMenu = (
     setTimebox,
     deleteTask,
     requestCustomTimebox,
+    copyTitle,
+    duplicateTask,
   };
 };

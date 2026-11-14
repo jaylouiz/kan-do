@@ -215,7 +215,18 @@ export default defineAppConfig({
     contextMenu: {
       slots: {
         content: 'rounded-lg shadow-(--shadow-overlay)',
-        item: 'min-h-8'
+        // 40 px rows, centred (#296); the hand cursor is explicit, the disabled row keeps Nuxt UI's `not-allowed`
+        item: 'min-h-10 items-center cursor-pointer'
+      },
+      variants: {
+        // The highlight and the open submenu's parent row take the paper tone of a row's hover (DESIGN.md "Fill on a
+        // sheet"): Nuxt UI's `bg-elevated` is white here, as white as the menu itself, so a row showed no hover (#296).
+        // A disabled row is never highlighted (reka sets no `data-highlighted` on it): no hover answer, as DESIGN.md "States" says.
+        active: {
+          false: {
+            item: 'data-highlighted:before:bg-muted data-[state=open]:before:bg-muted'
+          }
+        }
       }
     },
     inputMenu: {
