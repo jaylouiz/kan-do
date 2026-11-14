@@ -104,14 +104,14 @@ test.describe('Mobile app bar', () => {
     const card = (await page.locator('#column-open .task').first().boundingBox())!;
     expect(card.x).toBeGreaterThanOrEqual(16 - 0.5);
     expect(390 - (card.x + card.width)).toBeGreaterThanOrEqual(16 - 0.5);
-    // Width cap (#234): 17.5rem = 280px, centred
-    expect(card.width).toBeCloseTo(280, 0);
+    // Width cap (#234, #274): 19.25rem = 308px, centred
+    expect(card.width).toBeCloseTo(308, 0);
     expect(card.x).toBeCloseTo(390 - (card.x + card.width), 0);
     await showColumnPage(page, 1);
     await page.waitForTimeout(500);
     // The Jetzt card is a regular card again (#394): same width, same height, same text size
     const current = (await page.locator('.task[data-current]').boundingBox())!;
-    expect(current.width).toBeCloseTo(280, 0);
+    expect(current.width).toBeCloseTo(308, 0);
     expect(current.x).toBeCloseTo(card.x, 0);
     expect(current.height).toBeCloseTo(card.height, 0);
     const title = await page.locator('.task[data-current]').evaluate(el => getComputedStyle(el.querySelector('.task-title-text')!).fontSize);

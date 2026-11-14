@@ -69,4 +69,20 @@ test.describe('Feedback screenshot mask covers activity and topic labels (#704)'
     const leaks = await visiblePrivateText(page, ['Lebenslauf aktualisieren', 'Issue delivery'])
     expect(leaks).toEqual([])
   })
+
+  // #254: the palette's card group names the focused card ("Verschieben: {title}"), so the heading is task text too
+  test('the command palette heading that names the card is masked, the app headings stay readable', async ({ context, page }) => {
+    await seedLocalBoard(context, PRIVATE_SEED)
+    await installTauriStub(context)
+    await page.goto('/tasks')
+    await page.locator('.task-wrapper', { hasText: 'Konzept ausarbeiten' }).first().focus()
+    await page.keyboard.press('ControlOrMeta+k')
+    const palette = page.getByRole('dialog', { name: 'Befehlspalette' })
+    await expect(palette).toBeVisible()
+    // The heading is really there: a copy or layout change must not make this pass with nothing to check
+    await expect(palette.getByText('Verschieben: Konzept ausarbeiten')).toBeVisible()
+    expect(await visiblePrivateText(page, ['Konzept ausarbeiten'])).toEqual([])
+    // Only task text is masked: an app heading keeps its glyphs under the mask
+    expect(await visiblePrivateText(page, ['Aktionen'])).not.toEqual([])
+  })
 })

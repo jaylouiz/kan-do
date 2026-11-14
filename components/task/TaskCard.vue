@@ -31,6 +31,7 @@
 - Provides drag-and-drop styling; the running Jetzt card takes the swap state (`task--swap-target`, dnd.css) while a card hovers it (#162)
 - `readonly` (#422): the card of a trash entry. Same face, but no task id on the DOM (board selectors never match it), no
   open gesture and no pointer cursor; a card that came back from an undo plays its grow-back (`task--returning`)
+- Phone size (#274): 308 x 140 px at 390px (desktop 288 x 132), the desktop ratio scaled about 10 %; set by the phone block of `--task-card-max-width` / `--task-card-height` in board.css, type unchanged (already the larger phone step, #220)
 - No activity badge on the card: the activity is for grouping and statistics, the task sheet shows it. Cards and stacks in a column sit `--task-list-gap` (0.75rem) apart
 -->
 <template>
@@ -636,7 +637,7 @@ const openDetails = (event: MouseEvent) => {
      Explicit sizes only; the root font-size stays untouched. */
   .task {
     font-size: var(--text-base);
-    min-height: 8rem;
+    min-height: var(--task-card-height); /* 8.75rem on a phone (#274), the same box as the Jetzt slot and the drop zone */
     max-height: none;
   }
 
