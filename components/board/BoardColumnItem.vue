@@ -6,6 +6,7 @@
 @usage Rendered by BoardColumn, one per list item
 @avoid Not for the Jetzt column (BoardColumnProgressContent) and not for a card outside a column list; use TaskCard directly for a static card.
 @responsibility
+- Renders the capacity divider (#132) as BoardCapacityDivider: not a sortable, no drag, no drop, like a gap
 - Renders the slot of a card deleted inside its undo window as TaskDeletedGap (#422): not a sortable, no drag, no drop
 - Renders a collapsed group as TaskStack (one sortable by its front task, #150), the header row of an expanded one as TaskStackHeader (not a
   sortable: it sits next to the sortables, never inside one), anything else as SortableTaskWrapper >
@@ -16,7 +17,8 @@
   fragment would be removed with it (#146). One root node per item keeps the list flat.
 -->
 <template>
-  <task-deleted-gap v-if="item.kind === 'gap'" :gap="item.gap" />
+  <board-capacity-divider v-if="item.kind === 'capacity'" />
+  <task-deleted-gap v-else-if="item.kind === 'gap'" :gap="item.gap" />
   <task-stack
     v-else-if="item.kind === 'stack'"
     :stack-key="item.groupKey"
@@ -67,6 +69,7 @@
 <script setup lang="ts">
 import TaskCard from "~/components/task/TaskCard.vue";
 import TaskCardContextMenu from "~/components/task/TaskCardContextMenu.vue";
+import BoardCapacityDivider from "~/components/board/BoardCapacityDivider.vue";
 import TaskDeletedGap from "~/components/task/TaskDeletedGap.vue";
 import TaskStack from "~/components/task/TaskStack.vue";
 import TaskStackHeader from "~/components/task/TaskStackHeader.vue";

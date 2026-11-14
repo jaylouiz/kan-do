@@ -727,3 +727,21 @@ export async function seedTopicStyles(context: BrowserContext, styles: SeedTopic
     { state, onceKey },
   )
 }
+
+/**
+ * Tracked work sessions of the last `days` days before today, `hours` hours each (#132): the history the capacity
+ * divider learns the day length from (5 days or more; 10 h is the longest day it learns, so a board with up to 600
+ * minutes of planned work shows no divider). A spec that is not about the divider but seeds a long Offen list calls
+ * `seedWorkHistory(context, 5, 10)` to keep the line out of its screenshots.
+ */
+export async function seedWorkHistory(context: BrowserContext, days: number, hours: number): Promise<void> {
+  await context.addInitScript(({ days: n, hours: h }) => {
+    const sessions = Array.from({ length: n }, (_, i) => {
+      const start = new Date()
+      start.setDate(start.getDate() - (i + 1))
+      start.setHours(8, 0, 0, 0)
+      return { start: start.getTime(), end: start.getTime() + h * 3_600_000 }
+    })
+    localStorage.setItem('taskStatistics', JSON.stringify({ workSessions: sessions }))
+  }, { days, hours })
+}

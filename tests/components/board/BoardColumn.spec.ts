@@ -40,6 +40,7 @@ vi.mock('~/composables/useBoardDragState', () => ({
   })
 }))
 
+vi.mock('~/composables/useDayCapacity', () => ({ useDayCapacity: () => ({ lineAfterKey: { value: null } }) })) // #132: the divider is covered by dayCapacity.test.ts and capacity-divider.spec.ts
 vi.mock('~/store/tasks', () => ({
   useTasksStore: () => ({
     tasksDonePrevious: [],
