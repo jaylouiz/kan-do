@@ -207,17 +207,6 @@
     gap: var(--task-list-gap); /* replaces .task margin-bottom (#584: 0.75rem) */
   }
 
-  :where(.background-img) {
-    visibility: hidden;
-    position: absolute;
-    bottom: 0;
-    /* 2% of the page width, kept steady while an overlay locks the scrollbar away (#580, utilities.css): the containing block is the viewport, which grows by the scrollbar width */
-    right: calc(2% + var(--scrollbar-width, 0px) * 0.98);
-    height: 45%;
-    z-index: 0;
-    opacity: 0.5;
-  }
-
   /* ========================================
    * BOARD DRAG STATES
    * Applied by: components/board/Board.vue
