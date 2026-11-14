@@ -3,7 +3,7 @@
  * @description How much of the day the Offen list uses up (#132). Planned time is the remaining time box of a card
  * (a card without a box counts as `UNBOXED_MINUTES`); the day's capacity is the typical tracked day of the last 8 weeks
  * (learned from `taskStatistics.workSessions`, today excluded) minus what was tracked today, with a default while there
- * is too little history. `capacityLineAfter` finds the list item after which Jetzt, Wartet and the Offen cards so far
+ * is too little history; a working day the user sets in Einstellungen (#306) replaces the learned one. `capacityLineAfter` finds the list item after which Jetzt, Wartet and the Offen cards so far
  * fill that capacity. Pure: `now` is passed in, nothing is stored.
  */
 import { addDays, startOfDay } from '~/lib/statisticsReview'
@@ -51,9 +51,23 @@ export function learnedDayMinutes(sessions: unknown, now: Date): number {
   return Math.min(Math.max(Math.round(average), DAY_MINUTES.min), DAY_MINUTES.max)
 }
 
-/** What is left of the day: the learned day minus today's tracked work, never below 0. */
-export const remainingDayMinutes = (sessions: unknown, now: Date): number =>
-  Math.max(learnedDayMinutes(sessions, now) - workedTodayMinutes(sessions, now), 0)
+/** The user-set working day (#306): a whole number of half hours from 1 to 12 h, stored as minutes. */
+export const WORKING_MINUTES = { min: 60, max: 720, step: 30 } as const
+
+/** A stored working day, or null (automatic) when nothing or anything but a valid length is stored. */
+export function sanitizeWorkingMinutes(value: unknown): number | null {
+  if (typeof value !== 'number' || !Number.isInteger(value)) return null
+  if (value < WORKING_MINUTES.min || value > WORKING_MINUTES.max || value % WORKING_MINUTES.step !== 0) return null
+  return value
+}
+
+/** The day's length: the user-set working day when valid (no clamp, the user's word wins), else the learned one. */
+export const dayMinutes = (sessions: unknown, now: Date, workingMinutes?: unknown): number =>
+  sanitizeWorkingMinutes(workingMinutes) ?? learnedDayMinutes(sessions, now)
+
+/** What is left of the day: the day's length minus today's tracked work, never below 0. */
+export const remainingDayMinutes = (sessions: unknown, now: Date, workingMinutes?: unknown): number =>
+  Math.max(dayMinutes(sessions, now, workingMinutes) - workedTodayMinutes(sessions, now), 0)
 
 type LineItem = Pick<ColumnItem, 'kind' | 'key'> & { task?: Timed; tasks?: readonly Timed[] }
 
