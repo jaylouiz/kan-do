@@ -21,7 +21,7 @@ test.describe('GitHub-Zugriff entry point', () => {
     await installTauriStub(context)
     await page.goto('/tasks')
     await openSettings(page, 'manage')
-    await expect(page.getByText('Tokens für Updates und Feedback')).toBeVisible()
+    await expect(page.getByText('Token für Updates')).toBeVisible()
     await link(page).click()
     await expect(page).toHaveURL(/\/settings\/github$/)
     await expect(page.getByRole('heading', { name: 'GitHub-Zugriff' })).toBeVisible()

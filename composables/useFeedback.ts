@@ -43,7 +43,7 @@ import { classifyUploadStatus } from '~/lib/feedback/uploadAccess'
 import { flattenToPng, isMark, readAnnotationColors, type Annotation } from '~/lib/feedback/flattenCanvas'
 import { RELAY_IMAGE_MAX_BYTES, sendToRelay } from '~/lib/feedbackRelay'
 import { isTauri } from '~/utils/isTauri'
-import { toSecretError, useSecrets } from '~/composables/useSecrets'
+import { toSecretError, useSecrets, type EntrySource } from '~/composables/useSecrets'
 import { useTasksStore } from '~/store/tasks'
 import { useElementPicker } from '~/composables/useElementPicker'
 import { CaptureError, useScreenshotCapture, type CaptureFailureKind } from '~/composables/useScreenshotCapture'
@@ -75,6 +75,8 @@ const versionInfo = ref<VersionInfo | null>(null)
 /** Last lines of the app log file (#225); empty until `log_tail` answers or when the file is absent. */
 const logTail = ref('')
 const tokenState = ref<TokenState>('unknown')
+/** Where the feedback token comes from: the Keychain, or the developer's GitHub CLI login (#280; it has no settings row to link to). */
+const tokenSource = ref<EntrySource>('keychain')
 const sending = ref(false)
 /** The draft as it was before "Entwurf verwerfen"; offered back until the dialog closes. */
 const discarded = ref<{ title: string, description: string, element: ElementInfo | null, include: typeof draft.include } | null>(null)
@@ -486,7 +488,8 @@ export function useFeedback() {
     try {
       const status = (await secrets.status(['github-feedback']))['github-feedback']
       // A different token may have other rights: the earlier refusal does not carry over.
-      const fingerprint = status?.state === 'ok' ? `${status.present}:${status.last4}` : null
+      const fingerprint = status?.state === 'ok' ? `${status.present}:${status.last4}:${status.source}` : null
+      tokenSource.value = status?.state === 'ok' ? status.source : 'keychain'
       if (fingerprint !== tokenFingerprint) uploadDenied.value = false
       tokenFingerprint = fingerprint
       if (status?.state !== 'ok') tokenState.value = 'absent'
@@ -783,6 +786,7 @@ export function useFeedback() {
     sending: readonly(sending),
     problem: readonly(problem),
     tokenState: readonly(tokenState),
+    tokenSource: readonly(tokenSource),
     titleValid,
     taskTitle,
     hasDraft,
@@ -823,6 +827,7 @@ export function resetFeedbackState(): void {
   picking.value = false
   sending.value = false
   tokenState.value = 'unknown'
+  tokenSource.value = 'keychain'
   environment.value = null
   versionInfo.value = null
   appVersion = null

@@ -1,5 +1,6 @@
 mod capture;
 mod data_file;
+mod gh_cli;
 mod github;
 mod identifier_migration;
 mod logging;
@@ -111,13 +112,14 @@ pub fn run() {
       // The Keychain service follows the identifier the app runs under (a sandbox gets its own, kd#54) and, for `tauri dev`,
       // the migration marker (kd#60), which lives in the config dir: so `Secrets` is managed here, after the migration and
       // before the first command is served.
-      let keychain_service = secrets::service_for(
-        cfg!(debug_assertions),
-        &app.config().identifier,
-        &app.path().app_config_dir().expect("app config dir"),
-      );
+      let config_dir = app.path().app_config_dir().expect("app config dir");
+      let keychain_service = secrets::service_for(cfg!(debug_assertions), &app.config().identifier, &config_dir);
       log::info!("secrets: Keychain service {}", keychain_service);
-      app.manage(secrets::Secrets::native(&keychain_service));
+      // The developer's `gh` login serves the feedback entry only with the opt-in marker in this config dir (#280): a
+      // sandboxed run has its own dir, so it can never reach it.
+      let gh_cli = gh_cli::GhCli::production(&config_dir);
+      log::info!("secrets: developer feedback via gh {}", if gh_cli.enabled() { "on" } else { "off" });
+      app.manage(secrets::Secrets::native(&keychain_service).with_gh_cli(gh_cli));
       app.manage(data_file::DataFile::for_app(app.handle(), dirs));
       app.state::<data_file::DataFile>().start_watcher();
       Ok(())

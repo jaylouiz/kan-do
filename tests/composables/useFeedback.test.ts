@@ -26,10 +26,10 @@ const calls = (cmd: string) => (invokeMock.mock.calls as Call[]).filter(call => 
 const accessChecks = () => (invokeMock.mock.calls as Call[]).filter(isAccessCheck)
 
 /** Answers `secret_status` and `github_request` like the Rust side. `access`: the token user's write access (or a failed check). */
-function stubIpc(opts: { present?: boolean, rejected?: boolean, request?: () => unknown, log?: string, access?: 'write' | 'readOnly' | 'offline' } = {}) {
-  const { present = true, rejected = false, log = '', access = 'write', request = () => ({ status: 201, body: { number: 42, html_url: 'https://github.com/jaylouiz/kan-do/issues/42' } }) } = opts
+function stubIpc(opts: { source?: 'keychain' | 'gh_cli', present?: boolean, rejected?: boolean, request?: () => unknown, log?: string, access?: 'write' | 'readOnly' | 'offline' } = {}) {
+  const { source = 'keychain', present = true, rejected = false, log = '', access = 'write', request = () => ({ status: 201, body: { number: 42, html_url: 'https://github.com/jaylouiz/kan-do/issues/42' } }) } = opts
   invokeMock.mockImplementation(async (cmd: string, args?: Record<string, unknown>) => {
-    if (cmd === 'secret_status') return { 'github-feedback': { state: 'ok', present, last4: 'abcd', rejected } }
+    if (cmd === 'secret_status') return { 'github-feedback': { state: 'ok', present, last4: 'abcd', rejected, source } }
     if (isAccessCheck([cmd, args])) {
       if (access === 'offline') throw { kind: 'network' }
       return { status: 200, body: { permissions: { push: access === 'write', pull: true } } }
@@ -157,6 +157,17 @@ describe('useFeedback', () => {
     feedback.draft.include.version = false
     expect(feedback.body.value).not.toContain('## Context')
     expect(feedback.body.value).toContain('_Filed from kan-do via in-app feedback_')
+  })
+
+  it('knows where the token comes from: a refused GitHub CLI token has no settings row to link to (#280)', async () => {
+    stubIpc({ source: 'gh_cli', rejected: true })
+    const feedback = useFeedback()
+    await fill(feedback)
+    expect(feedback.tokenState.value).toBe('rejected')
+    expect(feedback.tokenSource.value).toBe('gh_cli')
+    stubIpc({ source: 'keychain', rejected: true })
+    await fill(feedback)
+    expect(feedback.tokenSource.value).toBe('keychain')
   })
 
   it('short-circuits a rejected token without any request and offers the browser fallback', async () => {

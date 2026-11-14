@@ -4,15 +4,16 @@
 @category input
 @description One GitHub token entry on /settings/github: purpose, required access and the state area
 (empty, checking, saved, rejected, error). Flat section, no card (DESIGN.md sub-page pattern).
-@usage <GithubTokenRow entry="github-updates" />
-@avoid Only the GitHub token entries on /settings/github; the Notion token is TokenStep.
+@usage <GithubTokenRow entry="github-updates" /> (updates: always; feedback: only while a Keychain token is stored, `showRow`, #280)
+@avoid Only the GitHub token entries on /settings/github; the Notion token is TokenStep. The feedback row never renders its empty (paste) state: nobody adds a feedback token any more.
 @responsibility
 - Show the state of one Keychain entry: only the last four characters are ever visible
 - Paste, check and store a token ("Speichern"), re-check it ("Testen"), remove it with undo ("Entfernen")
 - Keep focus on the field after remove and on the remove button after undo
 -->
 <template>
-  <PageSheet tag="section" :aria-labelledby="headingId" class="space-y-3">
+  <!-- A feedback token waiting for its undo hides here, not by unmounting: Undo moves focus back into this row -->
+  <PageSheet v-show="!hidden" tag="section" :aria-labelledby="headingId" class="space-y-3">
     <div class="space-y-1">
       <SectionHeader :id="headingId" tag="h2">
         {{ t(`settings.github.${key}.title`) }}
@@ -49,6 +50,15 @@
           {{ t('settings.github.remove') }}
         </UButton>
       </div>
+      <UAlert
+        v-if="row.rejected && entry === 'github-feedback'"
+        color="error"
+        variant="subtle"
+        icon="i-ph-warning-circle"
+        role="status"
+        :description="t('settings.github.rejectedLine')"
+        data-testid="github-feedback-rejected"
+      />
       <UAlert
         v-if="problemText"
         :color="isOfflineProblem ? 'neutral' : 'error'"
@@ -161,6 +171,7 @@ const key = computed(() => GITHUB_ENTRY_KEY[props.entry]);
 const headingId = computed(() => `github-${key.value}-heading`);
 const title = computed(() => t(`settings.github.${key.value}.title`));
 const row = computed(() => tokens.rows[props.entry]);
+const hidden = computed(() => props.entry === 'github-feedback' && row.value.removed);
 const masked = computed(() => `●●●● ${row.value.last4 ?? ''}`.trim());
 
 // Fine-grained PATs are created here; the repository and permissions are chosen on GitHub.
@@ -175,6 +186,8 @@ const removeButton = ref<{ $el?: HTMLElement } | null>(null);
 type RowState = 'empty' | 'saved' | 'rejected';
 const state = computed<RowState>(() => {
   if (!row.value.present || row.value.removed) return 'empty';
+  // The feedback token is never re-entered: a rejected one stays a saved row (Testen, Entfernen), never the paste form (#280).
+  if (props.entry === 'github-feedback') return 'saved';
   return row.value.rejected ? 'rejected' : 'saved';
 });
 
@@ -221,8 +234,15 @@ async function focusRemove() {
   removeButton.value?.$el?.focus();
 }
 
+// The feedback row hides itself on remove: focus moves to the paste field (or first button) of the updates row, never to <body>.
+async function focusUpdatesRow() {
+  await nextTick();
+  const section = document.getElementById('github-updates-heading')?.closest('section');
+  (section?.querySelector<HTMLElement>('input') ?? section?.querySelector<HTMLElement>('button:not([disabled]), a[href]'))?.focus();
+}
+
 function onRemove() {
   tokens.remove(props.entry, () => { void focusRemove(); });
-  void focusField();
+  void (props.entry === 'github-feedback' ? focusUpdatesRow() : focusField());
 }
 </script>

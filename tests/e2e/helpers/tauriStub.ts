@@ -4,7 +4,8 @@
  * `window.__TAURI_INTERNALS__.invoke` before any page script runs (`context.addInitScript`), so the
  * app sees "desktop" (`isTauri()`), reads and writes an in-memory Keychain and talks to a fake
  * `github_request`. It mirrors the contract of `src-tauri/src/secrets.rs` and `github.rs`:
- *  - `secret_get` refuses the GitHub entries, `secret_status` reports `{ state, present, last4, rejected }`
+ *  - `secret_get` refuses the GitHub entries, `secret_status` reports `{ state, present, last4, rejected, source }`
+ *    (`source`: `keychain`, or `gh_cli` for the feedback entry with `feedbackFromGh`, #280)
  *  - `github_request` fails fast with `rejected` once a 401 was seen, until a new token is saved;
  *    `POST .../issues` answers 201 (#4711) without any network, the request stays in `calls`
  *
@@ -172,6 +173,8 @@ export interface TauriStubOptions {
   /** Keychain content at start, by account name. */
   entries?: Record<string, string>
   githubMode?: GithubMode
+  /** The feedback token comes from the developer's GitHub CLI login: status `source: 'gh_cli'`, the Keychain stays untouched (#280). */
+  feedbackFromGh?: boolean
   /** Every Keychain command fails with `{ kind: 'keychain' }`. */
   keychainError?: boolean
   /** `feedback_capture` rejects with `{ kind }` (#247). */
@@ -187,6 +190,7 @@ export interface TauriStubState {
   /** What the fake `log_tail` answers. */
   logTail: string
   githubMode: GithubMode
+  feedbackFromGh: boolean
   keychainError: boolean
   captureError: string | null
   assetsBranch: boolean
@@ -218,6 +222,7 @@ export async function installTauriStub(context: BrowserContext, options: TauriSt
           rejected: {},
           logTail: '12:00:00 INFO update check: up-to-date',
           githubMode: opts.githubMode ?? 'ok',
+          feedbackFromGh: opts.feedbackFromGh ?? false,
           keychainError: opts.keychainError ?? false,
           captureError: opts.captureError ?? null,
           assetsBranch: opts.assetsBranch ?? true,
@@ -338,12 +343,16 @@ export async function installTauriStub(context: BrowserContext, options: TauriSt
     const fail = (kind: string, extra: Record<string, unknown> = {}) => Promise.reject({ kind, ...extra })
     const parse = (name: unknown) => (ACCOUNTS.includes(name as string) ? (name as string) : null)
     const statusOf = (entry: string) => {
+      if (entry === 'github-feedback' && state.feedbackFromGh) {
+        return { state: 'ok', present: true, last4: 'gh01', rejected: !!state.rejected[entry], source: 'gh_cli' }
+      }
       const value = state.entries[entry]
       return {
         state: 'ok',
         present: value !== undefined,
         last4: value === undefined ? null : value.slice(-4),
         rejected: !!state.rejected[entry],
+        source: 'keychain',
       }
     }
 
@@ -642,7 +651,7 @@ export async function installTauriStub(context: BrowserContext, options: TauriSt
         // A candidate token (save checks before storing) neither needs a stored token nor sets the flag.
         const candidate = typeof args.token === 'string'
         if (!candidate && state.rejected[entry]) return fail('rejected')
-        if (!candidate && state.entries[entry] === undefined) return fail('not_configured')
+        if (!candidate && state.entries[entry] === undefined && !(entry === 'github-feedback' && state.feedbackFromGh)) return fail('not_configured')
         if (state.githubMode === 'offline') return fail('network')
         if (state.githubMode === 'unauthorized') {
           if (!candidate) {

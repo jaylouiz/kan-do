@@ -39,8 +39,11 @@ export class SecretError extends Error {
   }
 }
 
+/** Where an entry's value comes from: the Keychain, or (feedback entry, developer opt-in) the GitHub CLI login (#280). */
+export type EntrySource = 'keychain' | 'gh_cli'
+
 export type EntryStatus =
-  | { state: 'ok'; present: boolean; last4: string | null; rejected: boolean }
+  | { state: 'ok'; present: boolean; last4: string | null; rejected: boolean; source: EntrySource }
   | { state: 'error'; kind: SecretErrorKind }
 
 export interface GithubResponse<T = unknown> {

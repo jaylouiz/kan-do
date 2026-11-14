@@ -213,8 +213,8 @@ v-if="logTail" v-model="draft.include.log" :label="t('feedback.review.itemLog')"
 
         <!-- Without a token the intro already names the browser path; only a refused token needs its own line -->
         <p v-if="tokenState === 'rejected'" class="text-body text-toned" data-testid="feedback-fallback-note">
-          {{ t('feedback.fallback.rejected') }}
-          <ULink to="/settings/github" class="underline" @click="close">{{ t('feedback.fallback.accessLink') }}</ULink>
+          {{ rejectedText }}
+          <ULink v-if="tokenSource === 'keychain'" to="/settings/github" class="underline" @click="close">{{ t('feedback.fallback.accessLink') }}</ULink>
         </p>
         <p v-if="fallbackKnown && prefilled.trimmed.length" class="text-body text-toned" data-testid="feedback-trimmed-note">
           {{ t('feedback.fallback.trimmed', { parts: trimmedParts }) }}
@@ -231,7 +231,7 @@ v-if="logTail" v-model="draft.include.log" :label="t('feedback.review.itemLog')"
         >
           <template #description>
             {{ problemText }}
-            <ULink v-if="problem === 'rejected'" to="/settings/github" class="underline" @click="close">{{ t('feedback.fallback.accessLink') }}</ULink>
+            <ULink v-if="problem === 'rejected' && tokenSource === 'keychain'" to="/settings/github" class="underline" @click="close">{{ t('feedback.fallback.accessLink') }}</ULink>
           </template>
         </UAlert>
         <UAlert
@@ -296,7 +296,7 @@ defineOptions({ name: 'FeedbackDialog' })
 
 const { t } = useI18n()
 const {
-  isOpen, step, draft, sending, problem, tokenState, titleValid, hasDraft, canUndoDiscard, body, prefilled, canSend, sendRoute, contextSummary, limits, logTail,
+  isOpen, step, draft, sending, problem, tokenState, tokenSource, titleValid, hasDraft, canUndoDiscard, body, prefilled, canSend, sendRoute, contextSummary, limits, logTail,
   close, discard, undoDiscard, startPick, onDialogLeft, toReview, toForm, send, sendViaRelay, openInBrowser,
   rawShot, flat, annotations, capturePending, captureFailure, captureAvailable, sendPhase, sendsWithoutImage, screenshotDelivery, clipboardFailed,
   startCapture, toAnnotate, removeScreenshot, finishAnnotate,
@@ -359,12 +359,15 @@ const trimmedParts = computed(() => [...new Set(prefilled.value.trimmed)]
   .map(part => t(part === 'log' ? 'feedback.fallback.trimmedLog' : 'feedback.fallback.trimmedContext'))
   .join(', '))
 
+/** A refused token of the GitHub CLI has no settings row to fix it in: its note says what to do instead (#280). */
+const rejectedText = computed(() => t(tokenSource.value === 'gh_cli' ? 'feedback.fallback.rejectedCli' : 'feedback.fallback.rejected'))
+
 const problemText = computed(() => {
   switch (problem.value) {
     case 'offline': return t('feedback.problem.offline')
     case 'blocked': return t('feedback.problem.blocked')
     case 'server': return t('feedback.problem.server')
-    case 'rejected': return t('feedback.fallback.rejected')
+    case 'rejected': return rejectedText.value
     case 'uploadDenied': return t('feedback.problem.uploadDenied')
     case 'relayBlocked': return t('feedback.problem.relayBlocked')
     case 'relayServer': return t('feedback.problem.relayServer')
