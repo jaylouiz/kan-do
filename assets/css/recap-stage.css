@@ -75,8 +75,9 @@
 }
 
 /* The bar's paper veil (app-nav.css) would wash 80% paper over the photo: it steps back while the stage is mounted, like
-   under the Jetzt focus overlay and the task sheet (board-focus-overlay.css). The pills and the brand stay above. */
-html:has(.recap-stage) .app-nav::before {
+   under the Jetzt focus overlay and the task sheet (board-focus-overlay.css). The pills and the brand stay above.
+   `data-recap-stage` is set by NewDayRecap.vue for as long as the stage element exists (the curtain included). */
+html[data-recap-stage] .app-nav::before {
   opacity: 0;
   transition: opacity var(--duration-fast) var(--ease-standard);
 }

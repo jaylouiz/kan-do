@@ -177,6 +177,12 @@ const photoLoaded = ref(false)
 /** The curtain is running: `leave()` already closed the recap, the stage stays until the photo is off. */
 const closing = ref(false)
 const shown = computed(() => (isOpen.value || closing.value) && !!snapshot.value)
+// The app bar's veil steps back while the stage exists, the curtain included (recap-stage.css). An attribute on <html>
+// instead of `html:has(.recap-stage)`, which restyles the whole page on every change below it (#275).
+const markStage = (on: boolean) => {
+  if (typeof document !== 'undefined') document.documentElement.toggleAttribute('data-recap-stage', on)
+}
+watch(shown, markStage, { immediate: true, flush: 'post' })
 let curtainTimer: ReturnType<typeof setTimeout> | undefined
 
 /** Only the photo's own slide ends the curtain: its image's opacity fade bubbles up here too. */
@@ -220,6 +226,7 @@ function leaveOnce() {
 onBeforeUnmount(() => {
   clearTimeout(curtainTimer)
   if (closing.value) finishCurtain()
+  markStage(false)
 })
 
 // `immediate`: coming back from settings remounts the stage with `isOpen` already true
