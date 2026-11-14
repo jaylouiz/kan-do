@@ -204,3 +204,17 @@ export function buildColumnItems(options: BuildColumnItemsOptions): ColumnItem[]
   }
   return placeGaps(items, options.gaps ?? [], loneMembers).map((item, itemIndex) => ({ ...item, itemIndex }));
 }
+
+/** The key of the divider item (#132): one per list, so a constant. */
+export const CAPACITY_ITEM_KEY = "capacity";
+
+/**
+ * Puts the capacity divider (#132) behind the item `afterKey` names and renumbers `itemIndex`. A null or unknown key
+ * leaves the list as it is (the same array). The divider is no sortable: `sortableIndex` of the others is untouched.
+ */
+export function withCapacityItem(items: ColumnItem[], afterKey: string | null): ColumnItem[] {
+  const at = afterKey === null ? -1 : items.findIndex((item) => item.key === afterKey);
+  if (at === -1) return items;
+  const line: ColumnItem = { kind: "capacity", key: CAPACITY_ITEM_KEY, itemIndex: 0 };
+  return [...items.slice(0, at + 1), line, ...items.slice(at + 1)].map((item, itemIndex) => ({ ...item, itemIndex }));
+}

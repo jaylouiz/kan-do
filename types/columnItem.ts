@@ -6,9 +6,15 @@ import type { DeletedGap } from "~/types/deletedGap";
  * expanded one, or a card (an ungrouped card, a single-card group or a member of an expanded stack).
  * `card` and `stack` items are sortables (a collapsed stack by its front task, #150); the
  * `stack-header` row carries no `sortableIndex`. A `gap` (#422) is the slot of a card deleted inside its undo window:
- * no sortable, so it never takes part in the drag order.
+ * no sortable, so it never takes part in the drag order. The `capacity` item (#132) is the divider of the Offen list
+ * at the point where the day's time is used up: no sortable either, never in the drag order.
  */
 export type ColumnItem =
+  | {
+      kind: "capacity";
+      key: "capacity";
+      itemIndex: number;
+    }
   | {
       kind: "gap";
       key: string;
