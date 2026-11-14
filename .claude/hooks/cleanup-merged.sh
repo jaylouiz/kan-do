@@ -88,6 +88,8 @@ free_worktree() {
     skipped+=("$branch (a session works in $wt)"); return 1
   fi
   if [ -d "$wt" ]; then
+    # a symlinked build cache (shared cargo target) is no work: drop the link so it does not read as dirty
+    [ -L "$wt/src-tauri/target" ] && run rm "$wt/src-tauri/target"
     dirty="$(git -C "$wt" status --porcelain 2>/dev/null)"
     if [ "$dirty" = " M package-lock.json" ]; then
       run git -C "$wt" checkout -- package-lock.json
