@@ -2,7 +2,7 @@
 @component SettingsPage
 @description "Einstellungen" (/settings, #394, #691): three groups behind a tab strip (`UTabs`, the shared tab look of DESIGN.md "Components", as /settings/topics),
 one shown at a time, the active one in the URL as `?tab=board|sources|manage` (default board, unknown value = board):
-Board (the Fokus option), Aufgabenquellen (the former "Aufgaben-Quellen" page, #324: every source with its health, the default
+Board (the Fokus option and the working hours of the capacity divider, #306), Aufgabenquellen (the former "Aufgaben-Quellen" page, #324: every source with its health, the default
 for new tasks, repair / configure / connect / disconnect) and Verwaltung (hairline rows to Themen und Aktivitäten, Daten &
 Speicher, and on desktop Updates and GitHub-Zugriff).
 `/settings/sources` redirects here.
@@ -18,7 +18,8 @@ Speicher, and on desktop Updates and GitHub-Zugriff).
 - "Weitere Verbindungen": Notion with "Verbinden" while disconnected (today's Notion setup, then `connectSource`),
   Todoist as "bald verfügbar"
 - "Verwaltung": `ListRow` link rows (`to`, kd#179; #683 sizing), every sub-page has one; a tab click `router.replace`s the query, so back from a sub-page returns to the tab it was opened from
-- Known trade-off: the Board tab holds only Fokus (accepted by the UX decision)
+- "Arbeitszeit pro Tag" (#306): a `USelect` under the Fokus row in the same sheet, hairline between the rows; "Automatisch" (the default: the day length is learned from tracked work) or 1-12 h in 30 min steps (`settingsStore.workingHoursMinutes`, minutes, null = automatic); the divider moves at once. Phone: label and help above, the select full width. Pattern: aligned with the Fokus switch row (label, help, control on the right)
+- Known trade-off: the Board tab holds two rows only, Fokus and Arbeitszeit (accepted by the UX decision)
 - No visible page header (#670): the app bar's third segment reads "Einstellungen"; the layout keeps the title as an sr-only h1
 - Same sub-page pattern as /settings/updates: one flat column, no cards
 -->
@@ -44,7 +45,7 @@ Speicher, and on desktop Updates and GitHub-Zugriff).
           <p class="text-body text-muted" data-testid="settings-tab-lead">{{ t(`settings.tabs.lead.${tab === 'manage' && !isDesktop ? 'manageWeb' : tab}`) }}</p>
 
           <PageSheet v-if="tab === 'board'" data-testid="focus-settings">
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-4 pb-6">
               <div class="min-w-0 flex-1">
                 <label id="focus-label" class="block text-default" for="focus-switch">{{ t('settings.focus.label') }}</label>
                 <p id="focus-help" class="text-body text-muted">{{ t('settings.focus.help') }}</p>
@@ -56,6 +57,21 @@ Speicher, and on desktop Updates and GitHub-Zugriff).
                 :ui="{ base: 'relative max-md:after:absolute max-md:after:-inset-3.5' }"
                 data-testid="focus-switch"
                 @update:model-value="settingsStore.setFocusEnabled"
+              />
+            </div>
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-3 border-t border-default pt-6" data-testid="working-hours-setting">
+              <div class="min-w-0 flex-1 basis-56">
+                <label id="working-hours-label" class="block text-default" for="working-hours-select">{{ t('settings.workingHours.label') }}</label>
+                <p id="working-hours-help" class="text-body text-muted">{{ t('settings.workingHours.help') }}</p>
+              </div>
+              <USelect
+                id="working-hours-select"
+                :model-value="workingHoursValue"
+                :items="workingHoursItems"
+                aria-describedby="working-hours-help"
+                class="w-full sm:w-40"
+                data-testid="working-hours-select"
+                @update:model-value="onWorkingHoursChange"
               />
             </div>
           </PageSheet>
@@ -149,6 +165,7 @@ import DisconnectSourceDialog from '~/components/settings/DisconnectSourceDialog
 import NotionSetupModal from '~/components/notion/setup/NotionSetupModal.vue'
 import { useBoardStore } from '~/store/board'
 import { useSettingsStore } from '~/store/settings'
+import { WORKING_MINUTES } from '~/lib/dayCapacity'
 import { useSourceList } from '~/composables/useSourceList'
 import { useSourceConnections } from '~/composables/useSourceConnections'
 import { useIntegrationManager } from '~/composables/useIntegrationManager'
@@ -168,7 +185,7 @@ definePageMeta({
   pageHeader: false, // the app bar's third segment reads "Einstellungen" (#670)
 })
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const boardStore = useBoardStore()
 const settingsStore = useSettingsStore()
 const { connected, more } = useSourceList()
@@ -196,6 +213,20 @@ const tabItems = computed(() =>
 )
 const onTabChange = (value: string | number) => {
   void router.replace({ query: { ...route.query, tab: String(value) } })
+}
+
+// Working hours (#306): "Automatisch" is 0 in the control (a select item needs a value) and null in the store
+const workingHoursValue = computed(() => settingsStore.workingHoursMinutes ?? 0)
+const workingHoursItems = computed(() => {
+  const hours = new Intl.NumberFormat(locale.value, { maximumFractionDigits: 1 })
+  const lengths: Array<{ label: string; value: number }> = []
+  for (let minutes = WORKING_MINUTES.min; minutes <= WORKING_MINUTES.max; minutes += WORKING_MINUTES.step) {
+    lengths.push({ label: `${hours.format(minutes / 60)} ${t('duration.unitHour')}`, value: minutes })
+  }
+  return [{ label: t('settings.workingHours.auto'), value: 0 }, ...lengths]
+})
+const onWorkingHoursChange = (value: number | null | undefined) => {
+  settingsStore.setWorkingHoursMinutes(value ? value : null)
 }
 
 const manageLinks = computed(() => [

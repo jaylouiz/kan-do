@@ -86,7 +86,8 @@
       "label": "Kapazität",
       "help": "So viel schaffst du heute vermutlich. Achte darauf, dass die wichtigsten Aufgaben über dieser Linie stehen; alles darunter kann warten.",
       "infoLabel": "Wie entsteht diese Schätzung?",
-      "info": "Kan-Do lernt mit und passt sich an: je öfter du das Board nutzt, desto treffender wird diese Schätzung."
+      "info": "Kan-Do lernt mit und passt sich an: je öfter du das Board nutzt, desto treffender wird diese Schätzung.",
+      "infoSet": "Diese Schätzung beruht auf der Arbeitszeit, die du in den Einstellungen festgelegt hast. Heute erfasste Arbeit wird abgezogen."
     },
     "sync": {
       "stackCards": "Karten stapeln",
@@ -820,6 +821,11 @@
       "heading": "Fokus",
       "label": "Jetzt-Karte im Fokus",
       "help": "Solange eine Aufgabe in „Jetzt“ liegt, tritt das übrige Board zurück. Eine Mausbewegung oder ein Tippen blendet es wieder ein."
+    },
+    "workingHours": {
+      "label": "Arbeitszeit pro Tag",
+      "help": "Danach richtet sich die Kapazitätslinie in Offen. „Automatisch“ nutzt deine bisher erfasste Arbeitszeit.",
+      "auto": "Automatisch"
     },
     "github": {
       "pageTitle": "GitHub-Zugriff",

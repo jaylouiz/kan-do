@@ -1,10 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import {
   DAY_MINUTES,
+  WORKING_MINUTES,
   capacityLineAfter,
   learnedDayMinutes,
   plannedMinutes,
+  dayMinutes,
   remainingDayMinutes,
+  sanitizeWorkingMinutes,
   taskMinutes,
   workedTodayMinutes,
 } from '~/lib/dayCapacity'
@@ -81,6 +84,40 @@ describe('remainingDayMinutes', () => {
     expect(remainingDayMinutes(daysOf(5, 4), NOW)).toBe(240)
     expect(remainingDayMinutes([...daysOf(5, 4), span(0, 9, 11)], NOW)).toBe(120)
     expect(remainingDayMinutes([...daysOf(5, 4), span(0, 6, 17)], NOW)).toBe(0)
+  })
+})
+
+describe('sanitizeWorkingMinutes (#306)', () => {
+  it('keeps an integer multiple of 30 from 60 to 720', () => {
+    for (const ok of [60, 90, 240, 480, 720]) expect(sanitizeWorkingMinutes(ok)).toBe(ok)
+    expect([WORKING_MINUTES.min, WORKING_MINUTES.max, WORKING_MINUTES.step]).toEqual([60, 720, 30])
+  })
+  it('reads anything else as not set', () => {
+    for (const bad of [null, undefined, 0, 30, -5, 25, 750, 3.3, 90.5, NaN, Infinity, '240', true, [], {}]) expect(sanitizeWorkingMinutes(bad)).toBeNull()
+  })
+})
+
+describe('a user-set working day (#306)', () => {
+  it('replaces the learned day length, which the learned sessions no longer change', () => {
+    expect(dayMinutes(daysOf(5, 4), NOW, 480)).toBe(480)
+    expect(dayMinutes([], NOW, 480)).toBe(480)
+    expect(remainingDayMinutes(daysOf(5, 4), NOW, 480)).toBe(480)
+    expect(remainingDayMinutes(daysOf(6, 9), NOW, 480)).toBe(480)
+  })
+  it('is not held to the 2-10 h clamp of the learned value', () => {
+    expect(dayMinutes([], NOW, 720)).toBe(720)
+    expect(dayMinutes([], NOW, 60)).toBe(60)
+  })
+  it('subtracts today\'s tracked work and never goes below zero', () => {
+    expect(remainingDayMinutes([span(0, 9, 11)], NOW, 240)).toBe(120)
+    expect(remainingDayMinutes([span(0, 6, 17)], NOW, 240)).toBe(0)
+  })
+  it('falls back to the learned value (or the default) when unset or invalid', () => {
+    for (const none of [null, undefined, 0, 25, '240']) {
+      expect(dayMinutes(daysOf(5, 4), NOW, none)).toBe(240)
+      expect(dayMinutes([], NOW, none)).toBe(DAY_MINUTES.fallback)
+    }
+    expect(remainingDayMinutes(daysOf(5, 4), NOW, null)).toBe(240)
   })
 })
 
