@@ -16,12 +16,15 @@
 - Manages task timer functionality (for Progress status)
 - Handles visual states for different task statuses
 - Done (#124): regular sheet, struck toned title, green corner check, and the
-  short in-card confirmation after a drop into Erledigt (board store `confirmingTaskIds`)
+  in-card confirmation after a drop into Erledigt (board store `confirmingTaskIds`): a green layer with a bold check,
+  1.3 s. A task finished below its timebox (`lib/completionPace`, board store `fasterThanPlanTaskIds`, #295) shows a
+  rocket and "Sehr gut! Schneller als geplant." on the layer instead of the check, 2.2 s (recorded exception to "no
+  praise text", owner, #295); decoration only, `aria-hidden`
 - Done check spring (#611): the corner check springs in once, as the confirmation layer fades out, when a user action
   (drop, menu, sheet, palette: all set `confirmingTaskIds`) brought the card into Erledigt; never on load, sync or
   undo; static under reduced motion
-- Completion burst (#692, DESIGN.md "Behaviour"): `TaskCompletionBurst` on the same trigger as the check
-  spring, around the card for ~0.9 s; decorative, none under reduced motion
+- Completion burst (#692, #295, DESIGN.md "Behaviour"): `TaskCompletionBurst` on the same trigger as the check
+  spring, around the card for ~1.2 s; decorative, none under reduced motion
 - Timebox nudge (#389): a Jetzt card without a timebox shows the in-card question (board store
   `timeboxNudgeTaskId`); its own content is hidden under it (`task--nudged`, rules in TaskTimeboxNudge)
 - Menu button (#296): inside a `TaskCardContextMenu` (it provides the opener, `lib/taskCardMenu.ts`) the card shows a
@@ -54,7 +57,7 @@
       v-if="isDone"
       class="task-progress-corner task-done-check"
       :class="{ 'task-done-check--pop': checkPopping, 'task-done-check--beside-menu': openCardMenu }"
-      :style="checkPopping ? confirmStyle : undefined"
+      :style="checkPopping ? popStyle : undefined"
       aria-hidden="true"
       @animationend="checkPopping = false"
     >
@@ -88,8 +91,19 @@
     </p>
     <!-- In-card done confirmation (#124): fades in over the card, holds, fades out to its content.
          Visual only: the undo toast and the drop announcement carry the words. -->
-    <span v-if="isConfirming" class="task-confirm" :style="confirmStyle" aria-hidden="true">
-      <UIcon name="i-ph-check" class="task-confirm__icon" />
+    <span
+      v-if="isConfirming"
+      class="task-confirm"
+      :class="{ 'task-confirm--faster': isFasterThanPlan }"
+      :style="confirmStyle"
+      aria-hidden="true"
+    >
+      <!-- Faster than planned (#295): the message takes the check's place -->
+      <span v-if="isFasterThanPlan" class="task-confirm__message">
+        <UIcon name="i-ph-rocket-launch-fill" class="task-confirm__rocket" />
+        <span>{{ t('task.fasterThanPlan') }}</span>
+      </span>
+      <UIcon v-else name="i-ph-check-bold" class="task-confirm__icon" />
     </span>
     <!-- Completion burst (#692): the earned celebration around the card; decorative, owns its ~0.9 s lifetime -->
     <TaskCompletionBurst v-if="burstPlaying" @done="burstPlaying = false" />
@@ -160,7 +174,7 @@ import { TaskStatus } from "~/types/taskStatus";
 import type { Task } from "~/types/task";
 import { useI18n } from "vue-i18n";
 import { useLocaleFormat } from "~/composables/useLocaleFormat";
-import { useBoardStore, DONE_CONFIRMATION_MS } from "~/store/board";
+import { useBoardStore, DONE_CONFIRMATION_MS, FASTER_CONFIRMATION_MS } from "~/store/board";
 import { useStackExpansion } from "~/composables/useStackExpansion";
 import { useSheetSpotlight } from "~/composables/useSheetSpotlight";
 import { useBoardDragState } from "~/composables/useBoardDragState";
@@ -243,17 +257,34 @@ const boardStore = useBoardStore();
 const isConfirming = computed(
   () => isDone.value && !props.preview && boardStore.confirmingTaskIds.includes(props.task.id),
 );
+/** The layer shows the faster-than-planned message instead of the check (#295); read only while the layer plays */
+const isFasterThanPlan = computed(() => boardStore.fasterThanPlanTaskIds.includes(props.task.id));
+/**
+ * The layer's animation runs exactly as long as the store flag (one source: DONE_CONFIRMATION_MS, or
+ * FASTER_CONFIRMATION_MS for the message). `--done-confirm-fade-at` is where the fade-out starts (the layer's last
+ * 220 ms): the corner check's spring waits for it.
+ */
+function confirmStyleOf(faster: boolean) {
+  const duration = faster ? FASTER_CONFIRMATION_MS : DONE_CONFIRMATION_MS;
+  return { "--done-confirm-duration": `${duration}ms`, "--done-confirm-fade-at": `${duration - 220}ms` };
+}
+const confirmStyle = computed(() => confirmStyleOf(isFasterThanPlan.value));
 /**
  * The corner check springs in once (#611) when the card arrives in Erledigt through a user action: the
  * confirmation flag is on at mount (a drop and a menu move both mount a fresh card in Erledigt) or turns on
  * later. The pop runs longer than the flag, so it is held here until its own animationend; a card
- * that is done on load never sees the flag, so it never pops. A remount inside the 800 ms flag window replays it,
+ * that is done on load never sees the flag, so it never pops. A remount inside the flag window replays it,
  * as it replays the layer. Under reduced motion no animation runs (no animationend), so the flag is never set.
  */
 const prefersReducedMotion = () => import.meta.client && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const checkPopping = ref(isConfirming.value && !prefersReducedMotion());
+/** The pop's timing vars, frozen when it starts: the layer's own style changes when the flag ends, and a changed delay would shift the running pop */
+const popStyle = ref(confirmStyleOf(isConfirming.value && isFasterThanPlan.value));
 watch(isConfirming, (on) => {
-  if (on && !prefersReducedMotion()) checkPopping.value = true;
+  if (on && !prefersReducedMotion()) {
+    popStyle.value = confirmStyleOf(isFasterThanPlan.value);
+    checkPopping.value = true;
+  }
 });
 /** A card that leaves Erledigt (undo mid-pop) never carries the flag back into its next Done */
 watch(isDone, (done) => {
@@ -261,7 +292,7 @@ watch(isDone, (done) => {
 });
 /**
  * Completion burst (#692): plays on the same trigger as the check spring, so on every user completion path and never
- * on load, sync or undo. The store flag ends at 800 ms, the burst runs a little longer and ends itself (`done`), so it
+ * on load, sync or undo. The burst (~1.2 s) ends itself (`done`) whichever of the two store flags is longer, so it
  * has its own flag. Not mounted under reduced motion: the plain completion.
  */
 const burstPlaying = ref(isConfirming.value && !prefersReducedMotion());
@@ -271,9 +302,6 @@ watch(isConfirming, (on) => {
 watch(isDone, (done) => {
   if (!done) burstPlaying.value = false;
 });
-/** The layer's animation runs exactly as long as the store flag (one source: DONE_CONFIRMATION_MS) */
-const confirmStyle = { "--done-confirm-duration": `${DONE_CONFIRMATION_MS}ms` };
-
 const isInProgress = computed(() => props.task.status === TaskStatus.Progress);
 /** The running card a dragged card would swap out (#162): it shows the swap state while the drop would swap */
 const isSwapTarget = computed(() => !props.preview && dragState.value.swapTaskId === props.task.id);
@@ -527,15 +555,15 @@ const openDetails = (event: MouseEvent) => {
 }
 
 /* Done check spring (#611): after a user action brought the card into Erledigt, the corner check springs in once.
-   It waits for the confirmation layer to start fading out (72.5 % of --done-confirm-duration, as the layer's own
-   keyframes) so it lands in the corner as the layer dissolves, instead of playing hidden under it; `backwards`
+   It waits for the confirmation layer to start fading out (--done-confirm-fade-at, the layer's last 220 ms) so it
+   lands in the corner as the layer dissolves, instead of playing hidden under it; `backwards`
    keeps it invisible during the wait. The spring is a linear() easing (damping ratio 0.45, ~20 % overshoot,
    settles inside 480 ms) on scale 0.3 -> 1 plus opacity; transform and opacity only, so the card never reflows.
    Compared with `/impeccable live`: B (pop above the layer from the start) showed two checks at once, C (clip-path
    draw with a tilt) was too faint at 20 px. Reduced motion: no animation, the static check. */
 .task-done-check--pop {
   animation: done-check-pop 480ms linear(0, 0.117, 0.381, 0.68, 0.935, 1.107, 1.191, 1.202, 1.165, 1.106, 1.047, 0.999, 0.97, 0.958, 0.96, 0.97, 0.982, 0.994, 1.003, 1.007, 1)
-    calc(var(--done-confirm-duration) * 0.725) backwards;
+    var(--done-confirm-fade-at) backwards;
 }
 @keyframes done-check-pop {
   from { opacity: 0; transform: scale(0.3); }
@@ -545,9 +573,11 @@ const openDetails = (event: MouseEvent) => {
   .task-done-check--pop { animation: none; }
 }
 
-/* In-card done confirmation (#124): a light green layer with a check fades in (180ms), holds (~400ms),
-   then fades out (220ms) to reveal the card. Opacity only; the card itself never moves or scales.
-   --done-confirm-duration is set inline from DONE_CONFIRMATION_MS (store/board.ts). */
+/* In-card done confirmation (#124, #295): a light green layer with a bold check fades in (180ms), holds (900ms), then
+   fades out (220ms) to reveal the card. The faster-than-planned layer holds 1800ms for the message. Opacity only;
+   the card itself never moves or scales. --done-confirm-duration and --done-confirm-fade-at are set inline from
+   DONE_CONFIRMATION_MS / FASTER_CONFIRMATION_MS (store/board.ts); the keyframe stops below are those lengths as
+   percentages (keep in step). */
 .task-confirm {
   position: absolute;
   inset: 0;
@@ -558,14 +588,44 @@ const openDetails = (event: MouseEvent) => {
   border-radius: var(--task-card-radius);
   background-color: var(--done-confirm-wash);
   color: var(--ui-color-success-700);
+  overflow: hidden; /* a long sentence at 200 % text never spills onto neighbours */
   pointer-events: none;
   opacity: 0;
   animation: task-confirm var(--done-confirm-duration) linear forwards;
 }
 
+.task-confirm--faster {
+  animation-name: task-confirm-faster;
+}
+
 .task-confirm__icon {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+/* Faster than planned (#295): rocket and sentence, centred, two lines at most; success-800 on the wash for AA text */
+.task-confirm__message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  min-width: 0;
+  max-width: 100%;
+  max-height: 100%;
+  padding: 0.5rem 1rem;
+  overflow-wrap: anywhere;
+  color: var(--ui-color-success-800);
+  font-size: var(--text-title);
+  font-weight: 600;
+  line-height: var(--lh-snug);
+  text-align: left;
+  text-wrap: balance;
+}
+
+.task-confirm__rocket {
+  flex: none;
+  width: 1.75rem;
+  height: 1.75rem;
 }
 
 @keyframes task-confirm {
@@ -573,10 +633,27 @@ const openDetails = (event: MouseEvent) => {
     opacity: 0;
     animation-timing-function: var(--ease-emphasized);
   }
-  22.5% { /* 180ms */
+  13.85% { /* 180ms of 1300 */
     opacity: 1;
   }
-  72.5% { /* hold ~400ms */
+  83.08% { /* hold 900ms */
+    opacity: 1;
+    animation-timing-function: var(--ease-standard);
+  }
+  100% { /* 220ms out */
+    opacity: 0;
+  }
+}
+
+@keyframes task-confirm-faster {
+  0% {
+    opacity: 0;
+    animation-timing-function: var(--ease-emphasized);
+  }
+  8.18% { /* 180ms of 2200 */
+    opacity: 1;
+  }
+  90% { /* hold 1800ms */
     opacity: 1;
     animation-timing-function: var(--ease-standard);
   }

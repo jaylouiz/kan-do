@@ -4,6 +4,7 @@ import { useBoardDragState, type DraggedStack } from '~/composables/useBoardDrag
 import { useTaskSync } from '~/composables/useTaskSync'
 import { useCompletionUndo } from '~/composables/useCompletionUndo'
 import { TaskStatus } from '~/types/taskStatus'
+import { finishedFasterThanPlan } from '~/lib/completionPace'
 import { canSwapIntoProgress, checkWipMove } from '~/utils/wipGuard'
 import { useTaskSwap } from '~/composables/useTaskSwap'
 import { useStackExpansion } from '~/composables/useStackExpansion'
@@ -484,7 +485,7 @@ export function useBoardDndKit() {
       // In-card done confirmation (#124): every dropped card. A stack gets one undo toast for all
       // of them (#150)
       if (tgtStatus === TaskStatus.Done) {
-        ids.forEach(taskId => boardStore.startConfirmation(taskId))
+        ids.forEach(taskId => boardStore.startConfirmation(taskId, finishedFasterThanPlan(tasksStore.task(taskId))))
         if (completing) notifyCompletedBlock(snapshots)
       }
 

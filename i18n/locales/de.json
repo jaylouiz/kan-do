@@ -231,6 +231,7 @@
     "progressRunning": "Timebox-Fortschritt, Timer läuft, {time} aufgewendet",
     "elapsedAria": "Bisher gearbeitet: {time}",
     "savePending": "Noch nicht in {source} gespeichert. Die Änderung ist lokal gesichert.",
+    "fasterThanPlan": "Sehr gut! Schneller als geplant.",
     "underOneMinute": "<1",
     "field": {
       "title": "Titel",

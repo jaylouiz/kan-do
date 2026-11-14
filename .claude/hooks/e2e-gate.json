@@ -132,6 +132,7 @@
         "composables/useBoardFocus.ts",
         "composables/useColumnSortable.ts",
         "composables/useDropMotion.ts",
+        "lib/completionPace.ts",
         "composables/useStack*.ts",
         "components/board/SortableTaskWrapper.vue",
         "components/board/ColumnDropZone.vue",

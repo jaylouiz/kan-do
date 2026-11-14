@@ -1,5 +1,6 @@
 import type { Task } from "@/types/task";
 import { TaskStatus } from "~/types/taskStatus";
+import { finishedFasterThanPlan } from "~/lib/completionPace";
 import { useTasksStore } from "~/store/tasks";
 import { useBoardStore } from "~/store/board";
 import { useTaskSync } from "~/composables/useTaskSync";
@@ -111,7 +112,7 @@ export const useTaskOperations = () => {
     // A card without a timebox that arrives in Jetzt asks for one (#389); the status is set synchronously above
     if (newStatus === TaskStatus.Progress) boardStore.startTimeboxNudge(taskId);
     // Same in-card confirmation and check spring as a drop into Erledigt (#124, #611)
-    if (newStatus === TaskStatus.Done) boardStore.startConfirmation(taskId);
+    if (newStatus === TaskStatus.Done) boardStore.startConfirmation(taskId, finishedFasterThanPlan(tasksStore.task(taskId)));
     notifyCompleted(completion);
     await sync;
     return true;

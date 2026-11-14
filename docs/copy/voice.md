@@ -7,7 +7,7 @@ The wording rules of the Kan-Do UI. The registry `docs/copy/terms.json` is the v
 - **One term per concept.** Every concept has one term in `docs/copy/terms.json` (German and English, plus forms to avoid). Reuse it; a concept that is not there is added as `proposed` in the same change. A `decided` term changes only with the user.
 - **Address.** German speaks the user as "du". English has no formal form.
 - **Löschen, Entfernen, Trennen.** "Löschen" when data goes away (a task, a stored token, a draft), "Entfernen" when a value or an element is taken away without deleting data (a timebox, a screenshot), "Trennen" for ending an integration connection.
-- **Tone.** Calm, like a well-made notebook (PRODUCT.md personality: natural, helpful, assistive). Quiet confirmation (principle 4): state what happened ("Im Papierkorb"), no exclamation marks, no praise.
+- **Tone.** Calm, like a well-made notebook (PRODUCT.md personality: natural, helpful, assistive). Quiet confirmation (principle 4): state what happened ("Im Papierkorb"), no exclamation marks, no praise. The one exception (owner, #295): the faster-than-planned line on the done confirmation, "Sehr gut! Schneller als geplant.".
 - **Case.** Sentence case for labels, titles and buttons ("Tag abschließen", "Close the day"); proper names and the four column names keep their capital letters. No ALL CAPS.
 - **Buttons are verbs.** The label names what happens: "Speichern", "Löschen", "Trennen", not "OK" or "Ja". A dismiss is "Abbrechen" or "Schließen".
 - **Errors say what happened and what to do next.** "Notion ist gerade nicht erreichbar. Versuche es später erneut." Never a raw technical detail, status code or exception text (PRODUCT.md principle 5: if a user sees one, the design has failed).

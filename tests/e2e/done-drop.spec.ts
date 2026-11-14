@@ -1,6 +1,6 @@
 import { test, expect, type Locator, type Page } from '@playwright/test'
 import { seedLocalBoard, type SeedTask } from './helpers/seed'
-import { pickUp, hover, edgeDwell } from './helpers/dnd'
+import { pickUp, hover, edgeDwell, showColumnPage } from './helpers/dnd'
 
 /**
  * Dropping a card into Erledigt (#124): a light teal wash under the list and a one-line hint
@@ -119,10 +119,10 @@ test.describe('Drop into Erledigt (#124)', () => {
     await hoverBefore(page, card(page, 'done-2'))
     await page.mouse.up()
 
-    // One burst, on the dropped card only: decorative, 24 pieces, takes no pointer events
+    // One burst, on the dropped card only: decorative, 40 pieces, takes no pointer events
     await expect(page.getByTestId('completion-burst')).toHaveCount(1)
     await expect(burstIn(OPEN.id)).toHaveAttribute('aria-hidden', 'true')
-    await expect(burstIn(OPEN.id).locator('i')).toHaveCount(24)
+    await expect(burstIn(OPEN.id).locator('i')).toHaveCount(40)
     await expect(burstIn(OPEN.id)).toHaveCSS('pointer-events', 'none')
     await expect(burstIn(OPEN.id).locator('i').first()).toHaveCSS('pointer-events', 'none')
 
@@ -134,7 +134,7 @@ test.describe('Drop into Erledigt (#124)', () => {
     // Nothing takes focus
     expect(await page.evaluate(() => document.activeElement?.closest('[data-testid="completion-burst"]'))).toBeNull()
 
-    // Over within about 1 s, no text and no toast
+    // Over within about 1.3 s, no text and no toast
     await expect(page.getByTestId('completion-burst')).toHaveCount(0, { timeout: 2000 })
     await expect(toasts(page)).toHaveCount(0)
   })
@@ -149,7 +149,7 @@ test.describe('Drop into Erledigt (#124)', () => {
     await hoverBefore(page, card(page, 'done-2'))
     await page.mouse.up()
 
-    // Erledigt is the right-hand column: its card's pieces fly ~230 px past the screen edge
+    // Erledigt is the right-hand column: its card's pieces fly ~310 px past the screen edge
     await expect(page.getByTestId('completion-burst')).toHaveCount(1)
     // The width is the one from before the drop (only the x axis is clipped; the height settles with the landing card)
     expect((await pageSize())[0]).toBe(before[0])
@@ -186,7 +186,7 @@ test.describe('Drop into Erledigt (#124)', () => {
     await hoverBefore(page, card(page, 'done-2'))
     await page.mouse.up()
     await expect.poll(() => doneOrder(page)).toEqual(['done-1', OPEN.id, 'done-2', 'done-3'])
-    // The 800 ms confirmation of the drop may still be playing: pickUp waits for it to end before it presses (#408)
+    // The confirmation of the drop may still be playing: pickUp waits for it to end before it presses (#408)
 
     // Offen is empty now, so its drop zone takes the card
     await pickUp(page, card(page, OPEN.id))
@@ -243,6 +243,99 @@ test.describe('Drop into Erledigt (#124)', () => {
     await expect(page.locator('.task-confirm')).toHaveCount(0, { timeout: 2000 })
     await expect(page.getByTestId('completion-burst')).toHaveCount(0, { timeout: 2000 })
     await expect(toasts(page)).toHaveCount(0)
+  })
+})
+
+test.describe('Faster than planned (#295)', () => {
+  const RUNNING = task({ id: 'run-1', title: 'Angebot prüfen', status: 1, timeBoxSeconds: 2700, timeSpentSeconds: 1200 })
+  const OVER = task({ id: 'over-1', title: 'Entwurf überarbeiten', status: 0, timeBoxSeconds: 600, timeSpentSeconds: 900 })
+  const IDLE = task({ id: 'idle-1', title: 'Ablage sortieren', status: 0, timeBoxSeconds: 2700, timeSpentSeconds: 0 })
+  const NO_BOX = task({ id: 'nobox-1', title: 'Mail beantworten', status: 0, timeSpentSeconds: 600 })
+
+  test.beforeEach(async ({ context }) => {
+    await seedLocalBoard(context, [RUNNING, OVER, IDLE, NO_BOX, ...DONE])
+  })
+
+  const dropIntoDone = async (page: Page, id: string) => {
+    await pickUp(page, card(page, id))
+    await hoverBefore(page, card(page, 'done-2'))
+    await page.mouse.up()
+  }
+  const layerOf = (page: Page, id: string) => doneList(page).locator(`[data-task-id="${id}"] .task-confirm`)
+
+  test('a card finished below its timebox shows the rocket and the sentence instead of the check, then fades out', async ({ page }) => {
+    await page.goto('/tasks')
+    await expect(card(page, RUNNING.id)).toBeVisible()
+    await dropIntoDone(page, RUNNING.id)
+
+    const layer = layerOf(page, RUNNING.id)
+    await expect(layer).toHaveCount(1)
+    await expect(layer).toHaveAttribute('aria-hidden', 'true')
+    await expect(layer.getByText('Sehr gut! Schneller als geplant.')).toBeVisible()
+    await expect(layer.locator('.task-confirm__rocket')).toBeVisible()
+    await expect(layer.locator('.task-confirm__icon')).toHaveCount(0)
+    // The burst plays with it
+    await expect(page.getByTestId('completion-burst')).toHaveCount(1)
+
+    // It holds longer than the plain check (1.3 s) and is gone by 2.2 s
+    await page.waitForTimeout(1500)
+    await expect(layer).toHaveCount(1)
+    await expect(layer).toHaveCount(0, { timeout: 2000 })
+    await expect(toasts(page)).toHaveCount(0)
+  })
+
+  for (const [label, id] of [['over the timebox', OVER.id], ['never run (0 s spent)', IDLE.id], ['without a timebox', NO_BOX.id]] as const) {
+    test(`a card ${label} shows the plain bold check, never the sentence`, async ({ page }) => {
+      await page.goto('/tasks')
+      await expect(card(page, id)).toBeVisible()
+      await dropIntoDone(page, id)
+
+      const layer = layerOf(page, id)
+      await expect(layer.locator('.task-confirm__icon')).toBeVisible()
+      await expect(layer.locator('.task-confirm__message')).toHaveCount(0)
+      await expect(page.getByText('Sehr gut! Schneller als geplant.')).toHaveCount(0)
+      await expect(layer).toHaveCount(0, { timeout: 2500 })
+    })
+  }
+
+  test('the sentence stays inside the card at 390px with 200 % text', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.addInitScript(() => {
+      document.documentElement.style.fontSize = '200%'
+    })
+    await page.goto('/tasks')
+    await showColumnPage(page, 0)
+    await expect(card(page, RUNNING.id)).toBeVisible()
+    await card(page, RUNNING.id).focus()
+    await page.keyboard.press('ControlOrMeta+k')
+    await page.keyboard.type('erledigt')
+    await page.keyboard.press('Enter')
+    const layer = page.locator('.task-confirm')
+    await expect(layer).toHaveCount(1)
+    await page.evaluate(() => document.getAnimations().forEach(a => a.pause()))
+    const msg = layer.locator('.task-confirm__message')
+    await expect(msg).toBeVisible()
+    const l = await layer.boundingBox()
+    const m = await msg.boundingBox()
+    expect(l && m).toBeTruthy()
+    expect(m!.x).toBeGreaterThanOrEqual(l!.x - 1)
+    expect(m!.y).toBeGreaterThanOrEqual(l!.y - 1)
+    expect(m!.x + m!.width).toBeLessThanOrEqual(l!.x + l!.width + 1)
+    expect(m!.y + m!.height).toBeLessThanOrEqual(l!.y + l!.height + 1)
+  })
+
+  test('reduced motion shows no message and no burst either', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await page.goto('/tasks')
+    await expect(card(page, RUNNING.id)).toBeVisible()
+    await dropIntoDone(page, RUNNING.id)
+    await expect(doneList(page).locator(`[data-task-id="${RUNNING.id}"] .task`)).toHaveClass(/task-done/)
+    for (let i = 0; i < 5; i++) {
+      await expect(page.locator('.task-confirm')).toBeHidden()
+      await expect(page.getByText('Sehr gut! Schneller als geplant.')).toBeHidden()
+      await page.waitForTimeout(100)
+    }
+    await expect(page.getByTestId('completion-burst')).toHaveCount(0)
   })
 })
 

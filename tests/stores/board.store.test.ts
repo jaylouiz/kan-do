@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
-import { useBoardStore, DONE_CONFIRMATION_MS } from '~/store/board'
+import { useBoardStore, DONE_CONFIRMATION_MS, FASTER_CONFIRMATION_MS } from '~/store/board'
 import { TaskStatus } from '~/types/taskStatus'
 
 describe('store/board done confirmation (#124)', () => {
@@ -64,6 +64,35 @@ describe('store/board done confirmation (#124)', () => {
     expect(store.confirmingTaskIds).toEqual(['task-2'])
     vi.advanceTimersByTime(DONE_CONFIRMATION_MS)
     expect(store.confirmingTaskIds).toEqual([])
+  })
+
+  it('a faster-than-planned confirmation lasts longer and is flagged apart (#295)', () => {
+    const store = useBoardStore()
+
+    store.startConfirmation('task-1', true)
+    store.startConfirmation('task-2')
+
+    expect(store.confirmingTaskIds).toEqual(['task-1', 'task-2'])
+    expect(store.fasterThanPlanTaskIds).toEqual(['task-1'])
+    vi.advanceTimersByTime(DONE_CONFIRMATION_MS)
+    expect(store.confirmingTaskIds).toEqual(['task-1'])
+    expect(store.fasterThanPlanTaskIds).toEqual(['task-1'])
+    vi.advanceTimersByTime(FASTER_CONFIRMATION_MS - DONE_CONFIRMATION_MS)
+    expect(store.confirmingTaskIds).toEqual([])
+    expect(store.fasterThanPlanTaskIds).toEqual([])
+  })
+
+  it('a second confirmation decides the message again, and undo clears both flags', () => {
+    const store = useBoardStore()
+
+    store.startConfirmation('task-1', true)
+    store.startConfirmation('task-1')
+    expect(store.fasterThanPlanTaskIds).toEqual([])
+
+    store.startConfirmation('task-1', true)
+    store.clearConfirmation('task-1')
+    expect(store.confirmingTaskIds).toEqual([])
+    expect(store.fasterThanPlanTaskIds).toEqual([])
   })
 
   it('clearConfirmation is a no-op for a task that is not confirming', () => {
