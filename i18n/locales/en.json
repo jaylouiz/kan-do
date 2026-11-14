@@ -824,7 +824,7 @@
     },
     "workingHours": {
       "label": "Working hours per day",
-      "help": "The Capacity line in Offen follows this. “Automatic” uses the work you have tracked so far.",
+      "help": "The Capacity line in Open follows this. “Automatic” uses the work you have tracked so far.",
       "auto": "Automatic"
     },
     "github": {
