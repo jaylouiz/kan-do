@@ -236,6 +236,24 @@ test.describe('Day close dialog (#98)', () => {
     await expect(dialog(page).getByRole('status')).toHaveText('')
   })
 
+  test('Fertig archives every Erledigt task: the column ends empty, the yesterday note and the CTA are gone, nothing is deleted (#292)', async ({ page }) => {
+    await page.goto('/tasks')
+    await expect(page.locator('#column-done-list .task-wrapper')).toHaveCount(1)
+    await expect(page.locator('#column-done .yesterday-note')).toHaveCount(1)
+    await openDayClose(page)
+    await dialog(page).getByTestId('day-close-done-button').click()
+    await expect(dialog(page)).toBeHidden()
+    await expect(page.locator('#column-done-list .task-wrapper')).toHaveCount(0)
+    await expect(page.locator('#column-done .yesterday-note')).toHaveCount(0)
+    await expect(dayCloseCta(page)).toHaveCount(0)
+    await expect.poll(() => page.evaluate(() => {
+      const stored = JSON.parse(localStorage.getItem('tasks-store') ?? '{}') as { archivedTaskIds?: string[]; tasks?: Array<{ id: string; status: number }> }
+      return { archived: [...(stored.archivedTaskIds ?? [])].sort(), doneKept: (stored.tasks ?? []).filter(task => task.status === 3).length, trash: localStorage.getItem('trash-store') }
+    })).toEqual({ archived: ['seed-done-1', 'seed-done-2'], doneKept: 2, trash: null })
+    // Archived, not deleted: a second Fertig has nothing left to do and the focus is never lost to <body>
+    await expect.poll(() => page.evaluate(() => document.activeElement === document.body)).toBe(false)
+  })
+
   test('opening, copying and dismissing with Escape leaves every task, archive and status untouched', async ({ page, context }) => {
     await context.grantPermissions(['clipboard-read', 'clipboard-write'])
     await page.goto('/tasks')

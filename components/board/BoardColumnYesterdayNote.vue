@@ -8,10 +8,10 @@
 @responsibility
 - Show an honest day label (yesterday / weekday / recently) and the count on one line; the label button opens the titles in place (aria-expanded, local view state, never persisted)
 - Opened: at most five titles as quiet rows (time spent on the right, hidden at zero) that open the task sheet, then "+ n weitere"
-- Offer exactly one action ("Gesehen") on the line; the parent archives all tasks of the note
-- Keep today's wins on top: `--task-note-height` collapsed, 42px on desktop (46px at 390px so both controls reach 44px), card width, centred
-- Surface (#605, D2; outline dropped #57): no border, `--done-note-wash` (70 % `success-100` over `success-50`: darker than the in-card confirmation wash so it separates without a frame, short of the `success-100` Erledigt drop wash so it never reads as a drop target), card radius. Tick and "Gesehen" in `success-800`; title row neutral, rows `toned`
-- Its three controls (label toggle, "Gesehen", title rows) are `UButton` ghost neutral (#71): the theme brings focus ring, hover wash and the 44 px phone floor; the note's scoped CSS keeps only its geometry, type and colours. The toggle stays a button inside the `<h3>` (`aria-expanded`)
+- Offer exactly one action ("Gesehen", the notice's action button, same shape as the deleted gap's "Rückgängig") on the line; the parent archives all tasks of the note; day closing archives them too (#292)
+- Keep today's wins on top: the strip is a `BoardColumnNotice` (`tone="done"`, #293), `--task-note-height` collapsed (48px on desktop, 56px at 390px so both controls reach 44px with air around them), card width, centred
+- Surface (#605, D2; outline dropped #57) lives in BoardColumnNotice: no border, `--done-note-wash` (70 % `success-100` over `success-50`: darker than the in-card confirmation wash so it separates without a frame, short of the `success-100` Erledigt drop wash so it never reads as a drop target), card radius. Tick and "Gesehen" in `success-800`; title row neutral, rows `toned`
+- Its controls are `UButton`s: label toggle and title rows ghost neutral (#71), "Gesehen" soft (BoardColumnNotice): the theme brings focus ring, hover wash and the 44 px phone floor; the note's scoped CSS keeps only its geometry, type and colours. The toggle stays a button inside the `<h3>` (`aria-expanded`)
 - Collapse over 180ms when it leaves (instant under prefers-reduced-motion); the caret rotates 180ms
 -->
 <template>
@@ -20,77 +20,74 @@
     :aria-labelledby="headingId"
   >
     <div class="yesterday-note__inner">
-      <div class="yesterday-note__surface">
-        <div class="yesterday-note__line">
-          <h3
-            :id="headingId"
-            class="yesterday-note__heading"
-          >
-            <UButton
-              color="neutral"
-              variant="ghost"
-              class="yesterday-note__toggle"
-              data-testid="yesterday-toggle"
-              :aria-expanded="open"
-              @click="open = !open"
-            >
-              <UIcon
-                name="i-ph-check"
-                class="yesterday-note__tick"
-                aria-hidden="true"
-              />
-              <span class="min-w-0 truncate">
-                {{ headline }}<span class="text-muted"><span aria-hidden="true"> · </span>{{ tasks.length }}</span>
-              </span>
-              <UIcon
-                name="i-ph-caret-down"
-                class="yesterday-note__caret text-muted"
-                :class="{ 'yesterday-note__caret--open': open }"
-                aria-hidden="true"
-              />
-            </UButton>
-          </h3>
+      <BoardColumnNotice
+        class="yesterday-note__surface"
+        tone="done"
+        :action-label="t('board.yesterday.ack')"
+        :action-aria-label="t('board.yesterday.ackLabel', { n: tasks.length }, tasks.length)"
+        action-test-id="yesterday-ack"
+        @action="emit('acknowledge')"
+      >
+        <h3
+          :id="headingId"
+          class="yesterday-note__heading"
+        >
           <UButton
             color="neutral"
-            variant="soft"
-            class="yesterday-note__ack"
-            data-testid="yesterday-ack"
-            :aria-label="t('board.yesterday.ackLabel', { n: tasks.length }, tasks.length)"
-            @click="emit('acknowledge')"
+            variant="ghost"
+            class="yesterday-note__toggle"
+            data-testid="yesterday-toggle"
+            :aria-expanded="open"
+            @click="open = !open"
           >
-            {{ t('board.yesterday.ack') }}
+            <UIcon
+              name="i-ph-check"
+              class="yesterday-note__tick"
+              aria-hidden="true"
+            />
+            <span class="min-w-0 truncate">
+              {{ headline }}<span class="text-muted"><span aria-hidden="true"> · </span>{{ tasks.length }}</span>
+            </span>
+            <UIcon
+              name="i-ph-caret-down"
+              class="yesterday-note__caret text-muted"
+              :class="{ 'yesterday-note__caret--open': open }"
+              aria-hidden="true"
+            />
           </UButton>
-        </div>
+        </h3>
 
-        <ul
-          v-if="open"
-          class="yesterday-note__list"
-        >
-          <li
-            v-for="task in visibleTasks"
-            :key="task.id"
+        <template #below>
+          <ul
+            v-if="open"
+            class="yesterday-note__list"
           >
-            <UButton
-              color="neutral"
-              variant="ghost"
-              class="yesterday-note__title text-toned"
-              @click="openTask(task.id)"
+            <li
+              v-for="task in visibleTasks"
+              :key="task.id"
             >
-              <span class="yesterday-note__name min-w-0 flex-1 truncate" data-private>{{ task.title }}</span>
-              <span
-                v-if="timeSpent(task)"
-                class="yesterday-note__time text-xs text-muted tabular-nums"
-              >{{ timeSpent(task) }}</span>
-            </UButton>
-          </li>
-          <li
-            v-if="hiddenCount > 0"
-            class="yesterday-note__more text-muted"
-          >
-            {{ t('board.yesterday.more', { n: hiddenCount }) }}
-          </li>
-        </ul>
-      </div>
+              <UButton
+                color="neutral"
+                variant="ghost"
+                class="yesterday-note__title text-toned"
+                @click="openTask(task.id)"
+              >
+                <span class="yesterday-note__name min-w-0 flex-1 truncate" data-private>{{ task.title }}</span>
+                <span
+                  v-if="timeSpent(task)"
+                  class="yesterday-note__time text-xs text-muted tabular-nums"
+                >{{ timeSpent(task) }}</span>
+              </UButton>
+            </li>
+            <li
+              v-if="hiddenCount > 0"
+              class="yesterday-note__more text-muted"
+            >
+              {{ t('board.yesterday.more', { n: hiddenCount }) }}
+            </li>
+          </ul>
+        </template>
+      </BoardColumnNotice>
     </div>
   </section>
 </template>
@@ -99,6 +96,7 @@
 import { computed, ref, useId } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Task } from '~/types/task'
+import BoardColumnNotice from '~/components/board/BoardColumnNotice.vue'
 import { useLocaleFormat } from '~/composables/useLocaleFormat'
 import { useToday } from '~/composables/useToday'
 import { doneDayLabel, newestCompletedAt, weekdayName } from '~/utils/doneDayLabel'
@@ -179,25 +177,6 @@ function openTask(taskId: string) {
   text-align: left;
 }
 
-.yesterday-note__surface {
-  padding: 0.25rem 0.5rem 0.25rem 0.75rem;
-  background-color: var(--done-note-wash);
-  /* the height the 1px border used to complete: collapsed = --task-note-height, the gap's height too */
-  min-height: var(--task-note-height);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  border-radius: var(--task-card-radius);
-}
-
-.yesterday-note__line {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  min-height: 2rem;
-}
-
 .yesterday-note__heading {
   min-width: 0;
   margin: 0;
@@ -205,8 +184,8 @@ function openTask(taskId: string) {
   font-weight: inherit;
 }
 
-/* The three controls are UButton ghost neutral (#71): the theme brings the focus ring, hover wash, disabled look and the
-   44 px phone floor. What stays here is the note's own geometry and type, set so the collapsed note keeps its 42 px. */
+/* The label toggle and the title rows are UButton ghost neutral (#71): the theme brings the focus ring, hover wash, disabled look and the
+   44 px phone floor. What stays here is the note's own geometry and type. The surface, the line and the "Gesehen" button are BoardColumnNotice (#293). */
 .yesterday-note__toggle {
   /* the heading's width plus the 0.25rem its negative margin starts outside it */
   max-width: calc(100% + 0.25rem);
@@ -239,30 +218,10 @@ function openTask(taskId: string) {
   transform: rotate(180deg);
 }
 
-.yesterday-note__ack {
-  flex-shrink: 0;
-  min-height: 2rem;
-  padding: 0 0.5rem;
-  font-size: var(--text-sm);
-  font-weight: 500;
-  line-height: inherit;
-  color: var(--ui-color-success-800);
-}
-
-/* 44px hit areas on the phone (D4): the line grows to 44px, the surface drops its vertical padding (46px); the 44 px floor is restated for the controls because their own min-height (2rem) outranks the theme's */
+/* 44px hit areas on the phone (D4): the notice's line and action grow to 44px (BoardColumnNotice); the toggle restates the floor because its own min-height (2rem) outranks the theme's */
 @media (--phone) {
-  .yesterday-note__surface {
-    padding-block: 0;
-  }
-
-  .yesterday-note__line,
-  .yesterday-note__toggle,
-  .yesterday-note__ack {
+  .yesterday-note__toggle {
     min-height: 2.75rem;
-  }
-
-  .yesterday-note__ack {
-    padding-inline: 0.75rem;
   }
 }
 

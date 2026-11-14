@@ -54,7 +54,7 @@ test.describe('Mobile app bar', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await openBoard(page);
     for (const locator of [
-      page.locator('#column-done .yesterday-note button.yesterday-note__ack').first(),
+      page.locator('#column-done .yesterday-note [data-testid="yesterday-ack"]').first(),
       page.locator('[data-testid="column-sorting-control"] button').first(),
     ]) {
       const box = (await locator.boundingBox())!;
@@ -184,25 +184,29 @@ test.describe('Mobile app bar', () => {
     await expect(trigger).toHaveCSS('font-size', '12px');
   });
 
-  test('390px: the Erledigt CTA is full width, above the bar, and the last card is never covered', async ({ page, context }) => {
+  test('390px: the Erledigt CTA ends the list at the cards\' width (#297), above the bar, and the last card is never covered', async ({ page, context }) => {
     await seedLocalBoard(context, [...SEED_TASKS, ...fillerTasks(10, 3)]);
     await page.setViewportSize({ width: 390, height: 844 });
     await openBoard(page);
     await showColumnPage(page, 2);
     const cta = dayCloseCta(page);
-    await expect(cta).toBeVisible();
-    await expect(cta).toBeInViewport({ ratio: 1 }); // sticky: reachable on a long list
+    const done = page.locator('#column-done');
+    // Not sticky: on a long list the CTA is where the list ends, so it starts below the fold and is reached by scrolling
+    await expect(page.locator('.column-footer')).toHaveCSS('position', 'static');
+    await expect(cta).not.toBeInViewport();
+    await done.evaluate(el => { el.scrollTop = el.scrollHeight; });
+    await expect(cta).toBeInViewport({ ratio: 1 });
     const box = (await cta.boundingBox())!;
     const pill = (await bar(page).boundingBox())!;
     expect(box.y + box.height).toBeLessThanOrEqual(pill.y);
-    expect(box.width).toBeGreaterThan(300);
-    // The CTA rests on the bar's gap, not floating above it: the column page's bottom padding already clears the bar,
-    // so a second --phone-bar-offset on the sticky footer would lift it by about 72px
-    expect(pill.y - (box.y + box.height)).toBeLessThanOrEqual(GAP_ABOVE_BAR_MAX);
-    // Scrolled to the end, the last card ends above the sticky CTA's reserved space
-    await page.locator('#column-done').evaluate(el => { el.scrollTop = el.scrollHeight; });
+    // The cards' box: same left edge and width as the last card (#282: it used to stick out ~25 px on each side)
     const last = (await page.locator('#column-done .task').last().boundingBox())!;
-    expect(last.y + last.height).toBeLessThanOrEqual(pill.y);
+    expect(Math.round(box.x)).toBe(Math.round(last.x));
+    expect(Math.round(box.width)).toBe(Math.round(last.width));
+    // It follows the last card instead of floating above the bar, and rests on the bar's gap: the column page's bottom padding
+    // already clears the bar, so a second --phone-bar-offset would lift it by about 72px
+    expect(box.y).toBeGreaterThanOrEqual(last.y + last.height);
+    expect(pill.y - (box.y + box.height)).toBeLessThanOrEqual(GAP_ABOVE_BAR_MAX);
   });
 
   test('390px: a swipe still switches the pages, and focus entering an off-screen page makes it active', async ({ page }) => {

@@ -3,24 +3,24 @@
 @kind component
 @category feedback
 @description The slot of a card that was just deleted (#422, UX decision D "Im Papierkorb"): the card's own box, with
-a trash icon, "Im Papierkorb" and a "Rückgängig" pill centred in it, all in raspberry on a muted raspberry fill without an
+a trash icon, "Im Papierkorb" and a "Rückgängig" button centred in it (a `BoardColumnNotice` with `tone="trash"`, #293: the same strip and button shape as the yesterday note; the content stays centred, unlike the note's label-left action-right line, because the drain line and the fading card picture are centred on the box), all in raspberry on a muted raspberry fill without an
 outline (#581, #57; destructive state, The Status Is Not Decoration Rule), and a draining line along its bottom edge. From #57 the
-gap is compact (`--task-note-height`, the collapsed Yesterday note's height): the cards below glide up by the difference and back on undo.
+gap is compact (`--task-note-height`, the collapsed Yesterday note's height: 48px, 56px at 390px): the cards below glide up by the difference and back on undo.
 @usage Rendered by BoardColumn / BoardColumnProgressContent at the card's slot, from `useTaskDeletion().gaps`; never inside
 SortableTaskWrapper (a gap is no dnd-kit sortable: not draggable, not droppable, no sheet).
 @avoid Only the slot of a just-deleted card with undo; never inside a drag list.
 @responsibility
-- Holds a compact slot (`--task-note-height`: 42px, 46px at 390px) for the undo window, for a card and a stack alike; the box glides from the card's measured height (`--gap-from`) to it in 220 ms; the card itself is already out of `tasks`
+- Holds a compact slot (`--task-note-height`: 48px, 56px at 390px) for the undo window, for a card and a stack alike; the box glides from the card's measured height (`--gap-from`) to it in 220 ms; the card itself is already out of `tasks`
 - D6 transition: a non-interactive picture of the card (TaskCard `readonly`, `inert`) shrinks to 0.92 and fades out towards its
   own centre in 220 ms (ease-out) while the answer layer fades in over the same time; transform and opacity only
-- Red theme (#581, outline dropped #57): the box carries a muted shape (`::before`: card radius, 12% `error` wash over the page, no border) that fades in with the answer layer (220 ms, opacity only; it clips away with the closing glide). Label and trash icon are
-  `error-700`, the undo pill is `color="error" variant="soft"` (the global compound in `app.config.ts` sets `error-700` text, #594),
+- Red theme (#581, outline dropped #57): the box carries a muted shape (BoardColumnNotice's `::before`: card radius, 12% `error` wash over the page, no border) that fades in with the answer layer (220 ms, opacity only; it clips away with the closing glide). Label and trash icon are
+  `error-700`, the undo button is the notice's action, `color="error" variant="soft"` in the default 12 px radius, no pill (the global compound in `app.config.ts` sets `error-700` text, #594),
   the drain line is `error-500` (a graphic, 3:1 needed)
 - Drain line: 2px, full width at the bottom edge (clipped to the radius), 5 s `scaleX` 1 -> 0 from the left, linear; paused with the window while the pointer or focus is inside the gap (two flags, resumed when both are off; resumed on unmount too, `useDeleteHold`)
 - Window end (`state: 'closing'`): the box glides shut in 280 ms (grid row 1fr -> 0fr, the list gap's negative margin
   included) and focus moves to the next card, or the list when it was the last, if it was in or lost with the gap
 - `prefers-reduced-motion`: the picture only crossfades (no scale), the drain line is static, the gap closes without gliding
-- Contrast: "Im Papierkorb" and the pill text are `error-700` on the 12% wash (earlier figures were measured on 6%; re-measure with the rendered Impeccable scan `npm run design:detect`); the `error-500` drain line is a graphic and needs 3:1
+- Contrast: "Im Papierkorb" and the button text are `error-700` on the 12% wash (earlier figures were measured on 6%; re-measure with the rendered Impeccable scan `npm run design:detect`); the `error-500` drain line is a graphic and needs 3:1
 -->
 <template>
   <div
@@ -37,31 +37,30 @@ SortableTaskWrapper (a gap is no dnd-kit sortable: not draggable, not droppable,
     @focusout="onFocusOut(gap.taskId, $event)"
   >
     <div class="task-gap__clip">
-      <div class="task-gap__box">
-        <TaskCard :task="gap.task" preview readonly class="task-gap__picture" aria-hidden="true" inert />
-        <div class="task-gap__answer">
-          <p class="task-gap__label">
-            <UIcon :name="ICONS.delete" class="size-5 shrink-0" aria-hidden="true" />
-            {{ t('trash.inTrash') }}
-          </p>
-          <UButton
-            color="error"
-            variant="soft"
-            class="rounded-full"
-            :disabled="gap.state === 'closing'"
-            :aria-label="t('trash.undoNamed', { title: gap.task.title })"
-            data-testid="gap-undo"
-            @click="undoDelete(gap.taskId)"
-          >
-            {{ t('common.undo') }}
-          </UButton>
-        </div>
-        <span
-          class="task-gap__drain"
-          :class="{ 'task-gap__drain--paused': gap.paused }"
-          aria-hidden="true"
-        />
-      </div>
+      <BoardColumnNotice
+        class="task-gap__box"
+        tone="trash"
+        :action-label="t('common.undo')"
+        :action-aria-label="t('trash.undoNamed', { title: gap.task.title })"
+        action-test-id="gap-undo"
+        :action-disabled="gap.state === 'closing'"
+        @action="undoDelete(gap.taskId)"
+      >
+        <template #backdrop>
+          <TaskCard :task="gap.task" preview readonly class="task-gap__picture" aria-hidden="true" inert />
+        </template>
+        <p class="task-gap__label">
+          <UIcon :name="ICONS.delete" class="size-5 shrink-0" aria-hidden="true" />
+          {{ t('trash.inTrash') }}
+        </p>
+        <template #overlay>
+          <span
+            class="task-gap__drain"
+            :class="{ 'task-gap__drain--paused': gap.paused }"
+            aria-hidden="true"
+          />
+        </template>
+      </BoardColumnNotice>
     </div>
   </div>
 </template>
@@ -71,6 +70,7 @@ import { ICONS } from '~/lib/icons'
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import TaskCard from '~/components/task/TaskCard.vue'
+import BoardColumnNotice from '~/components/board/BoardColumnNotice.vue'
 import { useDeleteHold } from '~/composables/useDeleteHold'
 import { DELETE_UNDO_WINDOW_MS, useTaskDeletion } from '~/composables/useTaskDeletion'
 import type { DeletedGap } from '~/types/deletedGap'
@@ -132,17 +132,15 @@ watch(() => props.gap.state, (state) => {
   overflow: hidden;
 }
 
+/* The box is a BoardColumnNotice (#293): surface, minimum height (compact, #57: the collapsed Yesterday note's height), radius and
+   the undo button come from it. It glides there from the card's measured height while the picture fades, so the column
+   closes up with the picture instead of jumping. min-height, not height: when the label and the button wrap (large text, zoom)
+   the box grows instead of clipping the button. */
 .task-gap__box {
-  position: relative;
-  /* Compact (#57): the height of the collapsed Yesterday note. It glides there from the card's measured height while the
-     picture fades, so the column closes up with the picture instead of jumping. */
-  /* min-height, not height: when the label and the pill wrap (large text, zoom) the box grows instead of clipping the undo pill */
-  min-height: var(--task-note-height);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  --notice-line-justify: center;
+  --notice-line-wrap: wrap;
+  --notice-line-gap: 0.75rem;
   overflow: hidden;
-  border-radius: var(--task-card-radius);
   animation: task-gap-shrink 220ms cubic-bezier(0, 0, 0.2, 1) backwards;
 }
 @keyframes task-gap-shrink {
@@ -150,15 +148,9 @@ watch(() => props.gap.state, (state) => {
   to { height: var(--task-note-height); }
 }
 
-/* Red theme (#581): the muted raspberry shape of the card's box; opacity-only fade-in with the answer layer. It comes first in
-   the box and has no z-index, so the picture and the z-indexed answer paint over it, and the box opens no stacking context of its
-   own (an `isolation` here let the Jetzt column's drop zone cover the undo pill) */
+/* Red theme (#581): the muted raspberry shape is the notice's wash (`::before`, no z-index, no stacking context: an `isolation`
+   there let the Jetzt column's drop zone cover the undo pill); it fades in with the answer layer, opacity only */
 .task-gap__box::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: var(--task-card-radius);
-  background-color: color-mix(in oklab, var(--ui-color-error-500) 12%, var(--ui-bg));
   animation: task-gap-answer-in 220ms cubic-bezier(0, 0, 0.2, 1) both;
 }
 
@@ -179,22 +171,14 @@ watch(() => props.gap.state, (state) => {
   to { opacity: 0; transform: scale(0.92); }
 }
 
-.task-gap__answer {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  padding: 0 0.75rem;
+.task-gap__box :deep(.notice__line) {
   animation: task-gap-answer-in 220ms cubic-bezier(0, 0, 0.2, 1) both;
 }
 @keyframes task-gap-answer-in {
   from { opacity: 0; }
   to { opacity: 1; }
 }
-.task-gap--closing .task-gap__answer {
+.task-gap--closing .task-gap__box :deep(.notice__line) {
   opacity: 0;
   transition: opacity 140ms linear;
 }

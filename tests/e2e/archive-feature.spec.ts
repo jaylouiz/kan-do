@@ -71,11 +71,11 @@ test.describe('Yesterday note', () => {
     const surface = await note(page).locator('.yesterday-note__surface').evaluate((el) => {
       const s = getComputedStyle(el)
       const r = el.getBoundingClientRect()
-      return { border: s.borderTopWidth, bg: s.backgroundColor, height: r.height }
+      return { border: s.borderTopWidth, bg: getComputedStyle(el, '::before').backgroundColor, height: r.height } // the wash is the notice's ::before (#293)
     })
     expect(surface.border).toBe('0px') // no outline (#57)
     expect(surface.bg).not.toBe('rgba(0, 0, 0, 0)')
-    expect(surface.height).toBe(42)
+    expect(surface.height).toBe(48)
   })
 
   test('the label opens up to five titles with time spent, then "+ n weitere"; it closes again', async ({ page, context }) => {
