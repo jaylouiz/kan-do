@@ -24,6 +24,7 @@
     "lint:strict": "eslint . --max-warnings=0",
     "lint:ci": "eslint . --quiet",
     "motion:film": "node scripts/motion-film.mts",
+    "perf:audit": "node scripts/perf-audit.mjs",
     "ratchet:lower": "node scripts/lint/ratchets.mjs --update",
     "design:detect": "impeccable detect --quiet components pages layouts assets app.vue",
     "verify": "npm run lint:ci && npm run typecheck && npm run design:detect && vitest run",
