@@ -10,7 +10,7 @@
 - Follows a live swipe: the pill stretches from one dot to the next with the finger, then settles on the board's own timing
 - Pure indicator: not focusable, not tappable (`pointer-events: none`, `aria-hidden`), so it is no tab bar (#470, ADR 017); the page is
   already exposed by the column headings and `data-mobile-page`, a hidden "page 2 of 3" would say it twice
-- Always visible on a phone, on all three pages, also while the Jetzt focus overlay is lit or a task sheet is open (kd#207); only its paper veil fades out then, so no bright band cuts through the dimmed board
+- Always visible on a phone, on all three pages, also while the Jetzt focus overlay is lit (kd#207; only its paper veil fades out then). While a task sheet is open the dots themselves fade out (#290): the drawer handle is then the only bar at the top, the strip keeps the scrim tone
 - Phone only (display none from 768 px; scoped CSS, since an unlayered `display: flex` beats the layered `md:hidden`); `prefers-reduced-motion` drops the settle transition
 Accepted trade-off: dots 6 px (`--page-dot`), active pill 20 px; colours `--ui-border-accented` and `--ui-text-muted`, no text.
 -->
@@ -51,7 +51,7 @@ const progress = computed(() =>
   /* Under the status bar; the column pages reserve this strip (--page-dots-strip, board.css) */
   /* Fixed to the viewport, not the board: the Jetzt + Wartet page scrolls the document, and fixed keeps the dots put on all
      three pages. A page-coloured veil (`::before`, like the app bar's, app-nav.css) keeps scrolled cards off the dots.
-     The dots stay visible on every page and in every state (kd#207); what steps back under the focus overlay and
+     The dots stay visible on every page and in every state but an open task sheet (kd#207, #290); what steps back under the focus overlay and
      under the task sheet's scrim is the bright veil alone (board-focus-overlay.css fades it out). */
   position: fixed;
   top: 0;
@@ -80,7 +80,7 @@ const progress = computed(() =>
   width: calc(0.375rem + var(--w) * 0.875rem);
   border-radius: 9999px;
   background: color-mix(in oklab, var(--ui-text-muted) calc(var(--w) * 100%), var(--ui-border-accented));
-  transition: width 320ms var(--ease-standard), background-color 320ms;
+  transition: width 320ms var(--ease-standard), background-color 320ms, opacity var(--sheet-fade-duration) var(--sheet-fade-easing);
 }
 .page-dots--live .page-dot {
   transition: none;

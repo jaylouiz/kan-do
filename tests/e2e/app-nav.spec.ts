@@ -787,3 +787,34 @@ test.describe('App bar: ⋯ tooltip after a page change (kd#40)', () => {
     await expect(page.getByRole('tooltip')).toBeVisible()
   })
 })
+
+// #290: the side sheet covers the right of the centred bar; the group centres in the space left of it
+test.describe('App bar with the task sheet open (#290)', () => {
+  test.use({ viewport: { width: 1280, height: 800 } })
+  test('the pill and Mehr stay whole left of the sheet, and come back centred', async ({ context, page }) => {
+    await seedLocalBoard(context, SEED_TASKS)
+    await page.goto('/tasks/seed-open-1')
+    const sheet = page.getByRole('dialog')
+    await expect(sheet).toBeVisible()
+    await expect.poll(async () => {
+      const [more, box] = await Promise.all([moreButton(page).boundingBox(), sheet.boundingBox()])
+      return more && box ? more.x + more.width <= box.x : false
+    }).toBe(true)
+    await expect(statistik(page)).toBeVisible()
+    const group = appNav(page).locator('.app-nav-group')
+    // wait until the shift has settled (the sheet slides in and the padding transitions), then capture
+    let last = -1
+    await expect.poll(async () => {
+      const x = (await group.boundingBox())!.x
+      const settled = x === last
+      last = x
+      return settled
+    }).toBe(true)
+    const open = await group.boundingBox()
+    // the group sits well left of its resting centred position while the sheet is open
+    expect(open!.x + open!.width).toBeLessThanOrEqual((await sheet.boundingBox())!.x)
+    await page.keyboard.press('Escape')
+    await expect(sheet).toBeHidden()
+    await expect.poll(async () => (await group.boundingBox())!.x).toBeGreaterThan(open!.x + 100)
+  })
+})
