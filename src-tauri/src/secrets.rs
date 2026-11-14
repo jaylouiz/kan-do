@@ -254,6 +254,8 @@ struct Inner {
     rejected: HashMap<SecretEntry, bool>,
     /// Bumped by every `set` and `delete`: identifies which stored token a request was made with.
     epoch: HashMap<SecretEntry, u64>,
+    /// `gh` was asked this session and gave nothing: not asked again, even when the Keychain read then fails.
+    gh_missed: bool,
 }
 
 /// Managed state: the backend plus the in-memory status cache and `rejected` flags.
@@ -315,7 +317,13 @@ impl Secrets {
         }
         // Not under the lock: `gh` and the Keychain can take seconds.
         let from_gh = match (&self.gh_cli, entry) {
-            (Some(gh), SecretEntry::GithubFeedback) => gh.token(),
+            (Some(gh), SecretEntry::GithubFeedback) if !self.lock().gh_missed => {
+                let token = gh.token();
+                if token.is_none() {
+                    self.lock().gh_missed = true;
+                }
+                token
+            }
             _ => None,
         };
         let resolved = match from_gh {
@@ -451,7 +459,7 @@ pub async fn secret_delete(secrets: State<'_, Secrets>, entry: String) -> Result
 /// pass only what they need, which limits Keychain prompts.
 #[tauri::command]
 pub async fn secret_status(
-    secrets: State<'_, Secrets>,
+    app: AppHandle,
     entries: Option<Vec<String>>,
 ) -> Result<HashMap<String, EntryStatus>, SecretError> {
     let wanted = match entries {
@@ -461,10 +469,16 @@ pub async fn secret_status(
             .collect::<Result<Vec<_>, _>>()?,
         None => SecretEntry::ALL.to_vec(),
     };
-    Ok(wanted
-        .into_iter()
-        .map(|entry| (entry.account().to_string(), secrets.status(entry)))
-        .collect())
+    // `gh` and the Keychain can block for seconds: off the async runtime workers.
+    tauri::async_runtime::spawn_blocking(move || {
+        let secrets = app.state::<Secrets>();
+        wanted
+            .into_iter()
+            .map(|entry| (entry.account().to_string(), secrets.status(entry)))
+            .collect()
+    })
+    .await
+    .map_err(|_| SecretError::Keychain)
 }
 
 /// Read-back for Notion and Todoist only. `None` means the entry is missing; a Keychain failure
@@ -824,6 +838,19 @@ mod tests {
         );
         assert_eq!(backend.reads.load(SeqCst), 0, "no Keychain read, so no prompt");
         assert_eq!(backend.writes.load(SeqCst), 0, "the gh path never writes or deletes an entry");
+    }
+
+    #[test]
+    fn a_gh_miss_is_not_asked_again_after_a_failed_keychain_read() {
+        let (secrets, backend, dir) = with_gh("''", true);
+        *backend.fail.lock().unwrap() = true;
+        assert_eq!(secrets.get(SecretEntry::GithubFeedback), Err(SecretError::Keychain));
+        // `gh` would answer now; it must not be asked again this session.
+        let bin = dir.path().join("gh");
+        std::fs::write(&bin, "#!/bin/sh\necho gho_late5678\n").unwrap();
+        *backend.fail.lock().unwrap() = false;
+        backend.values.lock().unwrap().insert(SecretEntry::GithubFeedback, TOKEN.to_string());
+        assert_eq!(secrets.get(SecretEntry::GithubFeedback), Ok(Some(TOKEN.to_string())));
     }
 
     #[test]

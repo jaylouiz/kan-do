@@ -51,6 +51,15 @@
         </UButton>
       </div>
       <UAlert
+        v-if="row.rejected && entry === 'github-feedback'"
+        color="error"
+        variant="subtle"
+        icon="i-ph-warning-circle"
+        role="status"
+        :description="t('settings.github.rejectedLine')"
+        data-testid="github-feedback-rejected"
+      />
+      <UAlert
         v-if="problemText"
         :color="isOfflineProblem ? 'neutral' : 'error'"
         variant="subtle"
@@ -177,6 +186,8 @@ const removeButton = ref<{ $el?: HTMLElement } | null>(null);
 type RowState = 'empty' | 'saved' | 'rejected';
 const state = computed<RowState>(() => {
   if (!row.value.present || row.value.removed) return 'empty';
+  // The feedback token is never re-entered: a rejected one stays a saved row (Testen, Entfernen), never the paste form (#280).
+  if (props.entry === 'github-feedback') return 'saved';
   return row.value.rejected ? 'rejected' : 'saved';
 });
 
@@ -223,8 +234,15 @@ async function focusRemove() {
   removeButton.value?.$el?.focus();
 }
 
+// The feedback row hides itself on remove: focus moves to the paste field (or first button) of the updates row, never to <body>.
+async function focusUpdatesRow() {
+  await nextTick();
+  const section = document.getElementById('github-updates-heading')?.closest('section');
+  (section?.querySelector<HTMLElement>('input') ?? section?.querySelector<HTMLElement>('button:not([disabled]), a[href]'))?.focus();
+}
+
 function onRemove() {
   tokens.remove(props.entry, () => { void focusRemove(); });
-  void focusField();
+  void (props.entry === 'github-feedback' ? focusUpdatesRow() : focusField());
 }
 </script>

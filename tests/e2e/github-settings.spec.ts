@@ -65,6 +65,16 @@ test.describe('GitHub settings (desktop)', () => {
     ])
   })
 
+  test('a rejected feedback token stays a saved row with Löschen, never the paste form (#280)', async ({ context, page }) => {
+    await installTauriStub(context, { entries: { 'github-feedback': TOKEN }, githubMode: 'unauthorized' })
+    await page.goto('/settings/github')
+    const saved = feedback(page).getByTestId('github-token-saved')
+    await expect(saved.getByTestId('github-feedback-rejected')).toContainText('abgelehnt')
+    await expect(saved.getByRole('button', { name: 'Löschen' })).toBeVisible()
+    await expect(field(feedback(page))).toHaveCount(0)
+    await expect(feedback(page).getByRole('link', { name: /Token auf GitHub erstellen/ })).toHaveCount(0)
+  })
+
   test('a feedback token stored earlier still shows, with Testen and Löschen, and no paste field (#280)', async ({ context, page }) => {
     await installTauriStub(context, { entries: { 'github-feedback': TOKEN } })
     await page.goto('/settings/github')
@@ -229,6 +239,8 @@ test.describe('GitHub settings (desktop)', () => {
 
     // The row is hidden (it has no paste field to land in); nothing is lost until the toast closes.
     await expect(feedback(page)).toBeHidden()
+    // Focus goes to the updates row, not to <body>.
+    await expect(updates(page).getByRole('textbox')).toBeFocused()
     // Still in the Keychain while the undo toast is open.
     expect((await stubState(page)).entries['github-feedback']).toBe(TOKEN)
 

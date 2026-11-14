@@ -9,7 +9,7 @@ use std::time::Duration;
 
 use serde::Serialize;
 use serde_json::Value;
-use tauri::State;
+use tauri::{Manager, State};
 use tauri_plugin_http::reqwest;
 
 use crate::secrets::{SecretEntry, SecretError, Secrets};
@@ -275,6 +275,7 @@ pub async fn get_public(base: &str, path: &str) -> Result<GithubResponse, Secret
 
 #[tauri::command]
 pub async fn github_request(
+    app: tauri::AppHandle,
     secrets: State<'_, Secrets>,
     entry: String,
     method: String,
@@ -283,6 +284,14 @@ pub async fn github_request(
     token: Option<String>,
 ) -> Result<GithubResponse, SecretError> {
     let entry = SecretEntry::parse(&entry)?;
+    if token.is_none() {
+        // First read of an entry may run `gh` or hit the Keychain (seconds): warm the cache off the runtime workers.
+        // A failure is not cached; `execute_with` reads again and reports it.
+        let _ = tauri::async_runtime::spawn_blocking(move || {
+            let _ = app.state::<Secrets>().get(entry);
+        })
+        .await;
+    }
     execute_with(&secrets, API_BASE, entry, &method, &path, body, token.as_deref()).await
 }
 
