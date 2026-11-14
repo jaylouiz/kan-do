@@ -251,3 +251,19 @@ test.describe('Phone board: the page it opens on (kd#191)', () => {
     expect(await activeColumnPage(page)).toBe(0);
   });
 });
+
+test.describe('Page dots under an open task sheet (#290)', () => {
+  test.use({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
+  test('the dots step out while the sheet is open, so the drawer handle is the only bar', async ({ context, page }) => {
+    await seedLocalBoard(context, SEED_TASKS);
+    await page.goto('/tasks');
+    const dot = page.getByTestId('page-dots').locator('.page-dot').first();
+    await expect(dot).toHaveCSS('opacity', '1');
+    await page.goto('/tasks/seed-open-1');
+    await expect(page.locator('.board-container[data-sheet-task-id]')).toBeAttached();
+    await expect.poll(() => dot.evaluate(el => getComputedStyle(el).opacity)).toBe('0');
+    await page.keyboard.press('Escape');
+    await expect(page.locator('.board-container[data-sheet-task-id]')).toHaveCount(0);
+    await expect.poll(() => dot.evaluate(el => getComputedStyle(el).opacity)).toBe('1');
+  });
+});
