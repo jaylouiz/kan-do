@@ -105,6 +105,55 @@ test.describe('Capacity divider in Offen (#132)', () => {
     await expect(page.getByTestId('capacity-info-text')).toHaveCount(0)
   })
 
+  test('a working day set in Einstellungen replaces the learned one, survives a reload and ends with Automatisch (#306)', async ({ context, page }) => {
+    await seedWorkHistory(context, 5, 5) // learned: 5 h, so 4 cards of 1 h fit
+    await seedLocalBoard(context, [open('a', 1), open('b', 1), open('c', 1), open('d', 1)], {}, undefined, { once: true })
+    await gotoBoard(page, 'a')
+    await expect(divider(page)).toHaveCount(0)
+
+    await page.goto('/settings')
+    const select = page.getByTestId('working-hours-select')
+    await expect(select).toContainText('Automatisch')
+    await select.click()
+    await page.getByRole('option', { name: '3 h', exact: true }).click()
+    await expect(select).toContainText('3 h')
+    await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('settings-store') ?? '{}').workingHoursMinutes)).toBe(180)
+
+    await page.goto('/tasks')
+    await expect(card(page, 'a')).toBeVisible()
+    await expect.poll(() => layout(page)).toBe('a b c | d')
+    await page.getByTestId('capacity-info').click()
+    await expect(page.getByTestId('capacity-info-text')).toContainText('Arbeitszeit')
+    await page.keyboard.press('Escape')
+
+    await page.reload() // A -> B -> reload: still B
+    await expect.poll(() => layout(page)).toBe('a b c | d')
+
+    await page.goto('/settings')
+    await select.click()
+    await page.getByRole('option', { name: 'Automatisch' }).click()
+    await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('settings-store') ?? '{}').workingHoursMinutes)).toBeNull()
+    await page.goto('/tasks')
+    await expect(card(page, 'a')).toBeVisible()
+    await expect(divider(page)).toHaveCount(0)
+  })
+
+  test('a set working day is not held to the 2-10 h clamp of the learned one (12 h)', async ({ context, page }) => {
+    await seedLocalBoard(context, [open('a', 8), open('b', 3), open('c', 2), open('d', 1)])
+    await context.addInitScript(() => localStorage.setItem('settings-store', JSON.stringify({ focusEnabled: false, workingHoursMinutes: 720 })))
+    await gotoBoard(page, 'a')
+    await expect.poll(() => layout(page)).toBe('a b c | d') // 8 + 3 + 2 = 13 h reaches 12 h at c; the learned clamp (10 h) would end the day after b
+  })
+
+  test('a malformed stored working day reads as Automatisch (6 h day) and shows as such in Einstellungen', async ({ context, page }) => {
+    await seedLocalBoard(context, [open('a', 3), open('b', 3), open('c', 1)])
+    await context.addInitScript(() => localStorage.setItem('settings-store', JSON.stringify({ focusEnabled: false, workingHoursMinutes: 100 })))
+    await gotoBoard(page, 'a')
+    await expect.poll(() => layout(page)).toBe('a b | c')
+    await page.goto('/settings')
+    await expect(page.getByTestId('working-hours-select')).toContainText('Automatisch')
+  })
+
   test('moves when a card is dragged above it (A -> B -> A) and is no drag target itself', async ({ context, page }) => {
     await seedLocalBoard(context, [open('a', 4), open('b', 1), open('c', 1), open('d', 1)])
     await gotoBoard(page, 'a')

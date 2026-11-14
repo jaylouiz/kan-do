@@ -31,14 +31,14 @@ describe('settings store', () => {
   it('persists the setter and survives a reload (A -> B -> A)', async () => {
     freshPinia()
     useSettingsStore().setFocusEnabled(false)
-    await vi.waitFor(() => expect(JSON.parse(localStorage.getItem('settings-store') ?? '{}')).toEqual({ focusEnabled: false }))
+    await vi.waitFor(() => expect(JSON.parse(localStorage.getItem('settings-store') ?? '{}')).toEqual({ focusEnabled: false, workingHoursMinutes: null }))
 
     freshPinia()
     const reloaded = useSettingsStore()
     expect(reloaded.focusEnabled).toBe(false)
 
     reloaded.setFocusEnabled(true)
-    await vi.waitFor(() => expect(JSON.parse(localStorage.getItem('settings-store') ?? '{}')).toEqual({ focusEnabled: true }))
+    await vi.waitFor(() => expect(JSON.parse(localStorage.getItem('settings-store') ?? '{}')).toEqual({ focusEnabled: true, workingHoursMinutes: null }))
     freshPinia()
     expect(useSettingsStore().focusEnabled).toBe(true)
   })

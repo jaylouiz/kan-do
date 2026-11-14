@@ -819,5 +819,15 @@
     "avoidEn": [],
     "status": "proposed",
     "note": "Label of the divider. Not \"Limit\" (the WIP limit of Jetzt is a rule, this one only informs) and not \"Warnung\" (principle: calm, no alarm). Chosen in the design round of #132 (the user's own wording from decision D1)."
+  },
+  {
+    "id": "working-hours",
+    "concept": "The length of the user's working day that the capacity divider assumes, set in Einstellungen (#306)",
+    "de": "Arbeitszeit",
+    "en": "Working hours",
+    "avoidDe": [],
+    "avoidEn": [],
+    "status": "proposed",
+    "note": "Label \"Arbeitszeit pro Tag\" / \"Working hours per day\"; the automatic choice is \"Automatisch\" / \"Automatic\" (learned from tracked work). Not \"Kapazität\" (that is the divider's own label) and not \"Tageslänge\"."
   }
 ]

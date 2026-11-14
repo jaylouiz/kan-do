@@ -23,6 +23,24 @@ test.describe('Einstellungen tabs (#691)', () => {
     await expect(page.getByTestId('settings-subpages')).toHaveCount(0)
   })
 
+  test('the Board tab holds the Arbeitszeit select under Fokus: Automatisch by default, 1 h to 12 h in half-hour steps (#306)', async ({ page }) => {
+    await page.goto('/tasks')
+    await openSettings(page)
+    const select = page.getByTestId('working-hours-select')
+    await expect(select).toContainText('Automatisch')
+    await expect(page.getByRole('combobox', { name: 'Arbeitszeit pro Tag' })).toBeVisible()
+    await select.click()
+    const options = page.getByRole('option')
+    await expect(options).toHaveCount(24)
+    await expect(options.nth(0)).toHaveText('Automatisch')
+    await expect(options.nth(1)).toHaveText('1 h')
+    await expect(options.nth(2)).toHaveText('1,5 h')
+    await expect(options.nth(23)).toHaveText('12 h')
+    await page.keyboard.press('Escape')
+    const fokus = (await page.getByTestId('focus-switch').boundingBox())!
+    expect((await select.boundingBox())!.y).toBeGreaterThan(fokus.y)
+  })
+
   test('each group shows its own content; the tab is in the URL, an unknown tab falls back to Board', async ({ page }) => {
     await page.goto('/tasks')
     await openSettings(page, 'sources')

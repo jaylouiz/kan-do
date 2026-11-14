@@ -2,7 +2,7 @@
 @component BoardCapacityDivider
 @kind component
 @category display
-@description The "Kapazität" divider in the Offen list (#132): a wavy red line with the label in its middle at the point where the day's time is used up, a muted helper text under it and an info button that opens a popover saying the estimate learns with use
+@description The "Kapazität" divider in the Offen list (#132): a wavy red line with the label in its middle at the point where the day's time is used up, a muted helper text under it and an info button that opens a popover saying the estimate learns with use (or, with a working day set in Einstellungen, that it is based on it, #306)
 @usage Rendered by BoardColumnItem for the `capacity` list item, which BoardColumn inserts behind the card that fills the day (`useDayCapacity`, `withCapacityItem`). Only in the Offen column of the live board.
 @avoid Not an alert and not a limit: it only informs, nothing is blocked (the WIP limit of Jetzt is the rule). Not for another column or a static board; for a note that acknowledges something use BoardColumnYesterdayNote.
 @responsibility
@@ -100,7 +100,7 @@
             class="capacity-divider__pop"
             data-testid="capacity-info-text"
           >
-            {{ t('board.capacity.info') }}
+            {{ t(isSet ? 'board.capacity.infoSet' : 'board.capacity.info') }}
           </p>
         </template>
       </UPopover>
@@ -109,12 +109,15 @@
 </template>
 
 <script setup lang="ts">
-import { useId } from 'vue'
+import { computed, useId } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useSettingsStore } from '~/store/settings'
 
 defineOptions({ name: 'BoardCapacityDivider' })
 
 const { t } = useI18n()
+// The day length the user set in Einstellungen (#306) instead of the learned one: the info text says which
+const isSet = computed(() => useSettingsStore().workingHoursMinutes !== null)
 const patternId = `capacity-wave-${useId()}`
 </script>
 

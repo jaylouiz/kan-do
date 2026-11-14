@@ -86,7 +86,8 @@
       "label": "Capacity",
       "help": "This is probably as much as you will manage today. Keep the most important tasks above this line; anything below can wait.",
       "infoLabel": "How is this estimated?",
-      "info": "Kan-Do learns and adapts: the more you use the board, the more helpful this estimate gets."
+      "info": "Kan-Do learns and adapts: the more you use the board, the more helpful this estimate gets.",
+      "infoSet": "This estimate is based on the working hours you set in Settings. Work tracked today is subtracted."
     },
     "sync": {
       "stackCards": "Stack cards",
@@ -820,6 +821,11 @@
       "heading": "Focus",
       "label": "Now card in focus",
       "help": "While a task sits in “Now”, the rest of the board steps back. A mouse move or a tap brings it back."
+    },
+    "workingHours": {
+      "label": "Working hours per day",
+      "help": "The Capacity line in Offen follows this. “Automatic” uses the work you have tracked so far.",
+      "auto": "Automatic"
     },
     "github": {
       "pageTitle": "GitHub access",
