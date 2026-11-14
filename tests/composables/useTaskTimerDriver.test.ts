@@ -4,6 +4,7 @@ import { setActivePinia, createPinia } from 'pinia'
 import { useTaskTimerDriver, stopTaskTimer } from '~/composables/useTaskTimerDriver'
 import { useTasksStore } from '~/store/tasks'
 import { armedTaskTimerIds, disarmAllTaskTimers } from '~/lib/taskTimers'
+import { clearAllLiveSeconds, liveTimeSpent, LIVE_CHECKPOINT_SECONDS } from '~/lib/liveTime'
 import { TaskStatus } from '~/types/taskStatus'
 import type { Task } from '~/types/task'
 
@@ -18,7 +19,9 @@ describe('useTaskTimerDriver (#352)', () => {
   let tasksStore: ReturnType<typeof useTasksStore>
   let driver: ReturnType<typeof useTaskTimerDriver>
 
-  const spent = (id: string) => tasksStore.task(id)!.timeSpentSeconds
+  /** What the user sees: stored time plus the seconds not yet checkpointed (#286) */
+  const spent = (id: string) => liveTimeSpent(tasksStore.task(id)!)
+  const stored = (id: string) => tasksStore.task(id)!.timeSpentSeconds
 
   beforeEach(() => {
     setActivePinia(createPinia())
@@ -30,6 +33,7 @@ describe('useTaskTimerDriver (#352)', () => {
   afterEach(() => {
     driver.stop()
     disarmAllTaskTimers()
+    clearAllLiveSeconds()
     vi.useRealTimers()
     vi.restoreAllMocks()
   })
@@ -150,7 +154,7 @@ describe('useTaskTimerDriver (#352)', () => {
     tasksStore.setTasks([makeTask('a', { status: TaskStatus.Progress })])
     driver.start()
     const error = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const update = vi.spyOn(tasksStore, 'updateTaskTimespent')
+    const update = vi.spyOn(tasksStore, 'addTrackedSeconds')
     // Through the raw array, so the Jetzt watcher never sees it: only the tick guard can notice
     toRaw(tasksStore.tasks).splice(0, 1)
     vi.advanceTimersByTime(1000)
@@ -164,7 +168,7 @@ describe('useTaskTimerDriver (#352)', () => {
   it('a tick whose task left Jetzt unseen by the watcher disarms, clears timerId and writes no time', () => {
     tasksStore.setTasks([makeTask('a', { status: TaskStatus.Progress })])
     driver.start()
-    const update = vi.spyOn(tasksStore, 'updateTaskTimespent')
+    const update = vi.spyOn(tasksStore, 'addTrackedSeconds')
     toRaw(tasksStore.task('a')!).status = TaskStatus.Waiting
     vi.advanceTimersByTime(1000)
 
@@ -199,6 +203,8 @@ describe('useTaskTimerDriver (#352)', () => {
     ])
     driver.start()
     vi.advanceTimersByTime(2000)
+    expect(tasksStore.pendingTimeUpdates['n']).toBeUndefined() // not checkpointed yet (#286)
+    stopTaskTimer('n')
     expect(tasksStore.pendingTimeUpdates['n']?.timeSpentSeconds).toBe(2)
     driver.stop()
 
@@ -209,5 +215,120 @@ describe('useTaskTimerDriver (#352)', () => {
     driver.start()
     vi.advanceTimersByTime(2000)
     expect(Object.keys(tasksStore.pendingTimeUpdates)).toEqual([])
+  })
+
+  describe('checkpointed time (#286)', () => {
+    it('writes the store once per checkpoint, not once per tick', () => {
+      tasksStore.setTasks([makeTask('a', { status: TaskStatus.Progress, timeSpentSeconds: 100 })])
+      driver.start()
+      const write = vi.spyOn(tasksStore, 'addTrackedSeconds')
+
+      vi.advanceTimersByTime(30 * 1000)
+
+      expect(write).toHaveBeenCalledTimes(3)
+      expect(stored('a')).toBe(130)
+      expect(spent('a')).toBe(130)
+    })
+
+    it('the shown time advances every second between checkpoints while the stored time stays', () => {
+      tasksStore.setTasks([makeTask('a', { status: TaskStatus.Progress, timeSpentSeconds: 100 })])
+      driver.start()
+
+      vi.advanceTimersByTime(4000)
+      expect(spent('a')).toBe(104)
+      expect(stored('a')).toBe(100)
+
+      vi.advanceTimersByTime((LIVE_CHECKPOINT_SECONDS - 4) * 1000)
+      expect(stored('a')).toBe(100 + LIVE_CHECKPOINT_SECONDS)
+    })
+
+    it('a task leaving Jetzt keeps every second, also the ones of the open checkpoint', () => {
+      tasksStore.setTasks([makeTask('a', { status: TaskStatus.Progress })])
+      driver.start()
+      vi.advanceTimersByTime(14 * 1000)
+      tasksStore.updateTask('a', { status: TaskStatus.Done })
+
+      expect(stored('a')).toBe(14)
+      expect(spent('a')).toBe(14)
+      vi.advanceTimersByTime(30 * 1000)
+      expect(spent('a')).toBe(14)
+    })
+
+    it('an explicit stop writes the open seconds before the timer goes', () => {
+      tasksStore.setTasks([makeTask('a', { status: TaskStatus.Progress })])
+      driver.start()
+      vi.advanceTimersByTime(3000)
+
+      stopTaskTimer('a')
+
+      expect(stored('a')).toBe(3)
+      expect(tasksStore.task('a')!.timerId).toBeNull()
+    })
+
+    it('driver stop writes the open seconds', () => {
+      tasksStore.setTasks([makeTask('a', { status: TaskStatus.Progress })])
+      driver.start()
+      vi.advanceTimersByTime(3000)
+      driver.stop()
+      expect(stored('a')).toBe(3)
+    })
+
+    it('pagehide writes the open seconds and the timer keeps counting', () => {
+      tasksStore.setTasks([makeTask('a', { status: TaskStatus.Progress })])
+      driver.start()
+      vi.advanceTimersByTime(4000)
+
+      window.dispatchEvent(new Event('pagehide'))
+      expect(stored('a')).toBe(4)
+
+      vi.advanceTimersByTime(2000)
+      expect(spent('a')).toBe(6)
+    })
+
+    it('the page turning hidden writes the open seconds, turning visible writes nothing', () => {
+      tasksStore.setTasks([makeTask('a', { status: TaskStatus.Progress })])
+      driver.start()
+      vi.advanceTimersByTime(4000)
+      const state = vi.spyOn(document, 'visibilityState', 'get')
+
+      state.mockReturnValue('visible')
+      document.dispatchEvent(new Event('visibilitychange'))
+      expect(stored('a')).toBe(0)
+
+      state.mockReturnValue('hidden')
+      document.dispatchEvent(new Event('visibilitychange'))
+      expect(stored('a')).toBe(4)
+    })
+
+    it('stops listening to the page when the last timer is gone', () => {
+      tasksStore.setTasks([makeTask('a', { status: TaskStatus.Progress })])
+      const remove = vi.spyOn(window, 'removeEventListener')
+      driver.start()
+      driver.stop()
+      expect(remove).toHaveBeenCalledWith('pagehide', expect.any(Function))
+    })
+
+    it('a Notion task that leaves Jetzt keeps its queued time with the open seconds', () => {
+      tasksStore.setTasks([makeTask('n', { status: TaskStatus.Progress, source: 'notion', externalId: 'page-n', timeSpentSeconds: 60 })])
+      driver.start()
+      vi.advanceTimersByTime(13 * 1000) // one checkpoint (10) and 3 open seconds
+
+      tasksStore.updateTask('n', { status: TaskStatus.Waiting })
+
+      expect(stored('n')).toBe(73)
+      expect(tasksStore.pendingTimeUpdates['n']?.timeSpentSeconds).toBe(73)
+    })
+
+    it('a task removed with open seconds drops them: no write, no leftover', () => {
+      tasksStore.setTasks([makeTask('a', { status: TaskStatus.Progress })])
+      driver.start()
+      vi.advanceTimersByTime(3000)
+      const snapshot = { ...tasksStore.task('a')!, timerId: null }
+      tasksStore.removeTask('a')
+      tasksStore.addTask(snapshot)
+      vi.advanceTimersByTime(2000)
+
+      expect(spent('a')).toBe(2) // the removed task's open seconds are gone with it
+    })
   })
 })

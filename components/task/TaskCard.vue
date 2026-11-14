@@ -109,7 +109,7 @@
           v-if="!isJetztDraft"
           :task-id="task.id"
           :time-box-seconds="task.timeBoxSeconds"
-          :time-spent-seconds="task.timeSpentSeconds"
+          :time-spent-seconds="liveSpentSeconds"
           :is-now="isCurrent"
         />
         <!-- Under the Jetzt bar (#388) the group is covered: inert keeps it out of the tab order and the click path, so
@@ -176,6 +176,7 @@ import { HIGH, normalizePriority } from "~/lib/priority";
 import TaskCompletionBurst from "~/components/task/TaskCompletionBurst.vue";
 import TopicMark from "~/components/topic/TopicMark.vue";
 import { integrationLabel, isIntegrationSourceId } from "~/lib/taskSources";
+import { liveTimeSpent } from "~/lib/liveTime";
 
 defineOptions({ name: "TaskCard" });
 
@@ -300,8 +301,10 @@ const savePendingLabel = computed(() =>
   t('task.savePending', { source: isIntegrationSourceId(props.task.source) ? integrationLabel(props.task.source) : '' }),
 );
 const { formatDurationParts } = useLocaleFormat();
+// Stored time plus the seconds a running timer has not written yet (#286)
+const liveSpentSeconds = computed(() => liveTimeSpent(props.task));
 const elapsedLabel = computed(() => {
-  const { value, unit } = formatDurationParts(props.task.timeSpentSeconds, "clockShort");
+  const { value, unit } = formatDurationParts(liveSpentSeconds.value, "clockShort");
   return `${value} ${unit}`;
 });
 

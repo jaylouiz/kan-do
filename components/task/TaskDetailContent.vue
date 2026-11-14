@@ -202,12 +202,12 @@
           <InlineEditable
             :model-value="timeSpentInMinutes"
             :label="t('task.field.timeSpent')"
-            :value-text="(task.timeSpentSeconds ?? 0) > 0 ? timeSpentText : undefined"
+            :value-text="liveTimeSpent(task) > 0 ? timeSpentText : undefined"
             :placeholder="t('task.property.setValue')"
             affordance="rule"
           >
             <template #display>
-              <span v-if="(task.timeSpentSeconds ?? 0) > 0" class="tabular-nums" data-testid="time-spent-value">{{ timeSpentText }}</span>
+              <span v-if="liveTimeSpent(task) > 0" class="tabular-nums" data-testid="time-spent-value">{{ timeSpentText }}</span>
               <span v-else class="text-muted not-italic">{{ t('task.property.setValue') }}</span>
             </template>
             <template #edit="{ finishEdit, commitEdit, cancelEdit }">
@@ -329,6 +329,7 @@ import TaskCarryOverDots from '~/components/task/TaskCarryOverDots.vue';
 import { useTaskCarryOver } from '~/composables/useCarryOver';
 import { deleteLabelKey, sourceTaskUrl } from '~/lib/taskSources';
 import { normalizePriority } from '~/lib/priority';
+import { liveTimeSpent } from '~/lib/liveTime';
 import type { Task, TaskCustomValue } from '~/types/task';
 import type { NameKind } from '~/lib/topicNames';
 
@@ -604,7 +605,7 @@ function saveTimeboxEdit() {
 // open, so the field is synced from the task only while it is closed, and an unchanged field writes nothing
 // (a total of "30 min 5 s" must not become "30 min" by opening and leaving the field).
 const timeSpentInMinutes = computed(() => {
-  const seconds = task.value?.timeSpentSeconds ?? 0;
+  const seconds = task.value ? liveTimeSpent(task.value) : 0;
   return seconds > 0 ? Math.max(1, Math.round(seconds / 60)) : 0;
 });
 /** Upper bound of the field (about 166 h): a typo must not put an absurd total into the statistics */
@@ -651,7 +652,7 @@ function saveTimeSpentEdit() {
 const remainingTimeClass = computed(() => {
   const box = task.value?.timeBoxSeconds;
   if (!box) return 'text-muted';
-  const percentageLeft = ((box - (task.value?.timeSpentSeconds ?? 0)) / box) * 100;
+  const percentageLeft = ((box - (task.value ? liveTimeSpent(task.value) : 0)) / box) * 100;
   if (percentageLeft <= 0) return 'text-warning-700 font-semibold';
   if (percentageLeft <= 20) return 'text-warning-700 font-medium';
   return 'text-muted';

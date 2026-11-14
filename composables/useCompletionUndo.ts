@@ -10,6 +10,7 @@
  * Undo is an inverse transition through `useTaskSync().updateTaskStatus`.
  * @responsibility Toast + restore; never decides whether a move is allowed.
  */
+import { liveTimeSpent } from '~/lib/liveTime'
 import { useToast } from '#imports'
 import { useI18n } from 'vue-i18n'
 import { useTasksStore } from '~/store/tasks'
@@ -63,7 +64,8 @@ export function useCompletionUndo() {
       previousStatus: task.status,
       previousIndex: index >= 0 ? index : null,
       previousCompletedAt: task.completedAt ?? null,
-      previousTimeSpentSeconds: task.timeSpentSeconds ?? 0,
+      // Stored time plus the seconds a running timer has not written yet (#286): what the stop flush is about to write
+      previousTimeSpentSeconds: liveTimeSpent(task),
       previousCarryOver: mapHelpers.get(tasksStore.carryOverByTaskId, taskId) ?? null,
     }
   }

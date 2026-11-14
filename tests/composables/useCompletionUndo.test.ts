@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { addLiveSecond, clearAllLiveSeconds } from '~/lib/liveTime'
 import { setActivePinia, createPinia } from 'pinia'
 
 import { useCompletionUndo } from '~/composables/useCompletionUndo'
@@ -126,6 +127,18 @@ describe('useCompletionUndo', () => {
     lastToastUndo()()
     await vi.waitFor(() => expect(tasksStore.task('c')!.status).toBe(TaskStatus.Open))
     expect(ids(tasksStore.tasksOpen)).toEqual(['a', 'b', 'c'])
+  })
+
+  it('the snapshot carries the seconds a running timer has not written yet (#286)', () => {
+    tasksStore.updateTask('c', { timeSpentSeconds: 100 })
+    addLiveSecond('c')
+    addLiveSecond('c')
+    addLiveSecond('c')
+    try {
+      expect(useCompletionUndo().captureCompletionSnapshot('c', 2)!.previousTimeSpentSeconds).toBe(103)
+    } finally {
+      clearAllLiveSeconds()
+    }
   })
 
   it('undo during the in-card done confirmation cancels it (#124)', async () => {

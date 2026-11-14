@@ -3,7 +3,7 @@
  * @description Records when the Jetzt timer runs as work sessions in `taskStatistics.workSessions` (#600). The timer
  * driver calls `beginWorkSession` where it arms a task timer and `endWorkSession` where it stops one; a session is
  * open for as long as at least one timer is armed. The end of the open session is persisted by a 60 s heartbeat and on
- * `pagehide`, never from the per-second tick, so the tick's `updateTaskTimespent` write stays the only per-second write.
+ * `pagehide`, never from the per-second tick (which writes no store either since #286: its seconds are collected in `lib/liveTime`).
  * @responsibility
  * - Decide when a session opens, grows and closes; the list and its pruning live in `store/taskStatistics` / `lib/workSessions`
  * - A heartbeat more than 3 minutes after the previous one means the machine slept or the page was frozen: the old session

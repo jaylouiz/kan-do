@@ -12,6 +12,7 @@ import type { Task, TaskCustomEntry, TaskCustomValue } from '~/types/task';
 import type { CustomPropertyType } from '~/types/notion';
 import { getActiveLocale, translate } from '~/lib/i18n';
 import { normalizePriority } from '~/lib/priority';
+import { liveTimeSpent } from '~/lib/liveTime';
 import { sourceStoresCompletedDate } from '~/utils/moveFields';
 import {
   compareText,
@@ -220,14 +221,14 @@ export function useTaskDetail(taskIdRef: Ref<string | null>): UseTaskDetailRetur
   // Time formatting
   const timeSpentSummary = computed(() => {
     if (!task.value) return '—';
-    const spent = formatTaskDuration(task.value.timeSpentSeconds ?? 0);
+    const spent = formatTaskDuration(liveTimeSpent(task.value));
     if (!task.value.timeBoxSeconds) return spent;
     return translate("duration.spentOfTotal", { spent, total: formatTaskDuration(task.value.timeBoxSeconds) });
   });
 
   const timeSpentText = computed(() => {
     if (!task.value) return '—';
-    return formatTaskDuration(task.value.timeSpentSeconds ?? 0);
+    return formatTaskDuration(liveTimeSpent(task.value));
   });
 
   const timeBoxText = computed(() => {
@@ -237,7 +238,7 @@ export function useTaskDetail(taskIdRef: Ref<string | null>): UseTaskDetailRetur
 
   const remainingTimeText = computed(() => {
     if (!task.value?.timeBoxSeconds) return '—';
-    const remaining = Math.max(0, task.value.timeBoxSeconds - (task.value.timeSpentSeconds ?? 0));
+    const remaining = Math.max(0, task.value.timeBoxSeconds - liveTimeSpent(task.value));
     return formatTaskDuration(remaining);
   });
 
