@@ -336,7 +336,8 @@ pub trait InstallSteps: Sync {
     /// The mandatory `pre-update` backup (#224): a failure stops the install.
     fn backup(&self) -> Result<(), InstallError>;
     fn download_and_install(&self) -> impl Future<Output = Result<(), InstallError>> + Send;
-    /// Relaunches the app. Does not return in production.
+    /// Relaunches the app: on macOS it asks the event loop to quit and returns (a helper reopens the
+    /// bundle, #276); elsewhere it does not return.
     fn restart(&self);
 }
 
@@ -577,6 +578,15 @@ impl InstallSteps for AppSteps<'_> {
         // Edits made while the download ran are written before the process is replaced.
         self.data.flush_on_exit(false);
         log::info!("update installed, restarting");
+        // macOS: quit normally and let a helper open the bundle once this process is gone, so there is
+        // never a second instance (#276). Elsewhere, or when the helper cannot start, Tauri's restart.
+        #[cfg(target_os = "macos")]
+        if let Ok(executable) = std::env::current_exe() {
+            if crate::relaunch::spawn_helper(&executable) {
+                self.app.exit(0);
+                return;
+            }
+        }
         self.app.restart();
     }
 }

@@ -4,6 +4,7 @@ mod github;
 mod identifier_migration;
 mod logging;
 mod menu;
+mod relaunch;
 mod secrets;
 mod updater;
 
