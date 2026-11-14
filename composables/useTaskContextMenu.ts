@@ -4,7 +4,7 @@ import type { ContextMenuItem } from "@nuxt/ui";
 import type { Task } from "~/types/task";
 import { TaskStatus } from "~/types/taskStatus";
 import { useTasksStore } from "~/store/tasks";
-import { deleteLabelKey, sourceTaskUrl } from "~/lib/taskSources";
+import { deleteLabelKey, sourceCanCreate, sourceTaskUrl } from "~/lib/taskSources";
 import { getPriorityLabel } from "~/utils/taskStatusMappings";
 import { normalizePriority } from "~/lib/priority";
 import { useTaskOperations } from "~/composables/useTaskOperations";
@@ -107,7 +107,7 @@ export const useTaskContextMenu = (
     try {
       await navigator.clipboard.writeText(task.value.title);
     } catch (error) {
-      handleError(error instanceof Error ? error : String(error), 'clipboard');
+      handleError(error instanceof Error ? error : String(error), 'copy_title');
       return;
     }
     toast.add({ title: t('task.contextMenu.titleCopied'), duration: 2500 });
@@ -270,7 +270,7 @@ export const useTaskContextMenu = (
     const url = sourceTaskUrl(currentTask);
     const copyGroup: ContextMenuItem[] = [
       { label: t('task.contextMenu.copyTitle'), onSelect: copyTitle },
-      { label: t('task.contextMenu.duplicate'), onSelect: duplicateTask },
+      ...(sourceCanCreate(currentTask.source) ? [{ label: t('task.contextMenu.duplicate'), onSelect: duplicateTask }] : []),
       ...(url
         ? [{
             label: t('task.detail.openIn', { source: t(SOURCE_META[currentTask.source].nameKey) }),

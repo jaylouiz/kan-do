@@ -1,6 +1,6 @@
 import { translate } from '~/lib/i18n'
 
-export type ErrorContext = 'notion_setup' | 'todoist_setup' | 'task_sync' | 'task_operation' | 'setup' | 'network' | 'statistics_backfill' | 'task_delete' | 'task_restore' | 'task_create' | 'clipboard' | 'secrets' | 'secrets_reset' | 'external_link' | 'feedback'
+export type ErrorContext = 'notion_setup' | 'todoist_setup' | 'task_sync' | 'task_operation' | 'setup' | 'network' | 'statistics_backfill' | 'task_delete' | 'task_restore' | 'task_create' | 'clipboard' | 'copy_title' | 'secrets' | 'secrets_reset' | 'external_link' | 'feedback'
 
 /** Locale keys of the user-facing error messages produced by `getErrorMessageKey`. */
 export type ErrorMessageKey =
@@ -19,6 +19,7 @@ export type ErrorMessageKey =
   | 'errors.taskRestoreFailed'
   | 'errors.taskCreateFailed'
   | 'errors.clipboardFailed'
+  | 'errors.copyTitleFailed'
   | 'errors.secretsFailed'
   | 'errors.secretsResetFailed'
   | 'errors.externalLinkFailed'
@@ -69,6 +70,10 @@ export const getErrorMessageKey = (error: string | LocalizedError, errContext?: 
 
   if (errContext === 'clipboard') {
     return 'errors.clipboardFailed'
+  }
+
+  if (errContext === 'copy_title') {
+    return 'errors.copyTitleFailed'
   }
 
   if (errContext === 'secrets') {

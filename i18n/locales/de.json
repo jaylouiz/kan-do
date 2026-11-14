@@ -552,6 +552,7 @@
     "taskCreateFailed": "Die Aufgabe konnte nicht erstellt werden. Versuche es erneut.",
     "taskDeleteFailed": "Die Aufgabe konnte nicht gelöscht werden und ist wieder auf dem Board.",
     "clipboardFailed": "Die Zusammenfassung konnte nicht kopiert werden.",
+    "copyTitleFailed": "Der Titel konnte nicht kopiert werden.",
     "secretsFailed": "Der macOS-Schlüsselbund hat die Änderung nicht angenommen.",
     "secretsResetFailed": "Der macOS-Schlüsselbund ist nicht erreichbar, die Einrichtung wurde nicht zurückgesetzt. Entsperre den Schlüsselbund und versuche es erneut.",
     "externalLinkFailed": "Der Link konnte nicht geöffnet werden.",

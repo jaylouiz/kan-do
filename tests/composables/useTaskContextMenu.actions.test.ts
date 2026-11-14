@@ -90,7 +90,7 @@ describe('useTaskContextMenu: quick actions (#296)', () => {
     const writeText = vi.fn(async () => { throw new Error('denied') })
     vi.stubGlobal('navigator', { ...navigator, clipboard: { writeText } })
     await (itemOf(makeTask(), 'Titel kopieren')!.onSelect as () => Promise<void>)()
-    expect(handleError).toHaveBeenCalledWith(expect.any(Error), 'clipboard')
+    expect(handleError).toHaveBeenCalledWith(expect.any(Error), 'copy_title')
     expect(toastAdd).not.toHaveBeenCalled()
   })
 
@@ -116,8 +116,14 @@ describe('useTaskContextMenu: quick actions (#296)', () => {
 
   it('English labels', () => {
     setTestLocale('en')
+    const labels = groupsOf(makeTask({ source: 'notion', externalId: 'p1' })).flat().map(i => i.label)
+    expect(labels).toEqual(expect.arrayContaining(['Start now', 'Mark as done', 'Copy title', 'Duplicate', 'Open in Notion']))
+  })
+
+  it('Duplicate is hidden where the source cannot create tasks (Todoist); Copy title and Open stay', () => {
     const labels = groupsOf(makeTask({ source: 'todoist', externalId: 't1' })).flat().map(i => i.label)
-    expect(labels).toEqual(expect.arrayContaining(['Start now', 'Mark as done', 'Copy title', 'Duplicate', 'Open in Todoist']))
+    expect(labels).toEqual(expect.arrayContaining(['Titel kopieren', 'In Todoist öffnen']))
+    expect(labels).not.toContain('Duplizieren')
   })
 
   it('has no leading icon on the new items', () => {
