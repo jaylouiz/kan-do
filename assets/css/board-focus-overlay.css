@@ -179,6 +179,11 @@ html[data-sheet-open] .app-nav::before,
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* #290: the bar's shift away from the sheet is a jump, not a slide */
+  .app-nav {
+    transition-property: none;
+  }
+
   html[data-focus-lit] .app-nav::before,
   .board-container[data-focus-lit] .page-dots::before,
   html[data-sheet-open] .app-nav::before,

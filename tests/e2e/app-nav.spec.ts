@@ -802,7 +802,17 @@ test.describe('App bar with the task sheet open (#290)', () => {
     }).toBe(true)
     await expect(statistik(page)).toBeVisible()
     const group = appNav(page).locator('.app-nav-group')
+    // wait until the shift has settled (the sheet slides in and the padding transitions), then capture
+    let last = -1
+    await expect.poll(async () => {
+      const x = (await group.boundingBox())!.x
+      const settled = x === last
+      last = x
+      return settled
+    }).toBe(true)
     const open = await group.boundingBox()
+    // the group sits well left of its resting centred position while the sheet is open
+    expect(open!.x + open!.width).toBeLessThanOrEqual((await sheet.boundingBox())!.x)
     await page.keyboard.press('Escape')
     await expect(sheet).toBeHidden()
     await expect.poll(async () => (await group.boundingBox())!.x).toBeGreaterThan(open!.x + 100)
