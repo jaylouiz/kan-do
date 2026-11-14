@@ -20,6 +20,8 @@ Developer glossary. UI wording (preferred terms, forms to avoid, German and Engl
 
 **Move**: a task changes its task source. It stays the same task (history, tracked time, dates); the original is deleted from the old source once the task exists in the new one. Never a copy.
 
+**Capacity divider** (UI: "Kapazität"): the line in the Offen list after the card at which Jetzt, Wartet and Offen together use up the day's time. The day's length is learned from tracked work sessions; it informs and never blocks (`lib/dayCapacity.ts`, #132).
+
 **Pattern**: a recurring UI solution to one user job (confirming a destructive action, showing a task's state, adding a task). Two elements share a pattern when they do the same job for the user, whatever they look like.
 _Avoid_: component (that's the code unit; one pattern can span several components)
 

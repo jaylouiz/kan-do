@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { TaskStatus } from '~/types/taskStatus'
 import type { Task } from '~/types/task'
-import { buildColumnItems, groupKeyOfHeaderKey, isStackHeaderKey, orderGaps, stackHeaderKey } from '~/utils/columnItems'
+import { buildColumnItems, withCapacityItem, groupKeyOfHeaderKey, isStackHeaderKey, orderGaps, stackHeaderKey } from '~/utils/columnItems'
 import { getRenderedTaskOrder, groupTasksByKey } from '~/utils/taskGrouping'
 
 const task = (id: string, topic: string | null): Task =>
@@ -275,5 +275,26 @@ describe('orderGaps: the order gaps share a place in', () => {
 
   it('a cycle terminates instead of looping', () => {
     expect(orderGaps([gap('g1', 'g2', 1), gap('g2', 'g1', 2)])).toHaveLength(2)
+  })
+})
+
+describe('withCapacityItem (#132)', () => {
+  it('puts a non-sortable capacity item behind the named item and renumbers the list', () => {
+    const items = withCapacityItem(build([]), 'b1')
+    expect(items.map(item => item.key)).toEqual(['u1', 'stack:Design', 'b1', 'capacity', 'stack:Ops'])
+    expect(items.map(item => item.itemIndex)).toEqual([0, 1, 2, 3, 4])
+    // the drag order is the same with and without the line
+    expect(cards(items)).toEqual(cards(build([])))
+  })
+
+  it('puts it behind a member of an expanded group, between the members', () => {
+    const items = withCapacityItem(build(['Design']), 'a2')
+    expect(items.map(item => item.key)).toEqual(['u1', 'stack-header:Design', 'a1', 'a2', 'capacity', 'a3', 'b1', 'stack:Ops'])
+  })
+
+  it('returns the list unchanged for no key or a key that is not in it', () => {
+    const base = build([])
+    expect(withCapacityItem(base, null)).toBe(base)
+    expect(withCapacityItem(base, 'gone')).toBe(base)
   })
 })

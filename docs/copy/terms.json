@@ -809,5 +809,15 @@
     "avoidEn": [],
     "status": "proposed",
     "note": "The relay path files reports privately; the dialog must name a recipient without \"wir\" / \"we\" (voice: the app has no speaker). Chosen over \"Entwickler\" / \"developer\" to stay neutral; the project has one maintainer today."
+  },
+  {
+    "id": "capacity",
+    "concept": "The point in the Offen list where the day's time is used up (#132, GLOSSARY: Capacity divider)",
+    "de": "Kapazität",
+    "en": "Capacity",
+    "avoidDe": [],
+    "avoidEn": [],
+    "status": "proposed",
+    "note": "Label of the divider. Not \"Limit\" (the WIP limit of Jetzt is a rule, this one only informs) and not \"Warnung\" (principle: calm, no alarm). Chosen in the design round of #132 (the user's own wording from decision D1)."
   }
 ]

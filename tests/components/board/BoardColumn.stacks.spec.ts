@@ -38,6 +38,7 @@ vi.mock('~/composables/useColumnSortable', async () => {
   }
 })
 vi.mock('~/composables/useTaskDeletion', () => ({ useTaskDeletion: () => ({ deleteTaskWithUndo: vi.fn() }) }))
+vi.mock('~/composables/useDayCapacity', () => ({ useDayCapacity: () => ({ lineAfterKey: { value: null } }) })) // #132: the divider is covered by dayCapacity.test.ts and capacity-divider.spec.ts
 vi.mock('~/store/tasks', () => ({ useTasksStore: () => ({ tasks: [], tasksDonePrevious: [] }) }))
 vi.mock('~/store/board', () => ({
   useBoardStore: () => ({

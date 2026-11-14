@@ -32,6 +32,7 @@ import {
   seedDayRecapStore,
   seedLocalBoard,
   seedMixedBoard,
+  seedWorkHistory,
   seedTrash,
   trashTask,
   WORST_CASE_FOOTER_CARRY_OVER,
@@ -472,6 +473,7 @@ for (const [label, viewport, prefix] of [
     test.use({ viewport })
 
     test.beforeEach(async ({ context, page }) => {
+      await seedWorkHistory(context, 5, 10) // 15 unboxed cards are 7.5 h: the capacity divider (#132) is not part of these shots
       await seedLocalBoard(context, STACK_SEED, {}, { enabled: true, key: 'topic' })
       await page.goto('/tasks')
       await expect(page.locator('#column-open-list .task-stack').first()).toBeVisible()
@@ -502,6 +504,7 @@ for (const [label, viewport, name] of [
     test.use({ viewport })
 
     test('collapsed stacks fade as one unit under the open sheet', async ({ page, context }) => {
+      await seedWorkHistory(context, 5, 10) // 15 unboxed cards are 7.5 h: the capacity divider (#132) is not part of these shots
       await seedLocalBoard(context, STACK_SEED, {}, { enabled: true, key: 'topic' })
       await page.goto('/tasks/st-s1')
       await expect(page.getByRole('dialog')).toBeVisible()
@@ -524,7 +527,8 @@ test.describe('stacks: dragging a whole stack', () => {
   test.use({ viewport: { width: 1280, height: 1200 } })
 
   test('placeholder: one grey slot with the stack footprint', async ({ page, context }) => {
-    await seedLocalBoard(context, STACK_SEED, {}, { enabled: true, key: 'topic' })
+    await seedWorkHistory(context, 5, 10) // 15 unboxed cards are 7.5 h: the capacity divider (#132) is not part of these shots
+      await seedLocalBoard(context, STACK_SEED, {}, { enabled: true, key: 'topic' })
     await page.goto('/tasks')
     const source = page.locator('#column-open-list .task-stack[data-stack-key="Backend"]')
     await expect(source).toBeVisible()

@@ -145,7 +145,8 @@ import type { Task } from "~/types/task";
 import type { GroupKey } from "~/types/boardGrouping";
 import type { ColumnItem } from "~/types/columnItem";
 import type { SortField, SortDirection } from "~/types/state";
-import { buildColumnItems } from "~/utils/columnItems";
+import { buildColumnItems, withCapacityItem } from "~/utils/columnItems";
+import { useDayCapacity } from "~/composables/useDayCapacity";
 import {
   getGroupLabel,
   getStackKeys,
@@ -336,7 +337,7 @@ const hasGaps = computed(() => columnGaps.value.length > 0);
  * The column's list, one entry per rendered element, top to bottom (buildColumnItems): a collapsed
  * group of 2+ is one stack, an expanded one a header row (#148) and its members as cards.
  */
-const columnItems = computed<ColumnItem[]>(() =>
+const baseItems = computed<ColumnItem[]>(() =>
   buildColumnItems({
     tasks: props.tasks,
     groupKey: activeGroupKey.value,
@@ -347,6 +348,10 @@ const columnItems = computed<ColumnItem[]>(() =>
     gaps: columnGaps.value,
   }),
 );
+
+// The Offen list of the live board carries the capacity divider (#132) behind the item that fills the day
+const { lineAfterKey } = useDayCapacity(baseItems, () => isOpenColumn.value && !props.staticMode);
+const columnItems = computed<ColumnItem[]>(() => withCapacityItem(baseItems.value, lineAfterKey.value));
 
 // A group that drops below two tasks stops being a stack: forget its expansion. Grouping turned off
 // or switched to another key: forget all of them.
