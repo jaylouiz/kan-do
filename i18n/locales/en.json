@@ -1220,22 +1220,22 @@
     "page": {
       "tagline": "A quiet board for the day's tasks.",
       "version": "Version:",
-      "title": "Where are your tasks today?",
-      "nowhere": "Nowhere yet",
-      "inNotion": "In Notion",
-      "later": "You can add more connections later in settings.",
-      "exploreLead": "Just want to look around first?",
-      "samples": "With sample tasks",
-      "samplesHint": "A filled board to try things out"
+      "title": "Your tasks stay with you",
+      "samples": "Start with sample tasks",
+      "intro": "By default they live locally on this device. You connect external task lists like Notion during setup or any time later.",
+      "start": "Get started"
     },
     "flow": {
       "backToChoice": "Back to the choice",
       "local": {
         "label": "Start locally",
-        "title": "Start locally",
-        "intro": "Your tasks stay on this device. You can add a connection like Notion later in settings.",
-        "emptyBoard": "The board starts empty. You add the first task yourself.",
-        "confirm": "Let’s go"
+        "title": "Local is always there",
+        "intro": "Your tasks live on this device by default, and local tasks are always possible. You connect further services now or later in Settings.",
+        "confirm": "Go to the board",
+        "legend": "Connect in addition",
+        "notion": "Notion",
+        "todoist": "Todoist (coming later)",
+        "confirmNotion": "Set up Notion"
       },
       "samples": {
         "label": "Start with sample tasks",

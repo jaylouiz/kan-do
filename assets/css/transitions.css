@@ -25,6 +25,19 @@
   transform: translateY(0);
 }
 
+/* Welcome -> board (#294): the welcome page leaves as a fixed layer, so the board enters beneath it at its final layout
+   and nothing shifts once it shows; the photo and sheet fade out over it, slower than a page swap, without the lift. */
+.welcome-root.page-leave-active {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  transition: opacity var(--duration-slow) ease;
+}
+.welcome-root.page-leave-to { opacity: 0; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .welcome-root.page-leave-active { transition: none; }
+}
+
 /* Reduced motion (kd#27): Nuxt UI floating layers (command palette modal, ⋯ popover, menus, tooltips) scale and fade in
    through `data-[state]` animations. Dropping the animation makes reka-ui unmount them at once. */
 @media (prefers-reduced-motion: reduce) {

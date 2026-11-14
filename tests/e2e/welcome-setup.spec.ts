@@ -32,72 +32,78 @@ async function watchSwap(page: Page) {
 }
 const swapLog = (page: Page) => page.evaluate(() => (window as unknown as { __swapLog: { cls: string; tx: number; duration: string }[] }).__swapLog)
 
+/** Start view -> step 2 -> Notion ticked -> the Notion setup (#294) */
+async function openNotion(page: Page) {
+  await page.getByRole('button', { name: 'Loslegen' }).click()
+  await page.getByRole('checkbox', { name: 'Notion' }).click()
+  await page.getByRole('button', { name: 'Mit Notion einrichten' }).click()
+}
+
 const storedSources = (page: Page) =>
   page.evaluate(() => (JSON.parse(localStorage.getItem('board-store') ?? '{}') as { boardConfig?: { sources?: unknown } }).boardConfig?.sources ?? null)
 
-test('welcome asks one question with two equal rows, no filled button and no Todoist', async ({ page, baseURL }) => {
+test('welcome start: one filled green "Loslegen", the sample start as a quiet second way, no Todoist and no choice rows (#294)', async ({ page, baseURL }) => {
   await page.goto(baseURL! + '/welcome')
 
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Wo sind deine Aufgaben heute?')
-  const nowhere = page.getByRole('button', { name: 'Noch nirgends' })
-  const notion = page.getByRole('button', { name: 'In Notion' })
-  await expect(nowhere).toBeVisible()
-  await expect(notion).toBeVisible()
-  await expect(page.getByText('Weitere Verbindungen kannst du später in den Einstellungen hinzufügen.')).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Deine Aufgaben bleiben bei dir')
+  const start = page.getByRole('button', { name: 'Loslegen' })
+  const samples = page.getByRole('button', { name: 'Mit Beispielaufgaben starten' })
+  await expect(start).toBeVisible()
+  await expect(samples).toBeVisible()
+  await expect(page.getByText(/Standardmäßig liegen sie lokal auf diesem Gerät/)).toBeVisible()
   await expect(page.getByText(/Todoist/i)).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'In Notion' })).toHaveCount(0)
   await expect(page.locator('main.bg-page')).toBeVisible()
 
-  // Equal: same size, at least 64px high, neither filled
-  const boxes = await Promise.all([nowhere, notion].map((row) => row.boundingBox()))
-  expect(boxes[0]!.height).toBeGreaterThanOrEqual(64)
-  expect(boxes[0]!.height).toBe(boxes[1]!.height)
-  expect(boxes[0]!.width).toBe(boxes[1]!.width)
-  for (const row of [nowhere, notion]) await expect(row).toHaveCSS('background-color', 'rgb(255, 255, 255)') // a go-on answer is never filled (a checked radio card is, kd#200)
-  await expect(page.locator('main button.bg-primary')).toHaveCount(0)
+  // The one solid green is the start; the trial is not filled
+  await expect(page.locator('main button.bg-primary')).toHaveCount(1)
+  await expect(start).toHaveClass(/bg-primary/)
+  await expect(samples).not.toHaveClass(/bg-primary/)
+  const [a, b] = await Promise.all([start, samples].map((el) => el.boundingBox()))
+  expect(b!.y).toBeGreaterThan(a!.y + a!.height)
+  await expectContrast(page, page.getByText(/Standardmäßig liegen sie lokal/), 4.5)
 })
 
-test('the sample row is set apart under its own line, below the two answers, with a hint, and is not filled (#236)', async ({ page, baseURL }) => {
-  await page.goto(baseURL! + '/welcome')
-  const nowhere = page.getByTestId('welcome-choice-local')
-  const notion = page.getByTestId('welcome-choice-notion')
-  const samples = page.getByTestId('welcome-choice-samples')
-  const lead = page.getByText('Willst du erstmal nur schauen?')
-  await expect(lead).toBeVisible()
-  await expect(samples).toContainText('Mit Beispielaufgaben')
-  await expect(samples).toContainText('Ein gefülltes Board zum Ausprobieren')
-  await expect(samples).toHaveCSS('background-color', 'rgb(255, 255, 255)')
-  const [a, b, l, c] = await Promise.all([nowhere, notion, lead, samples].map((el) => el.boundingBox()))
-  // order: two answers, the lead line, the sample row; the group is separated by more than the 12px between the two answers
-  expect(l!.y).toBeGreaterThan(b!.y + b!.height)
-  expect(c!.y).toBeGreaterThan(l!.y + l!.height)
-  expect(l!.y - (b!.y + b!.height)).toBeGreaterThan(b!.y - (a!.y + a!.height))
-  expect(c!.height).toBeGreaterThanOrEqual(64)
-  expect(c!.width).toBe(a!.width)
-  await expectContrast(page, lead, 4.5)
-})
-
-test('welcome has no horizontal overflow and the headline stays within two lines at 390px', async ({ page, baseURL }) => {
+test('welcome has no horizontal overflow at 390px, the headline stays within two lines and the sheet is lower than the old three-row one (#294)', async ({ page, baseURL }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto(baseURL! + '/welcome')
-  await expect(page.getByRole('button', { name: 'In Notion' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Loslegen' })).toBeVisible()
 
-  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
-  expect(overflow).toBeLessThanOrEqual(0)
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0)
   const lines = await page.getByRole('heading', { level: 1 }).evaluate((el) => {
     const range = document.createRange()
     range.selectNodeContents(el)
     return new Set(Array.from(range.getClientRects()).map((r) => Math.round(r.top))).size
   })
   expect(lines).toBeLessThanOrEqual(2)
-  for (const name of ['Noch nirgends', 'In Notion', 'Mit Beispielaufgaben']) {
-    expect((await page.getByRole('button', { name }).boundingBox())!.height).toBeGreaterThanOrEqual(64)
+  for (const name of ['Loslegen', 'Mit Beispielaufgaben starten']) {
+    await expect(page.getByRole('button', { name })).toBeInViewport()
+    expect((await page.getByRole('button', { name }).boundingBox())!.height).toBeGreaterThanOrEqual(44)
   }
-  await expect(page.getByTestId('welcome-choice-samples')).toBeInViewport() // the third row is reachable without scrolling a phone
+  // More of the photo shows: the sheet takes at most 60% of the phone's height (the old one filled about 80%)
+  expect((await page.locator('.welcome-sheet').boundingBox())!.height).toBeLessThan(844 * 0.6)
 })
 
-test('"In Notion" shows the setup on the page (no dialog) and Back returns to the choice with focus on its row (#43)', async ({ page, baseURL }) => {
+test('"Loslegen" opens step 2: local always, Notion as a checkbox, Todoist disabled "(kommt später)"; the button follows the checkbox (#294)', async ({ page, baseURL }) => {
   await page.goto(baseURL! + '/welcome')
-  await page.getByRole('button', { name: 'In Notion' }).click()
+  await page.getByRole('button', { name: 'Loslegen' }).click()
+
+  const flow = page.getByTestId('local-setup-flow')
+  await expect(flow).toBeVisible()
+  await expect(flow.getByRole('heading', { name: 'Lokal ist immer dabei' })).toBeFocused()
+  const notion = flow.getByRole('checkbox', { name: 'Notion' })
+  const todoist = flow.getByRole('checkbox', { name: 'Todoist (kommt später)' })
+  await expect(notion).not.toBeChecked()
+  await expect(todoist).toBeDisabled()
+  await expect(flow.getByRole('button', { name: 'Zum Board' })).toBeVisible()
+  await notion.click()
+  await expect(flow.getByRole('button', { name: 'Mit Notion einrichten' })).toBeVisible()
+  expect(await storedSources(page)).toBeNull() // nothing is stored before the confirmation
+})
+
+test('Notion ticked in step 2 shows the setup on the page (no dialog); Back returns to step 2 with the tick kept (#43, #294)', async ({ page, baseURL }) => {
+  await page.goto(baseURL! + '/welcome')
+  await openNotion(page)
 
   const flow = page.getByTestId('notion-setup-flow')
   await expect(flow).toBeVisible()
@@ -109,7 +115,8 @@ test('"In Notion" shows the setup on the page (no dialog) and Back returns to th
   await expect(page.getByTestId('setup-back')).toHaveText('Zurück zur Auswahl')
   await page.getByTestId('setup-back').click()
   await expect(flow).toHaveCount(0)
-  await expect(page.getByRole('button', { name: 'In Notion' })).toBeFocused() // focus returns to the row
+  await expect(page.getByRole('checkbox', { name: 'Notion' })).toBeChecked() // step 2, tick kept
+  await expect(page.getByTestId('local-setup-flow')).toBeVisible()
   expect(await storedSources(page)).toBeNull()
 })
 
@@ -117,7 +124,7 @@ test('the Notion setup is wider than the start screen and the sheet does not ove
   await page.goto(baseURL! + '/welcome')
   const sheet = page.locator('.welcome-sheet')
   await expect.poll(async () => Math.round((await sheet.boundingBox())!.width)).toBe(512)
-  await page.getByRole('button', { name: 'In Notion' }).click()
+  await openNotion(page)
   await expect.poll(async () => Math.round((await sheet.boundingBox())!.width)).toBe(768)
   await page.setViewportSize({ width: 390, height: 844 })
   await expect(page.getByTestId('setup-progress')).toBeVisible()
@@ -129,7 +136,7 @@ for (const viewport of [{ width: 1280, height: 800 }, { width: 390, height: 844 
   test(`the Notion setup footer at ${viewport.width}px: the proceed button is the lg CTA, Back a 44px target (#552, #43)`, async ({ page, baseURL }) => {
     await page.setViewportSize(viewport)
     await page.goto(baseURL! + '/welcome')
-    await page.getByRole('button', { name: 'In Notion' }).click()
+    await openNotion(page)
     const proceed = page.getByTestId('wizard-proceed')
     await expect(proceed).toBeVisible()
     const height = async (locator: ReturnType<Page['locator']>) => Math.round((await locator.boundingBox())!.height)
@@ -139,28 +146,27 @@ for (const viewport of [{ width: 1280, height: 800 }, { width: 390, height: 844 
   })
 }
 
-test('local setup: the step confirms the empty board and offers no sample cards; Back leads to the choice with an arrow (#43, #236)', async ({ page, baseURL }) => {
+test('local step: no sample cards, nothing stored before the confirmation; Back leads to the start with an arrow (#43, #236, #294)', async ({ page, baseURL }) => {
   await page.goto(baseURL! + '/welcome')
-  await page.getByRole('button', { name: 'Noch nirgends' }).click()
+  await page.getByRole('button', { name: 'Loslegen' }).click()
   const flow = page.getByTestId('local-setup-flow')
   await expect(flow).toBeVisible()
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await expect(flow.getByRole('radio')).toHaveCount(0)
   await expect(flow.getByText(/Beispielaufgaben/)).toHaveCount(0)
-  await expect(flow.getByText('Das Board startet leer.')).toBeVisible()
   await expect(page).toHaveURL(/\/welcome$/)
   expect(await storedSources(page)).toBeNull() // nothing happens before the confirmation
   const back = page.getByTestId('setup-back')
-  await expect(back).toHaveText('Zurück zur Auswahl')
+  await expect(back).toHaveText('Zurück')
   await expect(back.locator('[data-slot="leadingIcon"]')).toBeVisible() // the arrow
   await back.click()
-  await expect(page.getByRole('button', { name: 'Noch nirgends' })).toBeFocused()
+  await expect(page.getByRole('button', { name: 'Loslegen' })).toBeFocused()
 })
 
-test('"Noch nirgends" -> local setup -> empty board -> Local is the only source and the default, on the board', async ({ page, baseURL }) => {
+test('"Loslegen" -> step 2 -> "Zum Board" -> empty board -> Local is the only source and the default, on the board', async ({ page, baseURL }) => {
   await page.goto(baseURL! + '/welcome')
-  await page.getByRole('button', { name: 'Noch nirgends' }).click()
-  await page.getByRole('button', { name: 'Los geht’s' }).click()
+  await page.getByRole('button', { name: 'Loslegen' }).click()
+  await page.getByRole('button', { name: 'Zum Board' }).click()
 
   await expect(page).toHaveURL(/\/tasks$/)
   await expect(moreButton(page)).toBeVisible()
@@ -187,7 +193,7 @@ test('the samples row opens its own step 2: the reset note, the way back and one
 
   await page.getByTestId('setup-back').click()
   await expect(flow).toHaveCount(0)
-  await expect(page.getByTestId('welcome-choice-samples')).toBeFocused() // focus returns to the row it came from
+  await expect(page.getByTestId('welcome-choice-samples')).toBeFocused() // focus returns to the button it came from
 })
 
 test('the step swap slides sideways: forward from the right, back mirrored (#236)', async ({ page, baseURL }) => {
@@ -222,7 +228,7 @@ test('under reduced motion the step swap is instant (#236)', async ({ page, base
 
 test('the heading focus after the swap never steals focus the user already moved into the setup (#100)', async ({ page, baseURL }) => {
   await page.goto(baseURL! + '/welcome')
-  await page.getByRole('button', { name: 'Noch nirgends' }).click()
+  await page.getByRole('button', { name: 'Loslegen' }).click()
   // The swap's height animation (300 ms) is still running; the heading takes focus only when it ends, so a Tab or click before then must win
   const back = page.getByTestId('setup-back')
   await back.focus()
@@ -284,9 +290,9 @@ test('after a sample start and a finished sample task, the app reset removes the
   }
 })
 
-test('"In Notion" -> setup on the stub -> Notion is connected and the default, on the board; the page then lists it', async ({ page, baseURL }) => {
+test('Loslegen -> Notion ticked -> setup on the stub -> Notion is connected and the default, on the board; the page then lists it', async ({ page, baseURL }) => {
   await page.goto(baseURL! + '/welcome')
-  await page.getByRole('button', { name: 'In Notion' }).click()
+  await openNotion(page)
   await completeNotionWizard(page)
 
   await expect(page).toHaveURL(/\/tasks$/)
@@ -301,8 +307,7 @@ test('"In Notion" -> setup on the stub -> Notion is connected and the default, o
 test('welcome: the small texts on the sheet keep AA contrast (kd#14)', async ({ page, baseURL }) => {
   await page.goto(baseURL! + '/welcome')
   await expect(page.getByTestId('welcome-photo')).toHaveCSS('opacity', '1')
-  await expectContrast(page, page.getByText('Weitere Verbindungen kannst du später'), 4.5)
-  await expectContrast(page, page.getByText('Willst du erstmal nur schauen?'), 4.5)
+  await expectContrast(page, page.getByText(/Standardmäßig liegen sie lokal/), 4.5)
   await expectContrast(page, page.getByText(/^Version:/), 4.5)
   await expectContrast(page, page.getByText('Ein ruhiges Board für die Aufgaben des Tages.'), 4.5)
 })

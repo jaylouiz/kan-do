@@ -372,7 +372,7 @@ test.describe('focus states', () => {
 
   test('focus: primary button', async ({ page }) => {
     await page.goto('/welcome')
-    await page.getByRole('button', { name: 'Noch nirgends' }).click()
+    await page.getByRole('button', { name: 'Loslegen' }).click()
     // The local setup is page content now (#43). Park the pointer so the button shows its focus state, not hover
     await page.mouse.move(0, 0)
     const setup = page.getByTestId('local-setup-flow')
@@ -1042,7 +1042,9 @@ for (const { size, viewport } of CORE_VIEWPORTS) {
 
     test('Notion wizard: first step', async ({ page }) => {
       await page.goto('/welcome')
-      await page.getByTestId('welcome-choice-notion').click()
+      await page.getByTestId('welcome-choice-local').click()
+      await page.getByTestId('local-source-notion').click()
+      await page.getByTestId('local-confirm').click()
       await expect(page.getByRole('heading', { name: 'Notion-Token' })).toBeFocused()
       await page.mouse.move(0, 0)
       await settle(page)
@@ -1051,7 +1053,9 @@ for (const { size, viewport } of CORE_VIEWPORTS) {
 
     test('Notion wizard: a mapping step', async ({ page }) => {
       await page.goto('/welcome')
-      await page.getByTestId('welcome-choice-notion').click()
+      await page.getByTestId('welcome-choice-local').click()
+      await page.getByTestId('local-source-notion').click()
+      await page.getByTestId('local-confirm').click()
       const flow = page.getByTestId('notion-setup-flow')
       const proceed = page.getByTestId('wizard-proceed')
       await flow.getByPlaceholder('Integrationstoken eingeben').fill('notion_test_stub')

@@ -1,15 +1,14 @@
 <!--
 @component WelcomePage
-@description Willkommensseite: eine Frage („Wo sind deine Aufgaben heute?“) mit zwei gleichwertigen Antworten (#324) und, abgesetzt darunter, dem Ausprobieren mit Beispielaufgaben (#236)
+@description Willkommensseite (#294): ein Start mit einer gefüllten Schaltfläche („Loslegen“) und dem Ausprobieren mit Beispielaufgaben als leiser zweiter Weg (#236); Schritt 2 sagt „lokal ist immer dabei“ und bietet Notion (und Todoist, später) als Checkliste an
 @usage Einstiegspunkt für neue Nutzer unter /welcome
 @responsibility
-- „Noch nirgends“ zeigt das lokale Setup auf dieser Seite (kein Dialog, #43) und endet mit Lokal als einziger Verbindung und Standard
-- „In Notion“ zeigt das Notion-Setup auf dieser Seite (Schienen-Führung, Schritte des WizardController) und endet mit Notion als verbundener Verbindung und Standard
-- „Mit Beispielaufgaben“ (dritte Zeile unter „Willst du erstmal nur schauen?“, keine Speicherort-Antwort) öffnet einen eigenen Schritt 2: er sagt, dass ein Zurücksetzen unter Einstellungen › Daten & Speicher Beispiele und Statistik entfernt; „Board ansehen“ endet wie das lokale Setup
+- Startansicht: Überschrift, eine Zeile („Standardmäßig lokal, externe Dienste jetzt oder später“), „Loslegen“ (die einzige gefüllte Schaltfläche, The One Lamp Rule) und „Mit Beispielaufgaben starten“ (ghost); bewusst niedrig, damit am Telefon mehr Foto und das Grün der Schaltfläche sichtbar sind
+- „Loslegen“ öffnet Schritt 2 (LocalSetupFlow, kein Dialog, #43): Notion als Checkbox, Todoist deaktiviert „(kommt später)“; ohne Haken endet er mit Lokal als einziger Verbindung und Standard, mit Haken startet er das Notion-Setup auf dieser Seite (Schienen-Führung, Schritte des WizardController), das mit Notion als verbundener Verbindung und Standard endet; Zurück aus dem Notion-Setup führt zu Schritt 2, der Haken bleibt
+- „Mit Beispielaufgaben starten“ öffnet einen eigenen Schritt 2: er sagt, dass ein Zurücksetzen unter Einstellungen › Daten & Speicher Beispiele und Statistik entfernt; „Board ansehen“ endet wie das lokale Setup
+- Der Weg zum Board blendet die Seite (Foto und Bogen) über dem schon fertigen Board aus (`.welcome-root`, transitions.css): das Board liegt in seinem Endlayout darunter, nichts springt danach; reduzierte Bewegung: sofort
 - Startansicht und Setup tauschen als ein Block (eine Transition, Höhe per WAAPI, Breite per CSS); der Tausch gleitet seitwärts (vor: alt nach links hinaus, neu von rechts herein; zurück gespiegelt, 260 ms, #236); reduzierte Bewegung: sofort
-- Fokus: nach dem Tausch auf die Überschrift des Setups, beim Zurück auf die Antwortzeile, von der man kam
-- Keine gefüllte Schaltfläche: beide Antworten sind ganze Zeilen (ChoiceCard, min. 64px), keine hervorgehoben
-- Todoist wird nicht angeboten; weitere Verbindungen kommen später in den Einstellungen dazu
+- Fokus: nach dem Tausch auf die Überschrift des Setups, beim Zurück auf die Schaltfläche, von der man kam
 - Ein ruhiges Foto (Schreibtisch mit Tasse, Notizbuch und Pflanze im Fensterlicht, kd#226; gebündelt in public/welcome,
   Quelle in CREDITS.md) füllt die Seite; es ist nur Stimmung: Text steht nie direkt darauf. Mittig ein heller Bogen
   (Oberfläche und Schatten wie ein Dialog) trägt Wortmarke, Zeile, Frage, Antworten, Hinweis und Version. Am Telefon
@@ -18,7 +17,7 @@
 - Das Foto blendet beim Laden ein (ohne Layoutsprung); lädt es nicht, bleibt die Seite auf Papierfarbe, der Bogen unverändert
 -->
 <template>
-  <div class="px-safe bg-page">
+  <div class="welcome-root px-safe bg-page">
   <main class="relative flex min-h-dvh flex-col justify-end overflow-hidden bg-page sm:items-center sm:justify-center sm:p-6">
     <!-- Atmosphere only (alt=""): fades in once loaded, a failed load leaves the paper colour -->
     <img
@@ -54,8 +53,9 @@
           <div :key="flow ?? 'start'" class="swap-block">
             <LocalSetupFlow
               v-if="flow === 'local'"
-              ref="localFlow"
+              v-model:notion="wantNotion"
               @back="leaveFlow"
+              @connect-notion="openFlow('notion')"
               @complete="handleLocalSetupComplete"
             />
             <SamplesSetupFlow
@@ -72,27 +72,17 @@
         <SectionHeader tag="h1" size="display" class="text-balance">
           {{ t('onboarding.page.title') }}
         </SectionHeader>
-        <div class="mt-8 flex flex-col gap-3">
-          <ChoiceCard
-            v-for="choice in choices"
-            :key="choice.key"
-            :icon="choice.icon"
-            :data-testid="`welcome-choice-${choice.key}`"
-            @click="choice.open()"
-          >
-            {{ choice.label }}
-          </ChoiceCard>
-        </div>
-        <!-- A trial is another kind of answer than a place for tasks: set apart under its own line (#236) -->
-        <div class="mt-8 flex flex-col gap-3" data-testid="welcome-explore">
-          <p class="text-body text-muted">{{ t('onboarding.page.exploreLead') }}</p>
-          <ChoiceCard icon="i-ph-sparkle" data-testid="welcome-choice-samples" @click="openFlow('samples')">
+        <p class="mt-3 text-body text-default">{{ t('onboarding.page.intro') }}</p>
+        <!-- One filled action: the sheet's only solid green (The One Lamp Rule); the trial is a quiet second way in (#294) -->
+        <div class="mt-6 flex flex-col gap-3">
+          <UButton color="primary" size="lg" block data-testid="welcome-choice-local" @click="openFlow('local')">
+            {{ t('onboarding.page.start') }}
+          </UButton>
+          <UButton color="neutral" variant="ghost" size="lg" block data-testid="welcome-choice-samples" @click="openFlow('samples')">
             {{ t('onboarding.page.samples') }}
-            <template #hint>{{ t('onboarding.page.samplesHint') }}</template>
-          </ChoiceCard>
+          </UButton>
         </div>
-        <p class="mt-6 text-body text-muted">{{ t('onboarding.page.later') }}</p>
-        <p class="mt-8 text-xs text-muted">
+        <p class="mt-6 text-xs text-muted">
           {{ t('onboarding.page.version') }} {{ $config.public.clientVersion }}
         </p>
 
@@ -107,9 +97,8 @@
 
 <script setup lang="ts">
 import SectionHeader from '~/components/ui/SectionHeader.vue'
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import ChoiceCard from '~/components/ui/ChoiceCard.vue';
 import LocalSetupFlow from '~/components/setup/LocalSetupFlow.vue';
 import SamplesSetupFlow from '~/components/setup/SamplesSetupFlow.vue';
 import NotionSetupFlow from '~/components/setup/NotionSetupFlow.vue';
@@ -137,6 +126,8 @@ onMounted(() => {
 type FlowKey = 'local' | 'notion' | 'samples';
 const flow = ref<FlowKey | null>(null);
 const lastFlow = ref<FlowKey>('local');
+/** Step 2's Notion checkbox; it survives the trip into the Notion setup and back (#294) */
+const wantNotion = ref(false);
 /** Which way the step swap slides: forward into a flow, back out of it (#236) */
 const direction = ref<'fwd' | 'back'>('fwd');
 const body = ref<HTMLElement | null>(null);
@@ -178,14 +169,14 @@ function openFlow(key: FlowKey) {
 }
 function leaveFlow() {
   direction.value = 'back';
+  // Back from the Notion setup lands on step 2 (its checkbox still set), every other step on the start view
+  if (flow.value === 'notion') {
+    lastFlow.value = 'local';
+    flow.value = 'local';
+    return;
+  }
   flow.value = null;
 }
-
-/** Two equal answers, neither primary: where are the tasks today? (the sample start is set apart, #236) */
-const choices = computed(() => [
-  { key: 'local', icon: 'i-ph-desktop', label: t('onboarding.page.nowhere'), open: () => openFlow('local') },
-  { key: 'notion', icon: 'i-simple-icons-notion', label: t('onboarding.page.inNotion'), open: () => openFlow('notion') },
-]);
 
 /**
  * Wird nach erfolgreichem Local-Setup aufgerufen: Service setzen und navigieren.
@@ -238,8 +229,8 @@ const handleNotionSetupComplete = async () => {
   width: auto;
   max-width: none;
   /* Tall enough that its lower edge (55 % of the height, after the pull) stays below the strip: the sheet is at least
-     about 27rem high, so the strip is at most 100dvh - 27rem */
-  height: max(80dvh, calc((100dvh - 27rem) / 0.55));
+     about 22rem high, so the strip is at most 100dvh - 22rem */
+  height: max(80dvh, calc((100dvh - 22rem) / 0.55));
   aspect-ratio: 1672 / 941;
   translate: 0 -45%; /* the strip starts just above the mug; so mug, table edge and notebook fall into it */
 }
