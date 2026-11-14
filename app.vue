@@ -36,7 +36,7 @@
     </NuxtLayout>
     <component :is="CopyEditorHost" v-if="CopyEditorHost" />
     <!-- The command palette on every page with an app bar (#224); `useCommandPalette` holds the state, so one instance only -->
-    <CommandPalette v-if="showsBar && paletteOpened" />
+    <component :is="CommandPalette" v-if="showsBar && paletteOpened && CommandPalette" />
     <!-- Where the new-day recap stage lands (NewDayRecap.vue, #262): inside the app's stacking context, so the bar (z-bar)
          paints above the photo, yet outside the inert <main> -->
     <div id="recap-stage-host" />
@@ -46,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, markRaw, shallowRef, watch, type Component } from "vue";
 import { useI18n } from "vue-i18n";
 import AppNav from "~/components/nav/AppNav.vue";
 import { useAppNav } from "~/composables/useAppNav";
@@ -64,8 +64,10 @@ import { TaskStatus } from "~/types/taskStatus";
 
 // Closed-at-start dialogs load their code on first open (#288); state lives in module-level composables, so a flag set
 // before the chunk arrives still shows the dialog once it mounts, and focus capture happens at open time.
-const loadPalette = () => import("~/components/CommandPalette.vue");
-const CommandPalette = defineAsyncComponent(loadPalette);
+// The palette is typed into the instant it opens, so it is not an async component (which resolves a tick after mount):
+// the component is held once loaded and mounts in the same render as the open flag.
+const CommandPalette = shallowRef<Component | null>(null);
+const loadPalette = () => import("~/components/CommandPalette.vue").then((module) => { CommandPalette.value = markRaw(module.default); });
 const UpdateDialog = defineAsyncComponent(() => import("~/components/updates/UpdateDialog.vue"));
 const WhatsNewDialog = defineAsyncComponent(() => import("~/components/updates/WhatsNewDialog.vue"));
 
@@ -83,6 +85,8 @@ const updater = useAppUpdater();
 const updaterAvailable = updater.available;
 const { isOpen: paletteOpen, open: openPalette } = useCommandPalette();
 const paletteOpened = useOpenedOnce(paletteOpen);
+// Opened by another entry (the Mehr panel row) before the chunk is there: load it now
+watch(paletteOpen, (open) => { if (open && !CommandPalette.value) void loadPalette(); });
 const updateDialogOpened = useOpenedOnce(() => updater.state.dialogOpen);
 const whatsNew = useWhatsNew();
 const whatsNewOpened = useOpenedOnce(() => whatsNew.state.open);
@@ -91,8 +95,9 @@ const whatsNewOpened = useOpenedOnce(() => whatsNew.state.open);
 // The palette goes with the app bar: no bar, no shortcut.
 const openPaletteIfBar = () => {
   if (!showsBar.value) return;
-  void loadPalette(); // already in flight from the idle warm-up below in the normal case
-  openPalette();
+  // Normally loaded by the idle warm-up below; else open once the chunk is in, so the first keys land in the input
+  if (CommandPalette.value) openPalette();
+  else void loadPalette().then(openPalette);
 };
 defineShortcuts({ meta_k: openPaletteIfBar, ctrl_k: openPaletteIfBar });
 const tasksStore = useTasksStore();
@@ -122,7 +127,7 @@ let syncIntervalId: ReturnType<typeof setInterval> | null = null;
 onMounted(() => {
   // The palette is typed into right after Cmd/Ctrl+K, so its chunk is fetched once the board has settled: keys typed
   // before a lazy mount would be lost. Off the critical path (idle), unlike the static import it replaces (#288).
-  const warmPalette = () => { void loadPalette(); };
+  const warmPalette = () => { if (showsBar.value) void loadPalette(); };
   if ("requestIdleCallback" in window) window.requestIdleCallback(warmPalette, { timeout: 1500 });
   else setTimeout(warmPalette, 1000);
 

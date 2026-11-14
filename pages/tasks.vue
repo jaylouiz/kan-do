@@ -93,8 +93,11 @@ const syncValidation = useSyncValidation();
 const recap = useNewDayRecap();
 const dayCloseOpened = useOpenedOnce(useDayClose().isOpen);
 const recapOpened = useOpenedOnce(recap.isOpen);
-const feedbackOpened = useOpenedOnce(useFeedback().isOpen);
-const pickerOpened = useOpenedOnce(useElementPicker().active);
+const feedback = useFeedback();
+const picker = useElementPicker();
+const feedbackOpened = useOpenedOnce(feedback.isOpen);
+// The picker starts from the feedback dialog: load its bar with the dialog, so the pick never waits on a chunk
+const pickerOpened = useOpenedOnce(() => feedback.isOpen.value || picker.active.value);
 
 const refreshInterval = ref<NodeJS.Timeout>();
 const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
