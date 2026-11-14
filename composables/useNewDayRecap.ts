@@ -84,7 +84,8 @@ export function useNewDayRecap() {
     // what a day close archived still counts: the morning after it is the recap's whole point (#292)
     const previous = tasksStore.tasksDonePrevious
     const todayStart = startOfDay(now)
-    const closed = tasksStore.tasks.filter(task => recapStore.closedTaskIds.includes(task.id)
+    const closedIds = recapStore.validClosedTaskIds
+    const closed = tasksStore.tasks.filter(task => closedIds.includes(task.id)
       && task.status === TaskStatus.Done && task.completedAt && new Date(task.completedAt) < todayStart
       && !previous.some(p => p.id === task.id))
     const done = [...previous, ...closed].sort((a, b) => completedTime(a) - completedTime(b)).map(copyTask)
