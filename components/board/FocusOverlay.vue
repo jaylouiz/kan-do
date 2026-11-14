@@ -9,8 +9,12 @@ centred on the Jetzt card (a desk lamp), with a flat defocus under the whole lay
 @responsibility
 - Two sibling layers, tint and blur, each fading on its own: an ancestor with opacity is the backdrop root and would
   stop `backdrop-filter` from seeing the board
-- Measures `#column-progress .task[data-current]` per frame while it is visible or fading, so the pool follows the
-  card (page scroll on the phone, resize, a new card)
+- Measures `#column-progress .task[data-current]` while it is visible or fading, so the pool follows the card (page
+  scroll, resize, a new card): per frame until the card's box has rested for about half a second, then only when a
+  signal says it may have moved (#275: a resize of the overlay, the card or the page, any scroll, and a check once a
+  second that also notices a new card). Measuring in every frame for as long as the overlay was lit kept a resting
+  board at 60 callbacks a second, and the overlay is lit exactly while nobody touches the app
+- Accepted: a move none of the signals reports is followed within a second, not within a frame
 - Never takes a pointer event, except on touch where it swallows the tap that dismisses it
 - `aria-hidden`: purely visual, no DOM of the board is removed. Layer rules and gradient: board-focus-overlay.css
 - Lit above it: only the Jetzt column (header and card, which lifts with `--shadow-task-lifted` while the overlay is
@@ -70,44 +74,93 @@ const vars = computed(() => ({
 
 const swallowing = computed(() => props.touch && (props.on || props.swallowTap))
 
-let raf = 0
-let stopTimer: ReturnType<typeof setTimeout> | null = null
+/** Frames without a change after which the per-frame tracking stops: about half a second at 60 Hz */
+const SETTLE_FRAMES = 30
+/** The check for a move no signal reported, and for a new card in Jetzt */
+const CHECK_MS = 1000
 
-const measure = () => {
+let raf = 0
+let still = 0
+let stopTimer: ReturnType<typeof setTimeout> | null = null
+let checkTimer: ReturnType<typeof setInterval> | null = null
+let observer: ResizeObserver | null = null
+let observedBoard: Element | null = null
+let observedCard: Element | null = null
+
+/** Keeps the ResizeObserver on the element that is there now (the overlay mounts after the first call, a card can be replaced) */
+const observe = (now: Element | null, was: Element | null) => {
+  if (now === was) return now
+  if (was) observer?.unobserve(was)
+  if (now) observer?.observe(now)
+  return now
+}
+
+/** Reads the card's box; true when it differs from the one the pool is drawn at */
+const measure = (): boolean => {
   // The overlay's own box: the board on the phone, the whole viewport on desktop (fixed, board-focus-overlay.css)
   const board = el.value
   const card = document.querySelector<HTMLElement>('#column-progress .task[data-current]')
-  if (board && card) {
-    const b = board.getBoundingClientRect()
-    const c = card.getBoundingClientRect()
-    const next = {
-      x: Math.round(c.left - b.left + c.width / 2),
-      y: Math.round(c.top - b.top + c.height / 2),
-      w: Math.round(c.width),
-      h: Math.round(c.height),
-    }
-    const cur = box.value
-    if (next.x !== cur.x || next.y !== cur.y || next.w !== cur.w || next.h !== cur.h) box.value = next
+  observedBoard = observe(board, observedBoard)
+  observedCard = observe(card, observedCard)
+  if (!board || !card) return false
+  const b = board.getBoundingClientRect()
+  const c = card.getBoundingClientRect()
+  const next = {
+    x: Math.round(c.left - b.left + c.width / 2),
+    y: Math.round(c.top - b.top + c.height / 2),
+    w: Math.round(c.width),
+    h: Math.round(c.height),
   }
-  raf = requestAnimationFrame(measure)
+  const cur = box.value
+  if (next.x === cur.x && next.y === cur.y && next.w === cur.w && next.h === cur.h) return false
+  box.value = next
+  return true
 }
+
+const frame = () => {
+  raf = 0
+  still = measure() ? 0 : still + 1
+  if (still < SETTLE_FRAMES) raf = requestAnimationFrame(frame)
+}
+/** Follows the card per frame until its box has rested for SETTLE_FRAMES; every signal starts it again */
+const track = () => {
+  still = 0
+  if (!raf) raf = requestAnimationFrame(frame)
+}
+
 const stop = () => {
   cancelAnimationFrame(raf)
   raf = 0
   if (stopTimer) clearTimeout(stopTimer)
   stopTimer = null
+  if (checkTimer) clearInterval(checkTimer)
+  checkTimer = null
+  observer?.disconnect()
+  observer = null
+  observedBoard = null
+  observedCard = null
+  document.removeEventListener('scroll', track, { capture: true })
+}
+const start = () => {
+  // jsdom (unit tests) has no ResizeObserver: scroll and the check still report a move
+  observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(track)
+  observer?.observe(document.body)
+  // Capturing: a scroll event does not bubble, and on the phone the column page scrolls, not the document
+  document.addEventListener('scroll', track, { capture: true, passive: true })
+  checkTimer = setInterval(() => {
+    if (measure()) track()
+  }, CHECK_MS)
+  measure()
+  track()
 }
 
 watch(
   () => props.on,
   (on) => {
     stop()
-    if (on) {
-      measure()
-    } else {
-      raf = requestAnimationFrame(measure)
-      stopTimer = setTimeout(stop, FADE_OUT_MS)
-    }
+    start()
+    // Hidden: the pool keeps following the card until the fade-out is over, then nothing runs
+    if (!on) stopTimer = setTimeout(stop, FADE_OUT_MS)
   },
   { immediate: true },
 )
