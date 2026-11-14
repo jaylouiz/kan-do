@@ -323,6 +323,57 @@ describe('TaskProgressChip (#388)', () => {
     }
   })
 
+  describe('the fill eases only for a change the eye can follow (#275)', () => {
+    const slot = (w: ReturnType<typeof render>) => w.find('.chip-slot').element as HTMLElement
+    const fillDuration = (w: ReturnType<typeof render>) => slot(w).style.getPropertyValue('--chip-fill-duration')
+
+    beforeEach(() => vi.useFakeTimers({ toFake: ['performance', 'setTimeout', 'clearTimeout'] }))
+    afterEach(() => vi.useRealTimers())
+
+    it('sets a timer tick at once, tick after tick, and keeps the new width', async () => {
+      const w = render({ timeBoxSeconds: 2700, timeSpentSeconds: 720, isNow: true })
+      expect(fillDuration(w)).toBe('')
+      for (const spent of [721, 722, 723]) {
+        await w.setProps({ timeSpentSeconds: spent })
+        expect(fillDuration(w)).toBe('0ms')
+        expect(slot(w).style.getPropertyValue('--chip-p')).toBe(`${(spent / 2700) * 100}%`)
+      }
+    })
+
+    it('eases a jump (an edit of the spent time), and a tick inside that ease does not cut it short', async () => {
+      const w = render({ timeBoxSeconds: 2700, timeSpentSeconds: 720, isNow: true })
+      await w.setProps({ timeSpentSeconds: 721 })
+      expect(fillDuration(w)).toBe('0ms')
+
+      await w.setProps({ timeSpentSeconds: 1500 })
+      expect(fillDuration(w)).toBe('')
+      vi.advanceTimersByTime(300)
+      await w.setProps({ timeSpentSeconds: 1501 })
+      expect(fillDuration(w)).toBe('')
+
+      vi.advanceTimersByTime(700)
+      await w.setProps({ timeSpentSeconds: 1502 })
+      expect(fillDuration(w)).toBe('0ms')
+    })
+
+    it('eases every tick of a timebox so short that one second is a visible step', async () => {
+      const w = render({ timeBoxSeconds: 120, timeSpentSeconds: 10, isNow: true })
+      await w.setProps({ timeSpentSeconds: 11 })
+      expect(fillDuration(w)).toBe('')
+      vi.advanceTimersByTime(1000)
+      await w.setProps({ timeSpentSeconds: 12 })
+      expect(fillDuration(w)).toBe('')
+    })
+
+    it('eases a jump back down (the time was corrected) after ticks', async () => {
+      const w = render({ timeBoxSeconds: 2700, timeSpentSeconds: 1500, isNow: true })
+      await w.setProps({ timeSpentSeconds: 1501 })
+      expect(fillDuration(w)).toBe('0ms')
+      await w.setProps({ timeSpentSeconds: 600 })
+      expect(fillDuration(w)).toBe('')
+    })
+  })
+
   it('never starts a timer of its own (#352)', () => {
     const interval = vi.spyOn(globalThis, 'setInterval')
     render({ isNow: true })

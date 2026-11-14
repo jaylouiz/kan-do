@@ -22,6 +22,13 @@
  *
  * The Jetzt card's raised shadow follows the overlay being visible (`data-focus-lit`, set by Board.vue from the
  * state machine's `shown`), not the focus mode: a hidden overlay (mouse moved, menu open) leaves the regular card shadow.
+ *
+ * State outside the board (#275): what the lit overlay and an open task sheet change above the board (the app bar's
+ * veil, the page dots, the root colours) keys on attributes that Board.vue mirrors in the same update:
+ * `data-focus-lit` on `.board-container` and on `<html>`, `data-sheet-open` on `<html>`. Never `html:has(…)` or
+ * `.board-container:has(…)`: a `:has()` on an ancestor keeps everything below in its scope, so each card change
+ * restyled the whole page (2 whole-page passes per task sheet on a 73-task board;
+ * tests/config/performance-guards.test.ts).
  */
 
 .board[data-focus] .column-group-mid,
@@ -124,7 +131,7 @@
    bright beside the dimmed board: while the overlay is lit its thumb takes the dusk tone and the track disappears.
    Scoped to the lit state because `scrollbar-color` makes Chrome ignore `::-webkit-scrollbar` (utilities.css). */
 @supports (scrollbar-color: auto) {
-  html:has(.board[data-focus-lit]) {
+  html[data-focus-lit] {
     scrollbar-color: color-mix(in oklab, var(--focus-dusk) 35%, transparent) transparent;
   }
 }
@@ -134,18 +141,18 @@
    board they would cut a light stripe through the dusk, or through the task sheet's scrim, so they fade out while the
    overlay is lit and while a sheet is open: in with the lamp's slow warm-up, back with its snap. The pills and the dots
    themselves stay as they are, above the dusk: they are the way out and the place marker. */
-html:has(.board[data-focus-lit]) .app-nav::before,
-.board-container:has(.board[data-focus-lit]) .page-dots::before {
+html[data-focus-lit] .app-nav::before,
+.board-container[data-focus-lit] .page-dots::before {
   opacity: 0;
   transition: opacity var(--focus-in-duration) var(--focus-in-ease);
 }
 
 /* On the dusk the resting dots' light border tone would vanish: they take a share of the muted ink instead */
-.board-container:has(.board[data-focus-lit]) .page-dot {
+.board-container[data-focus-lit] .page-dot {
   background: color-mix(in oklab, var(--ui-text-muted) calc(45% + var(--w) * 55%), transparent);
 }
 
-html:has(.board-container[data-sheet-task-id]) .app-nav::before,
+html[data-sheet-open] .app-nav::before,
 .board-container[data-sheet-task-id] .page-dots::before {
   opacity: 0;
   transition: opacity var(--sheet-fade-duration) var(--sheet-fade-easing);
@@ -159,9 +166,9 @@ html:has(.board-container[data-sheet-task-id]) .app-nav::before,
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html:has(.board[data-focus-lit]) .app-nav::before,
-  .board-container:has(.board[data-focus-lit]) .page-dots::before,
-  html:has(.board-container[data-sheet-task-id]) .app-nav::before,
+  html[data-focus-lit] .app-nav::before,
+  .board-container[data-focus-lit] .page-dots::before,
+  html[data-sheet-open] .app-nav::before,
   .board-container[data-sheet-task-id] .page-dots::before {
     transition-duration: var(--duration-fast);
   }
@@ -180,18 +187,18 @@ html:has(.board-container[data-sheet-task-id]) .app-nav::before,
     transition: background-color var(--duration-fast) var(--ease-standard);
   }
 
-  html:has(.board[data-focus-lit]),
-  html:has(.board[data-focus-lit]) body {
+  html[data-focus-lit],
+  html[data-focus-lit] body {
     background-color: color-mix(in oklab, var(--focus-dusk) 40%, var(--ui-page-bg));
   }
 
-  .board-container:has(.board[data-focus-lit]) .page-dots {
+  .board-container[data-focus-lit] .page-dots {
     background-color: color-mix(in oklab, var(--focus-dusk) 15%, var(--ui-page-bg));
     mask-image: linear-gradient(black calc(100% - 0.75rem), transparent);
   }
 
-  html:has(.board[data-focus-lit]),
-  .board-container:has(.board[data-focus-lit]) .page-dots {
+  html[data-focus-lit],
+  .board-container[data-focus-lit] .page-dots {
     transition: background-color var(--focus-in-duration) var(--focus-in-ease);
   }
 
@@ -205,8 +212,8 @@ html:has(.board-container[data-sheet-task-id]) .app-nav::before,
 @media (--phone) and (prefers-reduced-motion: reduce) {
   html,
   .page-dots,
-  html:has(.board[data-focus-lit]),
-  .board-container:has(.board[data-focus-lit]) .page-dots {
+  html[data-focus-lit],
+  .board-container[data-focus-lit] .page-dots {
     transition-duration: var(--duration-fast);
   }
 }

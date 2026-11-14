@@ -20,6 +20,7 @@
   <div
     class="board-container"
     :data-sheet-task-id="spotlightTaskId ?? undefined"
+    :data-focus-lit="focusLit ? '' : undefined"
     @pointerdown="onSwipePointerDown"
     @focusin="onBoardFocusIn"
   >
@@ -36,7 +37,7 @@
       :class="{ 'dragging': isDragging, 'swiping': isSwiping }"
       :style="mobileBoardStyle"
       :data-focus="focusEnabledNow ? '' : undefined"
-      :data-focus-lit="focusEnabledNow && focusShown ? '' : undefined"
+      :data-focus-lit="focusLit ? '' : undefined"
       :data-mobile-page="activeMobileTab"
     >
       <!-- Focus overlay (#394): first child, so the layer rules in board-focus-overlay.css apply -->
@@ -326,6 +327,22 @@ const focusEnabledNow = computed(
 /** Reached from another page (statistics, settings): the overlay waits its return delay, so the whole board is seen first (kd#133) */
 const { shown: focusShown, pointerKind: focusPointerKind, swallowTap: focusSwallowTap } = useFocusOverlay(focusEnabledNow, {
   arrived: arrivedFromAnotherPage(),
+});
+
+/** The overlay is visible: the Jetzt card lifts, and what sits above the board steps back (board-focus-overlay.css) */
+const focusLit = computed(() => focusEnabledNow.value && focusShown.value);
+
+// State the board owns that rules outside it read (#275): the app bar's veil, the root colours and the scroll bar key on
+// `<html>` attributes, mirrored after the same render that sets them on the board. A selector `html:has(.board[…])` would
+// do it without script, and restyle the whole page on every card change (tests/config/performance-guards.test.ts).
+const mirrorOnRoot = (attribute: string, on: boolean) => {
+  if (import.meta.client) document.documentElement.toggleAttribute(attribute, on);
+};
+watch(focusLit, (lit) => mirrorOnRoot('data-focus-lit', lit), { immediate: true, flush: 'post' });
+watch(spotlightTaskId, (id) => mirrorOnRoot('data-sheet-open', !!id), { immediate: true, flush: 'post' });
+onBeforeUnmount(() => {
+  mirrorOnRoot('data-focus-lit', false);
+  mirrorOnRoot('data-sheet-open', false);
 });
 
 /** The card left Jetzt (done, waiting, synced away) while the overlay was up: it stays mounted to fade out (#394).

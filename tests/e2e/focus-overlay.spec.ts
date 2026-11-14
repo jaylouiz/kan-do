@@ -129,6 +129,61 @@ test.describe('desktop, mouse', () => {
     await expect.poll(onTop).toBe(true)
   })
 
+  test('the pool follows the card through a resize and a scroll, and nothing runs per frame while the card rests (#275: rest -> resize -> rest -> scroll -> rest)', async ({ page }) => {
+    // A tall Offen column makes the page scroll; the later init script replaces the describe's seed
+    await seedLocalBoard(page.context(), [...SEED_TASKS, ...fillerTasks(25)], {}, undefined, { focus: true })
+    await openBoard(page)
+    await expectOn(page)
+    /** How far the pool's centre and size (`--fx`, `--fy`, `--fw`, `--fh`) are off the Jetzt card's box, in px */
+    const poolOffCard = () => page.evaluate(() => {
+      const layer = document.querySelector<HTMLElement>('[data-testid="focus-overlay"]')!
+      const b = layer.getBoundingClientRect()
+      const c = document.querySelector('#column-progress .task[data-current]')!.getBoundingClientRect()
+      const pool = (name: string) => Number.parseFloat(layer.style.getPropertyValue(name))
+      return Math.max(
+        Math.abs(pool('--fx') - Math.round(c.left - b.left + c.width / 2)),
+        Math.abs(pool('--fy') - Math.round(c.top - b.top + c.height / 2)),
+        Math.abs(pool('--fw') - Math.round(c.width)),
+        Math.abs(pool('--fh') - Math.round(c.height)),
+      )
+    })
+    /** Frame callbacks requested while `ms` of page time pass; counted from a point where the card already rests */
+    const framesDuring = async (ms: number) => {
+      await elapse(page, 1000)
+      await page.evaluate(() => {
+        const w = window as unknown as { __frames: number; __rafHooked?: boolean }
+        w.__frames = 0
+        if (w.__rafHooked) return
+        w.__rafHooked = true
+        const request = window.requestAnimationFrame.bind(window)
+        window.requestAnimationFrame = (callback) => {
+          w.__frames += 1
+          return request(callback)
+        }
+      })
+      await elapse(page, ms)
+      return page.evaluate(() => (window as unknown as { __frames: number }).__frames)
+    }
+
+    await expect.poll(poolOffCard).toBe(0)
+    // Per frame it was ~60 a second for as long as the overlay was lit; the one-second check requests none
+    expect(await framesDuring(3000)).toBeLessThan(10)
+
+    await page.setViewportSize({ width: 1040, height: 720 })
+    await expect.poll(poolOffCard).toBe(0)
+    expect(await framesDuring(3000)).toBeLessThan(10)
+
+    // The overlay is fixed on desktop, the card scrolls with the page; a scroll is no pointer move, so it stays lit
+    await page.evaluate(() => window.scrollTo(0, 300))
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(100)
+    await expect.poll(poolOffCard).toBe(0)
+    await page.evaluate(() => window.scrollTo(0, 0))
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
+    await expect.poll(poolOffCard).toBe(0)
+    expect(await isOn(page)).toBe(true)
+    expect(await framesDuring(3000)).toBeLessThan(10)
+  })
+
   test('the Jetzt card has the raised shadow only while the overlay is visible (#503)', async ({ page }) => {
     const shadow = () => page.locator('#column-progress .task[data-current]').evaluate(el => getComputedStyle(el).boxShadow)
     await openBoard(page)
