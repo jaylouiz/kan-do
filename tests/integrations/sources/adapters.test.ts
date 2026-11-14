@@ -6,6 +6,7 @@ import type { NotionIntegration } from '~/integrations/NotionIntegration'
 const todoist = {
   createTask: vi.fn(),
   getActiveBoardTasks: vi.fn(),
+  fetchActiveBoardTasks: vi.fn(),
   completeTask: vi.fn(),
   reopenTask: vi.fn(),
   deleteTask: vi.fn(),
@@ -207,6 +208,16 @@ describe('TodoistSource', () => {
     expect(restored).toMatchObject({ id: 'td-1', externalId: 'td-9', source: 'todoist' })
   })
 
+  it('fetches through the integration it loads on the first call (#275), and passes a failure on', async () => {
+    todoist.fetchActiveBoardTasks.mockResolvedValueOnce([todoistTask()])
+    const source = build()
+    expect((await source.fetchActive()).map((t) => t.externalId)).toEqual(['td-1'])
+    todoist.fetchActiveBoardTasks.mockRejectedValueOnce(new Error('offline'))
+    await expect(source.fetchActive()).rejects.toThrow('offline')
+    todoist.fetchActiveBoardTasks.mockResolvedValueOnce([])
+    expect(await source.fetchActive()).toEqual([])
+  })
+
   it('restore (#422) rejects without a token', async () => {
     token = null
     await expect(build().restore(todoistTask())).rejects.toBeInstanceOf(SourceNotConfiguredError)
@@ -223,6 +234,34 @@ describe('TodoistSource', () => {
     await source.update(todoistTask({ status: TaskStatus.Progress }), { previousStatus: TaskStatus.Open })
     expect(todoist.completeTask).toHaveBeenCalledTimes(1)
     expect(todoist.reopenTask).toHaveBeenCalledTimes(1)
+  })
+
+  it('writes what the task said when the call was made, whatever it says once the integration has loaded (#275)', async () => {
+    const source = build()
+    // The live store object: a second move changes it while the first write still waits for the import
+    const live = todoistTask({ status: TaskStatus.Done })
+    const completing = source.update(live, { previousStatus: TaskStatus.Open })
+    live.status = TaskStatus.Open
+    const reopening = source.update(live, { previousStatus: TaskStatus.Done })
+    live.status = TaskStatus.Done
+    live.externalId = 'td-changed'
+    await Promise.all([completing, reopening])
+    expect(todoist.completeTask.mock.calls).toEqual([['td-1']])
+    expect(todoist.reopenTask.mock.calls).toEqual([['td-1']])
+
+    const removing = source.remove(live)
+    live.externalId = 'td-later'
+    await removing
+    expect(todoist.deleteTask).toHaveBeenCalledWith('td-changed')
+  })
+
+  it('a token that goes away while a call is under way does not stop that call, the next call rejects', async () => {
+    const source = build()
+    const removing = source.remove(todoistTask())
+    token = null
+    await expect(removing).resolves.toBeUndefined()
+    await expect(source.remove(todoistTask())).rejects.toBeInstanceOf(SourceNotConfiguredError)
+    expect(todoist.deleteTask).toHaveBeenCalledTimes(1)
   })
 
   it('deletes by externalId on remove', async () => {
