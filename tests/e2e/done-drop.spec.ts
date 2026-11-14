@@ -1,6 +1,6 @@
 import { test, expect, type Locator, type Page } from '@playwright/test'
 import { seedLocalBoard, type SeedTask } from './helpers/seed'
-import { pickUp, hover, edgeDwell } from './helpers/dnd'
+import { pickUp, hover, edgeDwell, showColumnPage } from './helpers/dnd'
 
 /**
  * Dropping a card into Erledigt (#124): a light teal wash under the list and a one-line hint
@@ -297,6 +297,32 @@ test.describe('Faster than planned (#295)', () => {
       await expect(layer).toHaveCount(0, { timeout: 2500 })
     })
   }
+
+  test('the sentence stays inside the card at 390px with 200 % text', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.addInitScript(() => {
+      document.documentElement.style.fontSize = '200%'
+    })
+    await page.goto('/tasks')
+    await showColumnPage(page, 0)
+    await expect(card(page, RUNNING.id)).toBeVisible()
+    await card(page, RUNNING.id).focus()
+    await page.keyboard.press('ControlOrMeta+k')
+    await page.keyboard.type('erledigt')
+    await page.keyboard.press('Enter')
+    const layer = page.locator('.task-confirm')
+    await expect(layer).toHaveCount(1)
+    await page.evaluate(() => document.getAnimations().forEach(a => a.pause()))
+    const msg = layer.locator('.task-confirm__message')
+    await expect(msg).toBeVisible()
+    const l = await layer.boundingBox()
+    const m = await msg.boundingBox()
+    expect(l && m).toBeTruthy()
+    expect(m!.x).toBeGreaterThanOrEqual(l!.x - 1)
+    expect(m!.y).toBeGreaterThanOrEqual(l!.y - 1)
+    expect(m!.x + m!.width).toBeLessThanOrEqual(l!.x + l!.width + 1)
+    expect(m!.y + m!.height).toBeLessThanOrEqual(l!.y + l!.height + 1)
+  })
 
   test('reduced motion shows no message and no burst either', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' })

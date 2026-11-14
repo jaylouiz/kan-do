@@ -588,6 +588,7 @@ const openDetails = (event: MouseEvent) => {
   border-radius: var(--task-card-radius);
   background-color: var(--done-confirm-wash);
   color: var(--ui-color-success-700);
+  overflow: hidden; /* a long sentence at 200 % text never spills onto neighbours */
   pointer-events: none;
   opacity: 0;
   animation: task-confirm var(--done-confirm-duration) linear forwards;
@@ -608,7 +609,11 @@ const openDetails = (event: MouseEvent) => {
   align-items: center;
   justify-content: center;
   gap: 0.625rem;
-  padding: 0 1rem;
+  min-width: 0;
+  max-width: 100%;
+  max-height: 100%;
+  padding: 0.5rem 1rem;
+  overflow-wrap: anywhere;
   color: var(--ui-color-success-800);
   font-size: var(--text-title);
   font-weight: 600;
