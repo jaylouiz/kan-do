@@ -94,11 +94,11 @@ test.describe('delete is confirmed in the card slot (#422)', () => {
     await expect(gap(page).getByRole('button', { name: /Rückgängig/ })).toBeVisible()
     await expect(page.locator('.task-wrapper', { hasText: OPEN_TITLE })).toHaveCount(0)
     await expectRedTheme(page)
-    // compact (#57): 42px like the collapsed Yesterday note (the box glides there in 220 ms), the cards below follow it up
-    await expect.poll(async () => (await gap(page).boundingBox())?.height).toBeCloseTo(42, 0)
+    // compact (#57, #293): 48px like the collapsed Yesterday note (the box glides there in 220 ms), the cards below follow it up
+    await expect.poll(async () => (await gap(page).boundingBox())?.height).toBeCloseTo(48, 0)
     const gapBox = await gap(page).boundingBox()
     expect(gapBox?.y).toBeCloseTo(slot!.y, 0)
-    await expect.poll(async () => (await next.boundingBox())?.y).toBeCloseTo(before!.y - (slot!.height - 42), 0)
+    await expect.poll(async () => (await next.boundingBox())?.y).toBeCloseTo(before!.y - (slot!.height - 48), 0)
     await expect(page.locator('[data-sonner-toast], [role="status"]', { hasText: 'Rückgängig' })).toHaveCount(0)
     // a polite announcement for screen readers
     await expect(page.getByText('Aufgabe gelöscht: ' + OPEN_TITLE)).toBeAttached()
@@ -318,14 +318,14 @@ test.describe('delete is confirmed in the card slot (#422)', () => {
     await expectTrashRow(page, 'Papierkorb (1)')
   })
 
-  test('390px: the gap is the compact 46px note and Papierkorb opens the page', async ({ page }) => {
+  test('390px: the gap is the compact 56px note and Papierkorb opens the page', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/tasks')
     await showColumnPage(page, 0) // the board opens on Jetzt while a task sits there (kd#191)
     await deleteCard(page, OPEN_TITLE)
     await expect(gap(page)).toContainText('Im Papierkorb')
-    // compact (#57): 46px under 768px (the box glides there in 220 ms, so poll)
-    await expect.poll(async () => (await gap(page).boundingBox())?.height).toBeCloseTo(46, 0)
+    // compact (#57, #293): 56px under 768px (the box glides there in 220 ms, so poll)
+    await expect.poll(async () => (await gap(page).boundingBox())?.height).toBeCloseTo(56, 0)
     await expect(gap(page).getByRole('button', { name: /Rückgängig/ })).toBeVisible()
     await windowEnds(page)
     await expectTrashRow(page, 'Papierkorb (1)')

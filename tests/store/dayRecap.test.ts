@@ -57,7 +57,7 @@ describe('day recap store', () => {
     store.markShown('2026-10-22')
     store.setArchiveDone(false)
     await nextTick()
-    expect(JSON.parse(localStorage.getItem('day-recap-store') as string)).toEqual({ lastShownDay: '2026-10-22', archiveDone: false })
+    expect(JSON.parse(localStorage.getItem('day-recap-store') as string)).toEqual({ lastShownDay: '2026-10-22', archiveDone: false, closedTaskIds: [] })
   })
 
   it('restores both after a reload', () => {
@@ -66,5 +66,24 @@ describe('day recap store', () => {
     const store = useDayRecapStore()
     expect(store.lastShownDay).toBe('2026-10-21')
     expect(store.archiveDone).toBe(false)
+  })
+
+  it('hydrates closedTaskIds as an empty list without the field and ignores a wrongly shaped one', () => {
+    localStorage.setItem('day-recap-store', JSON.stringify({ lastShownDay: '2026-10-21', archiveDone: true }))
+    freshPinia()
+    expect(useDayRecapStore().closedTaskIds).toEqual([])
+    expect(useDayRecapStore().validClosedTaskIds).toEqual([])
+
+    for (const bad of [null, 'abc', { a: 1 }, 7]) {
+      localStorage.setItem('day-recap-store', JSON.stringify({ lastShownDay: '2026-10-21', closedTaskIds: bad }))
+      freshPinia()
+      const store = useDayRecapStore()
+      expect(store.validClosedTaskIds).toEqual([])
+      store.rememberClosed(['a'])
+      expect(store.closedTaskIds).toEqual(['a'])
+    }
+    localStorage.setItem('day-recap-store', JSON.stringify({ lastShownDay: '2026-10-21', closedTaskIds: ['a', 5, null, 'b'] }))
+    freshPinia()
+    expect(useDayRecapStore().validClosedTaskIds).toEqual(['a', 'b'])
   })
 })

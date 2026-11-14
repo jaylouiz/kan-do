@@ -1,10 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useTasksStore } from '~/store/tasks'
-import { useDayClose } from '~/composables/useDayClose'
+import { useDayClose, useDayCloseData } from '~/composables/useDayClose'
 import { TaskStatus } from '~/types/taskStatus'
 import { armedTaskTimerIds, disarmAllTaskTimers } from '~/lib/taskTimers'
 import { useTaskTimerDriver } from '~/composables/useTaskTimerDriver'
+import { useBoardStore } from '~/store/board'
 import type { Task } from '~/types/task'
 
 vi.mock('~/store/taskStatistics', () => ({
@@ -27,6 +28,11 @@ vi.mock('~/composables/useTaskDeletion', () => ({
   useTaskDeletion: () => ({ deleteTaskWithUndo: deleteTaskWithUndoMock }),
 }))
 
+const archiveTasksMock = vi.fn((ids: string[]) => { calls.push(`archive:${ids.join(',')}`); useTasksStore().archiveTasks(ids) })
+vi.mock('~/composables/useArchiveDoneTasks', () => ({
+  useArchiveDoneTasks: () => ({ archiveTasks: archiveTasksMock }),
+}))
+
 const makeTask = (id: string, status: TaskStatus, extra: Partial<Task> = {}): Task => ({
   id, source: 'local', externalId: null, title: `Task ${id}`, status, activity: null, topic: null, topicColorCode: null,
   priority: 1, notes: null, timeBoxSeconds: null, timeSpentSeconds: 0, timerId: null, ...extra,
@@ -39,6 +45,7 @@ describe('useDayClose finish (Fertig)', () => {
     stopTimerMock.mockClear()
     moveTaskToStatusMock.mockClear()
     deleteTaskWithUndoMock.mockClear()
+    archiveTasksMock.mockClear()
     setActivePinia(createPinia())
     useDayClose().close()
   })
@@ -203,6 +210,138 @@ describe('useDayClose finish (Fertig)', () => {
       dayClose.setKept('o1', false)
       dayClose.close()
       expect(deleteTaskWithUndoMock).not.toHaveBeenCalled()
+    })
+  })
+  describe('Erledigt is archived (#292)', () => {
+    const today = () => new Date()
+    const yesterday = () => new Date(Date.now() - 36 * 3600_000)
+    const motion = (reduce: boolean) => vi.stubGlobal('matchMedia', (query: string) => ({ matches: reduce && query.includes('reduce'), media: query }))
+
+    afterEach(() => vi.unstubAllGlobals())
+
+    it('archives today\'s done tasks and the earlier unacknowledged ones through the shared archive path, nothing else', async () => {
+      motion(true)
+      const store = useTasksStore()
+      store.addTask(makeTask('d1', TaskStatus.Done, { completedAt: today() }))
+      store.addTask(makeTask('d0', TaskStatus.Done, { completedAt: yesterday() }))
+      store.addTask(makeTask('o', TaskStatus.Open))
+      await useDayClose().finish()
+      expect(archiveTasksMock).toHaveBeenCalledTimes(1)
+      expect([...archiveTasksMock.mock.calls[0]![0]].sort()).toEqual(['d0', 'd1'])
+      expect(store.tasksDoneToday).toEqual([])
+      expect(store.tasksDonePrevious).toEqual([])
+      expect(store.task('o')?.status).toBe(TaskStatus.Open)
+      expect(deleteTaskWithUndoMock).not.toHaveBeenCalled()
+    })
+
+    it('leaves already archived tasks alone and archives nothing when nothing is done', async () => {
+      motion(true)
+      const store = useTasksStore()
+      store.addTask(makeTask('a', TaskStatus.Done, { completedAt: today() }))
+      store.archiveTasks(['a'])
+      await useDayClose().finish()
+      expect(archiveTasksMock).not.toHaveBeenCalled()
+    })
+
+    it('a second Fertig archives nothing again', async () => {
+      motion(true)
+      useTasksStore().addTask(makeTask('d1', TaskStatus.Done, { completedAt: today() }))
+      const dayClose = useDayClose()
+      await dayClose.finish()
+      await dayClose.finish()
+      expect(archiveTasksMock).toHaveBeenCalledTimes(1)
+    })
+
+    it('the dialog keeps showing the day it was confirmed on while it leaves (the archive does not empty it)', async () => {
+      motion(true)
+      const store = useTasksStore()
+      store.addTask(makeTask('d1', TaskStatus.Done, { completedAt: today(), timeSpentSeconds: 600 }))
+      store.addTask(makeTask('o', TaskStatus.Open))
+      const dayClose = useDayClose()
+      const data = useDayCloseData()
+      dayClose.open()
+      await dayClose.finish()
+      expect(store.tasksDoneToday).toEqual([])
+      expect(data.done.value.map(t => t.id)).toEqual(['d1'])
+      expect(data.totalSeconds.value).toBe(600)
+      expect(data.inFlight.value.map(t => t.id)).toEqual(['o'])
+      dayClose.open()
+      expect(data.done.value).toEqual([])
+    })
+
+    it('hands focus to the board after the archive when the CTA that had it is gone (a tick later, not in the same one)', async () => {
+      vi.useFakeTimers()
+      motion(false)
+      document.body.innerHTML = '<div data-task-sheet-return></div><button id="cta">Fertig</button>'
+      const cta = document.getElementById('cta')!
+      cta.focus()
+      useTasksStore().addTask(makeTask('d1', TaskStatus.Done, { completedAt: today() }))
+      await useDayClose().finish()
+      archiveTasksMock.mockImplementationOnce(() => { cta.remove() })
+      await vi.advanceTimersByTimeAsync(250)
+      expect(document.activeElement).toBe(document.querySelector('[data-task-sheet-return]'))
+      document.body.innerHTML = ''
+    })
+
+    it('plain close() archives nothing', () => {
+      motion(true)
+      useTasksStore().addTask(makeTask('d1', TaskStatus.Done, { completedAt: today() }))
+      const dayClose = useDayClose()
+      dayClose.open()
+      dayClose.close()
+      expect(archiveTasksMock).not.toHaveBeenCalled()
+    })
+
+    it('still archives when the move of the Jetzt task rejects', async () => {
+      motion(true)
+      const store = useTasksStore()
+      store.addTask(makeTask('d1', TaskStatus.Done, { completedAt: today() }))
+      store.addTask(makeTask('p', TaskStatus.Progress))
+      moveTaskToStatusMock.mockRejectedValueOnce(new Error('move failed'))
+      await expect(useDayClose().finish()).rejects.toThrow('move failed')
+      expect(archiveTasksMock).toHaveBeenCalledWith(['d1'])
+    })
+
+    it('fades first: the list is flagged, the tasks stay until the fade is over, then they go and the flag clears', async () => {
+      vi.useFakeTimers()
+      motion(false)
+      const board = useBoardStore()
+      const store = useTasksStore()
+      store.addTask(makeTask('d1', TaskStatus.Done, { completedAt: today() }))
+      await useDayClose().finish()
+      expect(board.doneLeaving).toBe(true)
+      expect(archiveTasksMock).not.toHaveBeenCalled()
+      expect(store.tasksDoneToday).toHaveLength(1)
+      vi.advanceTimersByTime(250)
+      expect(archiveTasksMock).toHaveBeenCalledWith(['d1'])
+      expect(board.doneLeaving).toBe(false)
+    })
+
+    it('a second Fertig inside the fade archives once; a task moved out of Erledigt meanwhile is not archived', async () => {
+      vi.useFakeTimers()
+      motion(false)
+      const store = useTasksStore()
+      store.addTask(makeTask('d1', TaskStatus.Done, { completedAt: today() }))
+      store.addTask(makeTask('d2', TaskStatus.Done, { completedAt: today() }))
+      const dayClose = useDayClose()
+      await dayClose.finish()
+      await dayClose.finish()
+      store.updateTask('d2', { status: TaskStatus.Open })
+      vi.advanceTimersByTime(250)
+      expect(archiveTasksMock).toHaveBeenCalledTimes(1)
+      expect(archiveTasksMock).toHaveBeenCalledWith(['d1'])
+    })
+
+    it('the move rejecting inside the fade does not stop the archive', async () => {
+      vi.useFakeTimers()
+      motion(false)
+      const store = useTasksStore()
+      store.addTask(makeTask('d1', TaskStatus.Done, { completedAt: today() }))
+      store.addTask(makeTask('p', TaskStatus.Progress))
+      moveTaskToStatusMock.mockRejectedValueOnce(new Error('move failed'))
+      await expect(useDayClose().finish()).rejects.toThrow('move failed')
+      vi.advanceTimersByTime(250)
+      expect(archiveTasksMock).toHaveBeenCalledWith(['d1'])
     })
   })
 })

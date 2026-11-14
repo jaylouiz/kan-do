@@ -142,8 +142,8 @@ test.describe('delete from the palette of a card inside a stack (#433)', () => {
     await expect.poll(() => itemOrder(page)).toEqual(['u1', 'stack:Design', 'gap', 'c1', 'd1'])
     // the stack still holds the other two cards
     await expect(stack(page)).toHaveAttribute('data-stack-size', '2')
-    // compact (#57): the collapsed Yesterday note's 42px, not the stack's slot (the box glides there in 220 ms)
-    await expect.poll(async () => (await gap(page).boundingBox())!.height).toBeCloseTo(42, 0)
+    // compact (#57, #293): the collapsed Yesterday note's 48px, not the stack's slot (the box glides there in 220 ms)
+    await expect.poll(async () => (await gap(page).boundingBox())!.height).toBeCloseTo(48, 0)
     const gapBox = await gap(page).boundingBox()
     const nextBox = await page.locator(`${LIST} .task-wrapper[data-task-id="c1"]`).boundingBox()
     expect(nextBox!.y).toBeGreaterThanOrEqual(gapBox!.y + gapBox!.height - 1)

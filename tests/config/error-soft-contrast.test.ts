@@ -55,10 +55,14 @@ describe('error soft button contrast (#594)', () => {
     expect(config).toMatch(/color:\s*'error',\s*variant:\s*'soft',\s*class:\s*'text-error-700'/)
   })
 
-  it('the undo pill carries no local text override', () => {
-    const gap = readFileSync(resolve(root, 'components/task/TaskDeletedGap.vue'), 'utf8')
-    const pill = gap.match(/<UButton[^>]*data-testid="gap-undo"[^>]*>|<UButton[\s\S]*?data-testid="gap-undo"/)?.[0] ?? ''
+  it('the undo button carries no local text override and is no pill', () => {
+    // The undo button is BoardColumnNotice's action (#293); the gap renders it with tone="trash" and adds no class of its own
+    const notice = readFileSync(resolve(root, 'components/board/BoardColumnNotice.vue'), 'utf8')
+    const pill = notice.match(/<UButton[\s\S]*?<\/UButton>/)?.[0] ?? ''
     expect(pill).toContain('variant="soft"')
-    expect(pill).not.toMatch(/text-error/)
+    expect(pill).not.toMatch(/text-error|rounded-full/)
+    const gap = readFileSync(resolve(root, 'components/task/TaskDeletedGap.vue'), 'utf8')
+    expect(gap).toContain('tone="trash"')
+    expect(gap).not.toMatch(/rounded-full/)
   })
 })

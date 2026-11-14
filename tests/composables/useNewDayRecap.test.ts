@@ -5,6 +5,7 @@ import { useNewDayRecap, resetNewDayRecap } from '~/composables/useNewDayRecap'
 import { useTasksStore } from '~/store/tasks'
 import { useBoardStore } from '~/store/board'
 import { useDayRecapStore } from '~/store/dayRecap'
+import { syncToday } from '~/composables/useToday'
 import { dataState } from '~/lib/dataStorage'
 import { emptyDataStatus } from '~/lib/dataStatus'
 import { toastAddMock } from '../mocks/nuxt-imports'
@@ -203,6 +204,54 @@ describe('useNewDayRecap', () => {
       const recap = useNewDayRecap()
       recap.check('tasks')
       expect(recap.snapshot.value!.when.kind).toBe('weekday')
+    })
+  })
+
+  describe('after a day close (#292)', () => {
+    async function closeTheDayYesterdayEvening() {
+      vi.setSystemTime(new Date(2026, 9, 21, 18, 0))
+      syncToday()
+      vi.stubGlobal('matchMedia', (query: string) => ({ matches: query.includes('reduce'), media: query }))
+      await useDayClose().finish()
+      vi.setSystemTime(NOW)
+      syncToday()
+    }
+
+    it('still opens next morning with the tasks the day close archived, and the undone deck', async () => {
+      const { tasks, recap: store } = setup({ lastShownDay: '2026-10-20' })
+      await closeTheDayYesterdayEvening()
+      expect(tasks.tasksDonePrevious).toEqual([])
+      expect(tasks.archivedTaskIds).toEqual(['d1', 'd2'])
+      const recap = useNewDayRecap()
+      recap.check('tasks')
+      expect(recap.isOpen.value).toBe(true)
+      expect(recap.snapshot.value!.done.map(t => t.id)).toEqual(['d1', 'd2'])
+      expect(recap.snapshot.value!.undone.map(t => t.id)).toEqual(['o1', 'w1'])
+      recap.leave()
+      expect(store.lastShownDay).toBe(TODAY)
+      expect(syncArchiveStatusForTasks).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not show them a second time the day after the recap was left', async () => {
+      setup({ lastShownDay: '2026-10-20' })
+      await closeTheDayYesterdayEvening()
+      const recap = useNewDayRecap()
+      recap.check('tasks')
+      recap.leave()
+      recap.finishLeave({ restoreFocus: false })
+      vi.setSystemTime(new Date(2026, 9, 23, 9, 0))
+      syncToday()
+      recap.check('tasks')
+      expect(recap.isOpen.value).toBe(false)
+    })
+
+    it('leaves a task the user took out of Erledigt after the close out of the recap', async () => {
+      const { tasks } = setup({ lastShownDay: '2026-10-20' })
+      await closeTheDayYesterdayEvening()
+      tasks.updateTask('d2', { status: TaskStatus.Open })
+      const recap = useNewDayRecap()
+      recap.check('tasks')
+      expect(recap.snapshot.value!.done.map(t => t.id)).toEqual(['d1'])
     })
   })
 

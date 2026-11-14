@@ -63,6 +63,7 @@
       <board-column-yesterday-note
         v-if="isDoneColumn && tasksDonePrevious.length > 0"
         :tasks="tasksDonePrevious"
+        :class="{ 'task-list--leaving': boardStore.doneLeaving }"
         @acknowledge="handleArchive"
       />
     </Transition>
@@ -87,7 +88,7 @@
       ref="standardListRef"
       :data-task-status="taskStatus"
       class="task-list min-h-[150px] overflow-visible px-3 text-center md:px-10"
-      :class="{ 'task-list--stacking': isGroupingActive, 'flex-1': !isOpenColumn || props.isDragging }"
+      :class="{ 'task-list--stacking': isGroupingActive, 'task-list--leaving': isDoneColumn && boardStore.doneLeaving, 'task-list--end-footer': isDoneColumn && !!$slots.footer && !props.isDragging, 'flex-1': !isOpenColumn || props.isDragging }"
       :data-stack-mode="isGroupingActive ? 'true' : null"
       @pointermove="handlePointerMove"
       @pointerleave="handlePointerLeave"
@@ -585,6 +586,14 @@ const columnClasses = computed(() => ({
   }
 }
 
+/* Day close (#292): the Erledigt list fades out before its tasks are archived (useDayClose; none under reduced motion, it
+   does not set the flag then). Opacity only, on the list, so cards, stacks and gaps leave together without touching dnd-kit; the yesterday note fades with them. */
+.task-list--leaving {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+
 /* ========================================
  * COLUMN FOOTER
  * ======================================== */
@@ -599,5 +608,19 @@ const columnClasses = computed(() => ({
   /* Above the cards (z-index 100 + index, board.css) so the sticky CTA is never painted under a card; below the
      stack control (500) and the focus overlay's lift (1100, board-focus-overlay.css) */
   z-index: var(--z-column-footer);
+}
+
+/* Phone (#297): the CTA is the end of the list, not an overlay above the app bar: the footer follows the last card (the column
+   page's bottom padding already clears the bar) and its content takes the cards' width (Board.vue) */
+@media (--phone) {
+  .column-footer {
+    position: static;
+  }
+
+  /* The list stops stretching to the page's height while the footer follows it, so the CTA sits right under the last card
+     instead of at the bottom of the page; a drag restores the stretch (the whole page is the drop target, as in Offen) */
+  .task-list--end-footer {
+    flex: 0 0 auto;
+  }
 }
 </style>

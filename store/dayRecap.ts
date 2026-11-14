@@ -15,6 +15,16 @@ export const useDayRecapStore = defineStore('dayRecap', () => {
   /** "Erledigte archivieren" on the recap page: on by default, remembers the last choice. */
   const archiveDone = ref(true)
 
+  /**
+   * Ids the closing step ("Fertig", #292) archived since the recap was last left: the recap still looks back at them
+   * next morning, though they are no longer in Erledigt. Cleared when the recap moves the marker.
+   */
+  const closedTaskIds = ref<string[]>([])
+
+  /** `closedTaskIds` as a trusted value: a wrongly shaped stored field (hand-edited file, import) reads as `[]`. */
+  const validClosedTaskIds = computed<string[]>(() =>
+    Array.isArray(closedTaskIds.value) ? closedTaskIds.value.filter((id): id is string => typeof id === 'string') : [])
+
   /** `lastShownDay` as a trusted value: a malformed stored string (hand-edited file, import) reads as null. */
   const validLastShownDay = computed(() => (isValidDayKey(lastShownDay.value) ? lastShownDay.value : null))
 
@@ -24,15 +34,20 @@ export const useDayRecapStore = defineStore('dayRecap', () => {
     const current = validLastShownDay.value
     if (current !== null && todayKey <= current) return
     lastShownDay.value = todayKey
+    closedTaskIds.value = []
+  }
+
+  function rememberClosed(ids: string[]): void {
+    closedTaskIds.value = [...new Set([...validClosedTaskIds.value, ...ids])].slice(-500)
   }
 
   function setArchiveDone(value: boolean): void {
     archiveDone.value = value
   }
 
-  return { lastShownDay, archiveDone, validLastShownDay, markShown, setArchiveDone }
+  return { lastShownDay, archiveDone, closedTaskIds, validClosedTaskIds, validLastShownDay, markShown, rememberClosed, setArchiveDone }
 }, {
-  persist: { key: 'day-recap-store', pick: ['lastShownDay', 'archiveDone'] },
+  persist: { key: 'day-recap-store', pick: ['lastShownDay', 'archiveDone', 'closedTaskIds'] },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } as any)
 

@@ -83,11 +83,13 @@
         :grouping-key="groupingKey"
         @archive="handleArchiveTasks"
       >
-        <!-- "Tag abschließen" under the last card (#470); hidden while nothing is done today (the Mehr panel row stays) -->
+        <!-- "Tag abschließen" under the last card (#470); hidden while nothing is done today (the Mehr panel row stays). Desktop: the
+             column's sticky footer, natural width. Phone (#297): the end of the list (not sticky), the cards' box: the footer's px-3 is
+             the list's own inset and the width is capped like a card -->
         <template v-if="tasksDone.length > 0" #footer>
-          <!-- The footer is sticky above the cards: the paper backing keeps the soft button's translucent fill solid -->
+          <!-- On desktop the footer is sticky above the cards: the paper backing keeps the soft button's translucent fill solid -->
           <div class="flex w-full justify-center max-md:px-3">
-            <span class="flex rounded-md bg-page max-md:w-full">
+            <span class="flex rounded-md bg-page max-md:w-full max-md:max-w-(--task-card-max-width)">
               <UButton
                 icon="i-ph-sun-horizon"
                 color="neutral"

@@ -117,6 +117,12 @@ export const useBoardStore = defineStore("board", () => {
   const confirmationTimers: Record<string, number> = {};
 
   /**
+   * Day close (#292): true while the Erledigt list fades out before its tasks are archived. Transient and
+   * client-only like `confirmingTaskIds`: not persisted; `useDayClose().finish` sets and clears it.
+   */
+  const doneLeaving = ref(false);
+
+  /**
    * Timebox nudge (#389): id of the Jetzt card that currently asks for a timebox, or null. One at a
    * time (Jetzt holds one card). Transient like `confirmingTaskIds`: not persisted, and it lives here
    * because a cross-column move mounts the card fresh in Jetzt.
@@ -543,6 +549,7 @@ export const useBoardStore = defineStore("board", () => {
     renameFocusTopic,
     scrollPosition,
     confirmingTaskIds,
+    doneLeaving,
     timeboxNudgeTaskId,
     
     // Getters
