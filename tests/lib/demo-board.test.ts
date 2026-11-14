@@ -160,20 +160,20 @@ describe('demo board dates across a DST switch (#536)', () => {
     const board = buildDemoBoard(lateEvening, 'dst')
     const byId = new Map(board.tasks.map(t => [t.id, t]))
 
-    // open-8 was created 6 days ago, open-7 5 days ago: the same 23:30 on Oct 21 / 22
+    // open-8 was created 6 days ago, open-6 5 days ago: the same 23:30 on Oct 21 / 22
     expect(byId.get('demo-dst-open-8')!.createdAt).toEqual(new Date(2026, 9, 21, 23, 30))
-    expect(byId.get('demo-dst-open-7')!.createdAt).toEqual(new Date(2026, 9, 22, 23, 30))
-    // the carry-over count starts on the same calendar day it is counted from (waiting-3: 7 days, open-8: 6 days)
+    expect(byId.get('demo-dst-open-6')!.createdAt).toEqual(new Date(2026, 9, 22, 23, 30))
+    // the carry-over count starts on the same calendar day it is counted from (open-8: 6 days, waiting-1: 4 days)
     expect(board.carryOverByTaskId['demo-dst-open-8']).toMatchObject({ firstOn: '2026-10-21', days: 6, lastOn: '2026-10-27' })
-    expect(board.carryOverByTaskId['demo-dst-waiting-3']).toMatchObject({ firstOn: '2026-10-20', days: 7, lastOn: '2026-10-27' })
+    expect(board.carryOverByTaskId['demo-dst-waiting-1']).toMatchObject({ firstOn: '2026-10-23', days: 4, lastOn: '2026-10-27' })
   })
 
   it('spring-forward switch: firstOn stays on the calendar day just after the 23 h day', () => {
     process.env.TZ = 'Europe/Berlin' // clocks go forward on 2026-03-29, a 23 h day
     expect(new Date(2026, 2, 30).getTime() - new Date(2026, 2, 29).getTime()).toBe(23 * 3_600_000)
-    // 7 x 24 h before 2026-03-30 00:30 is 2026-03-22 23:30, one calendar day early
+    // 4 x 24 h before 2026-03-30 00:30 is 2026-03-25 23:30, one calendar day early
     const board = buildDemoBoard(new Date(2026, 2, 30, 0, 30), 'dst')
-    expect(board.carryOverByTaskId['demo-dst-waiting-3']).toMatchObject({ firstOn: '2026-03-23', days: 7, lastOn: '2026-03-30' })
+    expect(board.carryOverByTaskId['demo-dst-waiting-1']).toMatchObject({ firstOn: '2026-03-26', days: 4, lastOn: '2026-03-30' })
     expect(board.tasks.find(t => t.id === 'demo-dst-open-8')!.createdAt).toEqual(new Date(2026, 2, 24, 0, 30))
   })
 })

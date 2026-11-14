@@ -9,11 +9,12 @@
  * (docs/superpowers/specs/2026-10-19-i18n-design.md).
  *
  * What it covers:
- * - Offen (9): topics with 2-3 members (stacks), activities with 2-4 members, all three priorities, one card without
- *   topic and activity (the "no value" group), a timebox, a long note, a carried-over card (5 days: dots + triage nudge)
+ * - Offen (7): two topics with 2 members (stacks) and two with one, activities with 2-3 members, all three priorities, one card
+ *   without topic and activity (the "no value" group), a timebox, a long note, a carried-over card (5 days: dots + triage nudge)
  * - Jetzt (1): a timebox with about 40 % of it spent (progress chip)
- * - Wartet (3): notes on what each waits for, carried over for 2, 4 and 7 days
- * - Erledigt (5): four done today with tracked time (one over its timebox, one unplanned, one without timebox), one yesterday
+ * - Wartet (1): a note on what it waits for, carried over for 4 days
+ * - Erledigt (4): three done today with tracked time (one over its timebox, one unplanned without timebox, one under its
+ *   timebox), one yesterday
  *
  * Statistics: the backfill skips demo ids ({@link isDemoTaskId} in `lib/demoIds.ts`), so only `?seed=demo` has statistics data.
  * Dates are relative to `now`, so the board reads the same on any day. The data is pure: it touches no store.
@@ -121,7 +122,7 @@ export function buildDemoBoard(now: Date = new Date(), loadId: string = newDemoL
   const { Open, Progress, Waiting, Done } = TaskStatus
 
   const tasks: Task[] = [
-    // Offen: Thema "Baustelle Müller" (3), "Angebote" (2), "Personal" (2), "Fuhrpark" (1)
+    // Offen: Thema "Baustelle Müller" (2), "Angebote" (2), "Personal" (1), "Fuhrpark" (1)
     task({
       id: id('open-1'),
       title: 'Bepflanzungsplan Müller final abstimmen',
@@ -141,17 +142,6 @@ export function buildDemoBoard(now: Date = new Date(), loadId: string = newDemoL
       topic: 'Baustelle Müller',
       activity: 'Telefonat',
       createdDaysAgo: 2,
-    }),
-    task({
-      id: id('open-3'),
-      title: 'Pflastersteine Müller nachbestellen',
-      status: Open,
-      priority: 3,
-      topic: 'Baustelle Müller',
-      activity: 'Büro',
-      notes: 'Mengenabweichung laut Aufmaß: 14 m² mehr als bestellt.',
-      timeBox: 20,
-      createdDaysAgo: 1,
     }),
     task({
       id: id('open-4'),
@@ -182,15 +172,6 @@ export function buildDemoBoard(now: Date = new Date(), loadId: string = newDemoL
       activity: 'Vor Ort',
       notes: 'Bewerbung liegt im Postfach. Probearbeitstag am Mittwoch anbieten.',
       timeBox: 60,
-      createdDaysAgo: 5,
-    }),
-    task({
-      id: id('open-7'),
-      title: 'Urlaubsplanung Sommerteam abstimmen',
-      status: Open,
-      priority: 2,
-      topic: 'Personal',
-      activity: 'Büro',
       createdDaysAgo: 5,
     }),
     task({
@@ -225,7 +206,7 @@ export function buildDemoBoard(now: Date = new Date(), loadId: string = newDemoL
       createdDaysAgo: 2,
     }),
 
-    // Wartet: each says what it waits for
+    // Wartet: one task that says what it waits for
     task({
       id: id('waiting-1'),
       title: 'Liefertermin Hainbuchen bestätigen lassen',
@@ -236,28 +217,8 @@ export function buildDemoBoard(now: Date = new Date(), loadId: string = newDemoL
       notes: 'Wartet auf Rückmeldung der Baumschule Kröger: 120 Hainbuchen, Lieferung vor Pflanzbeginn.',
       createdDaysAgo: 4,
     }),
-    task({
-      id: id('waiting-2'),
-      title: 'Auftragsbestätigung Stadtpark-Sanierung',
-      status: Waiting,
-      priority: 3,
-      topic: 'Angebote',
-      activity: 'Büro',
-      notes: 'Wartet auf die unterschriebene Auftragsbestätigung der Stadt.',
-      createdDaysAgo: 2,
-    }),
-    task({
-      id: id('waiting-3'),
-      title: 'Rückfrage Umsatzsteuer-Voranmeldung klären',
-      status: Waiting,
-      priority: 2,
-      topic: 'Buchhaltung',
-      activity: 'Büro',
-      notes: 'Wartet auf den Rückruf der Steuerberatung.',
-      createdDaysAgo: 8,
-    }),
 
-    // Erledigt: four today (newest first), one yesterday
+    // Erledigt: three today (newest first), one yesterday
     task({
       id: id('done-1'),
       title: 'Angebot Terrassenbau Familie Hoffmann verschicken',
@@ -269,17 +230,6 @@ export function buildDemoBoard(now: Date = new Date(), loadId: string = newDemoL
       timeSpent: 70,
       createdDaysAgo: 2,
       doneHoursAgo: 1,
-    }),
-    task({
-      id: id('done-2'),
-      title: 'Baustellenbegehung Müller mit dem Bauleiter',
-      status: Done,
-      priority: 3,
-      topic: 'Baustelle Müller',
-      activity: 'Vor Ort',
-      timeSpent: 95,
-      createdDaysAgo: 3,
-      doneHoursAgo: 2,
     }),
     task({
       id: id('done-3'),
@@ -329,12 +279,9 @@ export function buildDemoBoard(now: Date = new Date(), loadId: string = newDemoL
   const carryOverByTaskId: Record<string, CarryOverEntry> = {
     [id('open-5')]: carried(3),
     [id('open-6')]: carried(5), // past the triage nudge threshold
-    [id('open-7')]: carried(5),
     [id('open-8')]: carried(6),
     [id('open-2')]: carried(1),
     [id('waiting-1')]: carried(4),
-    [id('waiting-2')]: carried(2),
-    [id('waiting-3')]: carried(7),
   }
 
   const completionRecords: TaskCompletionRecord[] = tasks.flatMap((t) =>

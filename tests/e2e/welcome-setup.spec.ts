@@ -239,7 +239,7 @@ test('"Mit Beispielaufgaben" -> "Board ansehen" -> the demo board (#527, #236): 
   await expect(page.getByText('Bagger für Montag disponieren')).toBeVisible() // Offen
   await expect(page.getByText('Angebot Dachbegrünung Hotel Seeblick kalkulieren')).toBeVisible() // Jetzt
   await expect(page.getByText('Liefertermin Hainbuchen bestätigen lassen')).toBeVisible() // Wartet
-  await expect(page.getByText('Baustellenbegehung Müller mit dem Bauleiter')).toBeVisible() // Erledigt
+  await expect(page.getByText('Angebot Terrassenbau Familie Hoffmann verschicken')).toBeVisible() // Erledigt
   await expect.poll(() => storedSources(page)).toEqual({ connected: [], default: 'local' })
 
   // The topic colours and symbols and the carried-over counters of the sample set survive the board's first day count
@@ -252,7 +252,7 @@ test('"Mit Beispielaufgaben" -> "Board ansehen" -> the demo board (#527, #236): 
 
   // The sample's done tasks never become permanent statistics, not even through the backfill on the next app start
   await page.reload()
-  await expect(page.getByText('Baustellenbegehung Müller mit dem Bauleiter')).toBeVisible()
+  await expect(page.getByText('Angebot Terrassenbau Familie Hoffmann verschicken')).toBeVisible()
   const records = await page.evaluate(
     () => (JSON.parse(localStorage.getItem('taskStatistics') ?? '{}') as { completionRecords?: unknown[] }).completionRecords ?? [],
   )
