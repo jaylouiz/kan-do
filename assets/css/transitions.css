@@ -30,7 +30,7 @@
 .welcome-root.page-leave-active {
   position: fixed;
   inset: 0;
-  z-index: 1;
+  z-index: calc(var(--z-bar) + 1); /* above the app bar, which mounts outside the page: the fade reveals it */
   transition: opacity var(--duration-slow) ease;
 }
 .welcome-root.page-leave-to { opacity: 0; transform: none; }
