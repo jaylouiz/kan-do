@@ -667,6 +667,49 @@ mod tests {
     }
 
     #[test]
+    fn the_cached_token_is_read_from_the_keychain_once_over_several_calls() {
+        let (secrets, backend) = memory_secrets();
+        secrets.set(SecretEntry::GithubUpdates, TOKEN).unwrap();
+        let reads_before = backend.reads.load(std::sync::atomic::Ordering::SeqCst);
+        for _ in 0..3 {
+            let (base, server) = serve_once("HTTP/1.1 200 OK\r\ncontent-length: 2\r\n\r\n{}");
+            block_on(execute(&secrets, &base, SecretEntry::GithubUpdates, "GET", "/repos/jaylouiz/kan-do", None)).unwrap();
+            server.join().unwrap();
+        }
+        assert_eq!(backend.reads.load(std::sync::atomic::Ordering::SeqCst), reads_before, "set cached the value: no read at all");
+        let (secrets, backend) = memory_secrets();
+        backend.values.lock().unwrap().insert(SecretEntry::GithubUpdates, TOKEN.to_string());
+        for _ in 0..3 {
+            let (base, server) = serve_once("HTTP/1.1 200 OK\r\ncontent-length: 2\r\n\r\n{}");
+            block_on(execute(&secrets, &base, SecretEntry::GithubUpdates, "GET", "/repos/jaylouiz/kan-do", None)).unwrap();
+            server.join().unwrap();
+        }
+        assert_eq!(backend.reads.load(std::sync::atomic::Ordering::SeqCst), 1, "three requests, one Keychain read");
+    }
+
+    #[test]
+    fn the_gh_token_carries_to_the_server_under_the_feedback_pin_and_never_touches_the_keychain() {
+        let (secrets, backend, _dir) = crate::secrets::test_support::with_gh("gho_fromgh5678", true);
+        // The write pin applies to the gh source like to any feedback token: refused before gh or the network is touched.
+        let refused = block_on(execute(
+            &secrets, "http://127.0.0.1:9", SecretEntry::GithubFeedback, "PUT",
+            "/repos/jaylouiz/kan-do/contents/README.md", Some(serde_json::json!({ "branch": "main", "message": "m", "content": "" })),
+        ));
+        assert_eq!(refused.unwrap_err(), SecretError::InvalidRequest);
+        let (base, server) = serve_once("HTTP/1.1 201 Created\r\ncontent-length: 2\r\n\r\n{}");
+        let response = block_on(execute(
+            &secrets, &base, SecretEntry::GithubFeedback, "POST", "/repos/jaylouiz/kan-do/issues",
+            Some(serde_json::json!({ "title": "t", "body": "b", "labels": ["inbox"] })),
+        ))
+        .unwrap();
+        assert_eq!(response.status, 201);
+        let request = server.join().unwrap().to_ascii_lowercase();
+        assert!(request.contains("authorization: bearer gho_fromgh5678"), "{request}");
+        assert_eq!(backend.reads.load(std::sync::atomic::Ordering::SeqCst), 0);
+        assert_eq!(backend.writes.load(std::sync::atomic::Ordering::SeqCst), 0);
+    }
+
+    #[test]
     fn other_entries_keep_their_behaviour() {
         // The write policy is the feedback entry's: the updates entry is not narrowed by it.
         let (secrets, _) = memory_secrets();

@@ -5,6 +5,11 @@
 //! are write-only for JS: it can set, delete and ask for status, and `github::github_request`
 //! performs the calls. Rust code in this process reads them through [`get`].
 //!
+//! Each entry is read from its source at most once per session (the value, or "missing", is cached in memory): the
+//! Keychain prompts per read for a binary whose signature it does not know (`tauri dev`), and a feedback send makes
+//! several GitHub calls (#280). With the developer's opt-in marker the feedback entry comes from the `gh` login
+//! instead ([`crate::gh_cli`]) and the Keychain is not read for it at all; no entry is ever rewritten or deleted for that.
+//!
 //! Token values never leave this module except through `secret_get` (Notion/Todoist), the last
 //! four characters in a status, and [`get`]. Errors are mapped to fixed messages: the platform
 //! error text is never forwarded, because some variants carry the raw secret bytes.
@@ -213,6 +218,15 @@ impl Backend for KeyringBackend {
     }
 }
 
+/// Where an entry's value came from (the frontend shows the feedback row only for a Keychain entry).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Source {
+    Keychain,
+    /// The developer's GitHub CLI login ([`crate::gh_cli`]); feedback entry only.
+    GhCli,
+}
+
 /// What the frontend may know about an entry.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(tag = "state", rename_all = "snake_case")]
@@ -221,21 +235,22 @@ pub enum EntryStatus {
         present: bool,
         last4: Option<String>,
         rejected: bool,
+        source: Source,
     },
     /// The Keychain could not be read. Distinct from `present: false`.
     Error { kind: SecretError },
 }
 
-/// Cached facts about an entry; never the value itself.
-#[derive(Debug, Clone)]
-struct Known {
-    present: bool,
-    last4: Option<String>,
+/// What the session knows about an entry: the value (`None` = missing) and where it came from.
+#[derive(Clone)]
+struct Cached {
+    value: Option<String>,
+    source: Source,
 }
 
 #[derive(Default)]
 struct Inner {
-    known: HashMap<SecretEntry, Known>,
+    cache: HashMap<SecretEntry, Cached>,
     rejected: HashMap<SecretEntry, bool>,
     /// Bumped by every `set` and `delete`: identifies which stored token a request was made with.
     epoch: HashMap<SecretEntry, u64>,
@@ -244,6 +259,8 @@ struct Inner {
 /// Managed state: the backend plus the in-memory status cache and `rejected` flags.
 pub struct Secrets {
     backend: Box<dyn Backend>,
+    /// The developer's `gh` login for the feedback entry; `None` outside the production app.
+    gh_cli: Option<crate::gh_cli::GhCli>,
     state: Mutex<Inner>,
 }
 
@@ -256,8 +273,15 @@ impl Secrets {
     pub fn new(backend: Box<dyn Backend>) -> Self {
         Self {
             backend,
+            gh_cli: None,
             state: Mutex::new(Inner::default()),
         }
+    }
+
+    /// Lets the feedback entry come from the `gh` login when the developer opted in (marker file, see [`crate::gh_cli`]).
+    pub fn with_gh_cli(mut self, gh_cli: crate::gh_cli::GhCli) -> Self {
+        self.gh_cli = Some(gh_cli);
+        self
     }
 
     /// The native store on macOS under `service` ([`service_for`]), the unsupported stub elsewhere.
@@ -279,11 +303,27 @@ impl Secrets {
         self.state.lock().unwrap_or_else(|poisoned| poisoned.into_inner())
     }
 
-    /// Reads a value for an in-process consumer (any entry). `Ok(None)` means missing.
+    /// Reads a value for an in-process consumer (any entry). `Ok(None)` means missing. The first read of an entry
+    /// asks its source, later ones answer from memory; a failure is never remembered.
     pub fn get(&self, entry: SecretEntry) -> Result<Option<String>, SecretError> {
-        let value = self.backend.get(entry)?;
-        self.remember(entry, value.as_deref());
-        Ok(value)
+        Ok(self.resolve(entry)?.value)
+    }
+
+    fn resolve(&self, entry: SecretEntry) -> Result<Cached, SecretError> {
+        if let Some(cached) = self.lock().cache.get(&entry).cloned() {
+            return Ok(cached);
+        }
+        // Not under the lock: `gh` and the Keychain can take seconds.
+        let from_gh = match (&self.gh_cli, entry) {
+            (Some(gh), SecretEntry::GithubFeedback) => gh.token(),
+            _ => None,
+        };
+        let resolved = match from_gh {
+            Some(token) => Cached { value: Some(token), source: Source::GhCli },
+            None => Cached { value: self.backend.get(entry)?, source: Source::Keychain },
+        };
+        // A concurrent `set` that landed meanwhile wins over the value just read.
+        Ok(self.lock().cache.entry(entry).or_insert(resolved).clone())
     }
 
     /// `secret_get` for the webview: only the readable entries.
@@ -300,14 +340,21 @@ impl Secrets {
             return Err(SecretError::EmptyValue);
         }
         self.backend.set(entry, value)?;
-        self.remember(entry, Some(value));
+        self.lock().cache.insert(entry, Cached { value: Some(value.to_owned()), source: Source::Keychain });
         self.replaced(entry);
         Ok(())
     }
 
     pub fn delete(&self, entry: SecretEntry) -> Result<(), SecretError> {
         self.backend.delete(entry)?;
-        self.remember(entry, None);
+        let mut inner = self.lock();
+        if entry == SecretEntry::GithubFeedback && self.gh_cli.is_some() {
+            // Forgotten, not "missing": the next read decides again (the feedback entry falls back to `gh`).
+            inner.cache.remove(&entry);
+        } else {
+            inner.cache.insert(entry, Cached { value: None, source: Source::Keychain });
+        }
+        drop(inner);
         self.replaced(entry);
         Ok(())
     }
@@ -343,34 +390,17 @@ impl Secrets {
         self.lock().rejected.get(&entry).copied().unwrap_or(false)
     }
 
-    /// Status of one entry. The Keychain is read once; later calls answer from the cache.
+    /// Status of one entry. The source is asked once; later calls answer from the cache.
     pub fn status(&self, entry: SecretEntry) -> EntryStatus {
-        let cached = self.lock().known.get(&entry).cloned();
-        let known = match cached {
-            Some(known) => known,
-            None => {
-                if let Err(kind) = self.get(entry) {
-                    return EntryStatus::Error { kind };
-                }
-                match self.lock().known.get(&entry).cloned() {
-                    Some(known) => known,
-                    None => return EntryStatus::Error { kind: SecretError::Keychain },
-                }
-            }
-        };
-        EntryStatus::Ok {
-            present: known.present,
-            last4: known.last4,
-            rejected: self.is_rejected(entry),
+        match self.resolve(entry) {
+            Ok(cached) => EntryStatus::Ok {
+                present: cached.value.is_some(),
+                last4: cached.value.as_deref().map(last4_of),
+                rejected: self.is_rejected(entry),
+                source: cached.source,
+            },
+            Err(kind) => EntryStatus::Error { kind },
         }
-    }
-
-    fn remember(&self, entry: SecretEntry, value: Option<&str>) {
-        let known = Known {
-            present: value.is_some(),
-            last4: value.map(last4_of),
-        };
-        self.lock().known.insert(entry, known);
     }
 }
 
@@ -456,16 +486,22 @@ pub(crate) mod test_support {
     pub struct MemoryBackend {
         pub values: Mutex<HashMap<SecretEntry, String>>,
         pub fail: Mutex<bool>,
+        /// Calls of `get`: one is one Keychain read (and one possible prompt).
+        pub reads: std::sync::atomic::AtomicUsize,
+        /// Calls of `set` and `delete`.
+        pub writes: std::sync::atomic::AtomicUsize,
     }
 
     impl Backend for std::sync::Arc<MemoryBackend> {
         fn get(&self, entry: SecretEntry) -> Result<Option<String>, SecretError> {
+            self.reads.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
             if *self.fail.lock().unwrap() {
                 return Err(SecretError::Keychain);
             }
             Ok(self.values.lock().unwrap().get(&entry).cloned())
         }
         fn set(&self, entry: SecretEntry, value: &str) -> Result<(), SecretError> {
+            self.writes.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
             if *self.fail.lock().unwrap() {
                 return Err(SecretError::Keychain);
             }
@@ -473,12 +509,29 @@ pub(crate) mod test_support {
             Ok(())
         }
         fn delete(&self, entry: SecretEntry) -> Result<(), SecretError> {
+            self.writes.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
             if *self.fail.lock().unwrap() {
                 return Err(SecretError::Keychain);
             }
             self.values.lock().unwrap().remove(&entry);
             Ok(())
         }
+    }
+
+    /// Secrets over the memory backend plus a fake `gh` (a script printing `gh_output`) and the developer marker.
+    pub fn with_gh(gh_output: &str, marker: bool) -> (Secrets, std::sync::Arc<MemoryBackend>, tempfile::TempDir) {
+        use std::os::unix::fs::PermissionsExt;
+        let dir = tempfile::TempDir::new().unwrap();
+        let bin = dir.path().join("gh");
+        std::fs::write(&bin, format!("#!/bin/sh\necho {gh_output}\n")).unwrap();
+        std::fs::set_permissions(&bin, std::fs::Permissions::from_mode(0o755)).unwrap();
+        let marker_path = dir.path().join(crate::gh_cli::MARKER_FILE);
+        if marker {
+            std::fs::write(&marker_path, b"").unwrap();
+        }
+        let (secrets, backend) = memory_secrets();
+        let secrets = secrets.with_gh_cli(crate::gh_cli::GhCli::with(marker_path, vec![bin], std::time::Duration::from_secs(5)));
+        (secrets, backend, dir)
     }
 
     pub fn memory_secrets() -> (Secrets, std::sync::Arc<MemoryBackend>) {
@@ -593,7 +646,7 @@ mod tests {
         let (secrets, backend) = memory_secrets();
         assert_eq!(
             secrets.status(SecretEntry::GithubUpdates),
-            EntryStatus::Ok { present: false, last4: None, rejected: false }
+            EntryStatus::Ok { present: false, last4: None, rejected: false, source: Source::Keychain }
         );
         *backend.fail.lock().unwrap() = true;
         assert_eq!(
@@ -609,13 +662,13 @@ mod tests {
         backend.values.lock().unwrap().insert(SecretEntry::GithubUpdates, TOKEN.to_string());
         assert_eq!(
             secrets.status(SecretEntry::GithubUpdates),
-            EntryStatus::Ok { present: true, last4: Some("1234".into()), rejected: false }
+            EntryStatus::Ok { present: true, last4: Some("1234".into()), rejected: false, source: Source::Keychain }
         );
         // After the first read the Keychain is not consulted again.
         *backend.fail.lock().unwrap() = true;
         assert_eq!(
             secrets.status(SecretEntry::GithubUpdates),
-            EntryStatus::Ok { present: true, last4: Some("1234".into()), rejected: false }
+            EntryStatus::Ok { present: true, last4: Some("1234".into()), rejected: false, source: Source::Keychain }
         );
     }
 
@@ -664,7 +717,7 @@ mod tests {
         secrets.delete(SecretEntry::GithubUpdates).unwrap();
         assert_eq!(
             secrets.status(SecretEntry::GithubUpdates),
-            EntryStatus::Ok { present: false, last4: None, rejected: false }
+            EntryStatus::Ok { present: false, last4: None, rejected: false, source: Source::Keychain }
         );
     }
 
@@ -714,6 +767,115 @@ mod tests {
             secrets.status(SecretEntry::NotionToken),
             EntryStatus::Error { kind: SecretError::Unsupported }
         );
+    }
+
+    use std::sync::atomic::Ordering::SeqCst;
+    use test_support::with_gh;
+
+    #[test]
+    fn each_entry_is_read_from_the_keychain_once_per_session() {
+        let (secrets, backend) = memory_secrets();
+        backend.values.lock().unwrap().insert(SecretEntry::GithubUpdates, TOKEN.to_string());
+        for _ in 0..4 {
+            assert_eq!(secrets.get(SecretEntry::GithubUpdates), Ok(Some(TOKEN.to_string())));
+            let _ = secrets.get_with_epoch(SecretEntry::GithubUpdates).unwrap();
+            let _ = secrets.status(SecretEntry::GithubUpdates);
+        }
+        assert_eq!(backend.reads.load(SeqCst), 1);
+        // A missing entry is remembered too: the updater asks on every check, nobody needs a prompt for "nothing".
+        for _ in 0..3 {
+            assert_eq!(secrets.get(SecretEntry::GithubFeedback), Ok(None));
+        }
+        assert_eq!(backend.reads.load(SeqCst), 2);
+    }
+
+    #[test]
+    fn set_and_delete_replace_the_cached_value_without_another_read() {
+        let (secrets, backend) = memory_secrets();
+        assert_eq!(secrets.get(SecretEntry::GithubUpdates), Ok(None));
+        secrets.set(SecretEntry::GithubUpdates, TOKEN).unwrap();
+        assert_eq!(secrets.get(SecretEntry::GithubUpdates), Ok(Some(TOKEN.to_string())));
+        secrets.set(SecretEntry::GithubUpdates, "ghp_other5678").unwrap();
+        assert_eq!(secrets.get(SecretEntry::GithubUpdates), Ok(Some("ghp_other5678".to_string())));
+        secrets.delete(SecretEntry::GithubUpdates).unwrap();
+        assert_eq!(secrets.get(SecretEntry::GithubUpdates), Ok(None));
+        assert_eq!(backend.reads.load(SeqCst), 1, "only the first read reaches the Keychain");
+    }
+
+    #[test]
+    fn a_failed_keychain_read_is_retried_not_remembered() {
+        let (secrets, backend) = memory_secrets();
+        backend.values.lock().unwrap().insert(SecretEntry::GithubUpdates, TOKEN.to_string());
+        *backend.fail.lock().unwrap() = true;
+        assert_eq!(secrets.get(SecretEntry::GithubUpdates), Err(SecretError::Keychain));
+        assert_eq!(secrets.get(SecretEntry::GithubUpdates), Err(SecretError::Keychain));
+        *backend.fail.lock().unwrap() = false;
+        assert_eq!(secrets.get(SecretEntry::GithubUpdates), Ok(Some(TOKEN.to_string())));
+    }
+
+    #[test]
+    fn with_the_marker_the_gh_token_serves_the_feedback_entry_and_the_keychain_is_never_read() {
+        let (secrets, backend, _dir) = with_gh("gho_fromgh5678", true);
+        backend.values.lock().unwrap().insert(SecretEntry::GithubFeedback, TOKEN.to_string());
+        assert_eq!(secrets.get(SecretEntry::GithubFeedback), Ok(Some("gho_fromgh5678".to_string())));
+        assert_eq!(
+            secrets.status(SecretEntry::GithubFeedback),
+            EntryStatus::Ok { present: true, last4: Some("5678".into()), rejected: false, source: Source::GhCli }
+        );
+        assert_eq!(backend.reads.load(SeqCst), 0, "no Keychain read, so no prompt");
+        assert_eq!(backend.writes.load(SeqCst), 0, "the gh path never writes or deletes an entry");
+    }
+
+    #[test]
+    fn the_updates_entry_never_uses_gh() {
+        let (secrets, backend, _dir) = with_gh("gho_fromgh5678", true);
+        assert_eq!(secrets.get(SecretEntry::GithubUpdates), Ok(None));
+        assert_eq!(backend.reads.load(SeqCst), 1);
+    }
+
+    #[test]
+    fn without_the_marker_the_keychain_entry_is_used_as_before() {
+        let (secrets, backend, _dir) = with_gh("gho_fromgh5678", false);
+        backend.values.lock().unwrap().insert(SecretEntry::GithubFeedback, TOKEN.to_string());
+        assert_eq!(secrets.get(SecretEntry::GithubFeedback), Ok(Some(TOKEN.to_string())));
+        assert!(matches!(
+            secrets.status(SecretEntry::GithubFeedback),
+            EntryStatus::Ok { source: Source::Keychain, .. }
+        ));
+    }
+
+    #[test]
+    fn with_the_marker_but_no_usable_gh_the_keychain_entry_is_the_fallback() {
+        let (secrets, backend, _dir) = with_gh("''", true);
+        backend.values.lock().unwrap().insert(SecretEntry::GithubFeedback, TOKEN.to_string());
+        assert_eq!(secrets.get(SecretEntry::GithubFeedback), Ok(Some(TOKEN.to_string())));
+        assert!(matches!(
+            secrets.status(SecretEntry::GithubFeedback),
+            EntryStatus::Ok { source: Source::Keychain, .. }
+        ));
+    }
+
+    #[test]
+    fn deleting_the_feedback_entry_falls_back_to_gh_and_a_401_on_the_gh_token_flags_the_entry() {
+        let (secrets, backend, _dir) = with_gh("gho_fromgh5678", true);
+        secrets.set(SecretEntry::GithubFeedback, TOKEN).unwrap();
+        secrets.delete(SecretEntry::GithubFeedback).unwrap();
+        assert_eq!(secrets.get(SecretEntry::GithubFeedback), Ok(Some("gho_fromgh5678".to_string())));
+        let (_, epoch) = secrets.get_with_epoch(SecretEntry::GithubFeedback).unwrap();
+        secrets.mark_rejected_if(SecretEntry::GithubFeedback, epoch);
+        assert!(matches!(
+            secrets.status(SecretEntry::GithubFeedback),
+            EntryStatus::Ok { rejected: true, source: Source::GhCli, .. }
+        ));
+        assert_eq!(backend.reads.load(SeqCst), 0);
+    }
+
+    #[test]
+    fn the_status_source_serializes_as_a_fixed_word_and_carries_no_token() {
+        let (secrets, _backend, _dir) = with_gh("gho_fromgh5678", true);
+        let json = serde_json::to_string(&secrets.status(SecretEntry::GithubFeedback)).unwrap();
+        assert!(json.contains(r#""source":"gh_cli""#), "{json}");
+        assert!(!json.contains("fromgh"), "{json}");
     }
 
     #[cfg(target_os = "macos")]

@@ -469,3 +469,36 @@ test.describe('Feedback with a token of a user without write access (desktop)', 
     expect((await githubCalls(page, { accessCheck: true })).map(call => `${call.method} ${call.path}`)).toEqual(['GET /repos/jaylouiz/kan-do'])
   })
 })
+
+test.describe('Feedback with the developer\'s GitHub CLI token (desktop, #280)', () => {
+  test.beforeEach(async ({ context, page }) => {
+    await seedLocalBoard(context)
+    await installTauriStub(context, { feedbackFromGh: true })
+    await page.goto('/tasks')
+    await expect(page.locator('#column-open-list .task-wrapper')).toHaveCount(2)
+  })
+
+  test('files the issue in the repo through Rust without any token in the page, and without the relay', async ({ page }) => {
+    const reports = await mockFeedbackRelay(page)
+    await openFeedback(page)
+    await toReview(page, 'Vom Entwickler')
+    await page.getByTestId('feedback-send').click()
+    await expect(dialog(page)).toBeHidden()
+    expect(reports).toHaveLength(0)
+    const posts = await githubCalls(page, { method: 'POST' })
+    expect(posts.map(call => call.path)).toEqual(['/repos/jaylouiz/kan-do/issues'])
+    expect((await stubState(page)).calls.filter(c => c.cmd === 'secret_get' && c.args.entry === 'github-feedback')).toEqual([])
+  })
+
+  test('a refused CLI token takes the browser path and its note has no link to a settings row that does not exist', async ({ page }) => {
+    await markRejected(page, 'github-feedback')
+    await openFeedback(page)
+    await toReview(page)
+    const note = page.getByTestId('feedback-fallback-note')
+    await expect(note).toContainText('GitHub hat das Token der GitHub-CLI abgelehnt')
+    await expect(note).toContainText('gh auth login')
+    await expect(note.getByRole('link')).toHaveCount(0)
+    await expect(page.getByTestId('feedback-open-browser')).toBeVisible()
+    expect(await githubCalls(page)).toEqual([])
+  })
+})

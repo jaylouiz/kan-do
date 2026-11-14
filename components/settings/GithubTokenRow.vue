@@ -4,15 +4,16 @@
 @category input
 @description One GitHub token entry on /settings/github: purpose, required access and the state area
 (empty, checking, saved, rejected, error). Flat section, no card (DESIGN.md sub-page pattern).
-@usage <GithubTokenRow entry="github-updates" />
-@avoid Only the GitHub token entries on /settings/github; the Notion token is TokenStep.
+@usage <GithubTokenRow entry="github-updates" /> (updates: always; feedback: only while a Keychain token is stored, `showRow`, #280)
+@avoid Only the GitHub token entries on /settings/github; the Notion token is TokenStep. The feedback row never renders its empty (paste) state: nobody adds a feedback token any more.
 @responsibility
 - Show the state of one Keychain entry: only the last four characters are ever visible
 - Paste, check and store a token ("Speichern"), re-check it ("Testen"), remove it with undo ("Entfernen")
 - Keep focus on the field after remove and on the remove button after undo
 -->
 <template>
-  <PageSheet tag="section" :aria-labelledby="headingId" class="space-y-3">
+  <!-- A feedback token waiting for its undo hides here, not by unmounting: Undo moves focus back into this row -->
+  <PageSheet v-show="!hidden" tag="section" :aria-labelledby="headingId" class="space-y-3">
     <div class="space-y-1">
       <SectionHeader :id="headingId" tag="h2">
         {{ t(`settings.github.${key}.title`) }}
@@ -161,6 +162,7 @@ const key = computed(() => GITHUB_ENTRY_KEY[props.entry]);
 const headingId = computed(() => `github-${key.value}-heading`);
 const title = computed(() => t(`settings.github.${key.value}.title`));
 const row = computed(() => tokens.rows[props.entry]);
+const hidden = computed(() => props.entry === 'github-feedback' && row.value.removed);
 const masked = computed(() => `●●●● ${row.value.last4 ?? ''}`.trim());
 
 // Fine-grained PATs are created here; the repository and permissions are chosen on GitHub.

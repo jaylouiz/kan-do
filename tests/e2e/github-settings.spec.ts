@@ -45,26 +45,43 @@ test.describe('GitHub settings (desktop)', () => {
     await expect(page.getByRole('heading', { name: 'GitHub-Zugriff' })).toBeVisible()
   })
 
-  test('shows both rows in the empty state with one external link each', async ({ context, page }) => {
+  test('shows only the updates row in the empty state, with its external link; no feedback token UI (#280)', async ({ context, page }) => {
     await installTauriStub(context)
     await page.goto('/settings/github')
 
-    for (const row of [updates(page), feedback(page)]) {
-      await expect(field(row)).toBeVisible()
-      await expect(row.getByRole('button', { name: 'Speichern' })).toBeDisabled()
-      await expect(row.getByRole('link', { name: /Token auf GitHub erstellen/ })).toHaveCount(1)
-    }
+    await expect(field(updates(page))).toBeVisible()
+    await expect(updates(page).getByRole('button', { name: 'Speichern' })).toBeDisabled()
+    await expect(updates(page).getByRole('link', { name: /Token auf GitHub erstellen/ })).toHaveCount(1)
     await expect(updates(page)).toContainText('Nur Lesen (Inhalte), nur dieses Repository.')
-    await expect(feedback(page)).toContainText('Issues + Inhalte: schreiben, nur dieses Repository.')
-    // The scope help concerns the feedback token only.
     await expect(updates(page)).not.toContainText('Schreibrechte für Issues')
-    await expect(feedback(page)).toContainText('Schreibrechte für Issues')
+    // Nobody can add a feedback token any more: no row, no field, no scope help.
+    await expect(feedback(page)).toHaveCount(0)
+    await expect(page.getByText('Schreibrechte für Issues')).toHaveCount(0)
 
     // The external link goes through the opener plugin, not the webview.
     await updates(page).getByRole('link', { name: /Token auf GitHub erstellen/ }).click()
     await expect.poll(async () => (await stubState(page)).openedUrls).toEqual([
       'https://github.com/settings/personal-access-tokens/new',
     ])
+  })
+
+  test('a feedback token stored earlier still shows, with Testen and Löschen, and no paste field (#280)', async ({ context, page }) => {
+    await installTauriStub(context, { entries: { 'github-feedback': TOKEN } })
+    await page.goto('/settings/github')
+    const saved = feedback(page).getByTestId('github-token-saved')
+    await expect(saved).toContainText('●●●● a1b2')
+    await expect(feedback(page)).toContainText('Issues + Inhalte: schreiben, nur dieses Repository.')
+    await expect(feedback(page)).toContainText('Schreibrechte für Issues')
+    await expect(saved.getByRole('button', { name: 'Testen' })).toBeVisible()
+    await expect(field(feedback(page))).toHaveCount(0)
+  })
+
+  test('the developer\'s GitHub CLI token has no row and is not checked when the page opens (#280)', async ({ context, page }) => {
+    await installTauriStub(context, { feedbackFromGh: true })
+    await page.goto('/settings/github')
+    await expect(updates(page)).toBeVisible()
+    await expect(feedback(page)).toHaveCount(0)
+    expect(await githubCalls(page)).toHaveLength(0)
   })
 
   test('Speichern checks first, then shows only the last four characters', async ({ context, page }) => {
@@ -90,13 +107,13 @@ test.describe('GitHub settings (desktop)', () => {
   test('a rejected token (401) shows an inline error and stores nothing', async ({ context, page }) => {
     await installTauriStub(context, { githubMode: 'unauthorized' })
     await page.goto('/settings/github')
-    await field(feedback(page)).fill(TOKEN)
-    await feedback(page).getByRole('button', { name: 'Speichern' }).click()
+    await field(updates(page)).fill(TOKEN)
+    await updates(page).getByRole('button', { name: 'Speichern' }).click()
 
-    await expect(feedback(page)).toContainText('GitHub hat dieses Token abgelehnt.')
-    await expect(feedback(page).getByTestId('github-token-saved')).toHaveCount(0)
+    await expect(updates(page)).toContainText('GitHub hat dieses Token abgelehnt.')
+    await expect(updates(page).getByTestId('github-token-saved')).toHaveCount(0)
     const state = await stubState(page)
-    expect(state.entries['github-feedback']).toBeUndefined()
+    expect(state.entries['github-updates']).toBeUndefined()
   })
 
   test('a 403 names the missing permission, a 404 the invisible repository; neither is "rejected"', async ({ context, page }) => {
@@ -105,9 +122,6 @@ test.describe('GitHub settings (desktop)', () => {
     await field(updates(page)).fill(TOKEN)
     await updates(page).getByRole('button', { name: 'Speichern' }).click()
     await expect(updates(page)).toContainText('Dem Token fehlt die Berechtigung „Inhalte lesen“ für dieses Repository, nichts gespeichert.')
-    await field(feedback(page)).fill(TOKEN)
-    await feedback(page).getByRole('button', { name: 'Speichern' }).click()
-    await expect(feedback(page)).toContainText('Dem Token fehlt die Berechtigung „Issues“')
     await expect(page.getByText('abgelehnt')).toHaveCount(0)
 
     await setGithubMode(page, 'not-found')
@@ -213,8 +227,8 @@ test.describe('GitHub settings (desktop)', () => {
     const saved = feedback(page).getByTestId('github-token-saved')
     await saved.getByRole('button', { name: 'Löschen' }).click()
 
-    await expect(feedback(page).getByTestId('github-token-empty')).toBeVisible()
-    await expect(field(feedback(page))).toBeFocused()
+    // The row is hidden (it has no paste field to land in); nothing is lost until the toast closes.
+    await expect(feedback(page)).toBeHidden()
     // Still in the Keychain while the undo toast is open.
     expect((await stubState(page)).entries['github-feedback']).toBe(TOKEN)
 
@@ -246,15 +260,15 @@ test.describe('GitHub settings (desktop)', () => {
       const blocking = results.violations.filter(v => v.impact === 'serious' || v.impact === 'critical')
       expect(blocking.map(v => `${v.id}: ${v.nodes[0]?.target.join(' ')}`)).toEqual([])
     }
-    await scan() // updates saved, feedback empty
+    await scan() // updates saved
     await setGithubMode(page, 'unauthorized')
     await updates(page).getByRole('button', { name: 'Testen' }).click()
     await expect(updates(page).getByTestId('github-token-rejected')).toBeVisible()
     await scan() // updates rejected
     await setGithubMode(page, 'offline')
-    await field(feedback(page)).fill(TOKEN)
-    await feedback(page).getByRole('button', { name: 'Speichern' }).click()
-    await expect(feedback(page)).toContainText('Keine Verbindung, nichts gespeichert.')
+    await field(updates(page)).fill('ghp_replacement_0000')
+    await updates(page).getByRole('button', { name: 'Speichern' }).click()
+    await expect(updates(page)).toContainText('Keine Verbindung. Das Token wurde nicht geprüft.')
     await scan() // inline error
   })
 

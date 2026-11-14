@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 import { SecretError } from '~/composables/useSecrets'
-import { useGithubTokens, resetGithubTokensState, REMOVE_UNDO_WINDOW_MS } from '~/composables/useGithubTokens'
+import { useGithubTokens, resetGithubTokensState, showRow, REMOVE_UNDO_WINDOW_MS } from '~/composables/useGithubTokens'
 import { toastAddMock, toastRemoveMock } from '../mocks/nuxt-imports'
 
 const secretsMock = {
@@ -138,6 +138,48 @@ describe('useGithubTokens', () => {
     expect(tokens.rows['github-updates']).toMatchObject({ present: true, problem: 'offline' })
     expect(secretsMock.remove).not.toHaveBeenCalled()
     expect(secretsMock.set).not.toHaveBeenCalled()
+  })
+
+  describe('the feedback row (#280)', () => {
+    const viaGh = { state: 'ok', present: true, last4: 'gh01', rejected: false, source: 'gh_cli' }
+
+    it('is shown only for a token that is stored in the Keychain; the updates row always is', async () => {
+      secretsMock.status.mockResolvedValue({ 'github-updates': missing, 'github-feedback': missing })
+      await useGithubTokens().load()
+      expect(showRow('github-updates')).toBe(true)
+      expect(showRow('github-feedback')).toBe(false)
+
+      secretsMock.status.mockResolvedValue({ 'github-updates': missing, 'github-feedback': { ...stored('c3d4'), source: 'keychain' } })
+      await useGithubTokens().load()
+      expect(showRow('github-feedback')).toBe(true)
+
+      secretsMock.status.mockResolvedValue({ 'github-updates': missing, 'github-feedback': viaGh })
+      await useGithubTokens().load()
+      expect(showRow('github-feedback')).toBe(false)
+    })
+
+    it('stays mounted while a removal waits for its undo (the row hides itself) and goes when it is committed', async () => {
+      secretsMock.status.mockResolvedValue({ 'github-updates': missing, 'github-feedback': { ...stored('c3d4'), source: 'keychain' } })
+      const tokens = useGithubTokens()
+      await tokens.load()
+      tokens.remove('github-feedback')
+      expect(showRow('github-feedback')).toBe(true)
+      expect(tokens.rows['github-feedback'].removed).toBe(true)
+      lastToast().actions[0]!.onClick()
+      expect(tokens.rows['github-feedback'].removed).toBe(false)
+      tokens.remove('github-feedback')
+      lastToast()['onUpdate:open'](false)
+      await flushPromises()
+      expect(showRow('github-feedback')).toBe(false)
+    })
+
+    it('is never checked on a page visit when its token is the GitHub CLI\'s', async () => {
+      secretsMock.status.mockResolvedValue({ 'github-updates': missing, 'github-feedback': viaGh })
+      const tokens = useGithubTokens()
+      await tokens.load()
+      await tokens.checkOnOpen()
+      expect(secretsMock.githubRequest).not.toHaveBeenCalled()
+    })
   })
 
   describe('checkOnOpen (#241)', () => {

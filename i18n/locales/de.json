@@ -1104,7 +1104,7 @@
       },
       "github": {
         "label": "GitHub-Zugriff",
-        "description": "Tokens für Updates und Feedback"
+        "description": "Token für Updates"
       },
       "topics": {
         "label": "Themen und Aktivitäten",
@@ -1441,6 +1441,7 @@
     },
     "fallback": {
       "rejected": "GitHub hat das Feedback-Token abgelehnt. Das Issue öffnet Kan-Do stattdessen auf GitHub im Browser.",
+      "rejectedCli": "GitHub hat das Token der GitHub-CLI abgelehnt. Kan-Do öffnet das Issue stattdessen im Browser auf GitHub. Melde dich mit „gh auth login“ neu an und starte Kan-Do neu.",
       "accessLink": "GitHub-Zugriff",
       "trimmed": "Damit der Link passt, wurde gekürzt: {parts}.",
       "trimmedLog": "Protokollauszug",

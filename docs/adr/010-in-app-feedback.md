@@ -46,6 +46,10 @@ Owner decision (#268): feedback only makes sense for other users as an in-app ex
 - **The guard stays.** `lib/feedback/` and `useFeedback.ts` still never call `fetch`, read a token or touch storage (`tests/lib/feedback/screenshotCsp.test.ts`, `tests/composables/useFeedback.test.ts`). The relay call is the one network path of the feedback outside Rust and lives in its own module, which holds no token and names no GitHub host.
 - **Privacy.** A report is no longer public, but it leaves the device for a server and a private repository the owner reads. The review step, the per-item checkboxes and the capture mask are unchanged and still the audit point.
 
+## Amendment: the developer's token comes from the GitHub CLI (#280, 2026-11-14)
+
+The `token` route no longer needs a token pasted into `/settings/github`. With the opt-in marker (ADR 007 amendment) the desktop app takes the token from the developer's `gh` login inside Rust; everyone else is unchanged (relay, or the prefilled link). The write check (`checkWriteAccess`) still decides: a `gh` login without push access ends on the relay. `useFeedback` reads the token's source from `secret_status`: a refused `gh` token shows its own note (no link, nothing to repair on the settings page), a refused Keychain token still links to GitHub-Zugriff. The feedback row on `/settings/github` exists only for a token already stored in the Keychain, so a non-developer sees no feedback-token UI. The relay switch to the Cloudflare instance is #281.
+
 ## Spike result: DOM rasterisation failed, screenshots are not built
 
 > Superseded for the screenshot part by [ADR 014](014-feedback-screenshots.md) (native `WKWebView` snapshot, #247). The result below stays as the record of why DOM rasterisation was dropped.

@@ -1,7 +1,7 @@
 <!--
 @component GithubSettingsPage
-@description Desktop-only sub-page /settings/github: paste, test and remove the two GitHub tokens
-(`updates`, `feedback`) that live in the macOS Keychain (#223, ADR 007).
+@description Desktop-only sub-page /settings/github: paste, test and remove the optional `updates` token that lives in the
+macOS Keychain (#223, ADR 007); a `feedback` token stored earlier shows too, so it can be tested or removed (#280).
 @usage Command palette "GitHub-Zugriff", or a deep link from the update (#225) and feedback (#227) notices
 @responsibility
 - Same sub-page pattern as /settings/data: PageHeader with back link, one flat column, no cards
@@ -16,7 +16,8 @@
       </p>
       <template v-else-if="tokens.loaded.value">
         <GithubTokenRow entry="github-updates" />
-        <GithubTokenRow entry="github-feedback" />
+        <!-- Only a feedback token that is already stored in the Keychain; the developer's comes from the GitHub CLI (#280) -->
+        <GithubTokenRow v-if="showRow('github-feedback')" entry="github-feedback" />
       </template>
     </div>
   </NuxtLayout>
@@ -26,7 +27,7 @@
 import { onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import GithubTokenRow from '~/components/settings/GithubTokenRow.vue';
-import { useGithubTokens } from '~/composables/useGithubTokens';
+import { showRow, useGithubTokens } from '~/composables/useGithubTokens';
 
 defineOptions({ name: 'GithubSettingsPage' });
 

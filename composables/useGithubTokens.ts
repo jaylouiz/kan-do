@@ -6,6 +6,8 @@
  * working after the page has been left.
  * @responsibility
  * - Load status lazily (one Keychain read per entry when the page opens)
+ * - The feedback row exists only for a token stored in the Keychain (`showRow`): nobody can add one any more, the developer's
+ *   token comes from the GitHub CLI (#280)
  * - Save = check the new token against GitHub first, store it only when accepted ("nothing stored"
  *   otherwise, a working token stays in place)
  * - Test = re-run the check (also once per page visit for saved tokens, `checkOnOpen`); Remove = immediate, deferred Keychain delete behind an undo toast
@@ -17,7 +19,7 @@ import { hasInjectionContext, reactive, ref } from 'vue'
 import { useNuxtApp, useToast } from '#imports'
 import { translate } from '~/lib/i18n'
 import { GITHUB_SECRET_ENTRIES, type GithubSecretEntry } from '~/lib/secrets'
-import { toSecretError, useSecrets } from '~/composables/useSecrets'
+import { toSecretError, useSecrets, type EntrySource } from '~/composables/useSecrets'
 import { useErrorHandler } from '~/composables/useErrorHandler'
 import { classifyUploadStatus } from '~/lib/feedback/uploadAccess'
 import { clearUploadDenied } from '~/composables/useFeedback'
@@ -60,10 +62,12 @@ export interface TokenRow {
   removed: boolean
   /** Screenshot-upload probe (feedback entry only); in memory. */
   upload: UploadProbe
+  /** Where the value comes from (the status of the Rust side). */
+  source: EntrySource
 }
 
 const emptyRow = (): TokenRow => ({
-  present: false, last4: null, rejected: false, valid: false, checking: false, problem: null, removed: false, upload: 'idle',
+  present: false, last4: null, rejected: false, valid: false, checking: false, problem: null, removed: false, upload: 'idle', source: 'keychain',
 })
 
 const rows = reactive<Record<GithubSecretEntry, TokenRow>>({
@@ -92,6 +96,7 @@ export function useGithubTokens() {
     row.present = status.present
     row.last4 = status.last4
     row.rejected = status.rejected
+    row.source = status.source ?? 'keychain'
     if (!status.present || status.rejected) row.valid = false
   }
 
@@ -205,7 +210,8 @@ export function useGithubTokens() {
   async function checkOnOpen(): Promise<void> {
     await Promise.all(GITHUB_SECRET_ENTRIES.map((entry) => {
       const row = rows[entry]
-      if (!row.present || row.rejected || row.removed || row.checking) return undefined
+      // The developer's GitHub CLI token is not checked on a page visit: it has no row here.
+      if (!row.present || row.rejected || row.removed || row.checking || row.source === 'gh_cli') return undefined
       return test(entry).catch(() => undefined)
     }))
   }
@@ -286,7 +292,18 @@ export function useGithubTokens() {
     })
   }
 
-  return { rows, loaded, keychainUnavailable, load, save, test, checkOnOpen, remove, probeUpload }
+  return { rows, loaded, keychainUnavailable, load, save, test, checkOnOpen, remove, probeUpload, showRow }
+}
+
+/**
+ * Whether `/settings/github` mounts the row. The updates row always does (the optional token); the feedback row only
+ * while a token is stored in the Keychain, so it can be tested or deleted, never added (#280). A feedback row whose
+ * removal waits for its undo stays mounted but hidden by the row itself (`GithubTokenRow`), so focus can return on Undo.
+ */
+export function showRow(entry: GithubSecretEntry): boolean {
+  if (entry === 'github-updates') return true
+  const row = rows[entry]
+  return row.present && row.source === 'keychain'
 }
 
 /** Test helper: resets module state between tests. */
