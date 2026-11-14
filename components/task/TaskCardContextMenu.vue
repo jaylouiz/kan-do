@@ -4,13 +4,14 @@
 @category overlay
 @description Wraps TaskCard with a context menu for quick task actions.
   On desktop: right-click opens the menu via the native contextmenu event.
-  On mobile/touch: a 750ms long press opens the menu; moving more than 14px
-  (grace pixels) cancels it so a drag gesture is never interrupted.
+  On touch (phone width, tablets): the card's corner menu button (#296, rendered by TaskCard from the opener this
+  component provides) opens it anchored at the button; a press-and-hold opens nothing, it belongs to the drag, and
+  the touch contextmenu event (Android fires one after a hold) is swallowed.
   Keyboard: the ContextMenu key or Shift+F10 on the focused card (its `.task-wrapper`, a parent of this
-  component) opens the menu at the card; on close focus returns to the card (kd#23).
+  component) opens the menu at the card; on close focus returns to the card (kd#23), or to the button when it opened the menu.
   If a drag starts while the menu is open it is closed immediately.
-@usage Used in BoardColumn to provide right-click / long-press menu on task cards
-@avoid Only wraps TaskCard for the right-click / long-press menu; not for stack headers or other rows.
+@usage Used in BoardColumn to provide the right-click / corner-button menu on task cards
+@avoid Only wraps TaskCard for the right-click / corner-button menu; not for stack headers or other rows.
 @responsibility
 - Provides context menu with task actions (status, timebox, delete, etc.)
 - Handles custom timebox modal
@@ -22,16 +23,15 @@
     :items="menuItems"
     :ui="contextMenuUi"
     size="md"
+    :content="{ collisionPadding: 8 }"
+    :press-open-delay="NEVER_MS"
   >
     <!--
-      Inner wrapper captures pointer events for long-press detection.
-      contextmenu is intercepted on touch so we control open state ourselves;
+      Inner wrapper: contextmenu is intercepted on touch (a hold never opens the menu, #296);
       on mouse it bubbles through to UContextMenu as normal.
     -->
     <div
       ref="wrapperEl"
-      v-bind="longPressHandlers"
-      :class="{ 'kando-long-press-active': isPressing }"
       @pointerdown="handleWrapperPointerDown"
       @contextmenu="handleContextMenu"
     >
@@ -88,11 +88,11 @@
 
 <script setup lang="ts">
 import AppDialog from '~/components/ui/AppDialog.vue';
-import { ref, computed, toRef, watch, nextTick, onMounted, onBeforeUnmount } from "vue";
+import { ref, computed, toRef, watch, nextTick, onMounted, onBeforeUnmount, provide } from "vue";
 import { useI18n } from "vue-i18n";
 import type { Task } from "~/types/task";
 import { useTaskContextMenu } from "~/composables/useTaskContextMenu";
-import { useLongPress } from "~/composables/useLongPress";
+import { TASK_CARD_MENU_KEY } from "~/lib/taskCardMenu";
 import { useBoardDragState } from "~/composables/useBoardDragState";
 
 defineOptions({ name: "TaskCardContextMenu" });
@@ -112,8 +112,8 @@ const emit = defineEmits<{
   deleted: [taskId: string];
 }>();
 
-// Programmatic open state — shared between desktop (contextmenu event) and
-// mobile (long press). UContextMenu is driven by this ref via v-model:open.
+// Programmatic open state — shared between desktop (contextmenu event), the corner button and the keyboard.
+// UContextMenu is driven by this ref via v-model:open.
 const isOpen = ref(false);
 
 // Custom timebox modal state
@@ -142,85 +142,31 @@ const { menuItems, setTimebox } = useTaskContextMenu(taskRef, {
   },
 });
 
-// ── Mobile / touch long-press ─────────────────────────────────────────────────
+// ── Touch: the pointer type, so a hold's native contextmenu never opens the menu (#296) ────────────────────────
 
-// Track pointer position at pointerdown so we can measure movement after fire.
-let _pressX = 0;
-let _pressY = 0;
-// Cleanup fn for the post-fire drag guard listener.
-let _dragGuardCleanup: (() => void) | null = null;
+/**
+ * reka's trigger opens a touch or pen press itself after `pressOpenDelay` (700 ms by default), which is the hold-versus-drag
+ * conflict of #296: the menu appeared behind the dragged card. A delay no press reaches (the largest timer value; anything
+ * above it fires at once) turns it off; the contextmenu event of a mouse is unaffected.
+ */
+const NEVER_MS = 2 ** 31 - 1;
 
-function removeDragGuard() {
-  if (_dragGuardCleanup) {
-    _dragGuardCleanup();
-    _dragGuardCleanup = null;
-  }
-}
+const lastPointerType = ref<string>("mouse");
 
-const { handlers: longPressHandlers, isPressing, lastPointerType } = useLongPress(
-  () => {
-    // Timer fired: user held still for 750ms on a touch device.
-    // Provide haptic feedback when available.
-    if (import.meta.client && "vibrate" in navigator) {
-      navigator.vibrate(10);
-    }
-    isOpen.value = true;
-
-    // After the menu opens the finger is still down. If the user starts dragging
-    // (moves > 10px), reka-ui's DismissableLayer may capture pointer events before
-    // dnd-kit can fire onDragStart — so the existing dragState watcher won't close
-    // the menu. We install a capture-phase document listener as an escape hatch.
-    if (!import.meta.client) return;
-    const fireX = _pressX;
-    const fireY = _pressY;
-
-    // Close on either pointermove OR touchmove — on iOS, reka-ui's DismissableLayer
-    // can consume touch events before the browser synthesizes them into pointer events,
-    // so pointermove alone may never fire. touchmove in capture phase arrives first.
-    const onMove = (e: PointerEvent | TouchEvent) => {
-      const clientX = 'touches' in e ? (e.touches[0]?.clientX ?? fireX) : e.clientX;
-      const clientY = 'touches' in e ? (e.touches[0]?.clientY ?? fireY) : e.clientY;
-      const d = Math.sqrt((clientX - fireX) ** 2 + (clientY - fireY) ** 2);
-      if (d > 10) {
-        // reka-ui's DismissableLayer ignores external v-model=false while the menu is
-        // actively open — it only responds to Escape or an internal dismiss trigger.
-        // Dispatching Escape is the reliable way to close the ContextMenu from outside.
-        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
-        isOpen.value = false;
-        removeDragGuard();
-      }
-    };
-    const onUp = () => removeDragGuard();
-
-    document.addEventListener("pointermove", onMove as EventListener, { capture: true, passive: true });
-    document.addEventListener("touchmove", onMove as EventListener, { capture: true, passive: true });
-    document.addEventListener("pointerup", onUp, { capture: true, once: true });
-
-    _dragGuardCleanup = () => {
-      document.removeEventListener("pointermove", onMove as EventListener, true);
-      document.removeEventListener("touchmove", onMove as EventListener, true);
-      document.removeEventListener("pointerup", onUp, true);
-    };
-  },
-);
-
-/** Record pointer position at press time so the drag guard has an origin. */
 function handleWrapperPointerDown(event: PointerEvent) {
-  _pressX = event.clientX;
-  _pressY = event.clientY;
+  lastPointerType.value = event.pointerType;
 }
 
 /**
  * Intercepts the native contextmenu event.
  * - Mouse (right-click): let it bubble up to UContextMenu naturally.
- * - Touch / pen: stop propagation so UContextMenu does not double-open;
- *   the long-press handler above already controls isOpen.
+ * - Touch / pen: stop propagation: a press-and-hold belongs to the drag (#296), the corner button opens the menu.
  */
 function handleContextMenu(event: MouseEvent) {
   if (keyboardEvents.has(event)) return; // our own keyboard-triggered event
   if (lastPointerType.value !== "mouse") {
-    // Touch-triggered: we manage open state via useLongPress.
-    // Stop propagation to prevent UContextMenu from also reacting.
+    // Android fires one after a hold: reka skips a prevented event, so a hold opens nothing
+    event.preventDefault();
     event.stopPropagation();
   }
 }
@@ -231,8 +177,8 @@ function handleContextMenu(event: MouseEvent) {
 
 const wrapperEl = ref<HTMLElement | null>(null);
 let cardEl: HTMLElement | null = null;
-/** The card that had focus when the key opened the menu; focus goes back to it on close */
-let keyboardOpener: HTMLElement | null = null;
+/** The element that opened the menu by key (the card) or by tap (its corner button, #296); focus goes back to it on close */
+let menuOpener: HTMLElement | null = null;
 /** The synthetic contextmenu events dispatched for a key press (they skip the touch guard) */
 const keyboardEvents = new WeakSet<Event>();
 
@@ -254,7 +200,7 @@ function handleCardKeydown(event: KeyboardEvent) {
   if (!cardEl || dragState.value.isDragging || document.querySelector(".board.dragging, .kando-dnd-dragged")) return;
   // Stops the browser's own contextmenu event, which would open the menu a second time
   event.preventDefault();
-  keyboardOpener = cardEl;
+  menuOpener = cardEl;
   nativeGuardUntil = Date.now() + 500;
   const rect = cardEl.getBoundingClientRect();
   const synthetic = new MouseEvent("contextmenu", {
@@ -266,8 +212,27 @@ function handleCardKeydown(event: KeyboardEvent) {
   keyboardEvents.add(synthetic);
   wrapperEl.value?.dispatchEvent(synthetic);
   // A menu that did not open must not leave a stale origin behind
-  setTimeout(() => { if (!isOpen.value) keyboardOpener = null; }, 500);
+  setTimeout(() => { if (!isOpen.value) menuOpener = null; }, 500);
 }
+
+/**
+ * The corner button's opener (#296, provided to TaskCard): the same synthetic contextmenu the key path uses, at the
+ * button, so reka anchors the menu there and flips it inside the viewport; focus returns to the button on close.
+ */
+function openFromButton(trigger: HTMLElement) {
+  menuOpener = trigger;
+  const rect = trigger.getBoundingClientRect();
+  const synthetic = new MouseEvent("contextmenu", {
+    bubbles: true,
+    cancelable: true,
+    clientX: rect.right,
+    clientY: rect.bottom + 4,
+  });
+  keyboardEvents.add(synthetic);
+  wrapperEl.value?.dispatchEvent(synthetic);
+  setTimeout(() => { if (!isOpen.value) menuOpener = null; }, 500);
+}
+provide(TASK_CARD_MENU_KEY, openFromButton);
 
 onMounted(() => {
   cardEl = wrapperEl.value?.closest<HTMLElement>(".task-wrapper") ?? null;
@@ -280,9 +245,9 @@ onBeforeUnmount(() => {
 });
 
 watch(isOpen, async (open) => {
-  if (open || !keyboardOpener) return;
-  const card = keyboardOpener;
-  keyboardOpener = null;
+  if (open || !menuOpener) return;
+  const card = menuOpener;
+  menuOpener = null;
   await nextTick();
   // reka returns focus to its (non-focusable) trigger; an item that navigated away or moved the card keeps its own focus
   if (card.isConnected && (!document.activeElement || document.activeElement === document.body)) {
@@ -291,26 +256,20 @@ watch(isOpen, async (open) => {
 });
 
 // ── Close menu when a drag starts ─────────────────────────────────────────────
-// Primary guard: document pointermove listener installed by the long-press
-// callback above. Secondary guard: watcher on dragState covers the case where
-// dnd-kit does fire onDragStart (pointer events not swallowed by the overlay).
+// A watcher on dragState covers a drag that begins while the menu is open (keyboard drag, a mouse drag after
+// a right-click); a touch hold no longer opens a menu, so there is no hold-then-drag path (#296).
 
 const { dragState } = useBoardDragState();
 
 watch(
   () => dragState.value.isDragging,
   (dragging) => {
-    if (dragging) {
-      isOpen.value = false;
-      removeDragGuard();
-    }
+    if (dragging) isOpen.value = false;
   },
   { flush: 'sync' },
 );
 
-// Remove drag guard listener on unmount to avoid leaks.
 onBeforeUnmount(() => {
-  removeDragGuard();
   cardEl?.removeEventListener("keydown", handleCardKeydown);
 });
 

@@ -200,6 +200,18 @@ export function externalIdOf(task: Pick<Task, 'id' | 'source' | 'externalId'>): 
   return task.externalId
 }
 
+/**
+ * The page of a task at its source (#296): Notion's page, Todoist's task. `Task` carries no URL, so it is derived
+ * from `source` + `externalId`. `null` for Local and for a task the source does not hold yet (create still pending).
+ * The Todoist link shape (`app.todoist.com/app/task/<id>`) is unverified against a live account.
+ */
+export function sourceTaskUrl(task: Pick<Task, 'source' | 'externalId'>): string | null {
+  if (!task.externalId) return null
+  if (task.source === 'notion') return `https://www.notion.so/${task.externalId.replace(/-/g, '')}`
+  if (task.source === 'todoist') return `https://app.todoist.com/app/task/${task.externalId}`
+  return null
+}
+
 /** Whether the add form can create tasks in a source. Todoist cannot yet (no connect UI, no create): new tasks stay Local there. */
 export function sourceCanCreate(source: SourceId): boolean {
   return source !== 'todoist'

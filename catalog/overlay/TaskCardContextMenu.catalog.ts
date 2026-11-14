@@ -6,6 +6,6 @@ export default {
   source: 'app',
   alternatives: ['UContextMenu', 'UDropdownMenu'],
   screen: '/tasks',
-  sampleNote: 'opens on right-click or long-press of a task card, so it has no inline sample (it wraps TaskCard and the board actions).',
+  sampleNote: 'opens on right-click of a task card or its corner button on touch, so it has no inline sample (it wraps TaskCard and the board actions).',
   states: [],
 } satisfies CatalogEntry

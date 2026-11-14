@@ -271,6 +271,13 @@
       "saveInAttention": "Verbindung prüfen · wird später gespeichert"
     },
     "contextMenu": {
+      "startNow": "Jetzt starten",
+      "markDone": "Als erledigt markieren",
+      "copyTitle": "Titel kopieren",
+      "duplicate": "Duplizieren",
+      "titleCopied": "Titel kopiert",
+      "duplicated": "Aufgabe dupliziert",
+      "button": "Aktionen für diese Aufgabe",
       "openDetails": "Details öffnen",
       "markPlanned": "Als geplant markieren",
       "markUnplanned": "Als ungeplant markieren",

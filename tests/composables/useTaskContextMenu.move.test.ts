@@ -1,7 +1,7 @@
 /**
  * #322: the "Verschieben nach …" group of the card context menu. It sits in its own group between "Timebox
  * setzen" and "Löschen", offers one child per other connected source with the hint as the child's second line, and
- * is absent when only one source is connected.
+ * is absent when only one source is connected. #296 adds a quick group on top and a copy group before "Löschen".
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { ref } from 'vue'
@@ -49,15 +49,16 @@ describe('useTaskContextMenu: move to another source (#322)', () => {
     useBoardStore().setSources({ connected: [], default: 'local' })
     const groups = groupsOf(makeTask())
     expect(groups.flat().some(i => i.label === 'Verschieben nach …')).toBe(false)
-    expect(groups).toHaveLength(6)
+    expect(groups).toHaveLength(8)
   })
 
-  it('its own group sits between "Timebox setzen" and "Löschen"', () => {
+  it('its own group sits after "Timebox setzen" and, past the copy group, before "Löschen"', () => {
     useBoardStore().setSources({ connected: ['notion'], default: 'local' })
     const groups = groupsOf(makeTask())
     const labels = groups.map(g => g[0]!.label)
     expect(labels.indexOf('Verschieben nach …')).toBe(labels.indexOf('Timebox setzen') + 1)
-    expect(labels.indexOf('Löschen')).toBe(labels.indexOf('Verschieben nach …') + 1)
+    expect(labels.indexOf('Titel kopieren')).toBe(labels.indexOf('Verschieben nach …') + 1)
+    expect(labels.indexOf('Löschen')).toBe(labels.indexOf('Titel kopieren') + 1)
     expect(groups.find(g => g[0]!.label === 'Verschieben nach …')).toHaveLength(1)
   })
 

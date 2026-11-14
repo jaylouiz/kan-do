@@ -271,6 +271,13 @@
       "saveInAttention": "Check connection · saved later"
     },
     "contextMenu": {
+      "startNow": "Start now",
+      "markDone": "Mark as done",
+      "copyTitle": "Copy title",
+      "duplicate": "Duplicate",
+      "titleCopied": "Title copied",
+      "duplicated": "Task duplicated",
+      "button": "Task actions",
       "openDetails": "Open details",
       "markPlanned": "Mark as planned",
       "markUnplanned": "Mark as unplanned",

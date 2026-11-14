@@ -10,6 +10,7 @@ import {
   sourcesFromLegacyService,
   singleSource,
   sourceSyncsTime,
+  sourceTaskUrl,
 } from '~/lib/taskSources'
 
 describe('sourcesFromLegacyService', () => {
@@ -260,5 +261,22 @@ describe('deleteLabelKey', () => {
     expect(deleteLabelKey('local')).toBe('task.delete.local')
     expect(deleteLabelKey('notion')).toBe('task.delete.notion')
     expect(deleteLabelKey('todoist')).toBe('task.delete.todoist')
+  })
+})
+
+describe('sourceTaskUrl (#296)', () => {
+  it('builds the Notion page URL from the external id, dashes removed', () => {
+    expect(sourceTaskUrl({ source: 'notion', externalId: '1a2b3c4d-1111-2222-3333-444455556666' })).toBe('https://www.notion.so/1a2b3c4d111122223333444455556666')
+  })
+
+  it('builds the Todoist task URL from the external id', () => {
+    expect(sourceTaskUrl({ source: 'todoist', externalId: '6Xc9Q' })).toBe('https://app.todoist.com/app/task/6Xc9Q')
+  })
+
+  it('has none for a Local task or a task whose create is still pending', () => {
+    expect(sourceTaskUrl({ source: 'local', externalId: null })).toBeNull()
+    expect(sourceTaskUrl({ source: 'local', externalId: 'x' })).toBeNull()
+    expect(sourceTaskUrl({ source: 'notion', externalId: null })).toBeNull()
+    expect(sourceTaskUrl({ source: 'todoist', externalId: null })).toBeNull()
   })
 })
