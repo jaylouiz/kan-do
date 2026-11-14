@@ -787,3 +787,24 @@ test.describe('App bar: ⋯ tooltip after a page change (kd#40)', () => {
     await expect(page.getByRole('tooltip')).toBeVisible()
   })
 })
+
+// #290: the side sheet covers the right of the centred bar; the group centres in the space left of it
+test.describe('App bar with the task sheet open (#290)', () => {
+  test.use({ viewport: { width: 1280, height: 800 } })
+  test('the pill and Mehr stay whole left of the sheet, and come back centred', async ({ context, page }) => {
+    await seedLocalBoard(context, SEED_TASKS)
+    await page.goto('/tasks/seed-open-1')
+    const sheet = page.getByRole('dialog')
+    await expect(sheet).toBeVisible()
+    await expect.poll(async () => {
+      const [more, box] = await Promise.all([moreButton(page).boundingBox(), sheet.boundingBox()])
+      return more && box ? more.x + more.width <= box.x : false
+    }).toBe(true)
+    await expect(statistik(page)).toBeVisible()
+    const group = appNav(page).locator('.app-nav-group')
+    const open = await group.boundingBox()
+    await page.keyboard.press('Escape')
+    await expect(sheet).toBeHidden()
+    await expect.poll(async () => (await group.boundingBox())!.x).toBeGreaterThan(open!.x + 100)
+  })
+})

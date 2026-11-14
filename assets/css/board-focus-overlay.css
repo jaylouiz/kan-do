@@ -158,6 +158,19 @@ html[data-sheet-open] .app-nav::before,
   transition: opacity var(--sheet-fade-duration) var(--sheet-fade-easing);
 }
 
+/* #290: the side sheet (md:max-w-xl, 36rem) covers the right of the centred bar. While it is open the group centres in
+   the space left of it, so the pill and ⋯ stay whole. On a narrow desktop window the shift stops at 26rem (about the
+   group's width) short of the viewport, so the group is never squeezed further. */
+@media (--desktop) {
+  .app-nav {
+    transition: padding-inline-end var(--sheet-fade-duration) var(--sheet-fade-easing);
+  }
+
+  html[data-sheet-open] .app-nav {
+    padding-inline-end: min(36rem, max(0px, calc(100vw - 26rem)));
+  }
+}
+
 @media (--desktop) {
   /* No fade set on the desktop veil elsewhere (the phone's is the drag fade): the way back takes the overlay's snap */
   .app-nav::before {
@@ -206,6 +219,12 @@ html[data-sheet-open] .app-nav::before,
      the same tone over the paper, so the scrim does not stop at a bright bar */
   .board-container[data-sheet-task-id] .page-dots {
     background-color: var(--overlay-scrim-on-page);
+  }
+
+  /* #290: the drawer's handle bar is the only bar at the top: the page indicator steps out while a sheet is open
+     (the active dash was mistaken for the handle). The strip stays: it carries the status bar tone above. */
+  .board-container[data-sheet-task-id] .page-dot {
+    opacity: 0;
   }
 }
 
