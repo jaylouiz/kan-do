@@ -17,10 +17,11 @@
     <TaskSheetHost>
       <NuxtPage />
     </TaskSheetHost>
-    <DayCloseDialog />
-    <NewDayRecap />
-    <FeedbackDialog />
-    <ElementPickerBar />
+    <!-- Closed at start: each loads on its first open (#288) and stays mounted after -->
+    <DayCloseDialog v-if="dayCloseOpened" />
+    <NewDayRecap v-if="recapOpened" />
+    <FeedbackDialog v-if="feedbackOpened" />
+    <ElementPickerBar v-if="pickerOpened" />
 
     <!-- Sync Warning Modal -->
     <SyncWarningModal
@@ -36,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, onUnmounted, watch } from "vue";
+import { ref, onMounted, onBeforeUnmount, onUnmounted, watch, defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 import { useTasksStore } from "~/store/tasks";
 import { useIntegrationManager } from "~/composables/useIntegrationManager";
@@ -52,11 +53,16 @@ import { useTaskMove } from "~/composables/useTaskMove";
 import { usePropertyOptionsSync } from "~/composables/usePropertyOptionsSync";
 import SyncWarningModal from "~/components/sync/SyncWarningModal.vue";
 import TaskSheetHost from "~/components/task/TaskSheetHost.vue";
-import DayCloseDialog from "~/components/board/DayCloseDialog.vue";
-import NewDayRecap from "~/components/recap/NewDayRecap.vue";
 import { useNewDayRecap } from "~/composables/useNewDayRecap";
-import FeedbackDialog from "~/components/feedback/FeedbackDialog.vue";
-import ElementPickerBar from "~/components/feedback/ElementPickerBar.vue";
+import { useDayClose } from "~/composables/useDayClose";
+import { useFeedback } from "~/composables/useFeedback";
+import { useElementPicker } from "~/composables/useElementPicker";
+import { useOpenedOnce } from "~/composables/useOpenedOnce";
+
+const DayCloseDialog = defineAsyncComponent(() => import("~/components/board/DayCloseDialog.vue"));
+const NewDayRecap = defineAsyncComponent(() => import("~/components/recap/NewDayRecap.vue"));
+const FeedbackDialog = defineAsyncComponent(() => import("~/components/feedback/FeedbackDialog.vue"));
+const ElementPickerBar = defineAsyncComponent(() => import("~/components/feedback/ElementPickerBar.vue"));
 
 const { t } = useI18n();
 const route = useRoute();
@@ -85,6 +91,10 @@ const handleOnline = () => {
 const { ensureOptionsAvailable } = usePropertyOptionsSync();
 const syncValidation = useSyncValidation();
 const recap = useNewDayRecap();
+const dayCloseOpened = useOpenedOnce(useDayClose().isOpen);
+const recapOpened = useOpenedOnce(recap.isOpen);
+const feedbackOpened = useOpenedOnce(useFeedback().isOpen);
+const pickerOpened = useOpenedOnce(useElementPicker().active);
 
 const refreshInterval = ref<NodeJS.Timeout>();
 const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes

@@ -36,12 +36,12 @@
     </NuxtLayout>
     <component :is="CopyEditorHost" v-if="CopyEditorHost" />
     <!-- The command palette on every page with an app bar (#224); `useCommandPalette` holds the state, so one instance only -->
-    <CommandPalette v-if="showsBar" />
+    <CommandPalette v-if="showsBar && paletteOpened" />
     <!-- Where the new-day recap stage lands (NewDayRecap.vue, #262): inside the app's stacking context, so the bar (z-bar)
          paints above the photo, yet outside the inert <main> -->
     <div id="recap-stage-host" />
-    <UpdateDialog v-if="updaterAvailable" />
-    <WhatsNewDialog v-if="updaterAvailable" />
+    <UpdateDialog v-if="updaterAvailable && updateDialogOpened" />
+    <WhatsNewDialog v-if="updaterAvailable && whatsNewOpened" />
   </UApp>
 </template>
 
@@ -49,10 +49,10 @@
 import { defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 import AppNav from "~/components/nav/AppNav.vue";
-import CommandPalette from "~/components/CommandPalette.vue";
 import { useAppNav } from "~/composables/useAppNav";
-import UpdateDialog from "~/components/updates/UpdateDialog.vue";
-import WhatsNewDialog from "~/components/updates/WhatsNewDialog.vue";
+import { useCommandPalette } from "~/composables/useCommandPalette";
+import { useOpenedOnce } from "~/composables/useOpenedOnce";
+import { useWhatsNew } from "~/composables/useWhatsNew";
 import { useAppUpdater } from "~/composables/useAppUpdater";
 import { useTaskSync } from "~/composables/useTaskSync";
 import { useTaskTimerDriver } from "~/composables/useTaskTimerDriver";
@@ -61,6 +61,13 @@ import { isTauri } from "~/utils/isTauri";
 import { useTasksStore } from "~/store/tasks";
 import { useTaskStatisticsStore } from "~/store/taskStatistics";
 import { TaskStatus } from "~/types/taskStatus";
+
+// Closed-at-start dialogs load their code on first open (#288); state lives in module-level composables, so a flag set
+// before the chunk arrives still shows the dialog once it mounts, and focus capture happens at open time.
+const loadPalette = () => import("~/components/CommandPalette.vue");
+const CommandPalette = defineAsyncComponent(loadPalette);
+const UpdateDialog = defineAsyncComponent(() => import("~/components/updates/UpdateDialog.vue"));
+const WhatsNewDialog = defineAsyncComponent(() => import("~/components/updates/WhatsNewDialog.vue"));
 
 // Live copy editor (#59): present only when the bundle is built with it (dev, E2E build); `false` drops the import.
 const CopyEditorHost = __COPY_EDITOR__ ? defineAsyncComponent(() => import("~/dev-tools/copy-editor/CopyEditorHost.vue")) : null;
@@ -72,7 +79,22 @@ const timerDriver = useTaskTimerDriver();
 // Desktop only: the macOS menu bar (#614); a no-op on the web.
 useNativeMenu();
 // Desktop only: the update dialog is mounted once and opened from the toast, the palette or the page.
-const updaterAvailable = useAppUpdater().available;
+const updater = useAppUpdater();
+const updaterAvailable = updater.available;
+const { isOpen: paletteOpen, open: openPalette } = useCommandPalette();
+const paletteOpened = useOpenedOnce(paletteOpen);
+const updateDialogOpened = useOpenedOnce(() => updater.state.dialogOpen);
+const whatsNew = useWhatsNew();
+const whatsNewOpened = useOpenedOnce(() => whatsNew.state.open);
+// Cmd/Ctrl+K lives here, not in the lazy palette, so the first press works before its chunk is loaded. Not usingInput:
+// silent while typing in fields. Nuxt UI maps `meta_k` to Ctrl+K off macOS; the explicit `ctrl_k` gives macOS Ctrl+K (kd#23).
+// The palette goes with the app bar: no bar, no shortcut.
+const openPaletteIfBar = () => {
+  if (!showsBar.value) return;
+  void loadPalette(); // already in flight from the idle warm-up below in the normal case
+  openPalette();
+};
+defineShortcuts({ meta_k: openPaletteIfBar, ctrl_k: openPaletteIfBar });
 const tasksStore = useTasksStore();
 const statisticsStore = useTaskStatisticsStore();
 
@@ -98,6 +120,12 @@ const SYNC_INTERVAL_MS = 5 * 60 * 1000;
 let syncIntervalId: ReturnType<typeof setInterval> | null = null;
 
 onMounted(() => {
+  // The palette is typed into right after Cmd/Ctrl+K, so its chunk is fetched once the board has settled: keys typed
+  // before a lazy mount would be lost. Off the critical path (idle), unlike the static import it replaces (#288).
+  const warmPalette = () => { void loadPalette(); };
+  if ("requestIdleCallback" in window) window.requestIdleCallback(warmPalette, { timeout: 1500 });
+  else setTimeout(warmPalette, 1000);
+
   // Jetzt timers (#352): the task's status decides, whichever page is open
   timerDriver.start();
 
