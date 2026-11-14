@@ -19,6 +19,10 @@
   after the drop: dnd-kit re-inserts the card's node in the drop's own task, and a class flip with no style pass in
   between has nothing to ease from, so the morph was silent in production builds (#540)
 - Never owns a timer: it only reads `timeSpentSeconds`, which the app-level driver advances (#352)
+- The fill eases (700 ms) only for a change the eye can follow: a step below half a percentage point, which is every
+  timer tick of a timebox of 4 minutes or more, is set at once (#275). The ease animates `width`, which is laid out
+  again in every frame: eased per tick it kept a resting board at 43 layouts a second for a fill that moved less than
+  a tenth of a pixel. A tick inside the 700 ms after a larger change still eases, so it never cuts that ease short
 - Motion is CSS only; `prefers-reduced-motion` shows the end state at once. Never takes pointer events.
 - The width spring is the app's one spring: it marks the moment a label becomes the card's live status. It never runs
   on page load; the bar has no shadow, it sits flat on the card's own (#410)
@@ -35,7 +39,7 @@
       v-if="visible"
       class="chip-slot"
       :class="{ 'chip-slot--now': expanded, 'chip-slot--armed': armed }"
-      :style="{ '--chip-p': `${percent}%` }"
+      :style="{ '--chip-p': `${percent}%`, '--chip-fill-duration': fillSteps ? '0ms' : undefined }"
     >
       <span class="chip__sizer" :class="{ 'chip__sizer--boxless-now': !hasBox && expanded }" aria-hidden="true">
         <span class="chip__sizer-icon" />{{ hasBox ? boxLabel : spentLabel }}
@@ -114,6 +118,20 @@ const ariaLabel = computed(() =>
     : t('task.elapsedAria', { time: spentLabel.value }),
 )
 
+/** Largest step of the fill, in percentage points, that is set at once instead of eased: one second of a 200 s timebox */
+const TICK_STEP_MAX = 0.5
+/** Length of the fill's ease; keep in step with `--chip-fill-duration` below */
+const FILL_EASE_MS = 700
+/** The fill takes its next width at once (a timer tick): binds `--chip-fill-duration: 0ms`, so no `width` transition
+ *  starts. Set by a sync watcher, so the render that writes the new `--chip-p` already carries it. */
+const fillSteps = ref(false)
+let easesUntil = 0
+watch(percent, (now, was) => {
+  const jump = Math.abs(now - was) >= TICK_STEP_MAX
+  if (jump) easesUntil = performance.now() + FILL_EASE_MS
+  fillSteps.value = !jump && performance.now() >= easesUntil
+}, { flush: 'sync' })
+
 /** Without a timebox the chip exists in Jetzt, and elsewhere only once time was spent */
 const visible = computed(() => hasBox.value || live.value || props.timeSpentSeconds > 0)
 
@@ -174,7 +192,7 @@ watch(() => props.isNow, (now) => {
   --chip-ease: var(--ease-emphasized);
   --chip-duration: 600ms;
   --chip-settle-delay: 240ms; /* the card lands first (drop glide 200 ms, `DND_MOTION`), then the label morphs */
-  --chip-fill-duration: 700ms;
+  --chip-fill-duration: 700ms; /* `FILL_EASE_MS` in the script; a tick-sized step binds 0ms inline (#275) */
   --chip-radius: var(--ui-radius); /* the sibling UBadge radius */
   --chip-pad: 0.4375rem;
   --chip-text: var(--text-label); /* Label step */

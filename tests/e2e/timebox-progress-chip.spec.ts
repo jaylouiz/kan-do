@@ -103,6 +103,48 @@ test.describe('timebox progress chip (#388)', () => {
     await expect(jetzt).toHaveClass(/chip--primary/)
   })
 
+  test('a timer tick sets the fill at once, an edit of the spent time still eases it (#275: tick -> tick -> jump -> tick)', async ({ context, page }) => {
+    await seedLocalBoard(context, withJetztSpent(1800))
+    await page.goto('/tasks')
+    await expectBar(page, JETZT_ID)
+    const fill = chip(page, JETZT_ID).locator('.chip__fill')
+    /** `width` transitions the fill has started since the page was hooked (the ease that is laid out in every frame) */
+    await page.evaluate(() => {
+      const w = window as unknown as { __fillEases: number }
+      w.__fillEases = 0
+      document.addEventListener('transitionrun', (e) => {
+        if (e.propertyName === 'width' && (e.target as Element).classList?.contains('chip__fill')) w.__fillEases += 1
+      }, true)
+    })
+    const eases = () => page.evaluate(() => (window as unknown as { __fillEases: number }).__fillEases)
+    const spent = () => page.evaluate(() => {
+      const app = (window as unknown as { useNuxtApp: () => { $pinia: { _s: Map<string, { task: (id: string) => { timeSpentSeconds: number } }> } } }).useNuxtApp()
+      return app.$pinia._s.get('tasks')!.task('seed-progress-1').timeSpentSeconds
+    })
+
+    // The app's own timer ticks once a second: two ticks later the fill has moved without one ease
+    await expect.poll(spent, { timeout: 10_000 }).toBeGreaterThanOrEqual(1802)
+    await expect(fill).toHaveCSS('transition-duration', /^0s/)
+    expect(await eases()).toBe(0)
+
+    // The user corrects the time in the sheet (here through the store): a visible step, eased as before
+    await page.evaluate(() => {
+      const app = (window as unknown as { useNuxtApp: () => { $pinia: { _s: Map<string, { setTimeSpent: (id: string, seconds: number) => boolean }> } } }).useNuxtApp()
+      app.$pinia._s.get('tasks')!.setTimeSpent('seed-progress-1', 2700)
+    })
+    await expect.poll(eases).toBeGreaterThanOrEqual(1)
+    await expect.poll(() => fillShare(chip(page, JETZT_ID)), { timeout: 5000 }).toBeGreaterThan(0.74)
+
+    // Ticks after the ease has ended are steps again: no further ease (a tick inside the ease retargets it, which counts as one more)
+    await settleAnimations(page)
+    const before = await spent()
+    await expect.poll(spent, { timeout: 10_000 }).toBeGreaterThanOrEqual(before + 1)
+    const easesAfterJump = await eases()
+    await expect.poll(spent, { timeout: 10_000 }).toBeGreaterThanOrEqual(before + 3)
+    await expect(fill).toHaveCSS('transition-duration', /^0s/)
+    expect(await eases()).toBe(easesAfterJump)
+  })
+
   test('the bar is anchored at the footer start and the collapsed chip sits there too (#584)', async ({ context, page }) => {
     await seedLocalBoard(context, withJetztSpent(1800))
     await page.goto('/tasks')
