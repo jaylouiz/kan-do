@@ -57,7 +57,7 @@ describe('day recap store', () => {
     store.markShown('2026-10-22')
     store.setArchiveDone(false)
     await nextTick()
-    expect(JSON.parse(localStorage.getItem('day-recap-store') as string)).toEqual({ lastShownDay: '2026-10-22', archiveDone: false })
+    expect(JSON.parse(localStorage.getItem('day-recap-store') as string)).toEqual({ lastShownDay: '2026-10-22', archiveDone: false, closedTaskIds: [] })
   })
 
   it('restores both after a reload', () => {

@@ -10,13 +10,15 @@
  * (today's and the earlier ones of the yesterday note) is archived through the shared archive path after the list's short
  * fade (#292); the only side effects of the dialog, plain `close` has none; today's done tasks, their summed time and the Offen/Jetzt/Wartet tasks.
  */
-import { computed, readonly, ref } from 'vue'
+import { computed, nextTick, readonly, ref } from 'vue'
 import { useTasksStore } from '~/store/tasks'
 import { TaskStatus } from '~/types/taskStatus'
 import { useTaskOperations } from '~/composables/useTaskOperations'
 import { useTaskDeletion } from '~/composables/useTaskDeletion'
 import { useArchiveDoneTasks } from '~/composables/useArchiveDoneTasks'
 import { useBoardStore } from '~/store/board'
+import { useDayRecapStore } from '~/store/dayRecap'
+import type { Task } from '~/types/task'
 import { resumeTaskTimer } from '~/composables/useTaskTimerDriver'
 import { sumTimeSpent } from '~/utils/dayClose'
 
@@ -25,6 +27,9 @@ const isOpen = ref(false)
 let returnFocusTo: HTMLElement | null = null
 /** Open tasks the user took off tomorrow's board in the open dialog (#237). New tasks default to carrying on. */
 const deselectedIds = ref<string[]>([])
+
+/** The day as the dialog showed it when "Fertig" was pressed: the archive must not empty the dialog while it leaves. */
+const closing = ref<{ done: Task[], inFlight: Task[] } | null>(null)
 
 /** How long the Erledigt list fades before its tasks are archived (#292): `--duration-base`, mirrored here. */
 export const DONE_LEAVE_MS = 200
@@ -37,12 +42,20 @@ export function useDayClose() {
   const { stopTimer, moveTaskToStatus } = useTaskOperations()
   const { deleteTaskWithUndo } = useTaskDeletion()
   const boardStore = useBoardStore()
-  const { archiveTasks } = useArchiveDoneTasks()
+  const { archiveTasks: archivePath } = useArchiveDoneTasks()
+  const recapStore = useDayRecapStore()
+
+  /** The shared archive path, remembered for the next morning's recap. */
+  function archiveTasks(ids: string[]): void {
+    recapStore.rememberClosed(ids)
+    archivePath(ids)
+  }
 
   function open(): void {
     if (isOpen.value) return
     returnFocusTo = typeof document !== 'undefined' && document.activeElement instanceof HTMLElement ? document.activeElement : null
     deselectedIds.value = []
+    closing.value = null
     isOpen.value = true
   }
 
@@ -74,6 +87,12 @@ export function useDayClose() {
       .map(task => task.id)
       .filter(id => dropped.has(id))
     const ids = tasksStore.tasksProgress.map(task => task.id).filter(id => !dropped.has(id))
+    if (isOpen.value) {
+      closing.value = {
+        done: tasksStore.tasksDoneToday.map(task => ({ ...task })),
+        inFlight: [...tasksStore.tasksOpen, ...tasksStore.tasksProgress, ...tasksStore.tasksWaiting].map(task => ({ ...task })),
+      }
+    }
     for (const id of ids) stopTimer(id)
     close()
     for (const id of doomed) deleteTaskWithUndo(id)
@@ -102,10 +121,12 @@ export function useDayClose() {
       return
     }
     boardStore.doneLeaving = true
-    window.setTimeout(() => {
+    window.setTimeout(async () => {
       const stillDone = done()
       boardStore.doneLeaving = false
       archiveTasks(ids.filter(id => stillDone.has(id)))
+      // the CTA leaves with the next render: look at focus only then
+      await nextTick()
       focusBoardIfLost()
     }, DONE_LEAVE_MS)
   }
@@ -144,15 +165,15 @@ export function useDayClose() {
   return { isOpen: readonly(isOpen), open, close, finish, restoreFocus, isKept, setKept, deselectedIds: readonly(deselectedIds) }
 }
 
-/** What the dialog shows. Reads the local cache only; recomputes when a sync lands. */
+/** What the dialog shows. Reads the local cache only; recomputes when a sync lands; after "Fertig" it keeps the confirmed day until the dialog has left (the next `open()`). */
 export function useDayCloseData() {
   const tasksStore = useTasksStore()
 
   /** Completed today (local day), archived excluded: the store's own "done today" rule. */
-  const done = computed(() => tasksStore.tasksDoneToday)
+  const done = computed(() => closing.value?.done ?? tasksStore.tasksDoneToday)
   const totalSeconds = computed(() => sumTimeSpent(done.value))
   /** Offen, Jetzt, Wartet in column order. */
-  const inFlight = computed(() => [
+  const inFlight = computed(() => closing.value?.inFlight ?? [
     ...tasksStore.tasksOpen,
     ...tasksStore.tasksProgress,
     ...tasksStore.tasksWaiting,

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useTasksStore } from '~/store/tasks'
-import { useDayClose } from '~/composables/useDayClose'
+import { useDayClose, useDayCloseData } from '~/composables/useDayClose'
 import { TaskStatus } from '~/types/taskStatus'
 import { armedTaskTimerIds, disarmAllTaskTimers } from '~/lib/taskTimers'
 import { useTaskTimerDriver } from '~/composables/useTaskTimerDriver'
@@ -250,6 +250,37 @@ describe('useDayClose finish (Fertig)', () => {
       await dayClose.finish()
       await dayClose.finish()
       expect(archiveTasksMock).toHaveBeenCalledTimes(1)
+    })
+
+    it('the dialog keeps showing the day it was confirmed on while it leaves (the archive does not empty it)', async () => {
+      motion(true)
+      const store = useTasksStore()
+      store.addTask(makeTask('d1', TaskStatus.Done, { completedAt: today(), timeSpentSeconds: 600 }))
+      store.addTask(makeTask('o', TaskStatus.Open))
+      const dayClose = useDayClose()
+      const data = useDayCloseData()
+      dayClose.open()
+      await dayClose.finish()
+      expect(store.tasksDoneToday).toEqual([])
+      expect(data.done.value.map(t => t.id)).toEqual(['d1'])
+      expect(data.totalSeconds.value).toBe(600)
+      expect(data.inFlight.value.map(t => t.id)).toEqual(['o'])
+      dayClose.open()
+      expect(data.done.value).toEqual([])
+    })
+
+    it('hands focus to the board after the archive when the CTA that had it is gone (a tick later, not in the same one)', async () => {
+      vi.useFakeTimers()
+      motion(false)
+      document.body.innerHTML = '<div data-task-sheet-return></div><button id="cta">Fertig</button>'
+      const cta = document.getElementById('cta')!
+      cta.focus()
+      useTasksStore().addTask(makeTask('d1', TaskStatus.Done, { completedAt: today() }))
+      await useDayClose().finish()
+      archiveTasksMock.mockImplementationOnce(() => { cta.remove() })
+      await vi.advanceTimersByTimeAsync(250)
+      expect(document.activeElement).toBe(document.querySelector('[data-task-sheet-return]'))
+      document.body.innerHTML = ''
     })
 
     it('plain close() archives nothing', () => {

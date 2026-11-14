@@ -10,6 +10,8 @@
  *   done-before-today tasks. A missing or malformed marker is the baseline: write today once, show nothing
  *   (skipped while the data status blocks, ADR 011). The day key is computed once here, so a midnight
  *   crossed while the window stays focused never opens it; the next return does.
+ * - Tasks a day close archived (`dayRecap.closedTaskIds`, #292) count as done before today, so closing the day does not
+ *   cancel the next morning's recap; the marker moving clears them.
  * - The snapshot is a copy taken at open: a fetch landing later changes nothing in the page.
  * - `leave()` (button, Escape): archives the snapshot ids still done before today when "Erledigte archivieren" is on
  *   (shared path with the board button; no toast, no undo, #463), moves the marker to the day the recap opened on, closes.
@@ -25,6 +27,7 @@ import { useArchiveDoneTasks } from '~/composables/useArchiveDoneTasks'
 import { dataState } from '~/lib/dataStorage'
 import { newestCompletedAt } from '~/utils/doneDayLabel'
 import { dayKey, isRecapDue, recapWhen, type RecapWhen } from '~/utils/recapDay'
+import { TaskStatus } from '~/types/taskStatus'
 import type { Task } from '~/types/task'
 
 /** What the page shows; plain copies taken when the recap opens. */
@@ -47,6 +50,7 @@ export function resetNewDayRecap(): void {
   snapshot.value = null
 }
 
+const startOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate())
 const completedTime = (task: Task) => new Date(task.completedAt ?? 0).getTime()
 const copyTask = (task: Task): Task => ({ ...task, custom: task.custom ? { ...task.custom } : task.custom })
 
@@ -77,7 +81,13 @@ export function useNewDayRecap() {
     }
     if (!isRecapDue(lastShown, todayKey)) return
 
-    const done = [...tasksStore.tasksDonePrevious].sort((a, b) => completedTime(a) - completedTime(b)).map(copyTask)
+    // what a day close archived still counts: the morning after it is the recap's whole point (#292)
+    const previous = tasksStore.tasksDonePrevious
+    const todayStart = startOfDay(now)
+    const closed = tasksStore.tasks.filter(task => recapStore.closedTaskIds.includes(task.id)
+      && task.status === TaskStatus.Done && task.completedAt && new Date(task.completedAt) < todayStart
+      && !previous.some(p => p.id === task.id))
+    const done = [...previous, ...closed].sort((a, b) => completedTime(a) - completedTime(b)).map(copyTask)
     if (done.length === 0) return
     const newest = newestCompletedAt(done)
     if (!newest) return

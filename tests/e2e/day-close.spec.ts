@@ -251,7 +251,9 @@ test.describe('Day close dialog (#98)', () => {
       return { archived: [...(stored.archivedTaskIds ?? [])].sort(), doneKept: (stored.tasks ?? []).filter(task => task.status === 3).length, trash: localStorage.getItem('trash-store') }
     })).toEqual({ archived: ['seed-done-1', 'seed-done-2'], doneKept: 2, trash: null })
     // Archived, not deleted: a second Fertig has nothing left to do and the focus is never lost to <body>
-    await expect.poll(() => page.evaluate(() => document.activeElement === document.body)).toBe(false)
+    // Never on the first sample only: the modal's focus return and the archive race each other for a few hundred ms
+    await page.waitForTimeout(600)
+    expect(await page.evaluate(() => document.activeElement === document.body)).toBe(false)
   })
 
   test('opening, copying and dismissing with Escape leaves every task, archive and status untouched', async ({ page, context }) => {
