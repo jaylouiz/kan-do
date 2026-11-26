@@ -5,26 +5,28 @@
   - button "Ausschalten"
   - list:
     - listitem:
-      - heading "Willkommen" [level=3]
-      - paragraph: Dein Tag auf einem Blatt
-      - paragraph: Hier steht nur, was heute dran ist. Unter „Offen“ sammelst du es. In „Jetzt“ liegt die eine Aufgabe, an der du gerade arbeitest. Schreib als Erstes auf, was heute ansteht.
+      - heading "Grundlegendes" [level=3]
+      - paragraph: Willkommen bei deinem Kanban-Board
+      - paragraph: Unter „Offen“ sammelst du alles, was du heute erledigen möchtest. Sammle dort, was heute ansteht. In „Jetzt“ schiebst du eine Aufgabe, sobald du an ihr arbeitest.
     - listitem:
       - heading "Anfangen" [level=3]
       - paragraph: Womit fängst du an?
-      - paragraph: Ziehe in „Jetzt“, woran du gerade arbeitest. In Jetzt liegt immer nur eine Aufgabe.
+      - paragraph: Ziehe in „Jetzt“, woran du gerade arbeitest. Diese Spalte hat immer nur Platz für eine Aufgabe. 
+
+Für schnelle Wechsel kannst du eine andere Aufgabe einfach darüber ablegen.
     - listitem:
-      - heading "Weitermachen" [level=3]
-      - paragraph: Die Zeit läuft jetzt mit
+      - heading "An einer Aufgabe dranbleiben" [level=3]
+      - paragraph: Die Zeit läuft mit und wenn du dir eine Timebox gegeben hast, siehst du wieviel Zeit davon noch übrig ist.
       - paragraph: Ziehe die Karte in „Erledigt“, sobald die Aufgabe erledigt ist. Wartest du auf jemanden, ziehe sie in „Wartet“.
     - listitem:
-      - heading "Auswählen" [level=3]
-      - paragraph: Viel offen?
+      - heading "Den Überblick behalten" [level=3]
+      - paragraph: Viel zu tun?
       - paragraph: Gestapelt nach Thema oder Priorität wählst du leichter aus. Die Stapel findest du auch unter „Mehr“.
     - listitem:
       - heading "Tag abschließen" [level=3]
-      - paragraph: Genug für heute?
+      - paragraph: Fertig für heute?
       - paragraph: „Tag abschließen“ zeigt dir, was du geschafft hast und was offen bleibt.
     - listitem:
-      - heading "Planen" [level=3]
+      - heading "Die Aufgaben des Tages planen" [level=3]
       - paragraph: Wähle aus, was heute dran ist
-      - paragraph: "Fahre über eine Karte: Der Pfeil plant sie für heute ein. Sobald du loslegen willst, wechsle in der Navigation zu „Heute“."
+      - paragraph: "Schiebe sie in die heutige Auswahl oder drücke den Pfeil-Button. Sobald du loslegen willst, wechsle in der Navigation zu „Heute“."

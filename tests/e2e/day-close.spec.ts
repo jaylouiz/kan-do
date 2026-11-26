@@ -61,7 +61,7 @@ test.describe('Day close stage (#480)', () => {
     }, undefined, { once: true })
   })
 
-  test('opens from the Mehr panel as a stage, not a dialog; Esc and "Abbrechen, nichts ändert sich" leave it, focus returns to ⋯, nothing changes', async ({ page }) => {
+  test('opens from the Mehr panel as a stage, not a dialog; Esc and "Abbrechen" leave it, focus returns to ⋯, nothing changes', async ({ page }) => {
     await page.goto('/tasks')
     await expect(page.locator('#column-open-list .task-wrapper')).toHaveCount(2)
     const before = await snapshot(page)
@@ -319,7 +319,7 @@ test.describe('Day close stage (#480)', () => {
     await expect(page.getByTestId('day-close-timebox')).toContainText('Based on 1 done task with a timebox and tracked time.')
     await expect(page.getByTestId('day-close-timebox-within')).toHaveText(/As planned/)
     await expect(page.getByTestId('day-close-consequence')).toHaveText('You can plan your unfinished tasks again tomorrow. Your done tasks are archived.')
-    await expect(cancelButton(page)).toHaveText('Cancel, nothing changes')
+    await expect(cancelButton(page)).toHaveText('Cancel')
     await expect(doneButton(page)).toHaveText('Close the day')
   })
 

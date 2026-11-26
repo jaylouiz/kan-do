@@ -54,7 +54,7 @@ test.describe('Feedback (web)', () => {
   test('sends through the relay: private note, exact body, no screenshot offer, quiet toast (#268)', async ({ page }) => {
     const reports = await mockFeedbackRelay(page)
     await openFeedback(page)
-    await expect(page.getByTestId('feedback-private-note')).toHaveText('Dein Feedback geht direkt an mich. Es wird nicht veröffentlicht.')
+    await expect(page.getByTestId('feedback-private-note')).toHaveText('Dein Feedback geht direkt den Entwickler. Es wird nicht veröffentlicht.')
     await expect(page.getByTestId('feedback-public-note')).toHaveCount(0)
     // The native capture is desktop only
     await expect(page.getByTestId('feedback-screenshot')).toHaveCount(0)

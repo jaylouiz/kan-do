@@ -151,11 +151,11 @@ test.describe('Statistics Page', () => {
     test('thin history: says so with the baseline count, tiles show what exists', async ({ page, baseURL }) => {
       await seedRecords(page, [{ ago: 0, accuracy: 100, topic: 'Büro' }, { ago: 1, accuracy: 120, topic: 'Büro' }]);
       await page.goto(`${baseURL}/statistics`);
-      await expect(page.getByTestId('stats-verdict-headline')).toHaveText('Noch zu wenig Verlauf für einen Vergleich.');
+      await expect(page.getByTestId('stats-verdict-headline')).toHaveText('Noch zu wenig Daten für eine Bewertung dieser Woche.');
       await expect(page.getByTestId('stats-verdict-line')).toContainText('In den 28 Tagen vor den letzten 7 Tagen: 0 erledigte Aufgaben.');
       await expect(page.getByTestId('stats-verdict').locator('svg')).toHaveCount(0); // #687
       await expect(page.getByTestId('stats-tile-2')).toContainText('Noch zu wenige Wochen für eine Entwicklung.');
-      await expect(page.getByTestId('stats-tile-3')).toContainText('Noch zu wenige erledigte Aufgaben mit Timebox für Muster.');
+      await expect(page.getByTestId('stats-tile-3')).toContainText('Noch zu wenige erledigte Aufgaben mit Timebox für eine Aussage.');
     });
 
     test('no timebox at all: Q3 is a plain heading without a toggle', async ({ page, baseURL }) => {

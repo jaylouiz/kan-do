@@ -1542,7 +1542,7 @@ test.describe('A new day starts fresh on the user\'s click (#387)', () => {
       await expect(planNote(page)).toBeVisible()
       await expect(planNote(page)).toHaveAttribute('role', 'status')
       await expect(planNote(page)).toContainText('Wähle aus, was heute dran ist')
-      await expect(planNote(page)).toContainText('Fahre über eine Karte: Der Pfeil plant sie für heute ein. Sobald du loslegen willst, wechsle in der Navigation zu „Heute“.')
+      await expect(planNote(page)).toContainText('Schiebe sie in die heutige Auswahl oder drücke den Pfeil-Button. Sobald du loslegen willst, wechsle in der Navigation zu „Heute“.')
       // it stands where the picked tasks land, not above the block, and it is no box and has no button
       await expect(page.locator('#column-open').getByTestId('plan-note')).toBeVisible()
       await expect(side(page).getByTestId('plan-note')).toHaveCount(0)

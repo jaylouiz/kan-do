@@ -244,13 +244,13 @@ test.describe('add form on a mixed board (#321)', () => {
     await page.waitForURL(/\/tasks\/add\?mode=adhoc/)
     await expect(sheet(page).getByPlaceholder('Aufgabe benennen…')).toBeVisible()
     await expect(sheet(page).locator(SWITCH)).toHaveCount(0)
-    await sheet(page).getByPlaceholder('Aufgabe benennen…').fill('Spontan')
+    await sheet(page).getByPlaceholder('Aufgabe benennen…').fill('Ad-hoc')
     await sheet(page).getByRole('button', { name: 'Starten' }).click()
 
-    await expect(column(page, 'progress').getByText('Spontan')).toBeVisible()
+    await expect(column(page, 'progress').getByText('Ad-hoc')).toBeVisible()
     await expect.poll(() => creates.length).toBe(1)
-    await expect.poll(async () => (await storedTask(page, 'Spontan'))?.source).toBe('notion')
-    await expect(column(page, 'progress').locator('.task-wrapper', { hasText: 'Spontan' }).locator('[data-current]')).toBeVisible()
+    await expect.poll(async () => (await storedTask(page, 'Ad-hoc'))?.source).toBe('notion')
+    await expect(column(page, 'progress').locator('.task-wrapper', { hasText: 'Ad-hoc' }).locator('[data-current]')).toBeVisible()
   })
 
   test('ad-hoc add with a Local default stays Local, also next to a connected Notion', async ({ context, page, baseURL }) => {

@@ -91,7 +91,7 @@ test.describe('Local only', () => {
     expect(contrastRatio(await rgbOf(thumb), page_)).toBeGreaterThanOrEqual(3)
   })
 
-  test('lists Lokal with the Standard badge and no button, Notion to connect and Todoist as "bald verfügbar"', async ({ page, baseURL }) => {
+  test('lists Lokal with the Standard badge and no button, Notion to connect and Todoist as "Bald in der Desktop-App"', async ({ page, baseURL }) => {
     await openFromBoard(page, baseURL)
 
     await expect(page.getByRole('heading', { level: 1, name: 'Einstellungen' })).toBeVisible()
@@ -110,7 +110,7 @@ test.describe('Local only', () => {
     await expect(page.getByRole('heading', { level: 3, name: 'Eine App verbinden' })).toBeVisible()
     await expect(page.getByTestId('source-more-notion').getByRole('button', { name: 'Notion verbinden' })).toBeVisible()
     const todoist = page.getByTestId('source-more-todoist')
-    await expect(todoist).toContainText('bald verfügbar')
+    await expect(todoist).toContainText('Bald in der Desktop-App')
     await expect(todoist.getByRole('button')).toHaveCount(0)
   })
 

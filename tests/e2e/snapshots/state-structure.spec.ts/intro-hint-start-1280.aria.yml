@@ -1,4 +1,6 @@
 - status:
-  - paragraph: Ziehe in „Jetzt“, woran du gerade arbeitest. In Jetzt liegt immer nur eine Aufgabe.
+  - paragraph: Ziehe in „Jetzt“, woran du gerade arbeitest. Diese Spalte hat immer nur Platz für eine Aufgabe. 
+
+Für schnelle Wechsel kannst du eine andere Aufgabe einfach darüber ablegen.
   - button "Hinweise ausschalten"
   - button "Schließen"

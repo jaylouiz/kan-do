@@ -111,7 +111,7 @@ describe('Notion on the public web instance (#742)', () => {
     expect(fetchNotion).toHaveBeenCalledOnce()
   })
 
-  it('Speicherorte: the paused Notion row says why and offers only Trennen; an unconnected Notion is "Mac app only" (state cloudUnavailable)', () => {
+  it('Speicherorte: the paused Notion row says why and offers only Trennen; an unconnected Notion is "Desktop app only" (state cloudUnavailable)', () => {
     setPublicCloud(true)
     const board = useBoardStore()
     board.setSources({ connected: ['notion'], default: 'notion' })

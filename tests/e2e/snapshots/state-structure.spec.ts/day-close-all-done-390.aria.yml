@@ -3,5 +3,5 @@
   - paragraph: /Montag, \d+\. Juni/
   - heading "Alle Aufgaben erledigt" [level=3]
   - paragraph: Die erledigten Aufgaben werden archiviert.
-  - button "Abbrechen, nichts ändert sich"
+  - button "Abbrechen"
   - button "Tag abschließen"

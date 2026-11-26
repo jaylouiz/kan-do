@@ -333,7 +333,7 @@ describe('several hints are due together (#801)', () => {
   })
 })
 
-describe('the hint "Planen" (#803): the planning note of "Alle"', () => {
+describe('the hint "Die Aufgaben des Tages planen" (#803): the planning note of "Alle"', () => {
   const notPlanned = (id: string): Task => ({ ...task(id, TaskStatus.Open), notPlanned: true } as Task)
 
   it('is due with tasks to pick under "Alle", for a user of the hints, on any place', () => {

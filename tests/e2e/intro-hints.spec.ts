@@ -32,7 +32,7 @@ test('the welcome setup starts the hints: "Start" shows with the first card in O
   // The empty board (#853): its empty state with the add button, and the welcome note that says what the board is
   await expect(page.getByTestId('open-empty-hint')).toBeVisible()
   await expect(hint(page)).toHaveAttribute('data-hint', 'welcome')
-  await expect(page.getByTestId('intro-note-title')).toHaveText('Dein Tag auf einem Blatt')
+  await expect(page.getByTestId('intro-note-title')).toHaveText('Willkommen bei deinem Kanban-Board')
   await page.getByTestId('intro-hint-close').click()
   await expect(hint(page)).toHaveCount(0)
   await expect.poll(async () => (await record(page))?.hints.welcome?.answered).toBe(true)
@@ -42,13 +42,13 @@ test('the welcome setup starts the hints: "Start" shows with the first card in O
   await callTasksStore(page, { action: 'addTask', args: [fullTask({ id: 'first', title: 'Erste Aufgabe', status: 0 })] })
   await expect(hint(page)).toBeVisible()
   await expect(page.getByTestId('intro-hint-host')).toHaveAttribute('role', 'status')
-  await expect(hint(page)).toContainText('Ziehe in „Jetzt“, woran du gerade arbeitest. In Jetzt liegt immer nur eine Aufgabe.')
+  await expect(hint(page)).toContainText('Ziehe in „Jetzt“, woran du gerade arbeitest. Diese Spalte hat immer nur Platz für eine Aufgabe. \n\nFür schnelle Wechsel kannst du eine andere Aufgabe einfach darüber ablegen.')
   // On screen: today is stored for the hint
   await expect.poll(async () => (await record(page))?.hints.start?.days.length).toBe(1)
 
   await callTasksStore(page, { action: 'updateTask', args: ['first', { status: 1 }] })
   // "Start" is answered. The card did not get into Jetzt by the user's own move (a store write, like a card a connection
-  // brings), so "Die Zeit läuft jetzt mit" does not show (#853)
+  // brings), so "Die Zeit läuft mit und wenn du dir eine Timebox gegeben hast, siehst du wieviel Zeit davon noch übrig ist." does not show (#853)
   await expect.poll(async () => (await record(page))?.hints.start?.answered).toBe(true)
   await expect(hint(page)).toHaveCount(0)
   await callTasksStore(page, { action: 'updateTask', args: ['first', { status: 0 }] })
@@ -342,7 +342,7 @@ test('390px: the link "Hinweise ausschalten" is a 44 px target and the sheet sta
 })
 
 /**
- * "Planen" (#803): the planning note of "Alle" as a hint. Tasks wait under "Alle", "Heute" is empty: the note shows on the first
+ * "Die Aufgaben des Tages planen" (#803): the planning note of "Alle" as a hint. Tasks wait under "Alle", "Heute" is empty: the note shows on the first
  * visit, by any way; it ends with "Schließen" (quiet for the day) or by going on to "Heute", not by a page off the board.
  * The rules are unit-tested; the old #711 note (a user without hints) is in `new-day-recap.spec.ts`.
  */
@@ -355,7 +355,7 @@ const planRecord = (page: Page) =>
     return { record: settings.introHints ?? null, seen: recap.planNoteSeen === true }
   })
 
-test('"Planen": the first visit to "Alle" shows the note, a page off the board is no answer, "Heute" ends it for good', async ({ context, page }) => {
+test('"Die Aufgaben des Tages planen": the first visit to "Alle" shows the note, a page off the board is no answer, "Heute" ends it for good', async ({ context, page }) => {
   await seedLocalBoard(context, PICK_ONLY, {}, undefined, { hints: true, once: true })
   await page.goto('/all')
   await expect(page.locator('#column-open').getByTestId('plan-note')).toBeVisible()
@@ -375,7 +375,7 @@ test('"Planen": the first visit to "Alle" shows the note, a page off the board i
   await expect(planNote(page)).toHaveCount(0)
 })
 
-test('"Planen": "Schließen" ends it, keeps the day quiet and stays away after a reload', async ({ context, page }) => {
+test('"Die Aufgaben des Tages planen": "Schließen" ends it, keeps the day quiet and stays away after a reload', async ({ context, page }) => {
   await seedLocalBoard(context, PICK_ONLY, {}, undefined, { hints: true, once: true })
   await page.goto('/all')
   await expect(planNote(page)).toBeVisible()
@@ -391,7 +391,7 @@ test('"Planen": "Schließen" ends it, keeps the day quiet and stays away after a
   await expect(planNote(page)).toHaveCount(0)
 })
 
-test('"Planen" at 390: one line with the two links, "Hinweise ausschalten" takes it away with a toast', async ({ context, page }) => {
+test('"Die Aufgaben des Tages planen" at 390: one line with the two links, "Hinweise ausschalten" takes it away with a toast', async ({ context, page }) => {
   await page.setViewportSize(MOBILE)
   await seedLocalBoard(context, PICK_ONLY, {}, undefined, { hints: true, once: true })
   await page.goto('/tasks')
@@ -408,7 +408,7 @@ test('"Planen" at 390: one line with the two links, "Hinweise ausschalten" takes
   await expect.poll(async () => (await planRecord(page)).record?.on).toBe(false)
 })
 
-test('"Planen" stays silent with a card already planned for today or with nothing to pick', async ({ context, page }) => {
+test('"Die Aufgaben des Tages planen" stays silent with a card already planned for today or with nothing to pick', async ({ context, page }) => {
   await seedLocalBoard(context, [...PICK_ONLY, { ...SEED_TASKS[2]!, status: 0 }], {}, undefined, { hints: true })
   await page.goto('/all')
   await expect(page.getByTestId('not-planned')).toBeVisible()
@@ -538,7 +538,7 @@ test('a card the board starts with in Jetzt: the tour explains it, the board is 
   await expect(hint(page)).toContainText('In „Jetzt“ liegt immer nur eine Aufgabe: die, an der du gerade arbeitest.')
   await page.getByTestId('intro-hint-next').click()
   await page.getByTestId('intro-hint-next').click()
-  // "Die Zeit läuft jetzt mit" only after the user's own card in Jetzt
+  // "Die Zeit läuft mit und wenn du dir eine Timebox gegeben hast, siehst du wieviel Zeit davon noch übrig ist." only after the user's own card in Jetzt
   await expect(hint(page)).toHaveCount(0)
   await expect(page.locator('.board')).toHaveAttribute('data-focus', '')
 })

@@ -2,5 +2,5 @@
   - heading "Tag abschließen" [level=2]
   - paragraph: /Montag, \d+\. Juni/
   - paragraph: Heute noch nichts erledigt.
-  - button "Abbrechen, nichts ändert sich"
+  - button "Abbrechen"
   - button "Tag abschließen"

@@ -198,7 +198,7 @@ test.describe('Task Detail View', () => {
       // Empty: the row is there in its stable position with the empty state
       const select = page.getByTestId(field.testId);
       await expect(select).toBeVisible();
-      await expect(select).toContainText('Auswählen');
+      await expect(select).toContainText('Den Überblick behalten');
       await expect(select).toHaveAccessibleName(new RegExp(`^${field.label}: Auswählen`));
       const before = await select.boundingBox();
 
@@ -244,7 +244,7 @@ test.describe('Task Detail View', () => {
       await expect(page.getByRole('dialog')).toBeVisible();
       await expect(page.getByRole('option', { name: new RegExp(`^${field.option}`) })).not.toBeVisible();
       await expect(select).toBeVisible();
-      await expect(select).toContainText('Auswählen');
+      await expect(select).toContainText('Den Überblick behalten');
       await expect(select).toBeFocused();
     });
   }
@@ -258,9 +258,9 @@ test.describe('Task Detail View', () => {
     // No × on the trigger: the clear action lives in the picker
     await page.getByTestId('task-property-clear').click();
 
-    // The row stays where it is and reads "Auswählen" again
+    // The row stays where it is and reads "Den Überblick behalten" again
     await expect(select).toBeVisible();
-    await expect(select).toContainText('Auswählen');
+    await expect(select).toContainText('Den Überblick behalten');
     await expect.poll(() => page.evaluate(() => {
       const data = JSON.parse(localStorage.getItem('tasks-store') ?? '{}');
       return data.tasks?.find((t: { id: string }) => t.id === 'test-task-1')?.topic ?? null;
@@ -454,7 +454,7 @@ test.describe('Task Detail View', () => {
     for (let i = 2; i < rows.length; i += 2) expect.soft(rows[i].top - rows[i - 2].bottom, `rows of cells ${i - 2} and ${i} keep a gap`).toBeGreaterThanOrEqual(4);
   });
 
-  test('the sheet holds the switch "Für heute eingeplant", the task menu the checked entry "Kam spontan dazu" with its label under the title: each writes the task, the status stays (#795, #846)', async ({ page, baseURL }) => {
+  test('the sheet holds the switch "Für heute eingeplant", the task menu the checked entry "Ad-hoc/Ungeplant" with its label under the title: each writes the task, the status stays (#795, #846)', async ({ page, baseURL }) => {
     await page.goto(`${baseURL}/tasks/test-task-7`);
     const stored = () => page.evaluate(() => {
       const tasks = (JSON.parse(localStorage.getItem('tasks-store') ?? '{}') as { tasks?: Array<{ id: string; status: number; notPlanned?: boolean; isUnplanned?: boolean }> }).tasks ?? [];
@@ -463,7 +463,7 @@ test.describe('Task Detail View', () => {
     });
     const planned = page.getByRole('switch', { name: 'Für heute eingeplant' });
     // Ad-hoc work is no switch of the sheet any more (#846): a label under the title, set and cleared in the task menu
-    await expect(page.getByRole('switch', { name: 'Kam spontan dazu' })).toHaveCount(0);
+    await expect(page.getByRole('switch', { name: 'Ad-hoc/Ungeplant' })).toHaveCount(0);
     const adHocLabel = page.getByTestId('task-adhoc-label');
     await expect(adHocLabel).toHaveCount(0);
     await expect(planned).toBeChecked();
@@ -484,11 +484,11 @@ test.describe('Task Detail View', () => {
     const titleTop = async () => (await page.getByTestId('task-detail-header').locator('[data-inline-editable]').boundingBox())!.y - (await page.locator('.task-morph-panel').boundingBox())!.y;
     const before = await titleTop();
     await taskMenu(page).click();
-    const adHoc = page.getByRole('menuitemcheckbox', { name: 'Kam spontan dazu' });
+    const adHoc = page.getByRole('menuitemcheckbox', { name: 'Ad-hoc/Ungeplant' });
     await expect(adHoc).toHaveAttribute('aria-checked', 'false');
     await adHoc.click();
     await expect(adHoc).toHaveAttribute('aria-checked', 'true');
-    await expect(adHocLabel).toHaveText('Spontan');
+    await expect(adHocLabel).toHaveText('Ad-hoc');
     await expect.poll(stored).toMatchObject({ isUnplanned: true });
     // The title row stays where it is, with or without the label
     await settleAnimations(page);
@@ -660,7 +660,7 @@ test.describe('Task Detail View', () => {
 
     await taskMenu(page).click();
     await expect(page.getByRole('menuitem')).toHaveText(['ID kopieren', 'Löschen']);
-    await expect(page.getByRole('menuitemcheckbox')).toHaveText(['Kam spontan dazu']);
+    await expect(page.getByRole('menuitemcheckbox')).toHaveText(['Ad-hoc/Ungeplant']);
     await page.getByRole('menuitem', { name: /^Löschen/ }).click();
     await expect(page).toHaveURL(/\/tasks$/);
     await expect(page.locator('.task-wrapper[data-task-id="test-task-1"]')).toHaveCount(0);

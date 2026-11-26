@@ -16,5 +16,5 @@
       - listitem: Steuern 1 Aufgabe
       - listitem: Ohne Thema 1 Aufgabe
   - paragraph: Deine unerledigten Aufgaben kannst du morgen erneut einplanen. Die erledigten Aufgaben werden archiviert.
-  - button "Abbrechen, nichts ändert sich"
+  - button "Abbrechen"
   - button "Tag abschließen"

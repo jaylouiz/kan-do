@@ -10,7 +10,7 @@ const tabNames = (page: Page) => page.getByRole('tab').allTextContents()
 
 /** No card in Jetzt: a restarted "Start" is not answered at once by a step that is already done */
 const OPEN_ONLY = SEED_TASKS.filter(task => task.status === 0)
-/** A restarted record: cards in Offen are a planned day, so "Planen" (#803) is answered at once by its step; nothing else is touched */
+/** A restarted record: cards in Offen are a planned day, so "Die Aufgaben des Tages planen" (#803) is answered at once by its step; nothing else is touched */
 const RESTARTED = { on: true, quietDay: null, v: 2, hints: { planen: { answered: true, days: [] } } }
 /** #845: what the root element carries (`inline`) and what it computes to; 100 % sets nothing */
 const rootFontSize = (page: Page) =>
@@ -51,13 +51,13 @@ test.describe('Hinweise zum Einstieg in the Board tab (#804)', () => {
     const list = page.getByTestId('intro-hints-help-list')
     await expect(list.locator('li')).toHaveCount(6)
     // the welcome of an empty board first (#853), each entry with its title and its text
-    await expect(list.locator('li').first()).toContainText('Dein Tag auf einem Blatt')
+    await expect(list.locator('li').first()).toContainText('Willkommen bei deinem Kanban-Board')
     await expect(list).toContainText('Ziehe in „Jetzt“, woran du gerade arbeitest.')
-    await expect(list).toContainText('Die Zeit läuft jetzt mit')
+    await expect(list).toContainText('Die Zeit läuft mit und wenn du dir eine Timebox gegeben hast, siehst du wieviel Zeit davon noch übrig ist.')
     await expect(list).toContainText('Viel offen?Gestapelt nach Thema oder Priorität wählst du leichter aus. Die Stapel findest du auch unter „Mehr“.')
     await expect(list).toContainText('Genug für heute?„Tag abschließen“ zeigt dir, was du geschafft hast und was offen bleibt.')
     // the planning note of "Alle" in its own words (#741): the desktop sentence here, the phone's one line below
-    await expect(list).toContainText('Fahre über eine Karte: Der Pfeil plant sie für heute ein. Sobald du loslegen willst, wechsle in der Navigation zu „Heute“.')
+    await expect(list).toContainText('Schiebe sie in die heutige Auswahl oder drücke den Pfeil-Button. Sobald du loslegen willst, wechsle in der Navigation zu „Heute“.')
     await hintsButton(page).click()
     await expect(list.locator('li')).toHaveCount(6)
 

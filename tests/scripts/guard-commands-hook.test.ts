@@ -122,7 +122,7 @@ describe('guard-commands hook', () => {
     [['cd x && npm --silent run', 'terms:approve'].join(' '), 'only the user approves'],
     [`FOO=1 ${termsApprove}`, 'only the user approves'],
     [frontmost, 'steal focus'],
-    ['osascript -e \'tell application "kan-do" to activate\'', 'steal focus'],
+    ['osascript -e \'tell application "Kan-do" to activate\'', 'steal focus'],
     ['osascript -e \'tell application "System Events" to keystroke "n" using command down\'', 'keystrokes'],
     ['osascript -e \'tell application "System Events" to key code 36\'', 'keystrokes'],
     [`osascript -l JavaScript -e 'Application("System Events").processes.byName("app").frontmost = true'`, 'steal focus'],
@@ -364,7 +364,7 @@ describe('guard-commands hook: orca computer targets only a sandbox run', () => 
     }
   }
 
-  it.each(['io.github.jaylouiz.kan-do', 'app', 'kan-do', 'Kan-Do', '=app'])('blocks the desktop app by name: %s', (app) => {
+  it.each(['io.github.jaylouiz.kan-do', 'app', 'Kan-do', 'Kan-Do', '=app'])('blocks the desktop app by name: %s', (app) => {
     const r = hook(app.startsWith('=') ? `orca computer click --app${app} --element-index 1` : orca(app))
     expect(r.status).toBe(2)
     expect(r.stderr).toContain('sandbox')

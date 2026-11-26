@@ -14,7 +14,7 @@ describe('web app copy (#762)', () => {
   })
 
   it('the unavailable Notion row says Mac app only', () => {
-    expect(de.sources.page.cloudUnavailable).toBe('nur in der Mac-App')
-    expect(en.sources.page.cloudUnavailable).toBe('Mac app only')
+    expect(de.sources.page.cloudUnavailable).toBe('Nur in der Desktop-App')
+    expect(en.sources.page.cloudUnavailable).toBe('Desktop app only')
   })
 })

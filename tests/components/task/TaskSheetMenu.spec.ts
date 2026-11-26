@@ -22,7 +22,7 @@ describe('TaskSheetMenu (#705)', () => {
   it('Local board: the task\'s own entries, then Delete in the error tone, which only emits', () => {
     const wrapper = render({})
     const groups = groupsOf(wrapper)
-    expect(groups.map(group => group.map(item => item.label))).toEqual([['Kam spontan dazu', 'ID kopieren'], ['Löschen']])
+    expect(groups.map(group => group.map(item => item.label))).toEqual([['Ad-hoc/Ungeplant', 'ID kopieren'], ['Löschen']])
     expect(groups[1]![0]!.color).toBe('error')
     groups[1]![0]!.onSelect!()
     expect(wrapper.emitted('delete')).toHaveLength(1)
@@ -53,7 +53,7 @@ describe('TaskSheetMenu (#705)', () => {
   it('Notion board: open in source and move to source, then Delete in its own group', () => {
     const wrapper = render({ openLabel: 'In Notion öffnen', moveTargets: [target], deleteLabel: 'Löschen, auch in Notion' })
     const groups = groupsOf(wrapper)
-    expect(groups.map(group => group.map(item => item.label))).toEqual([['In Notion öffnen', 'Verschieben zu …'], ['Kam spontan dazu', 'ID kopieren'], ['Löschen, auch in Notion']])
+    expect(groups.map(group => group.map(item => item.label))).toEqual([['In Notion öffnen', 'Verschieben zu …'], ['Ad-hoc/Ungeplant', 'ID kopieren'], ['Löschen, auch in Notion']])
     groups[0]![0]!.onSelect!()
     expect(wrapper.emitted('open')).toHaveLength(1)
   })
@@ -70,9 +70,9 @@ describe('TaskSheetMenu (#705)', () => {
 
   it('a task that cannot be deleted shows no Delete; the task\'s own entries keep the button (#846)', () => {
     const labels = (wrapper: ReturnType<typeof render>) => groupsOf(wrapper).map(group => group.map(item => item.label))
-    expect(labels(render({ openLabel: 'In Reminders öffnen', deleteLabel: null }))).toEqual([['In Reminders öffnen'], ['Kam spontan dazu', 'ID kopieren']])
+    expect(labels(render({ openLabel: 'In Reminders öffnen', deleteLabel: null }))).toEqual([['In Reminders öffnen'], ['Ad-hoc/Ungeplant', 'ID kopieren']])
     const readOnly = render({ deleteLabel: null })
-    expect(labels(readOnly)).toEqual([['Kam spontan dazu', 'ID kopieren']])
+    expect(labels(readOnly)).toEqual([['Ad-hoc/Ungeplant', 'ID kopieren']])
     expect(readOnly.find('[data-testid="task-menu"]').exists()).toBe(true)
   })
 

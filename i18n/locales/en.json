@@ -86,7 +86,7 @@
     },
     "capacity": {
       "label": "Your capacity",
-      "help": "This is probably how much you'll get done today. Plan important tasks above it.",
+      "help": "This is probably how much you can get done. Plan important tasks above it.",
       "infoLabel": "How is this estimated?",
       "info": "Kan-do learns and adapts: the more often you use the board, the more accurate this estimate gets.",
       "infoSet": "This estimate is based on the working hours you set in Settings. Work tracked today is subtracted.",
@@ -195,21 +195,21 @@
       "start": {
         "title": "What do you start with?",
         "text": {
-          "desktop": "Drag what you're working on now into Now. Now holds one task at a time.",
+          "desktop": "Drag what you're working on right now into “Now”. This column has room for only one task at a time. \n\nTo switch quickly, drop another task on top of it.",
           "phone": "Hold the card and drag it to the right edge, into Now. Now holds one task at a time."
         }
       },
       "weiter": {
-        "title": "The timer is running",
+        "title": "The time keeps running, and if you gave yourself a timebox, you can see how much of it is left.",
         "text": "Drag the card to Done once the task is done. Waiting on someone? Drag it to Waiting."
       },
       "auswahl": {
-        "title": "A lot open?",
+        "title": "A lot to do?",
         "text": "Stacked by topic or priority, picking is easier. You'll also find stacks under “{more}”."
       },
       "abschluss": {
-        "title": "Enough for today?",
-        "text": "“{dayClose}” shows what you got done and what stays open."
+        "title": "Done for today?",
+        "text": "Choose “{dayClose}” and take a look at a short daily recap."
       },
       "close": "Close",
       "off": "Turn off hints",
@@ -220,9 +220,9 @@
     },
     "welcome": {
       "empty": {
-        "title": "Your day on one sheet",
+        "title": "Welcome to your Kanban board",
         "today": {
-          "desktop": "This sheet holds only what's on today. Open collects it. Now holds the one task you're working on. Start by writing down what's on today.",
+          "desktop": "In “Open”, you collect everything you want to get done today. Collect what's on today there. Move a task to “Now” as soon as you start working on it.",
           "phone": "This sheet holds only what's on today. Now holds the one task you're working on. Start by writing down what's on today."
         },
         "all": "All collects what's on your plate. “Today” in the navigation shows only what you plan for today. Start by writing down a task."
@@ -276,7 +276,7 @@
     },
     "planNote": {
       "title": "Choose what's on today",
-      "description": "Hover over a card: the arrow plans it for today. When you're ready to start, switch to “Today” in the navigation.",
+      "description": "Move them into today's selection or press the arrow button. When you want to get started, switch to “Today” in the navigation.",
       "line": "Choose what's on today. When you're ready to start, switch to “Today” in the navigation.",
       "close": "Close",
       "phoneText": "When you're ready to start, switch to “Today” in the navigation."
@@ -422,7 +422,7 @@
       "tabDetails": "Details",
       "tabsLabel": "Section",
       "tabNotesFilled": "written",
-      "adhocBadge": "Spontaneous"
+      "adhocBadge": "Came up on the spot"
     },
     "timeStats": {
       "remaining": "{time} left"
@@ -577,7 +577,7 @@
       "empty": "No tasks in the selected period"
     },
     "question": {
-      "q2": "How am I developing?",
+      "q2": "How is my time estimation developing?",
       "q3": "Where do I misjudge?",
       "q4": "What do I spend my time on?",
       "q5": "When do I work?"
@@ -587,7 +587,7 @@
         "better": "Things are going better than usual.",
         "usual": "Things are going as usual.",
         "harder": "Things are more demanding than usual.",
-        "thin": "Not enough history to compare yet.",
+        "thin": "There isn't enough data yet to assess this week.",
         "empty": "Ready for your first tasks",
         "quiet": "No task was done in the last 7 days."
       },
@@ -610,7 +610,7 @@
       "up": "Rising: earlier {early}% in the timebox, lately {recent}%.",
       "down": "Falling: earlier {early}% in the timebox, lately {recent}%.",
       "flat": "Steady: the share in the timebox hardly changes.",
-      "few": "Too few weeks for a development yet. Done tasks with a timebox fill the history.",
+      "few": "There aren't enough weeks with done tasks yet for a trend.",
       "chartLabel": "Share in the timebox per 7 days, oldest period first: {values}",
       "noValue": "no value",
       "table": {
@@ -625,7 +625,7 @@
       "lineLonger": "For “{label}” you usually plan too tightly.",
       "lineShorter": "For “{label}” you usually plan too generously.",
       "none": "No recurring pattern in your estimates.",
-      "tooFew": "Too few done tasks with a timebox for patterns yet.",
+      "tooFew": "There aren't enough done tasks with a timebox yet for a conclusion.",
       "noTimebox": "Without a timebox there's nothing to compare. Set one next time.",
       "heading": "Recurring patterns",
       "kind": {
@@ -687,7 +687,7 @@
       "lineOutside": "{share}% of your time falls before {first}:00 or after {last}:00.",
       "lineStartWorkdays": "On weekdays you usually start at {time}.",
       "lineStart": "You usually start at {time}.",
-      "thin": "Not enough data yet. Kan-do now keeps track of when the timer runs. After five days with tracked time, your rhythm shows up here.",
+      "thin": "There isn't enough data yet. Kan-do keeps track of when a task was in “Now”. After five days with an active task, you'll see your rhythm here.",
       "days": "{n} of {min} days",
       "heading": "Average per hour, last 8 weeks",
       "less": "less",
@@ -1076,12 +1076,12 @@
       "turnOff": "Turn off",
       "restart": "Show again",
       "entries": {
-        "welcome": "Welcome",
+        "welcome": "The basics",
         "start": "Getting started",
-        "weiter": "Carrying on",
-        "auswahl": "Choosing",
+        "weiter": "Staying with a task",
+        "auswahl": "Keeping an overview",
         "abschluss": "Closing the day",
-        "planen": "Planning"
+        "planen": "Planning the tasks of the day"
       }
     },
     "github": {
@@ -1460,9 +1460,9 @@
       "connectedHeading": "Your storage locations",
       "help": "When adding a task, you can choose another storage location, and you can move tasks at any time.",
       "moreHeading": "Connect an app",
-      "soon": "coming soon",
-      "macOnly": "Mac app only",
-      "cloudUnavailable": "Mac app only"
+      "soon": "Coming soon to the desktop app",
+      "macOnly": "Desktop app only",
+      "cloudUnavailable": "Desktop app only"
     },
     "row": {
       "default": "Default",
@@ -1517,7 +1517,7 @@
       "samples": "Show example",
       "curious": "Just curious? Then look around the app with sample tasks.",
       "intro": "You can save tasks locally on this device and, if you like, connect apps such as Notion or Todoist.",
-      "introWeb": "You can save tasks locally on this device.",
+      "introWeb": "Tasks are stored only locally in your browser. You can export and import tasks.",
       "appDownload": "Download the Mac app",
       "start": "Get started"
     },
@@ -1533,11 +1533,11 @@
         "todoist": "Todoist",
         "confirmNotion": "Set up Notion",
         "reminders": "Apple Reminders",
-        "remindersWebOnly": "Mac app only",
-        "notionCloudUnavailable": "Mac app only",
+        "remindersWebOnly": "Desktop app only",
+        "notionCloudUnavailable": "Desktop app only",
         "confirmReminders": "Set up with Apple Reminders",
         "confirmRemindersNotion": "Continue with Apple Reminders and Notion",
-        "notionHint": "Tasks from a database",
+        "notionHint": "Any task database",
         "remindersHint": "Tasks from your lists",
         "todoistSoon": "Coming soon"
       },
@@ -1717,7 +1717,7 @@
     },
     "consequence": "You can plan your unfinished tasks again tomorrow. Your done tasks are archived.",
     "consequenceDoneOnly": "Your done tasks are archived.",
-    "cancel": "Cancel, nothing changes",
+    "cancel": "Cancel",
     "finish": "Close the day"
   },
   "secrets": {
@@ -1887,7 +1887,7 @@
     "publicAccount": "Sending it needs a GitHub account.",
     "openedToast": "GitHub is open in your browser. Send the feedback there.",
     "openedToastImage": "GitHub is open in your browser. Paste the screenshot with ⌘V, then send the feedback.",
-    "private": "Your feedback goes straight to me. It isn't published.",
+    "private": "Your feedback goes straight to the Kan-do developer. It isn't published.",
     "sentRelayToast": "Thanks, your feedback has arrived.",
     "retention": {
       "notice": "Exactly what you see here is sent. It goes to a private GitHub repository and is deleted {period} after we've dealt with it. To have it deleted sooner, email the address in the {impressum}. More: {privacy}.",
