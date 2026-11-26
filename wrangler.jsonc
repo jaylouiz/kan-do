@@ -15,6 +15,11 @@
   // Prototypes reach Cloudflare only as Worker Previews (`previews` block below: no production secret); a Version URL only
   // ever shows a version `wrangler deploy` uploaded from main, i.e. production code and secrets on another host, gated alike.
   "preview_urls": true,
+  // Custom domain (#32): Wrangler attaches it on deploy. Needs zone julius-wuestefeld.de active and no conflicting DNS record.
+  // Gate stays on; workers.dev URL stays on for previews.
+  "routes": [
+    { "pattern": "kan-do.julius-wuestefeld.de", "custom_domain": true },
+  ],
   // Nitro's built handler: the output of `npm run build:cloudflare`.
   "alias": { "#nitro-server": "./.output/server/index.mjs" },
   "assets": {
