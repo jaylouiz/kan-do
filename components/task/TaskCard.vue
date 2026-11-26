@@ -9,7 +9,7 @@
 - Displays task information: the topic first, the title below it (#584), then the footer (source icon, timebox chip,
   carried-over dots, priority; #471). The activity is not on the card (#584): the sheet, the grouping and the statistics keep it.
 - Shows the timebox as the progress chip (#388) after the source icon, which is absent on a one-source board (#584, #471): a light grey chip with the spent share outside
-  Jetzt, a bar in Jetzt that spans the whole footer, over the dots and the priority badge; while that bar shows, the source icon is hidden; the card has no progress ring
+  Jetzt, a bar in Jetzt that spans the whole footer, over the dots and the priority badge; while that bar shows, the source icon is hidden and the badge group at the footer's end fades out (#879, it stays announced); every footer item is 24 px high (#879); the card has no progress ring
   (the task sheet keeps its own)
 - Shows the carried-over dots (#99) for not-done cards, with the numeral only past the dot cap (#584)
 - Shows the quiet footer icon of a Reminders task whose place the date explains (#553: put back while Reminders says today, planned by Reminders' date, a series held here), its sentence as the label
@@ -177,7 +177,9 @@
                The chip, the icons and the priority badge never shrink, and the row never wraps. -->
           <TaskCarryOverDots :day="carryOverDay" />
         </div>
-        <div class="ml-auto flex shrink-0 items-center gap-1">
+        <!-- The end group fades out while the Jetzt bar covers it (#879), so the bar ends in one clean pill; it stays in the
+             accessibility tree (opacity only), the priority is still announced -->
+        <div class="task-footer-end ml-auto flex shrink-0 items-center gap-1" data-testid="task-footer-end">
           <!-- The status a card keeps outside its own column (#797): "Für heute" on "Alle", a waiting task off today -->
           <UBadge
             v-if="statusBadgeLabel"
@@ -856,12 +858,6 @@ const openDetails = (event: MouseEvent) => {
     font-size: var(--text-title);
   }
 
-  /* Footer chips (timebox, priority): Nuxt UI sets their size per utility class, so the
-     scoped rule reaches the child root through :deep */
-  .task-footer :deep([data-slot="base"]) {
-    min-height: 1.5rem;
-  }
-
   .task-title-text {
     -webkit-line-clamp: 6;
     line-clamp: 6;
@@ -893,4 +889,10 @@ const openDetails = (event: MouseEvent) => {
   position: relative;
   min-height: 1.75rem;
 }
+
+/* #879: one footer height (24 px, like the timebox chip and the Jetzt bar; :deep reaches the Nuxt UI badge root). The end
+   group fades out once the Jetzt bar grows over it (chip settle delay plus a beat) and back in at once; opacity only, it stays announced */
+.task-footer :deep([data-slot="base"]) { height: 1.5rem; min-height: 1.5rem; }
+.task-footer-end { transition: opacity var(--duration-base) var(--ease-standard); }
+.task-footer:has(:deep(.chip--now:not(.chip--boxless))) .task-footer-end { opacity: 0; pointer-events: none; transition-delay: calc(var(--duration-base) * 1.5); }
 </style>

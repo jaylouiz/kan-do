@@ -312,6 +312,7 @@ export const SCALE_ALLOWLIST = {
   'components/task/DatePickerField.vue': { literals: ['min-w-[260px]'], reason: 'min-w-[260px]: the calendar popover is px wide so the month grid never reflows with the text size' },
   'assets/css/app-nav.css': { literals: ['padding: 0.1875rem', 'padding-inline: 0.625rem'], reason: 'the phone nav pill: 3 px pill padding and 10 px a segment are tied to the 390 px layout (the funnel right of ⋯ sits at 388 px, #375) and to the indicator that rides the same inset' },
   'components/task/TaskCard.vue': { literals: ['padding-right: 1.875rem', 'width: 2.75rem', 'height: 2.75rem', 'width: 1.75rem', 'height: 1.75rem'], reason: 'padding-right 30 px is the card-corner menu button (28 px circle) plus 2 px; the 44 px check and 28 px rocket are the completion mark sized to the confirm message, not UI icons' },
+  'components/task/TaskProgressChip.vue': { literals: ['width: 0.875rem', 'height: 0.875rem'], reason: 'the Jetzt bar clock is 14 px to match the bar text (14 px body step) in the 24 px bar (#879 UX decision); 16 px crowded the bar, 12 px is the collapsed chip' },
   'components/task/TaskStackHeader.vue': { literals: ['margin-top: -1.375rem'], reason: 'margin-top -22 px: half of the 44 px close button, centring it on the 32 px header edge' },
   'app.config.ts': { literals: ['text-[0.5rem]/3'], reason: 'text-[0.5rem]/3: the xs badge, rem so it follows text zoom (#66); no role is that small' },
 }

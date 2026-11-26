@@ -212,8 +212,9 @@ test.describe('timebox progress chip (#388)', () => {
 
   test.describe('the morph repeats on every round trip (#411)', () => {
     /**
-     * Records which chips play a motion from now on, by where they live: `transitionrun` on a chip's height (every chip
-     * eases it between the grey chip and the bar, a boxless one has no width to ease). Asserting the
+     * Records which chips play a motion from now on, by where they live: `transitionrun` on a chip's end padding (every chip
+     * eases it between the grey chip and the bar, a boxless one has no width to ease; the height is the same 24 px in
+     * both since #879, so it no longer moves). Asserting the
      * motion itself, not only the end state: a card that never re-renders its chip ends in the right state
      * without morphing, which is the bug.
      */
@@ -226,7 +227,7 @@ test.describe('timebox progress chip (#388)', () => {
         const where = (el: Element) => (el.closest('.kando-dnd-preview') ? 'preview' : 'card')
         document.addEventListener('transitionrun', (e) => {
           const el = e.target as Element
-          if (e.propertyName === 'height' && el.classList?.contains('chip')) w.__chipMotion!.push(`${where(el)}:chip`)
+          if (e.propertyName === 'padding-right' && el.classList?.contains('chip')) w.__chipMotion!.push(`${where(el)}:chip`)
         }, true)
       })
     const motion = (page: Page) => page.evaluate(() => (window as unknown as { __chipMotion: string[] }).__chipMotion)
@@ -386,6 +387,39 @@ test.describe('timebox progress chip (#388)', () => {
     // First item of the footer (#584), and the activity is no badge on the card
     expect(Math.abs(chipBox.x - box.x)).toBeLessThanOrEqual(1)
     await expect(card(page, 'seed-open-2').getByText('Ein sehr langer Aktivitätsname')).toHaveCount(0)
+  })
+
+  test('one footer height: chip, badge and Jetzt bar are 24 px, the badges fade under the bar and stay announced (#879)', async ({ context, page }) => {
+    // seed-open-2 has a high priority; the Jetzt card gets one too, so a badge sits under the bar's end
+    await seedLocalBoard(context, withJetztSpent(1800).map(t => (t.id === JETZT_ID ? { ...t, priority: 3 } : t)))
+    await page.goto('/tasks')
+    const heightOf = async (target: Locator) => (await target.boundingBox())!.height
+    const end = (id: string) => card(page, id).getByTestId('task-footer-end')
+
+    // Outside Jetzt: the chip and the priority badge are one height
+    const openBadge = end('seed-open-2').locator('[data-slot="base"]')
+    expect(await heightOf(chip(page, 'seed-open-2'))).toBeCloseTo(24, 0)
+    expect(await heightOf(openBadge)).toBeCloseTo(24, 0)
+    await expect(end('seed-open-2')).toHaveCSS('opacity', '1')
+
+    // Jetzt, loaded on the page: the bar is 24 px with 14 px text, the badge group is hidden under it, still in the tree
+    await expectBar(page, JETZT_ID)
+    expect(await heightOf(chip(page, JETZT_ID))).toBeCloseTo(24, 0)
+    await expect(chip(page, JETZT_ID)).toHaveCSS('font-size', '14px')
+    await expect(end(JETZT_ID)).toHaveCSS('opacity', '0')
+    await expect(end(JETZT_ID)).toHaveCSS('pointer-events', 'none') // no tooltip from a badge nobody sees
+    await expect(card(page, JETZT_ID).getByRole('progressbar')).toBeVisible()
+    await expect(end(JETZT_ID)).toContainText(/Hoch/)
+    await expect(end(JETZT_ID)).not.toHaveAttribute('aria-hidden')
+    await expect(end(JETZT_ID)).not.toHaveAttribute('inert')
+
+    // Out of Jetzt: the badge fades back in; back in: it fades out again as the bar grows
+    await drag(page, JETZT_ID, 'waiting')
+    await expectCollapsed(page, JETZT_ID)
+    await expect(end(JETZT_ID)).toHaveCSS('opacity', '1')
+    await drag(page, JETZT_ID, 'progress')
+    await expectBar(page, JETZT_ID)
+    await expect(end(JETZT_ID)).toHaveCSS('opacity', '0')
   })
 
   test.describe('reduced motion', () => {
