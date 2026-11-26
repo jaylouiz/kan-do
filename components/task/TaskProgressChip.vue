@@ -37,8 +37,10 @@
   without a timebox the name is the spent time and there is no value
 - The timer bar keeps a minimum fill (2.5 rem: the icon with its padding), so the last stretch never shows a sliver and the icon stays on the fill; the spent label can still straddle the fill's edge (both sides keep 4.5:1)
 - Accepted: the task sheet's ring still shows the spent share while the Jetzt bar shows the share left (a record next to a timer); the overrun differs from a fresh start by colour only (a "+12 min" label would be new copy, out of scope of #450)
+- One footer height (#879): the chip and the Jetzt bar are both 24 px (1.5 rem, the footer badges' height), so entering
+  Jetzt springs the width only; the bar text is the 14 px body step on every width, the clock 14 px, the radius half the height
 - Accepted: in Jetzt the bar covers the carry-over dots and priority badge (TaskCard makes the group after the
-  chip inert); the bar spans the whole footer (`--footer-w`) and starts under the source unit (#471, `--source-w`, both set by TaskCard; #704), the cloud or Reminders hint on top of it (the source icon is hidden under the bar); the spring overshoot may poke a few px past the footer padding, inside the card
+  chip inert and fades the badge group at the footer's end out, #879, so the bar ends in one clean pill); the bar spans the whole footer (`--footer-w`) and starts under the source unit (#471, `--source-w`, both set by TaskCard; #704), the cloud or Reminders hint on top of it (the source icon is hidden under the bar); the spring overshoot may poke a few px past the footer padding, inside the card
 -->
 <template>
   <Transition name="chip-pop" :appear="popsOnMount">
@@ -216,9 +218,9 @@ watch(() => props.isNow, (now) => {
 <style scoped>
 /* Component tokens (DESIGN.md, Progress chip). The width spring is a linear() easing with ~5 % overshoot that settles; only the width springs, height, text size and radius ease out without bounce. */
 .chip-slot {
-  --chip-h: 1.375rem;
-  --chip-h-now: 1.875rem;
-  --chip-radius-now: 1rem; /* the largest scale radius: at least half the bar height, so the bar reads as a pill */
+  --chip-h: 1.5rem; /* #879: one footer height, the same as the footer badges (TaskCard) */
+  --chip-h-now: 1.5rem; /* #879: the Jetzt bar keeps the chip's height, only its width springs */
+  --chip-radius-now: 0.75rem; /* half the bar height, so the bar reads as a pill */
   --chip-spring: linear(0, 0.032, 0.114, 0.225, 0.35, 0.477, 0.598, 0.707, 0.802, 0.88, 0.942, 0.989, 1.022, 1.044, 1.057, 1.063, 1.063, 1.059, 1.053, 1.045, 1.037, 1.029, 1.022, 1.015, 1.01, 1.005, 1.002, 1, 0.998, 0.997, 0.996, 0.996, 0.996, 0.996, 0.997, 0.997, 0.998, 0.998, 0.999, 0.999, 1);
   --chip-ease: var(--ease-emphasized);
   --chip-duration: 600ms;
@@ -297,7 +299,7 @@ watch(() => props.isNow, (now) => {
   width: var(--footer-w, 100%);
   height: var(--chip-h-now);
   padding-inline: 0.75rem;
-  font-size: var(--text-sm); /* body step */
+  font-size: var(--text-sm); /* body step, on every width (#879) */
   border-radius: var(--chip-radius-now);
 }
 .chip--now:not(.chip--boxless) {
@@ -328,7 +330,7 @@ watch(() => props.isNow, (now) => {
   color: var(--chip-accent);
 }
 .chip-slot--armed .chip__icon { transition: width var(--chip-duration) var(--chip-ease), height var(--chip-duration) var(--chip-ease), color var(--duration-slow); }
-.chip--now .chip__icon { width: 1rem; height: 1rem; }
+.chip--now .chip__icon { width: 0.875rem; height: 0.875rem; }
 .chip-slot--armed .chip--now .chip__icon { transition-delay: var(--chip-settle-delay); }
 
 /* Spent time slides in before the timebox; the timebox moves to the far end of the bar */
@@ -351,7 +353,6 @@ watch(() => props.isNow, (now) => {
 @keyframes chip-pop { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
 
 @media (--phone) {
-  .chip--now { font-size: var(--text-title); } /* title step */
   .chip--now.chip--boxless,
   .chip__sizer--boxless-now { font-size: var(--text-sm); }
 }
