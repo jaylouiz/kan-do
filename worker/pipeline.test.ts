@@ -22,6 +22,33 @@ function setup(env: Partial<WorkerEnv> = {}) {
   return { app, calls, run }
 }
 
+describe('canonical redirect: workers.dev → custom domain (#118)', () => {
+  const WORKERS_DEV = 'https://kando.julius-wuestefeld.workers.dev'
+  const DOMAIN = 'https://kan-do.julius-wuestefeld.de'
+  const app = vi.fn(async () => new Response('{}'))
+  const env: WorkerEnv = { GATE: 'off' }
+  const run = (url: string) => handleRequest(new Request(url), env, app, HASHES)
+
+  it('the production workers.dev host redirects 301 to the domain, same path and query', async () => {
+    const res = await run(`${WORKERS_DEV}/tasks?secret=abc`)
+    expect(res.status).toBe(301)
+    expect(res.headers.get('Location')).toBe(`${DOMAIN}/tasks?secret=abc`)
+    expect(app).not.toHaveBeenCalled()
+  })
+
+  it('preview subdomains are not redirected', async () => {
+    const preview = 'https://abc123.kando.julius-wuestefeld.workers.dev'
+    const res = await run(`${preview}/tasks`)
+    expect(res.status).not.toBe(301)
+  })
+
+  it('the custom domain itself is not redirected', async () => {
+    const res = await run(`${DOMAIN}/tasks`)
+    expect(res.status).not.toBe(301)
+    expect(app).toHaveBeenCalled()
+  })
+})
+
 describe('Worker pipeline: gate, then the Notion 404, then the app', () => {
   it('through the gate, a Notion request is 404 and the app never runs (#742)', async () => {
     const { calls, run } = setup()
