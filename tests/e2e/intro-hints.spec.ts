@@ -142,38 +142,38 @@ test('a hidden page does not use up a day: the day is stored when the page is vi
   await expect.poll(async () => (await record(page))?.hints.start?.days.length).toBe(1)
 })
 
-test('desktop: the column button and the end of the board rest a gap above the sheet, in a wide and a narrow window', async ({ context, page }) => {
-  await seedLocalBoard(context, OPEN_ONLY, {}, undefined, { hints: true })
+test('desktop: the column buttons keep their place whether a note stands or not; the note overlaps them (#881)', async ({ context, page }) => {
+  await seedLocalBoard(context, SEED_TASKS, {}, undefined, { hints: true })
   for (const size of [{ width: 1280, height: 720 }, { width: 800, height: 720 }]) {
     await page.setViewportSize(size)
     await gotoBoard(page)
     await expect(hint(page)).toBeVisible()
-    // The end of the board: Erledigt's button follows its last card (#863), so it is the end of the page that clears the sheet
-    // The fade and the guided move of the buttons have settled
-    await expect.poll(async () => {
-      const sheet = (await hint(page).boundingBox())!
-      const footer = (await page.locator('#column-done .column-footer button').first().boundingBox())
-      if (!footer) return null
-      // Beside the sheet (a wide window) nothing is in its way
-      if (footer.x >= sheet.x + sheet.width || footer.x + footer.width <= sheet.x) return 15
-      return Math.round(sheet.y - (footer.y + footer.height))
-    }).toBeGreaterThanOrEqual(15)
+    const button = page.locator('#column-done .column-footer button').first()
+    const withNote = (await button.boundingBox())!
+    // Where the note reaches the column (narrow window) it lies over the button
+    const sheet = (await hint(page).boundingBox())!
+    if (size.width === 800) expect(sheet.x < withNote.x + withNote.width && sheet.x + sheet.width > withNote.x && sheet.y < withNote.y + withNote.height).toBe(true)
+    // The note ends (the tour's skip), the button stays where it was
+    await answerHints(page, 'start', 'weiter', 'auswahl', 'abschluss')
+    await expect(hint(page)).toBeHidden()
+    await expect.poll(async () => Math.round((await button.boundingBox())!.y)).toBe(Math.round(withNote.y))
   }
 })
 
-test('desktop: while a note stands, Erledigt\'s "Tag abschließen" follows its last card instead of covering it (#863)', async ({ context, page }) => {
-  await seedLocalBoard(context, SEED_TASKS, {}, undefined, { hints: true })
-  await page.setViewportSize({ width: 1280, height: 800 })
+test('every intro note has a permanent 2px outline in the ink of its title, and no glow (#858)', async ({ context, page }) => {
+  await seedLocalBoard(context, OPEN_ONLY, {}, undefined, { hints: true })
   await gotoBoard(page)
-  await expect(hint(page)).toBeVisible()
-  const cards = page.locator('#column-done [data-task-id]')
-  await expect(cards.first()).toBeVisible()
-  const footer = page.locator('#column-done .column-footer')
-  await expect.poll(async () => {
-    const last = (await cards.last().boundingBox())!
-    const box = (await footer.boundingBox())!
-    return Math.round(box.y - (last.y + last.height))
-  }).toBeGreaterThanOrEqual(0)
+  const note = page.getByTestId('intro-note')
+  await expect(note).toBeVisible()
+  const style = await page.evaluate(() => {
+    const el = document.querySelector('[data-testid="intro-note"]') as HTMLElement
+    const title = document.querySelector('[data-testid="intro-note-title"]') as HTMLElement
+    const cs = getComputedStyle(el)
+    return { width: cs.outlineWidth, style: cs.outlineStyle, color: cs.outlineColor, ink: getComputedStyle(title).color }
+  })
+  expect(style.width).toBe('2px')
+  expect(style.style).toBe('solid')
+  expect(style.color).toBe(style.ink)
 })
 
 // --- #801: "Weiter", "Auswahl", "Abschluss" ----------------------------------------------------------------------

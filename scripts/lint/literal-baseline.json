@@ -7,6 +7,7 @@
     "assets/css/transitions.css": 1,
     "components/board/BoardColumnHeader.vue": 2,
     "components/board/BoardPageDots.vue": 2,
+    "components/board/IntroNote.vue": 5,
     "components/nav/AppNav.vue": 1,
     "components/overlay/NowWindow.vue": 4,
     "components/recap/RecapDeck.vue": 4,
