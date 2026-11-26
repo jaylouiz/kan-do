@@ -310,9 +310,12 @@
     --shadow-sheet: -18px 0 44px -6px rgb(var(--shadow-color) / 0.26), -2px 0 8px rgb(var(--shadow-color) / 0.12);
     /* Dialogs, menus, popovers and toasts. */
     --shadow-overlay: 0 22px 50px -8px rgb(var(--shadow-color) / 0.32), 0 3px 10px rgb(var(--shadow-color) / 0.14);
-    /* The card's one resting shadow. Hover changes the sheet's fill, never the shadow (kd#225), so nothing interpolates
+    /* The page sheets' resting shadow (PageSheet, recap, welcome). Hover changes the sheet's fill, never the shadow (kd#225), so nothing interpolates
        a shadow geometry: WebKit (the desktop app) draws that in whole-pixel steps (kd#128). */
     --shadow-task: 0 0 0 1px rgb(var(--shadow-color) / 0.07), 0 2px 3px 0 rgb(var(--shadow-color) / 0.1), 0 10px 22px -6px rgb(var(--shadow-color) / 0.2);
+    /* The task card's own resting step (#878): a hairline ring, a short contact and a drop that stays within a few px of the
+       edge, so the cards lie close to the board. Page sheets keep `--shadow-task` above. The 0.5 px ring rounds to 1 px on a 1x screen. */
+    --shadow-card: 0 0 0 0.5px rgb(var(--shadow-color) / 0.05), 0 1px 2px 0 rgb(var(--shadow-color) / 0.13), 0 4px 10px -4px rgb(var(--shadow-color) / 0.22);
     --shadow-task-drag-elevated: 0 0 0 1px rgb(var(--shadow-color) / 0.07), 0 14px 26px -10px rgb(var(--shadow-color) / 0.3); /* in the hand; the pick-up grows it on the preview itself (dnd.css) */
     --shadow-task-lifted: 0 14px 38px color-mix(in oklab, var(--focus-dusk) 20%, transparent); /* the Jetzt card while the focus overlay is on (#394) */
     --shadow-stack-collapsed: drop-shadow(0 1px 1px rgb(var(--shadow-color) / 0.08)) drop-shadow(0 2px 3px rgb(var(--shadow-color) / 0.07));

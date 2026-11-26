@@ -313,7 +313,7 @@ function getCardStyles(index: number): Record<string, string> {
 
 /** Cards in a stack keep their standard shadow */
 .task-stack :deep(.task) {
-  box-shadow: var(--shadow-task) !important;
+  box-shadow: var(--shadow-card) !important;
 }
 
 /* ========================================

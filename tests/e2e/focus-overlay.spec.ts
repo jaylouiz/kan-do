@@ -189,7 +189,7 @@ test.describe('desktop, mouse', () => {
     await openBoard(page)
     const regular = await page.evaluate(() => {
       const probe = document.createElement('div')
-      probe.style.boxShadow = 'var(--shadow-task)'
+      probe.style.boxShadow = 'var(--shadow-card)'
       document.body.append(probe)
       const v = getComputedStyle(probe).boxShadow
       probe.remove()
@@ -417,7 +417,7 @@ test.describe('no overlay', () => {
       page.locator('#column-progress .task[data-current]').evaluate(el => getComputedStyle(el).boxShadow),
       page.evaluate(() => {
         const probe = document.createElement('div')
-        probe.style.boxShadow = 'var(--shadow-task)'
+        probe.style.boxShadow = 'var(--shadow-card)'
         document.body.append(probe)
         const shadow = getComputedStyle(probe).boxShadow
         probe.remove()

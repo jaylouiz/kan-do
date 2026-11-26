@@ -74,7 +74,7 @@ This file states the direction, the foundations, the rules and the recurring pat
 Airbnb is the positive reference (calm, generous layouts, friendly warmth, flows that happen in place, small polished motion). Trello (rainbow labels, gamified clutter), Notion (dense, technical) and Slack (a saturated block of brand colour as chrome, a dense sidebar, many interactive elements at once) are the anti-references.
 
 - A warm neutral canvas, never a saturated one. Colour comes in small doses.
-- White sheets lifted by one warm shadow, one level only: never a sheet on a sheet.
+- White sheets lifted by one warm shadow, one level only: never a sheet on a sheet. A task card's shadow sits tighter than a page sheet's ("Elevation").
 - One muted green for action and for done; orange for attention, red for what is destructive or failed.
 - A serif for headings, the sans for everything read and operated.
 - Questions are asked in place; reversible actions act at once and offer undo.
@@ -153,11 +153,12 @@ Sheets share one shape: card, page sheet, dialog and menu take 16 px. The task s
 
 ### Elevation
 
-One shadow colour (`--shadow-color`, a warm brown) at three steps.
+One shadow colour (`--shadow-color`, a warm brown) at four steps.
 
 | Step | Token | On |
 |---|---|---|
-| Rest | `--shadow-task` | cards, page sheets (settings sections, statistics tiles), stacks |
+| Card | `--shadow-card` | task cards and stacks: a hairline ring and a short drop, so the cards lie close to the board (#878) |
+| Sheet | `--shadow-task` | page sheets (settings sections, statistics tiles, recap, welcome) |
 | In hand | `--shadow-task-drag-elevated` | the dragged card |
 | Overlay | `--shadow-overlay`, `--shadow-sheet` | dialogs, menus, popovers, toasts; the task sheet (cast toward the board) |
 
@@ -225,7 +226,7 @@ Nuxt UI components first, themed in `app.config.ts`; a shared primitive in `comp
 - **Open a block in place:** the header is one button (`aria-expanded`) with a `DisclosureCaret` at its trailing end, a chevron-down that turns 180 degrees; the block opens below it over `--duration-slow` (`UCollapsible`), the neighbours glide and nothing jumps (the Gestern erledigt note, a Statistik tile, a topic's editor, the in-card timebox step, the task sheet's rows). An opened Statistik tile opens in place: it spans the row from `md` (first, by CSS order) and holds its detail inside itself, the others sit below it (#689, reverses #610 tile b), and the move glides over `--duration-place` (#789, `useTileGlide`; a long travel takes longer, up to `--duration-curtain`, so no frame moves more than 120 px, and the panels that open or close run on the glide's clock). A stack keeps its 200 ms fan and carries the chevron on its pill. Turning "Karten stapeln" or the grouping on or off, and a topic focus, glide every card to its new place over the same 300 ms (`useBoardGlide`) (user, 2026-11-20, #610, #642).
 - **Show a status or count:** a neutral `UBadge` in the label role, one size; priority "Hoch" is the one tinted badge on a card. A topic is muted text with its mark, never a chip.
 - **Head a section:** `SectionHeader` (roles: hero, display, headline, sub and the 12 px label) and `PageHeader` (the page title); no hand-written heading classes.
-- **Hold content as a surface:** the sheet. `TaskCard` on the board; `PageSheet` for a page (settings section, statistics tile, welcome) takes its radius and resting shadow; a page's intro and a side note (the trash note) take none ("Flat intro, lifted work"). A card in a page (the trash entries) is a sheet already and sits on the canvas.
+- **Hold content as a surface:** the sheet. `TaskCard` on the board; `PageSheet` for a page (settings section, statistics tile, welcome) takes its radius, with the page sheets' resting shadow (`--shadow-task`, a step wider than the card's); a page's intro and a side note (the trash note) take none ("Flat intro, lifted work"). A card in a page (the trash entries) is a sheet already and sits on the canvas.
 - **The task card:** topic first, the title below it, the footer with the source icon first (when the card names its source: only where the board has two or more sources, the same in every column and on "Alle", #609), then the timebox chip, the carried-over dots and priority (#471). The Jetzt card is a regular card: focus comes from the board stepping back, not from the card changing.
 - **The task sheet:** details and the add form are one sheet, opened the same way from the board and from statistics. A task's detail on desktop is a sheet that grows out of its card, the card's face scaling along with it, and folds back into it (one fixed frame, 720 px wide and 403 px high, close to the card's shape and capped by the window, the same for every task; 32 px corners; the title row with the task menu ⋯ and the close button at its end, at the same place in every state; the label "Spontan" and the planned-days line or the carried-over question under the title; then the tabs "Details", "Notiz" and, on a board with extra properties, "Eigenschaften" with their count ("Switch a view in a page", inside the sheet); the open tab has the whole body and is the one scroll area: Details holds the standard properties in two columns, label left of the value, in the order Status, Heute / Thema, Aktivität / Priorität, Timebox / time spent, Notiz the note alone, with a mark on its tab when there is one, Eigenschaften the board's extra properties in the same grid; one quiet footer line with the source and the creation date under every tab. The sheet never changes its size or place for a long note, many properties or an open editor; the rarely used actions open in source, move to source, "Kam spontan dazu", "ID kopieren" and Delete sit behind the menu, which reverses the bottom row of #244; `TaskMorphShell`, #468, #870, user, 2026-11-26, which reverses the one grid as tall as its content of #846; the strip of set properties and the Metadaten block of #705 stay gone); the add form on desktop is a side sheet; on a phone both are a bottom drawer.
 - **Ask in a dialog:** `AppDialog` in three widths; `ResponsiveOverlay` when it becomes a drawer on a phone. For a question or a short task the user returns from, never for a process ("A process is a page"); one overlay at a time.
