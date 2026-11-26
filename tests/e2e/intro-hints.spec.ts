@@ -42,7 +42,7 @@ test('the welcome setup starts the hints: "Start" shows with the first card in O
   await callTasksStore(page, { action: 'addTask', args: [fullTask({ id: 'first', title: 'Erste Aufgabe', status: 0 })] })
   await expect(hint(page)).toBeVisible()
   await expect(page.getByTestId('intro-hint-host')).toHaveAttribute('role', 'status')
-  await expect(hint(page)).toContainText('Ziehe in „Jetzt“, woran du gerade arbeitest. Diese Spalte hat immer nur Platz für eine Aufgabe. \n\nFür schnelle Wechsel kannst du eine andere Aufgabe einfach darüber ablegen.')
+  await expect(hint(page)).toContainText('Ziehe in „Jetzt“, woran du gerade arbeitest. Diese Spalte hat immer nur Platz für eine Aufgabe. Für schnelle Wechsel kannst du eine andere Aufgabe einfach darüber ablegen.')
   // On screen: today is stored for the hint
   await expect.poll(async () => (await record(page))?.hints.start?.days.length).toBe(1)
 
@@ -200,7 +200,7 @@ test('"Weiter": shows with a card in Jetzt, ends when the card goes to Wartet, a
   await gotoBoard(page)
   await expect(hint(page)).toBeVisible()
   await expect(hint(page)).toHaveAttribute('data-hint', 'weiter')
-  await expect(hint(page)).toContainText('Die Zeit läuft jetzt mitZiehe die Karte in „Erledigt“')
+  await expect(hint(page)).toContainText('Die Zeit läuft mit und wenn du dir eine Timebox gegeben hast, siehst du wieviel Zeit davon noch übrig ist.Ziehe die Karte in „Erledigt“')
   await expect.poll(async () => (await record(page))?.hints.start?.answered).toBe(true)
 
   await callTasksStore(page, { action: 'updateTask', args: ['seed-progress-1', { status: 2 }] })
@@ -229,7 +229,7 @@ test('"Auswahl": shows with four cards in Offen and Jetzt empty; "Karten stapeln
   await expect(hint(page)).toHaveAttribute('data-hint', 'start')
   await answerHints(page, 'start')
   await expect(hint(page)).toHaveAttribute('data-hint', 'auswahl')
-  await expect(hint(page)).toContainText('Viel offen?Gestapelt nach Thema oder Priorität wählst du leichter aus. Die Stapel findest du auch unter „Mehr“.')
+  await expect(hint(page)).toContainText('Viel zu tun?Gestapelt nach Thema oder Priorität wählst du leichter aus. Die Stapel findest du auch unter „Mehr“.')
   expect(await groupingEnabled(page)).toBe(false)
 
   await page.getByTestId('intro-hint-stack').click()
@@ -252,7 +252,7 @@ test('"Abschluss": shows with something done today and Jetzt empty, and ends whe
   await gotoBoard(page)
   await answerHints(page, 'start')
   await expect(hint(page)).toHaveAttribute('data-hint', 'abschluss')
-  await expect(hint(page)).toContainText('Genug für heute?„Tag abschließen“ zeigt dir, was du geschafft hast und was offen bleibt.')
+  await expect(hint(page)).toContainText('Fertig für heute?Wähle„Tag abschließen“ und sieh dir eine kleine Tagesauswertung an.')
 
   await openDayClose(page)
   await expect(page.getByTestId('day-close-stage')).toBeVisible()

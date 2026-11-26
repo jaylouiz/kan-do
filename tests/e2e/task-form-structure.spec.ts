@@ -3,7 +3,7 @@
  *
  * These tests assert the shared labelled-property-rows layout (#161) that add and detail speak:
  *  - Label/value rows (Priorität, Timebox) instead of a chip row
- *  - Thema/Aktivität are rows in stable positions with the empty "Den Überblick behalten" state (no add-line)
+ *  - Thema/Aktivität are rows in stable positions with the empty "Auswählen" state (no add-line)
  *  - Help text lives in the picker / accessible description, not in info-icon tooltips
  *  - Notes section always visible (no "Notiz hinzufügen" reveal button)
  *  - The add sheet title uses the display font (DESIGN.md "Type")
@@ -63,7 +63,7 @@ test.describe('Add task modal — unified calm structure', () => {
     await expect(page.getByRole('dialog')).toBeVisible();
 
     const topic = page.getByTestId('add-task-topic-select');
-    await expect(topic).toContainText('Den Überblick behalten');
+    await expect(topic).toContainText('Auswählen');
     const before = await topic.boundingBox();
     await topic.click();
     await page.getByRole('option', { name: 'Design', exact: true }).click();

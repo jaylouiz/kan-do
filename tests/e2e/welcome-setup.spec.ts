@@ -154,7 +154,7 @@ test('step 2 apps are choice cards (#651): Notion first, one tab stop per card, 
     await expect(cards.nth(2)).toHaveAttribute('data-testid', 'local-source-todoist')
     await expect(flow.getByRole('group', { name: 'Du kannst eine oder mehrere verbinden' })).toBeVisible()
     // Disabled cards: reason on the card and in the accessible name, not an option the keyboard reaches
-    await expect(flow.getByRole('checkbox', { name: 'Apple Erinnerungen Nur in der Mac-App' })).toBeDisabled()
+    await expect(flow.getByRole('checkbox', { name: 'Apple Erinnerungen Nur in der Desktop-App' })).toBeDisabled()
     await expect(flow.getByRole('checkbox', { name: 'Todoist Bald verfügbar' })).toBeDisabled()
     // The main button is in view without scrolling, and the page does not scroll (#690)
     await expect.poll(async () => {
