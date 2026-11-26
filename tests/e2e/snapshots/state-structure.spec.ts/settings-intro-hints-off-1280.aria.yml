@@ -11,9 +11,7 @@
     - listitem:
       - heading "Anfangen" [level=3]
       - paragraph: Womit fängst du an?
-      - paragraph: Ziehe in „Jetzt“, woran du gerade arbeitest. Diese Spalte hat immer nur Platz für eine Aufgabe. 
-
-Für schnelle Wechsel kannst du eine andere Aufgabe einfach darüber ablegen.
+      - paragraph: Ziehe in „Jetzt“, woran du gerade arbeitest. Diese Spalte hat immer nur Platz für eine Aufgabe. Für schnelle Wechsel kannst du eine andere Aufgabe einfach darüber ablegen.
     - listitem:
       - heading "An einer Aufgabe dranbleiben" [level=3]
       - paragraph: Die Zeit läuft mit und wenn du dir eine Timebox gegeben hast, siehst du wieviel Zeit davon noch übrig ist.
@@ -25,8 +23,8 @@ Für schnelle Wechsel kannst du eine andere Aufgabe einfach darüber ablegen.
     - listitem:
       - heading "Tag abschließen" [level=3]
       - paragraph: Fertig für heute?
-      - paragraph: „Tag abschließen“ zeigt dir, was du geschafft hast und was offen bleibt.
+      - paragraph: Wähle„Tag abschließen“ und sieh dir eine kleine Tagesauswertung an.
     - listitem:
       - heading "Die Aufgaben des Tages planen" [level=3]
       - paragraph: Wähle aus, was heute dran ist
-      - paragraph: "Schiebe sie in die heutige Auswahl oder drücke den Pfeil-Button. Sobald du loslegen willst, wechsle in der Navigation zu „Heute“."
+      - paragraph: Schiebe sie in die heutige Auswahl oder drücke den Pfeil-Button. Sobald du loslegen willst, wechsle in der Navigation zu „Heute“.

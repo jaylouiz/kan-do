@@ -54,8 +54,8 @@ test.describe('Hinweise zum Einstieg in the Board tab (#804)', () => {
     await expect(list.locator('li').first()).toContainText('Willkommen bei deinem Kanban-Board')
     await expect(list).toContainText('Ziehe in „Jetzt“, woran du gerade arbeitest.')
     await expect(list).toContainText('Die Zeit läuft mit und wenn du dir eine Timebox gegeben hast, siehst du wieviel Zeit davon noch übrig ist.')
-    await expect(list).toContainText('Viel offen?Gestapelt nach Thema oder Priorität wählst du leichter aus. Die Stapel findest du auch unter „Mehr“.')
-    await expect(list).toContainText('Genug für heute?„Tag abschließen“ zeigt dir, was du geschafft hast und was offen bleibt.')
+    await expect(list).toContainText('Viel zu tun?Gestapelt nach Thema oder Priorität wählst du leichter aus. Die Stapel findest du auch unter „Mehr“.')
+    await expect(list).toContainText('Fertig für heute?Wähle„Tag abschließen“ und sieh dir eine kleine Tagesauswertung an.')
     // the planning note of "Alle" in its own words (#741): the desktop sentence here, the phone's one line below
     await expect(list).toContainText('Schiebe sie in die heutige Auswahl oder drücke den Pfeil-Button. Sobald du loslegen willst, wechsle in der Navigation zu „Heute“.')
     await hintsButton(page).click()

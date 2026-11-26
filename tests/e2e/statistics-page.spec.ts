@@ -154,7 +154,7 @@ test.describe('Statistics Page', () => {
       await expect(page.getByTestId('stats-verdict-headline')).toHaveText('Noch zu wenig Daten für eine Bewertung dieser Woche.');
       await expect(page.getByTestId('stats-verdict-line')).toContainText('In den 28 Tagen vor den letzten 7 Tagen: 0 erledigte Aufgaben.');
       await expect(page.getByTestId('stats-verdict').locator('svg')).toHaveCount(0); // #687
-      await expect(page.getByTestId('stats-tile-2')).toContainText('Noch zu wenige Wochen für eine Entwicklung.');
+      await expect(page.getByTestId('stats-tile-2')).toContainText('Noch zu wenige Wochen mit erledigten Aufgaben für einen Trend.');
       await expect(page.getByTestId('stats-tile-3')).toContainText('Noch zu wenige erledigte Aufgaben mit Timebox für eine Aussage.');
     });
 
@@ -180,7 +180,7 @@ test.describe('Statistics Page', () => {
       await page.goto(`${baseURL}/statistics`);
       const tile = page.getByTestId('stats-tile-5');
       await expect(tile.getByRole('heading', { level: 2, name: 'Wann arbeite ich?' })).toBeVisible();
-      await expect(tile).toContainText('Noch zu wenig Daten. Kan-do merkt sich ab jetzt, wann der Timer läuft.');
+      await expect(tile).toContainText('Noch zu wenig Daten. Kan-do merkt sich, wann eine Aufgabe in "Jetzt" lag.');
       await expect(page.getByTestId('stats-rhythm-days')).toHaveText('0 von 5 Tagen');
       await expect(tile.getByRole('button')).toHaveCount(0);
       await expect(tile.locator('[data-testid="stats-rhythm-ghost"]')).toHaveAttribute('aria-hidden', 'true');
@@ -248,7 +248,7 @@ test.describe('Statistics Page', () => {
       await expect(page.getByTestId('stats-verdict-line')).toContainText('davon in der Timebox (sonst');
       await expect(page.getByRole('heading', { level: 2 })).toHaveText([
         /Es läuft besser als sonst\./,
-        /Wie entwickle ich mich\?/,
+        /Wie entwickelt sich meine Zeitschätzung\?/,
         /Wo schätze ich falsch\?/,
         /Wofür nehme ich mir Zeit\?/,
         /Wann arbeite ich\?/,
@@ -274,7 +274,7 @@ test.describe('Statistics Page', () => {
 
       // the DOM and reading order stay as they are while a tile is open (#689: the open tile is first by CSS order only)
       await expect(page.getByRole('heading', { level: 2 })).toHaveText([
-        /Es läuft/, /Wie entwickle ich mich\?/, /Wo schätze ich falsch\?/, /Wofür nehme ich mir Zeit\?/, /Wann arbeite ich\?/,
+        /Es läuft/, /Wie entwickelt sich meine Zeitschätzung\?/, /Wo schätze ich falsch\?/, /Wofür nehme ich mir Zeit\?/, /Wann arbeite ich\?/,
       ]);
 
       // opening another closes the first; focus follows the toggle that was used
@@ -291,7 +291,7 @@ test.describe('Statistics Page', () => {
       await expect(toggle(2)).toBeFocused();
       await expect(page.getByTestId('stats-week-list')).toHaveCount(0);
       await expect(page.getByRole('heading', { level: 2 })).toHaveText([
-        /Es läuft/, /Wie entwickle ich mich\?/, /Wo schätze ich falsch\?/, /Wofür nehme ich mir Zeit\?/, /Wann arbeite ich\?/,
+        /Es läuft/, /Wie entwickelt sich meine Zeitschätzung\?/, /Wo schätze ich falsch\?/, /Wofür nehme ich mir Zeit\?/, /Wann arbeite ich\?/,
       ]);
     });
 
@@ -580,7 +580,7 @@ test.describe('Statistics Page', () => {
       await page.getByTestId('stats-tile-4-toggle').click();
       await expect(page.getByTestId('stats-tile-4-toggle')).toHaveAttribute('aria-expanded', 'true');
       await expect(page.getByRole('heading', { level: 2 })).toHaveText([
-        /Es läuft/, /Wie entwickle ich mich\?/, /Wo schätze ich falsch\?/, /Wofür nehme ich mir Zeit\?/, /Wann arbeite ich\?/,
+        /Es läuft/, /Wie entwickelt sich meine Zeitschätzung\?/, /Wo schätze ich falsch\?/, /Wofür nehme ich mir Zeit\?/, /Wann arbeite ich\?/,
       ]);
 
       await page.getByTestId('stats-tile-2-toggle').click();

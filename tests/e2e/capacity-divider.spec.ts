@@ -49,7 +49,7 @@ test.describe('Capacity divider in Offen (#132)', () => {
     await expect(divider(page)).toBeVisible()
     await expect.poll(() => layout(page)).toBe('a b c | d')
     await expect(divider(page).getByRole('separator', { name: 'Kapazität' })).toBeVisible()
-    await expect(divider(page)).toContainText('Plane wichtige Aufgaben darüber ein')
+    await expect(divider(page)).toContainText('Plane Wichtiges darüber ein')
   })
 
   test('is not there when everything fits', async ({ context, page }) => {

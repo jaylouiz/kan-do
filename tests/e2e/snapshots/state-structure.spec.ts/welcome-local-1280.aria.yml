@@ -4,7 +4,7 @@
   - paragraph: Jetzt oder später kannst du Apps verbinden, in denen du deine Aufgaben organisierst. Du kannst Kan-do auch nur mit lokalem Speicher auf deinem Gerät nutzen.
   - group "Du kannst eine oder mehrere verbinden":
     - text: ""
-    - checkbox "Notion Aufgaben aus einer Datenbank"
-    - checkbox "Apple Erinnerungen Nur in der Mac-App" [disabled]
+    - checkbox "Notion Eine beliebige Aufgabendatenbank"
+    - checkbox "Apple Erinnerungen Nur in der Desktop-App" [disabled]
     - checkbox "Todoist Bald verfügbar" [disabled]
   - button "Zum Board"

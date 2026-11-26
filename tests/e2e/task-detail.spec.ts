@@ -198,7 +198,7 @@ test.describe('Task Detail View', () => {
       // Empty: the row is there in its stable position with the empty state
       const select = page.getByTestId(field.testId);
       await expect(select).toBeVisible();
-      await expect(select).toContainText('Den Überblick behalten');
+      await expect(select).toContainText('Auswählen');
       await expect(select).toHaveAccessibleName(new RegExp(`^${field.label}: Auswählen`));
       const before = await select.boundingBox();
 
@@ -244,7 +244,7 @@ test.describe('Task Detail View', () => {
       await expect(page.getByRole('dialog')).toBeVisible();
       await expect(page.getByRole('option', { name: new RegExp(`^${field.option}`) })).not.toBeVisible();
       await expect(select).toBeVisible();
-      await expect(select).toContainText('Den Überblick behalten');
+      await expect(select).toContainText('Auswählen');
       await expect(select).toBeFocused();
     });
   }
@@ -258,9 +258,9 @@ test.describe('Task Detail View', () => {
     // No × on the trigger: the clear action lives in the picker
     await page.getByTestId('task-property-clear').click();
 
-    // The row stays where it is and reads "Den Überblick behalten" again
+    // The row stays where it is and reads "Auswählen" again
     await expect(select).toBeVisible();
-    await expect(select).toContainText('Den Überblick behalten');
+    await expect(select).toContainText('Auswählen');
     await expect.poll(() => page.evaluate(() => {
       const data = JSON.parse(localStorage.getItem('tasks-store') ?? '{}');
       return data.tasks?.find((t: { id: string }) => t.id === 'test-task-1')?.topic ?? null;
