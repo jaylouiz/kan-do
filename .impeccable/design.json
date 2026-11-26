@@ -234,9 +234,9 @@
     {
       "name": "Page Sheet",
       "kind": "card",
-      "description": "The one page surface (settings section, statistics tile): white, 16 px radius, the cards' resting shadow, a headline naming it. Never a sheet on a sheet.",
+      "description": "The one page surface (settings section, statistics tile): white, 16 px radius, the page sheets' resting shadow (`--shadow-task`, a step wider than the card's `--shadow-card`), a headline naming it. Never a sheet on a sheet.",
       "html": "<section class=\"ds-sheet\"><h3>Darstellung</h3><p>Wie das Board Aufgaben gruppiert und sortiert.</p></section>",
-      "css": ".ds-sheet{background:#fff;border-radius:16px;padding:24px;box-shadow:0 0 0 .5px rgb(70 48 20 / .05),0 1px 2px rgb(70 48 20 / .13),0 4px 10px -4px rgb(70 48 20 / .22);font-family:Figtree,system-ui,sans-serif}.ds-sheet h3{font:500 22px/1.15 Fraunces,ui-serif,Georgia,serif;letter-spacing:-0.02em;margin:0 0 8px;color:oklch(0.19 0.012 70)}.ds-sheet p{font-size:14px;line-height:1.55;margin:0;color:oklch(0.42 0.024 80)}"
+      "css": ".ds-sheet{background:#fff;border-radius:16px;padding:24px;box-shadow:0 0 0 1px rgb(70 48 20 / .07),0 2px 3px rgb(70 48 20 / .1),0 10px 22px -6px rgb(70 48 20 / .2);font-family:Figtree,system-ui,sans-serif}.ds-sheet h3{font:500 22px/1.15 Fraunces,ui-serif,Georgia,serif;letter-spacing:-0.02em;margin:0 0 8px;color:oklch(0.19 0.012 70)}.ds-sheet p{font-size:14px;line-height:1.55;margin:0;color:oklch(0.42 0.024 80)}"
     },
     {
       "name": "App Bar",
