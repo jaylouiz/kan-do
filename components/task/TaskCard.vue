@@ -894,5 +894,5 @@ const openDetails = (event: MouseEvent) => {
    group fades out once the Jetzt bar grows over it (chip settle delay plus a beat) and back in at once; opacity only, it stays announced */
 .task-footer :deep([data-slot="base"]) { height: 1.5rem; min-height: 1.5rem; }
 .task-footer-end { transition: opacity var(--duration-base) var(--ease-standard); }
-.task-footer:has(:deep(.chip--now:not(.chip--boxless))) .task-footer-end { opacity: 0; transition-delay: calc(var(--duration-base) * 1.5); }
+.task-footer:has(:deep(.chip--now:not(.chip--boxless))) .task-footer-end { opacity: 0; pointer-events: none; transition-delay: calc(var(--duration-base) * 1.5); }
 </style>

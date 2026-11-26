@@ -407,6 +407,7 @@ test.describe('timebox progress chip (#388)', () => {
     expect(await heightOf(chip(page, JETZT_ID))).toBeCloseTo(24, 0)
     await expect(chip(page, JETZT_ID)).toHaveCSS('font-size', '14px')
     await expect(end(JETZT_ID)).toHaveCSS('opacity', '0')
+    await expect(end(JETZT_ID)).toHaveCSS('pointer-events', 'none') // no tooltip from a badge nobody sees
     await expect(card(page, JETZT_ID).getByRole('progressbar')).toBeVisible()
     await expect(end(JETZT_ID)).toContainText(/Hoch/)
     await expect(end(JETZT_ID)).not.toHaveAttribute('aria-hidden')
