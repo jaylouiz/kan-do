@@ -3,8 +3,9 @@
  *
  * One sheet floats at the bottom centre of the board page, above the phone's floating app bar. While it stands, the
  * component writes its height to `--intro-hint-height` on <html>; `--intro-hint-room` below adds the sheet's offset from
- * the window's edge and a 16px gap, and the rules at the end give the board that room, so no card and no column button
- * stays under the sheet. The room goes as the fade-out starts (the height is removed; unset, the room is 0).
+ * the window's edge and a 16px gap. "Alle Aufgaben" and the phone's pages add that room at the end of their scroll, so their
+ * last card scrolls clear of the sheet. On the desktop board the sheet only overlaps the columns and their sticky buttons:
+ * nothing there moves for it (#881). The room goes as the fade-out starts (the height is removed; unset, the room is 0).
  */
 
 :root {
@@ -47,6 +48,8 @@
   /* The note paper (IntroNote). The quiet links read the local muted ink, so they keep 4.5:1 on the yellow */
   .intro-note {
     background: var(--intro-note-paper);
+    /* The ink of the title, so the sheet stands out from the desk and the cards (#858). An outline keeps the size */
+    outline: 2px solid var(--ui-text-highlighted);
     color: var(--ui-text);
     --ui-text-muted: var(--intro-note-quiet);
     --ui-text-dimmed: var(--intro-note-quiet);
@@ -119,28 +122,9 @@
 /* Unlayered on purpose, with the board in the selector: these two meet the scoped rules of BoardColumn (`.column-footer`,
    `bottom: 0`) and ColumnDropZone (`min-height: 80px`), which are unlayered and would win over any layered rule. */
 
-/* Desktop: the page ends above the sheet, so the last card of a column scrolls clear of it, and the columns' sticky
-   buttons ("Tag abschließen", the capacity echo) rest above it at every width (in a narrow window the centred sheet
-   reaches under the outer columns). Guided, so nothing jumps when the hint comes and goes */
+/* Desktop: the sheet overlaps the board; the columns and their sticky buttons ("Tag abschließen", the capacity echo) keep
+   their place whatever the sheet's size (#881) */
 @media (--desktop) {
-  .board-container {
-    padding-bottom: var(--intro-hint-room, 0px);
-    transition: padding-bottom var(--duration-slow) var(--ease-standard);
-  }
-
-  .board .column .column-footer {
-    bottom: var(--intro-hint-room, 0px);
-    transition: bottom var(--duration-slow) var(--ease-standard);
-  }
-  /* Erledigt's "Tag abschließen" (#863): lifted above the sheet it floated over the column's last card (the button rests at the
-     sheet's edge whatever lies under it). In a window wide enough (75rem) that the centred sheet does not reach the Erledigt
-     column nothing is in the button's way: it rests at the window's edge as without a note, and follows the last card when the
-     column is short. Narrower, the lift stays. A width step written as a clamp, not a new breakpoint: the offset is the room
-     below 75rem (the factor makes the step abrupt) and 0 above it. */
-  .board #column-done > .column-footer {
-    bottom: clamp(0px, calc((75rem - 100vw) * 1000), var(--intro-hint-room, 0px));
-  }
-
   /* "Alle" (#853: the welcome shows there too): "Alle Aufgaben" is taller than the board's columns and ends with its own
      padding, so the room is added to that; its last row of cards scrolls clear of the sheet */
   .board .not-planned .not-planned__body {
