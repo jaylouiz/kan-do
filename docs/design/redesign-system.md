@@ -62,7 +62,8 @@ Twelve rendered sizes become eight. Line heights: `--lh-tight` 1.15, `--lh-snug`
 
 | Token | New value | Used by |
 |---|---|---|
-| `--shadow-task` | `0 0 0 1px rgb(c / 0.07), 0 2px 3px 0 rgb(c / 0.1), 0 10px 22px -6px rgb(c / 0.2), 0 22px 40px -12px rgb(c / 0)` | cards, page sheets, stacks (as a filter) |
+| `--shadow-card` | `0 0 0 0.5px rgb(c / 0.05), 0 1px 2px 0 rgb(c / 0.13), 0 4px 10px -4px rgb(c / 0.22)`; on a 1x screen the ring is `1px` at `0.035` | task cards and stacks (#878: split off `--shadow-task`, so the cards lie closer to the board) |
+| `--shadow-task` | `0 0 0 1px rgb(c / 0.07), 0 2px 3px 0 rgb(c / 0.1), 0 10px 22px -6px rgb(c / 0.2), 0 22px 40px -12px rgb(c / 0)` | page sheets (cards and stacks until #878) |
 | `--shadow-task-hover` | the same four layers: `0.07, 0.06, 0.14, 0.3` | a card under the pointer |
 | `--shadow-task-drag-elevated` | `0 0 0 1px rgb(c / 0.07), 0 14px 26px -10px rgb(c / 0.3)` | the dragged card |
 | `--shadow-sheet` | `-18px 0 44px -6px rgb(c / 0.26), -2px 0 8px rgb(c / 0.12)` | the task sheet on desktop |

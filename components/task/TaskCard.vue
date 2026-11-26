@@ -543,7 +543,7 @@ const openDetails = (event: MouseEvent) => {
 }
 
 .task:not(.kando-dnd-placeholder) {
-  box-shadow: var(--shadow-task);
+  box-shadow: var(--shadow-card);
 }
 
 /* Hover and press (kd#25, kd#225): the card is a click target, so its sheet turns one step darker under the pointer
