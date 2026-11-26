@@ -86,7 +86,7 @@
     },
     "capacity": {
       "label": "Deine Kapazität",
-      "help": "So viel schaffst du heute vermutlich. Plane wichtige Aufgaben darüber ein.",
+      "help": "So viel schaffst du vermutlich. Plane Wichtiges darüber ein.",
       "infoLabel": "Wie entsteht diese Schätzung?",
       "info": "Kan-do lernt mit und passt sich an: Je öfter du das Board nutzt, desto treffender wird diese Schätzung.",
       "infoSet": "Diese Schätzung beruht auf der Arbeitszeit, die du in den Einstellungen festgelegt hast. Heute erfasste Arbeit wird abgezogen.",
@@ -195,21 +195,21 @@
       "start": {
         "title": "Womit fängst du an?",
         "text": {
-          "desktop": "Ziehe in „Jetzt“, woran du gerade arbeitest. In Jetzt liegt immer nur eine Aufgabe.",
+          "desktop": "Ziehe in „Jetzt“, woran du gerade arbeitest. Diese Spalte hat immer nur Platz für eine Aufgabe. \n\nFür schnelle Wechsel kannst du eine andere Aufgabe einfach darüber ablegen.",
           "phone": "Halte die Karte und ziehe sie an den rechten Rand, in „Jetzt“. In Jetzt liegt immer nur eine Aufgabe."
         }
       },
       "weiter": {
-        "title": "Die Zeit läuft jetzt mit",
+        "title": "Die Zeit läuft mit und wenn du dir eine Timebox gegeben hast, siehst du wieviel Zeit davon noch übrig ist.",
         "text": "Ziehe die Karte in „Erledigt“, sobald die Aufgabe erledigt ist. Wartest du auf jemanden, ziehe sie in „Wartet“."
       },
       "auswahl": {
-        "title": "Viel offen?",
+        "title": "Viel zu tun?",
         "text": "Gestapelt nach Thema oder Priorität wählst du leichter aus. Die Stapel findest du auch unter „{more}“."
       },
       "abschluss": {
-        "title": "Genug für heute?",
-        "text": "„{dayClose}“ zeigt dir, was du geschafft hast und was offen bleibt."
+        "title": "Fertig für heute?",
+        "text": "Wähle„{dayClose}“ und sieh dir eine kleine Tagesauswertung an."
       },
       "close": "Schließen",
       "off": "Hinweise ausschalten",
@@ -220,9 +220,9 @@
     },
     "welcome": {
       "empty": {
-        "title": "Dein Tag auf einem Blatt",
+        "title": "Willkommen bei deinem Kanban-Board",
         "today": {
-          "desktop": "Hier steht nur, was heute dran ist. Unter „Offen“ sammelst du es. In „Jetzt“ liegt die eine Aufgabe, an der du gerade arbeitest. Schreib als Erstes auf, was heute ansteht.",
+          "desktop": "Unter „Offen“ sammelst du alles, was du heute erledigen möchtest. Sammle dort, was heute ansteht. In „Jetzt“ schiebst du eine Aufgabe, sobald du an ihr arbeitest.",
           "phone": "Hier steht nur, was heute dran ist. In „Jetzt“ liegt die eine Aufgabe, an der du gerade arbeitest. Schreib als Erstes auf, was heute ansteht."
         },
         "all": "Unter „Alle“ sammelst du, was ansteht. In der Navigation zeigt „Heute“ nur, was du für heute einplanst. Schreib als Erstes eine Aufgabe auf."
@@ -276,7 +276,7 @@
     },
     "planNote": {
       "title": "Wähle aus, was heute dran ist",
-      "description": "Fahre über eine Karte: Der Pfeil plant sie für heute ein. Sobald du loslegen willst, wechsle in der Navigation zu „Heute“.",
+      "description": "Schiebe sie in die heutige Auswahl oder drücke den Pfeil-Button. Sobald du loslegen willst, wechsle in der Navigation zu „Heute“.",
       "line": "Wähle aus, was heute dran ist. Sobald du loslegen willst, wechsle in der Navigation zu „Heute“.",
       "close": "Schließen",
       "phoneText": "Sobald du loslegen willst, wechsle in der Navigation zu „Heute“."
@@ -292,7 +292,7 @@
   },
   "nav": {
     "label": "Hauptnavigation",
-    "brand": "kan-do",
+    "brand": "Kan-do",
     "today": "Heute",
     "statistics": "Statistik",
     "more": "Mehr",
@@ -398,7 +398,7 @@
       "today": "Heute",
       "plannedToday": "Für heute eingeplant",
       "plannedTodayHint": "Jetzt gehört immer zu heute.",
-      "adhocSwitch": "Kam spontan dazu",
+      "adhocSwitch": "Ad-hoc/Ungeplant",
       "timeSpent": "Aufgewendete Zeit",
       "timeSpentShort": "Aufgewendet",
       "timeSpentInMinutes": "Aufgewendete Zeit in Minuten",
@@ -422,7 +422,7 @@
       "tabDetails": "Details",
       "tabsLabel": "Bereich",
       "tabNotesFilled": "vorhanden",
-      "adhocBadge": "Spontan"
+      "adhocBadge": "Ad-hoc"
     },
     "timeStats": {
       "remaining": "{time} übrig"
@@ -577,7 +577,7 @@
       "empty": "Keine Aufgaben im ausgewählten Zeitraum"
     },
     "question": {
-      "q2": "Wie entwickle ich mich?",
+      "q2": "Wie entwickelt sich meine Zeitschätzung?",
       "q3": "Wo schätze ich falsch?",
       "q4": "Wofür nehme ich mir Zeit?",
       "q5": "Wann arbeite ich?"
@@ -587,7 +587,7 @@
         "better": "Es läuft besser als sonst.",
         "usual": "Es läuft wie sonst.",
         "harder": "Es läuft fordernder als sonst.",
-        "thin": "Noch zu wenig Verlauf für einen Vergleich.",
+        "thin": "Noch zu wenig Daten für eine Bewertung dieser Woche.",
         "empty": "Bereit für deine ersten Aufgaben",
         "quiet": "In den letzten 7 Tagen wurde nichts erledigt."
       },
@@ -610,7 +610,7 @@
       "up": "Aufwärts: früher {early} % in der Timebox, zuletzt {recent} %.",
       "down": "Abwärts: früher {early} % in der Timebox, zuletzt {recent} %.",
       "flat": "Gleichbleibend: Der Anteil in der Timebox schwankt kaum.",
-      "few": "Noch zu wenige Wochen für eine Entwicklung. Erledigte Aufgaben mit Timebox füllen den Verlauf.",
+      "few": "Noch zu wenige Wochen mit erledigten Aufgaben für einen Trend.",
       "chartLabel": "Anteil in der Timebox je 7 Tage, ältester Zeitraum zuerst: {values}",
       "noValue": "ohne Wert",
       "table": {
@@ -625,7 +625,7 @@
       "lineLonger": "Bei „{label}“ planst du meist zu knapp.",
       "lineShorter": "Bei „{label}“ planst du meist zu großzügig.",
       "none": "Kein wiederkehrendes Muster in deinen Schätzungen.",
-      "tooFew": "Noch zu wenige erledigte Aufgaben mit Timebox für Muster.",
+      "tooFew": "Noch zu wenige erledigte Aufgaben mit Timebox für eine Aussage.",
       "noTimebox": "Ohne Timebox gibt es keinen Vergleich. Setze beim nächsten Mal eine.",
       "heading": "Wiederkehrende Muster",
       "kind": {
@@ -687,7 +687,7 @@
       "lineOutside": "{share} % deiner Zeit liegen vor {first} oder nach {last} Uhr.",
       "lineStartWorkdays": "Du fängst an Werktagen meist um {time} an.",
       "lineStart": "Du fängst meist um {time} an.",
-      "thin": "Noch zu wenig Daten. Kan-do merkt sich ab jetzt, wann der Timer läuft. Nach fünf Tagen mit Zeiterfassung siehst du hier deinen Rhythmus.",
+      "thin": "Noch zu wenig Daten. Kan-do merkt sich, wann eine Aufgabe in \"Jetzt\" lag. Nach fünf Tagen mit einer aktiven Aufgabe siehst du hier deinen Rhythmus.",
       "days": "{n} von {min} Tagen",
       "heading": "Durchschnittlich pro Stunde, letzte 8 Wochen",
       "less": "weniger",
@@ -1076,12 +1076,12 @@
       "turnOff": "Ausschalten",
       "restart": "Erneut zeigen",
       "entries": {
-        "welcome": "Willkommen",
+        "welcome": "Grundlegendes",
         "start": "Anfangen",
-        "weiter": "Weitermachen",
-        "auswahl": "Auswählen",
+        "weiter": "An einer Aufgabe dranbleiben",
+        "auswahl": "Den Überblick behalten",
         "abschluss": "Tag abschließen",
-        "planen": "Planen"
+        "planen": "Die Aufgaben des Tages planen"
       }
     },
     "github": {
@@ -1460,9 +1460,9 @@
       "connectedHeading": "Deine Speicherorte",
       "help": "Beim Hinzufügen kannst du einen anderen Speicherort wählen und du kannst Aufgaben jederzeit verschieben.",
       "moreHeading": "Eine App verbinden",
-      "soon": "bald verfügbar",
-      "macOnly": "nur in der Mac-App",
-      "cloudUnavailable": "nur in der Mac-App"
+      "soon": "Bald in der Desktop-App",
+      "macOnly": "Nur in der Desktop-App",
+      "cloudUnavailable": "Nur in der Desktop-App"
     },
     "row": {
       "default": "Standard",
@@ -1517,7 +1517,7 @@
       "samples": "Beispiel anzeigen",
       "curious": "Nur neugierig? Dann schau dir die App mit Beispielaufgaben an.",
       "intro": "Du kannst Aufgaben lokal auf diesem Gerät speichern und optional Apps wie Notion oder Todoist verbinden.",
-      "introWeb": "Du kannst Aufgaben lokal auf diesem Gerät speichern.",
+      "introWeb": "Aufgaben werden nur lokal in deinem Browser gespeichert. Du kannst Aufgaben exportieren und importieren.",
       "appDownload": "Mac-App herunterladen",
       "start": "Jetzt starten"
     },
@@ -1533,11 +1533,11 @@
         "todoist": "Todoist",
         "confirmNotion": "Mit Notion einrichten",
         "reminders": "Apple Erinnerungen",
-        "remindersWebOnly": "Nur in der Mac-App",
-        "notionCloudUnavailable": "Nur in der Mac-App",
+        "remindersWebOnly": "Nur in der Desktop-App",
+        "notionCloudUnavailable": "Nur in der Desktop-App",
         "confirmReminders": "Mit Apple Erinnerungen einrichten",
         "confirmRemindersNotion": "Weiter mit Apple Erinnerungen und Notion",
-        "notionHint": "Aufgaben aus einer Datenbank",
+        "notionHint": "Eine beliebige Aufgabendatenbank",
         "remindersHint": "Aufgaben aus deinen Listen",
         "todoistSoon": "Bald verfügbar"
       },
@@ -1717,7 +1717,7 @@
     },
     "consequence": "Deine unerledigten Aufgaben kannst du morgen erneut einplanen. Die erledigten Aufgaben werden archiviert.",
     "consequenceDoneOnly": "Die erledigten Aufgaben werden archiviert.",
-    "cancel": "Abbrechen, nichts ändert sich",
+    "cancel": "Abbrechen",
     "finish": "Tag abschließen"
   },
   "secrets": {
@@ -1887,7 +1887,7 @@
     "publicAccount": "Zum Absenden brauchst du ein GitHub-Konto.",
     "openedToast": "GitHub ist im Browser geöffnet. Sende das Feedback dort ab.",
     "openedToastImage": "GitHub ist im Browser geöffnet. Füge den Screenshot mit ⌘V ein und sende das Feedback ab.",
-    "private": "Dein Feedback geht direkt an mich. Es wird nicht veröffentlicht.",
+    "private": "Dein Feedback geht direkt den Entwickler. Es wird nicht veröffentlicht.",
     "sentRelayToast": "Danke, dein Feedback ist angekommen.",
     "retention": {
       "notice": "Gesendet wird genau das, was du hier siehst. Es landet in einem privaten GitHub-Repository und wird {period} nach Abschluss der Bearbeitung gelöscht. Früher löschen lassen: Schreib eine E-Mail an die Adresse im {impressum}. Mehr dazu: {privacy}.",

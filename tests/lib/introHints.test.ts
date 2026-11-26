@@ -142,7 +142,7 @@ describe('introHintTextKey (#804): the help in the settings reads the hints\' ow
   })
 })
 
-describe('the hint "Planen" (#803): a hint of "Alle" outside the overlay\'s order', () => {
+describe('the hint "Die Aufgaben des Tages planen" (#803): a hint of "Alle" outside the overlay\'s order', () => {
   const day = '2026-11-25'
   const entry = (days: string[], answered = false) => ({ answered, days })
 

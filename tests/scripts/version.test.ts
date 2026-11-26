@@ -11,7 +11,7 @@ const root = resolve(__dirname, '../..')
 const read = (relative: string) => readFileSync(resolve(root, relative), 'utf8')
 
 const PACKAGE_JSON = `{
-  "name": "kan-do",
+  "name": "Kan-do",
   "version": "0.1.0",
   "dependencies": {
     "version": "^1.0.0"
@@ -19,13 +19,13 @@ const PACKAGE_JSON = `{
 }
 `
 const PACKAGE_LOCK = `{
-  "name": "kan-do",
+  "name": "Kan-do",
   "version": "0.1.0",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
-      "name": "kan-do",
+      "name": "Kan-do",
       "version": "0.1.0",
       "dependencies": {
         "pinia": "^3.0.0"
@@ -38,7 +38,7 @@ const PACKAGE_LOCK = `{
 }
 `
 const TAURI_CONF = `{
-  "productName": "kan-do",
+  "productName": "Kan-do",
   "version": "0.1.0",
   "identifier": "io.github.jaylouiz.kan-do"
 }

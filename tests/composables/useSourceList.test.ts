@@ -42,7 +42,7 @@ describe('useSourceList (#324)', () => {
     expect(connected.value.map((row) => [row.id, row.isDefault, row.canSetDefault])).toEqual([['local', true, false], ['notion', false, true]])
   })
 
-  it('Reminders is listed as "nur in der Mac-App" where the bridge is not there (the web build, #552)', () => {
+  it('Reminders is listed as "Nur in der Desktop-App" where the bridge is not there (the web build, #552)', () => {
     useBoardStore().setSingleSource('local')
     expect(useSourceList().more.value.find((row) => row.id === 'reminders')).toMatchObject({ name: 'Apple Erinnerungen', state: 'macOnly' })
   })

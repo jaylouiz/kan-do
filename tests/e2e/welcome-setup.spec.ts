@@ -69,11 +69,11 @@ test('welcome start: one filled green "Jetzt starten", "Beispiel anzeigen" soft 
   // Brand and subline sit outside and above the sheet, and share its content's left edge
   const sheet = page.locator('.welcome-sheet')
   const brand = page.getByTestId('welcome-brand')
-  await expect(brand).toHaveText('kan-do')
+  await expect(brand).toHaveText('Kan-do')
   const [sheetBox, brandBox, titleBox] = await Promise.all([sheet.boundingBox(), brand.boundingBox(), page.getByRole('heading', { level: 1 }).boundingBox()])
   expect(brandBox!.y + brandBox!.height).toBeLessThanOrEqual(sheetBox!.y)
   expect(Math.abs(brandBox!.x - titleBox!.x)).toBeLessThan(1)
-  await expect(sheet.getByText('kan-do', { exact: true })).toHaveCount(0)
+  await expect(sheet.getByText('Kan-do', { exact: true })).toHaveCount(0)
   await expectContrast(page, page.getByText(/Du kannst Aufgaben lokal auf diesem Gerät speichern/), 4.5)
 
   // #745: the legal pages are one click away before anything is set up

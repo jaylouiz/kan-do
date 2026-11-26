@@ -129,7 +129,7 @@ describe('StatsVerdict', () => {
   it('thin: says so with the baseline count, no ring (#687)', () => {
     const review = deriveReview([boxed(1, 100), boxed(2, 100)], NOW)
     const w = mountIt(StatsVerdict, { review })
-    expect(w.get('h2').text()).toBe('Noch zu wenig Verlauf für einen Vergleich.')
+    expect(w.get('h2').text()).toBe('Noch zu wenig Daten für eine Bewertung dieser Woche.')
     expect(w.text()).toContain(`In den ${REVIEW.baselineDays} Tagen vor den letzten ${REVIEW.windowDays} Tagen: 0 erledigte Aufgaben.`)
     expect(w.find('svg').exists()).toBe(false)
   })
@@ -195,9 +195,9 @@ describe('StatsTrendBars', () => {
 
 describe('StatsTile', () => {
   it('is a heading holding one toggle with aria-expanded and aria-controls; the panel exists only while open', async () => {
-    const w = mountIt(StatsTile, { n: 2, question: 'Wie entwickle ich mich?', line: 'Zeile', open: false }, { default: '<i class="chart" />', detail: '<a href="#x">Detail</a>' })
+    const w = mountIt(StatsTile, { n: 2, question: 'Wie entwickelt sich meine Zeitschätzung?', line: 'Zeile', open: false }, { default: '<i class="chart" />', detail: '<a href="#x">Detail</a>' })
     const button = w.get('h2 button')
-    expect(button.text()).toContain('Wie entwickle ich mich?')
+    expect(button.text()).toContain('Wie entwickelt sich meine Zeitschätzung?')
     expect(button.attributes('aria-expanded')).toBe('false')
     expect(w.find('.chart').exists()).toBe(true)
     expect(w.find('a').exists()).toBe(false)
@@ -230,7 +230,7 @@ describe('StatsTiles', () => {
 
   it('lists the three questions in natural order with one line each', () => {
     const w = mountIt(StatsTiles, { rhythm: THIN_RHYTHM, review: fullReview() })
-    expect(headings(w)).toEqual(['Wie entwickle ich mich?', 'Wo schätze ich falsch?', 'Wofür nehme ich mir Zeit?'])
+    expect(headings(w)).toEqual(['Wie entwickelt sich meine Zeitschätzung?', 'Wo schätze ich falsch?', 'Wofür nehme ich mir Zeit?'])
     expect(w.findAll('[aria-expanded="true"]')).toHaveLength(0)
   })
 
@@ -250,7 +250,7 @@ describe('StatsTiles', () => {
     await toggle(w, 4).trigger('click')
     await nextTick()
     // CSS order only: the node never moves, so focus stays on the toggle
-    expect(headings(w)).toEqual(['Wie entwickle ich mich?', 'Wo schätze ich falsch?', 'Wofür nehme ich mir Zeit?'])
+    expect(headings(w)).toEqual(['Wie entwickelt sich meine Zeitschätzung?', 'Wo schätze ich falsch?', 'Wofür nehme ich mir Zeit?'])
     const tile = w.get('[data-testid="stats-tile-4"]')
     expect(tile.classes()).toEqual(expect.arrayContaining(['md:order-first', 'md:col-span-3']))
     expect(w.get('[data-testid="stats-tile-3"]').classes()).not.toContain('md:order-first')
@@ -285,7 +285,7 @@ describe('StatsTiles', () => {
     wide(false)
     const w = mountIt(StatsTiles, { rhythm: THIN_RHYTHM, review: fullReview() })
     await toggle(w, 4).trigger('click')
-    expect(headings(w)).toEqual(['Wie entwickle ich mich?', 'Wo schätze ich falsch?', 'Wofür nehme ich mir Zeit?'])
+    expect(headings(w)).toEqual(['Wie entwickelt sich meine Zeitschätzung?', 'Wo schätze ich falsch?', 'Wofür nehme ich mir Zeit?'])
     expect(toggle(w, 4).attributes('aria-expanded')).toBe('true')
   })
 
@@ -330,7 +330,7 @@ describe('StatsTiles', () => {
 
   it('shows the Q2 hint while there are too few weeks', () => {
     const w = mountIt(StatsTiles, { rhythm: THIN_RHYTHM, review: deriveReview([boxed(1, 100), boxed(2, 100)], NOW) })
-    expect(w.get('[data-testid="stats-tile-2"]').text()).toContain('Noch zu wenige Wochen für eine Entwicklung.')
+    expect(w.get('[data-testid="stats-tile-2"]').text()).toContain('Noch zu wenige Wochen mit erledigten Aufgaben für einen Trend.')
   })
 })
 

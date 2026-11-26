@@ -5,26 +5,26 @@
   - button "Ausschalten"
   - list:
     - listitem:
-      - heading "Willkommen" [level=3]
-      - paragraph: Dein Tag auf einem Blatt
+      - heading "Grundlegendes" [level=3]
+      - paragraph: Willkommen bei deinem Kanban-Board
       - paragraph: Hier steht nur, was heute dran ist. In „Jetzt“ liegt die eine Aufgabe, an der du gerade arbeitest. Schreib als Erstes auf, was heute ansteht.
     - listitem:
       - heading "Anfangen" [level=3]
       - paragraph: Womit fängst du an?
       - paragraph: Halte die Karte und ziehe sie an den rechten Rand, in „Jetzt“. In Jetzt liegt immer nur eine Aufgabe.
     - listitem:
-      - heading "Weitermachen" [level=3]
-      - paragraph: Die Zeit läuft jetzt mit
+      - heading "An einer Aufgabe dranbleiben" [level=3]
+      - paragraph: Die Zeit läuft mit und wenn du dir eine Timebox gegeben hast, siehst du wieviel Zeit davon noch übrig ist.
       - paragraph: Ziehe die Karte in „Erledigt“, sobald die Aufgabe erledigt ist. Wartest du auf jemanden, ziehe sie in „Wartet“.
     - listitem:
-      - heading "Auswählen" [level=3]
-      - paragraph: Viel offen?
+      - heading "Den Überblick behalten" [level=3]
+      - paragraph: Viel zu tun?
       - paragraph: Gestapelt nach Thema oder Priorität wählst du leichter aus. Die Stapel findest du auch unter „Mehr“.
     - listitem:
       - heading "Tag abschließen" [level=3]
-      - paragraph: Genug für heute?
+      - paragraph: Fertig für heute?
       - paragraph: „Tag abschließen“ zeigt dir, was du geschafft hast und was offen bleibt.
     - listitem:
-      - heading "Planen" [level=3]
+      - heading "Die Aufgaben des Tages planen" [level=3]
       - paragraph: Wähle aus, was heute dran ist
       - paragraph: Sobald du loslegen willst, wechsle in der Navigation zu „Heute“.

@@ -197,11 +197,11 @@ for (const vp of VIEWPORTS) {
       await row(page, 'Plan').getByTestId('topics-row-button').click()
       await expect(editor(page).getByTestId('topic-hue-group')).toHaveCount(0)
       await expect(editor(page).getByTestId('topic-symbol-trigger')).toHaveCount(0)
-      await renameInEditor(page, 'Planen')
+      await renameInEditor(page, 'Die Aufgaben des Tages planen')
       // The card no longer shows the activity (#584); it is visible in the task sheet
       await page.goto('/tasks/tm-open')
-      await expect(page.getByTestId('task-activity-select')).toContainText('Planen')
-      await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('tasks-store') ?? '{}').tasks.find((t: { id: string }) => t.id === 'tm-open').activity)).toBe('Planen')
+      await expect(page.getByTestId('task-activity-select')).toContainText('Die Aufgaben des Tages planen')
+      await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('tasks-store') ?? '{}').tasks.find((t: { id: string }) => t.id === 'tm-open').activity)).toBe('Die Aufgaben des Tages planen')
     })
 
     test('Save is disabled while nothing changed or the name is empty; Escape and Abbrechen close the editor', async ({ page }) => {
