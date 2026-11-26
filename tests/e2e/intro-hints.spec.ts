@@ -150,6 +150,9 @@ test('desktop: the column buttons keep their place whether a note stands or not;
     await expect(hint(page)).toBeVisible()
     const button = page.locator('#column-done .column-footer button').first()
     const withNote = (await button.boundingBox())!
+    // Where the note reaches the column (narrow window) it lies over the button
+    const sheet = (await hint(page).boundingBox())!
+    if (size.width === 800) expect(sheet.x < withNote.x + withNote.width && sheet.x + sheet.width > withNote.x && sheet.y < withNote.y + withNote.height).toBe(true)
     // The note ends (the tour's skip), the button stays where it was
     await answerHints(page, 'start', 'weiter', 'auswahl', 'abschluss')
     await expect(hint(page)).toBeHidden()
