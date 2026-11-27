@@ -8,7 +8,12 @@ paths:
 ---
 # E2E rules (Playwright: seeding, Notion stub, drag simulation, fixtures)
 
-E2E basics (Local board by default, `seed.ts` helpers, `addInitScript`, the production-build server and its own `PORT`): root `CLAUDE.md` "Testing"; the full text of both is below.
+E2E basics (moved from root `CLAUDE.md` "Testing", #901, which keeps the short form):
+
+- **E2E default**: use a Local board (`sources: { connected: [], default: 'local' }`) for all UI tests unrelated to integrations — no stub or env var needed. Use `tests/e2e/helpers/seed.ts` helpers (`seedLocalBoard`, `seedNotionBoard`) instead of copy-pasting localStorage setup.
+- **E2E seeding**: prefer `context.addInitScript` (runs before page JS) over `page.evaluate` after `goto`. See `tests/e2e/helpers/seed.ts`.
+
+The production-build server and its own `PORT`: "E2E server" below.
 
 - **E2E seeding detail**: a spec that reloads and must keep its changes passes `{ once: true }` as the last `seedLocalBoard` argument (sessionStorage guard keyed per seed). `fillerTasks(n, status)` pads a column to scroll; `longTitleStackSeed()` is the 3-line-title stack (#282). Read GitHub stub calls filtered (`githubCalls(page, { method, path })`), never by position.
 - **Focus overlay off in seeds (#394)**: the Jetzt focus overlay is on by default in the app, but `seedLocalBoard` / `seedNotionBoard` / `seedMixedBoard` and the dev `?seed=` modes write `settings-store` with `focusEnabled: false` (touch specs would lose their first tap, screenshots and contrast checks would see a dimmed board). Opt in with `{ focus: true }` (helpers) or `&focus=1` (`?seed=local&focus=1`); `tests/e2e/focus-overlay.spec.ts` is the model. A spec that writes `board-store` by hand and has a task in Jetzt runs with the overlay on: add `settings-store` there if that matters. The overlay's return timers (2.5 s mouse, 4 s key, 8 s touch) and every other app timer (5 s undo windows, the Jetzt timer) run on the page clock (#543): `installClock(context)` before the seed, then `elapse(page, ms)` / `elapseWindow(page)` from `helpers/clock.ts`; never wait them out in real time, and never `pauseAt` in a touch spec (frozen `Date.now()`, #488). The ticking clock also delays chained timeouts (hydration), so a focus set right after render can be lost: install it only in tests that need a timer, and poll a focus that a keyboard step depends on. `focus-overlay.spec.ts` (`expectOn`) and `stack-delete-gap.spec.ts` are the models. A CSS animation (the timebox nudge's 8 s countdown) is not on the page clock: finish it through `document.getAnimations()` (`timebox-nudge.spec.ts`).
