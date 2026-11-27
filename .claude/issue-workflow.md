@@ -64,6 +64,7 @@ Nuxt UI MCP (`get-component-metadata`, `search-components`) or `.nuxt/ui/<compon
 - widths: 1280 and 390; light only
 - entry URL: `http://localhost:<port>/tasks?seed=local` (`?seed=dayclose` for the end-of-day dialog, `?seed=notion` with `npm run dev:e2e`; a seed switches the Jetzt focus overlay off, `&focus=1` shows it)
 - phone browser chrome, desktop-only pages, seeking animations, motion filmstrips, completion effects at 390px, WebKit, embedding shots: the partial
+
 Full text: .claude/issue-workflow/screenshots.md (read when: a shot beyond the board or task sheet: phone browser chrome, desktop-only pages, motion, completion effects, WebKit; embedding shots in a PR or issue comment)
 
 ## Prototype

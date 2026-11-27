@@ -2,7 +2,6 @@
 paths:
   - "store/dayRecap.ts"
   - "store/tasks.ts"
-  - "store/board.ts"
   - "composables/useNewDay*.ts"
   - "composables/useTakeOffBoard.ts"
   - "composables/useDayClose*.ts"
@@ -10,6 +9,8 @@ paths:
   - "lib/dayBegun.ts"
   - "tests/store/{dayRecap,boardNotPlannedOrder,tasks.afterMidnight}.test.ts"
   - "tests/composables/{useNewDay,useDayClose}*.test.ts"
+  - "tests/composables/useCommandPalette.dayClose.test.ts"
+  - "tests/utils/{recapDay,dayClose}.test.ts"
   - "tests/store/hydrationNoWrite.test.ts"
   - "tests/e2e/{new-day-recap,day-close}.spec.ts"
 ---

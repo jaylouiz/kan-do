@@ -1,7 +1,7 @@
 # Verification (issue-workflow profile partial)
 
 <!-- Full text of the profile section "Verification" (`.claude/issue-workflow.md`); read when: Build step 5, Specify sizing.
-     "This file" and a section named in quotes ("Risk areas", "Decisions", "Copy", …) mean the profile and its sections. -->
+     A section named in quotes without a file name ("Risk areas", "Decisions", "Copy") is a section of the profile. -->
 
 - **testing mode** (#693): `.claude/testing-mode` holds `fast` or `quality` (default and fallback `quality`); read it before writing tests or choosing checks. `quality` = everything below. `fast` (pre-stable; switching modes is a one-way item, see "Decisions"):
   - write a test only for (1) a bug fix (regression test that fails without the fix), (2) logic with a branch, loop, parser, money or security, (3) anything in "Risk areas"; none for pure markup, copy or styling, and no new visual baselines or ARIA snapshots outside a risk area. Existing tests stay, and a spec, baseline or ARIA snapshot the diff breaks (a moved page, a changed link or label) is updated in the same PR: fast trims new tests, never repairs (run_d0fe7191bd61: #691 cost 2 fix rounds).

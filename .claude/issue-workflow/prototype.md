@@ -1,7 +1,7 @@
 # Prototype (issue-workflow profile partial)
 
 <!-- Full text of the profile section "Prototype" (`.claude/issue-workflow.md`); read when: Design, building or checking a prototype; Build, the Look comment.
-     "This file" and a section named in quotes ("Risk areas", "Decisions", "Copy", …) mean the profile and its sections. -->
+     A section named in quotes without a file name ("Risk areas", "Decisions", "Copy") is a section of the profile. -->
 
 - host: `PORT=<port> npm run dev`, then `/tasks?seed=local&variant=<key>` (ready when the log shows `Ready in`; never `curl` a redirecting route; seed and variant in one URL: a later `goto` without `seed` shows onboarding); variants mount inside the existing page (board, task sheet, settings page). A new top-level surface gets a route under `pages/prototype/`.
 - switcher: `components/prototype/PrototypeSwitcher.vue`, a fixed bottom pill (← key label →, arrow keys outside inputs) that updates `?variant=`. Nuxt names components in that folder `Prototype<Name>`: other proto-only components live outside it or are used by the prefixed name. It is not on `main` as a component: copy the generic `.claude/templates/PrototypeSwitcher.vue.template` there and edit only its `GROUPS` map (one group per independent question: a single issue keeps the `variant` group, a design batch adds a group with its own query key per further issue, e.g. `&v162=a`; up and down pick the group, left and right its variant) (other proto branches hardwire their own variants and plugins).

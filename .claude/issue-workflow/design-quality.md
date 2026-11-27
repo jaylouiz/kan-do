@@ -1,7 +1,7 @@
 # Design quality (issue-workflow profile partial)
 
 <!-- Full text of the profile section "Design quality" (`.claude/issue-workflow.md`); read when: a Design step that fills a slot, Build step 4 and the gate in step 5, review of a UI PR.
-     "This file" and a section named in quotes ("Risk areas", "Decisions", "Copy", …) mean the profile and its sections. -->
+     A section named in quotes without a file name ("Risk areas", "Decisions", "Copy") is a section of the profile. -->
 
 Impeccable plugin (`/impeccable <verb>`). Mode for app surfaces: Operate.
 - brief: `/impeccable shape <goal>`; interview when interactive, asserted from the issue, PRODUCT.md and DESIGN.md when a worker.
