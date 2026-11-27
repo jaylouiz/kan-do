@@ -126,7 +126,7 @@ Full text: .claude/issue-workflow/verification.md (read when: Build step 5, Spec
 
 ## Decisions
 
-User decision 2026-10-30. Rule, labels and `~/.claude/agent-workflow/bin/decide.sh`: `/aw-coordinate` section 5.
+User decision 2026-10-30. Rule, labels and `~/.claude/agent-workflow/bin/decide.sh`: `~/.claude/agent-workflow/reference/decisions.md`.
 - one-way (a decision request, the issue parks): a Design round of a `needs-design` issue; changing a DESIGN.md principle, named rule or token other than the palette (detail that lives in code, such as timings, sizes or a component's exact look, is two-way: decide, record it in the issue and the component's doc block); deleting or rewriting existing user data (persisted state, Notion/Todoist/GitHub content); release or other outward-facing actions; switching the testing mode or weakening a verification gate (Stop hook, pre-merge E2E gate, release checks; #693); a held merge; low confidence on something expensive to undo
 - explicitly two-way (decide, record in `## Decisions` + `~/.claude/agent-workflow/bin/decide.sh record`, continue, merge): technical structure (e.g. a separate settings store vs. reusing a store); `custom-forest` palette changes (also recorded in DESIGN.md); integration changes that hit no one-way item; data model or persisted-shape changes, provided old persisted data still loads (migration or backward-compatible read, covered by a test); a scope change against the issue that the coordinator (standalone: the reviewer) agrees is reasonable
 - digest cap: 2h (`--cap 7200`, the script default)

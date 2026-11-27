@@ -77,7 +77,7 @@ The owner and an agent work through the plan together, one step (or one clearly 
 - **A session starts with the owner's open questions for its step.** Before any work, the agent reads "Open questions for the owner" and interviews the owner in the session (one question at a time, with a recommendation, through the question dialog) on every question due for what it is about to do. A question about a look is asked with something to look at: a switch on the prototype branch or screenshots side by side. Answers are written back into this file in the same session. A session without the owner present (a worker, a scheduled run) stops at the first due question and hands back.
 - **In step 5 the issue is the spec.** A slice's sub-issue holds its scope and criteria; this file holds only the order and the state. The decisions listed below are final: a slice does not reopen them, and a conflict with the code goes to the owner as a question.
 - **Two worktrees at once** (the docs branch and the prototype branch): switch between them with `EnterWorktree` and a `path`; write patch scripts as files.
-- **Inside a session** the agent works in the conversation with the owner. It uses sub-agents only for work that is wide and independent (measuring many components in step 1, reading references), and the Orca lanes (`/design-gh-issue`, `/specify-gh-issue`, `/build-gh-issue`, `/orchestrate-gh-issues`) for the prototype rounds of step 3 and the slices of step 5.
+- **Inside a session** the agent works in the conversation with the owner. It uses sub-agents only for work that is wide and independent (measuring many components in step 1, reading references), and the Orca lanes (`/aw-ui-design`, `/aw-specify`, `/aw-build`, `/aw-coordinate`) for the prototype rounds of step 3 and the slices of step 5.
 - **Interactive on purpose:** steps 2, 3 and 4 were conversations with the owner. Steps 5 and 6 run mostly unattended and end with something to look at: each slice's PR carries screenshots at desktop and 390 px.
 
 ## Reference material: Mobbin
@@ -200,7 +200,7 @@ The round shows two or three interpretations of the confirmed brief, not seven n
 - Rewrite `DESIGN.md` from the labels of step 2. Target: clearly under today's 373 lines; the Components section shrinks the most.
 - Each changed principle, token or named rule is a decision request to the owner (the project's rule for one-way decisions).
 
-Result: a spec on kd#1 (or its follow-up issues) through `/specify-gh-issue`. Done as an epic: kd#1 is the tracker, the slices of step 5 are its sub-issues.
+Result: a spec on kd#1 (or its follow-up issues) through `/aw-specify`. Done as an epic: kd#1 is the tracker, the slices of step 5 are its sub-issues.
 
 ## Step 5: migration in slices
 
@@ -222,8 +222,8 @@ State is the issue's lane (`needs-spec`, `ready`), then `in build`, `PR <n>` and
 
 How a slice runs:
 
-1. **Specify** (`/specify-gh-issue <n>`): its own review of the current state and the technical choices. The scope, the user criteria and the decisions are input.
-2. **Build** (`/build-gh-issue <n>`): one PR. It applies the direction to what tokens do not reach, merges the variants its issue names and **deletes what it replaces in the same PR**; baselines and the `/ui` fingerprint are re-recorded and the PR names every baseline that moved.
+1. **Specify** (`/aw-specify <n>`): its own review of the current state and the technical choices. The scope, the user criteria and the decisions are input.
+2. **Build** (`/aw-build <n>`): one PR. It applies the direction to what tokens do not reach, merges the variants its issue names and **deletes what it replaces in the same PR**; baselines and the `/ui` fingerprint are re-recorded and the PR names every baseline that moved.
 3. **The owner looks** at the PR's screenshots (desktop and 390 px). Merge follows the usual rule (green and not held).
 4. **Handoff:** the slice's row in the table above, "Where we are" and one change log line, in the same PR.
 
