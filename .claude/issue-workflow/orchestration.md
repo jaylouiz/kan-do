@@ -1,6 +1,6 @@
 # Orchestration (issue-workflow profile partial)
 
-<!-- Full text of the profile section "Orchestration" (`.claude/issue-workflow.md`); read when: Orchestrate (coordinator), merging a PR yourself. -->
+<!-- Full text of the profile section "Orchestration" (`.claude/issue-workflow.md`); read when: Orchestrate, the coordinator; merging a PR yourself. -->
 
 - runner: Orca; max 5 concurrent workers (user decision: dev-server ports, Playwright CPU, shared visual baselines). Ports, risk globs, verify/build, after-merge steps, deploy check and the PR-body check: `.claude/issue-workflow.sh` (read by `spec.sh`, `merge-pr.sh`, `guard.sh`)
 - with 3+ workers: specs say E2E `--workers=2`; the hook retries a failing test once itself; after a hook failure in specs the PR does not touch, rerun them alone once more (`PORT=<free> npx playwright test <failed files>`); many first-render timeouts mean load (`uptime`), not the PR; at load above ~20 run only the touched and mapped specs, never the whole suite (a 65-spec run never progressed, 25 min, #593; sibling sweep PRs ran 12-15 min mapped runs): the gate runs the rest
