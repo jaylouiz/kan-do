@@ -71,7 +71,7 @@ One comment, numbered questions, lettered options, answerable as `1A 2B 3: free 
 the first line of the file), the questions (one line each, options inline: `1. <question> A: … · B: … (rec B)`), then
 one `<details><summary>Details</summary>` block holding the paragraph on what was measured and what is not asked, each
 question's `Keys:` line, the "Settled, no question" list and the "Left out" line. Where
-`~/.claude/skills/orchestrate-gh-issues/decide.sh` exists, post it with `WF_COMMENT_CAP=2500 decide.sh request <issue>
+`~/.claude/agent-workflow/bin/decide.sh` exists, post it with `WF_COMMENT_CAP=2500 decide.sh request <issue>
 <file>` (the first line of the file is the one-line question; it parks the issue and shows in the digest; the raised
 cap is for this questionnaire only, answered in one go); else a plain issue comment. Do not wait for answers in the run that posts them. In
 an interactive session the user is present: ask the same questions with `AskUserQuestion` in batches of 4 (no free

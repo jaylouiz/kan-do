@@ -23,7 +23,7 @@ check_root() {
   local root=$1 f out eslint
   shift
   cd "$root" || return 0
-  # Prototype branches (proto/*, /design-gh-issue) may use raw strings and skip lint.
+  # Prototype branches (proto/*, /aw-ui-design) may use raw strings and skip lint.
   case "$(git branch --show-current 2>/dev/null)" in proto/*) return 0 ;; esac
   # A worktree without node_modules cannot lint; say so once per session instead of skipping silently.
   if [ ! -d node_modules ]; then

@@ -86,7 +86,7 @@ Rules live in `DESIGN.md` (direction, tokens, named rules, recurring patterns; p
 - Look up every Nuxt UI component via the Nuxt UI MCP (`get-component-metadata`, `search-components`) or `.nuxt/ui/<component>.ts` — never guess props or slot names.
 - **Pattern check** (`.claude/rules/ui-patterns.md`, loads with any UI file): before creating or changing a UI element, find the existing Pattern for its user task (`npm run ui:find -- <user-task words>` over the manifest first, then `/ui`) and decide reuse, align or diverge yourself; leave one `Pattern:` line per decision (PR body, or the final report for ad-hoc work).
 - **Design reasons** ("because…", "so that…") from the user, in any channel, or a `diverged from` reason: skill `design-rule` challenges it and proposes a rule. Never write a rule before the user says yes.
-- Process: open direction → `/design-gh-issue` (brief, variants, throwaway prototype or canvas sketch, UX decision) → `/specify-gh-issue` → `/build-gh-issue` (screenshots at desktop + 390px, light only; Impeccable gate). Which Impeccable verb runs where: `.claude/issue-workflow.md` "Design quality".
+- Process: open direction → `/aw-ui-design` (brief, variants, throwaway prototype or canvas sketch, UX decision) → `/aw-specify` → `/aw-build` (screenshots at desktop + 390px, light only; Impeccable gate). Which Impeccable verb runs where: `.claude/issue-workflow.md` "Design quality".
 
 ### Language Policy
 
@@ -122,7 +122,7 @@ A `PreToolUse` Bash hook (`.claude/hooks/guard-commands.sh`) blocks a few comman
 
 ## Issue Workflow
 
-GitHub issues are the work queue; lanes `needs-design` → `needs-spec` → `ready`, each optional (`on-hold-after-spec` = no Build). Skills (the maintainer's personal tooling, [agent-workflow](https://github.com/jaylouiz/agent-workflow), run with Orca; contributors follow CONTRIBUTING.md instead): `/design-gh-issue`, `/specify-gh-issue`, `/build-gh-issue`, `/orchestrate-gh-issues`; user, Claude or sub-agents may invoke them. kan-do facts they need: `.claude/issue-workflow.md`. Issue edits (body, labels, comments) need no user approval.
+GitHub issues are the work queue; lanes `needs-design` → `needs-spec` → `ready`, each optional (`on-hold-after-spec` = no Build). Skills (the maintainer's personal tooling, [agent-workflow](https://github.com/jaylouiz/agent-workflow), run with Orca; contributors follow CONTRIBUTING.md instead): `/aw-ui-design`, `/aw-specify`, `/aw-build`, `/aw-orchestrate`; user, Claude or sub-agents may invoke them. kan-do facts they need: `.claude/issue-workflow.md`. Issue edits (body, labels, comments) need no user approval.
 
 After merging a PR yourself, run `.claude/hooks/cleanup-merged.sh` right away (it also runs at session start and removes the worktrees and branches of merged PRs; `--dry-run` previews; what it skips: `.claude/rules/hooks.md`).
 

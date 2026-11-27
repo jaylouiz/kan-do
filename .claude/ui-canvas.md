@@ -14,4 +14,4 @@
 - UI copy language: German; strings come from `i18n/locales/de.json`
 - comments for the agent: every open thread; a thread that gives a reason ("because…") also goes through the skill `design-rule` (propose, never write a rule unasked)
 - run the app for replicate: `npm run dev`, then http://localhost:3000/tasks?seed=local
-- handoff target: GitHub issue comment, implemented by /build-gh-issue
+- handoff target: GitHub issue comment, implemented by /aw-build
