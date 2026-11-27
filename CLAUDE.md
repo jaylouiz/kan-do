@@ -55,9 +55,11 @@ Path-scoped rules in `.claude/rules/` load when you read or edit a matching file
 
 - `drag-and-drop.md`: dnd-kit invariants, stacks, the origin column (#372), one root node per list item
 - `mobile-board.md`: swipe between pages and edge-scroll on mobile
-- `task-sources.md`: the source layer's cross-file contracts (identity, writes through `useTaskSync`, push loops, page creates); mechanisms live in the code's doc comments
+- `task-sources.md`: the source layer's cross-file contracts (identity, writes through `useTaskSync`, push loops, page creates)
 - `persistence.md`: `appStorage` and `PERSISTED_KEYS`, `afterHydrate` (#273), desktop data safety (ADR 011), export/import, data status payload, `cargo test`
+- `new-day.md`: the persisted New day fields (`day-recap-store`, `afterMidnight`; #356, #387)
 - `task-timers.md`: Jetzt timers (#352)
+- `unit-tests.md`: Vitest conventions (stores, composables, server routes, i18n)
 - `e2e.md`: seeding detail, Notion stub, drag simulation, cold-server warm-up, fixtures
 - `e2e-gate.md`: tier rules of the pre-merge E2E gate (docs/style-only skip, smoke + mapped specs, `E2E_GATE=full`)
 - `ui-patterns.md`: the Pattern check before creating or changing a UI element (#586), record line format
@@ -86,6 +88,7 @@ Rules live in `DESIGN.md` (direction, tokens, named rules, recurring patterns; p
 - Look up every Nuxt UI component via the Nuxt UI MCP (`get-component-metadata`, `search-components`) or `.nuxt/ui/<component>.ts` — never guess props or slot names.
 - **Pattern check** (`.claude/rules/ui-patterns.md`, loads with any UI file): before creating or changing a UI element, find the existing Pattern for its user task (`npm run ui:find -- <user-task words>` over the manifest first, then `/ui`) and decide reuse, align or diverge yourself; leave one `Pattern:` line per decision (PR body, or the final report for ad-hoc work).
 - **Design reasons** ("because…", "so that…") from the user, in any channel, or a `diverged from` reason: skill `design-rule` challenges it and proposes a rule. Never write a rule before the user says yes.
+- Mockups: the shared FigCraft canvas through the global `/ui-canvas` skill, its kan-do settings in `.claude/ui-canvas.md` (the maintainer's personal tooling; contributors follow CONTRIBUTING.md). A handed-off frame is implemented like any other UI work.
 - Process: open direction → `/design-gh-issue` (brief, variants, throwaway prototype or canvas sketch, UX decision) → `/specify-gh-issue` → `/build-gh-issue` (screenshots at desktop + 390px, light only; Impeccable gate). Which Impeccable verb runs where: `.claude/issue-workflow.md` "Design quality".
 
 ### Language Policy
@@ -95,20 +98,10 @@ Rules live in `DESIGN.md` (direction, tokens, named rules, recurring patterns; p
 - UI copy goes through the `copy-writer` skill and the term registry `docs/copy/terms.json` (rules: `docs/copy/voice.md`); a designed surface gets its final copy in a copy pass (profile "Copy"). Only the user runs `npm run terms:approve`.
 - Locales: `i18n/locales/de.json` + `en.json` (vue-i18n syntax, not ICU); every key in both. Check with `npm run i18n:check`.
 
-## Design canvas
-
-Mockups live on a shared FigCraft canvas, worked through the global `/ui-canvas` skill (build, replicate, variants, "check comments", handoff). Its kan-do settings (canvas file, start command, frame = route naming, token and component mapping, handoff target) are in `.claude/ui-canvas.md`. Implementing a handed-off frame follows "UI Work" above. FigCraft and `/ui-canvas` are the maintainer's personal tooling; contributors follow CONTRIBUTING.md.
-
 ## Testing
 
-- **Stores**: `setActivePinia(createPinia())` per test; reset after
-- **i18n in tests**: `tests/setup/i18n.ts` installs i18n globally (locale `de` before each test, so German literals are fine); use `setTestLocale('en')` from `tests/helpers/i18n.ts` for English. E2E pins `locale: 'de-DE'`.
-- **Composables**: mock deps via `vi.doMock` before importing the module
-- **Server routes**: `supertest` + `h3` (see `server/api/__tests__/`)
-- **Record/Map state**: use `.get()`, `.has()`, `.size` — never bracket access
-- **E2E default**: use a Local board (`sources: { connected: [], default: 'local' }`) for all UI tests unrelated to integrations — no stub or env var needed. Use `tests/e2e/helpers/seed.ts` helpers (`seedLocalBoard`, `seedNotionBoard`) instead of copy-pasting localStorage setup.
-- **E2E seeding**: prefer `context.addInitScript` (runs before page JS) over `page.evaluate` after `goto`. See `tests/e2e/helpers/seed.ts`.
-- **E2E server**: `npm run test:e2e` serves a production build on `PORT` (default 3000) and reuses whatever already serves that port: in a worktree, or next to a dev server, use `PORT=<free port> npm run test:e2e …`. Stop your own server only by its port's PID (`lsof -ti tcp:<port> -sTCP:LISTEN | xargs kill`). Detail: `.claude/rules/e2e.md` "E2E server".
+- **Unit tests** (stores, composables, server routes, i18n in tests): `.claude/rules/unit-tests.md`, loads with any Vitest file (`*.test.ts`, `tests/components/**/*.spec.ts`).
+- **E2E**: a Local board through the `tests/e2e/helpers/seed.ts` helpers unless the test is about an integration; rules load with the specs (`.claude/rules/e2e.md`). Stop your own E2E server only by its port's PID (`lsof -ti tcp:<port> -sTCP:LISTEN | xargs kill`).
 - **Agent-driven browser testing**: invoke the `playwright-cli` skill (not Playwright MCP tools). Promote to an external script only when `page.mouse` pointer control is needed (e.g. drag-and-drop), or when `playwright-cli` finds no Chrome (use the repo's `playwright` chromium). Seed first (`?seed=local`), then open the task sheet from the board or `goto /tasks/seed-open-1`; a detail URL without the seed step loses the seed.
 - Desktop pages and the sandboxed `tauri dev`: skill `desktop-verify` (never touches the production app or steals focus, #623). Real Notion without user clicks: skill `notion-sandbox`.
 
@@ -116,13 +109,13 @@ Mockups live on a shared FigCraft canvas, worked through the global `/ui-canvas`
 
 **Testing mode** (#693): `.claude/testing-mode` (untracked; a worktree without its own file reads the main checkout's, kd#222) = `fast` or `quality` (default; missing or unknown reads as `quality`), honoured by the Stop hook, the pre-merge gate, `npm run release --stage` and the workflow skills; switching it is the user's one-way decision. Rules: profile "Verification".
 
-The `Stop` hook (`.claude/hooks/verify.sh`) runs `lint:ci`, `typecheck`, `design:detect`, `vitest run` and, after a design-path change, the rendered Impeccable scan before Claude may finish; failures are fed back (max 3 consecutive blocks). A `PostToolUse` hook lints every file an Edit, Write or Bash command changed. Both follow the edited file into its worktree and skip `proto/*` branches. Detail and limits: `.claude/rules/hooks.md`.
+The `Stop` hook (`.claude/hooks/verify.sh`) runs `lint:ci`, `typecheck`, `design:detect`, `vitest run` and, after a design-path change, the rendered Impeccable scan before Claude may finish; a `PostToolUse` hook lints every changed file. Both skip `proto/*` branches. Detail and limits: `.claude/rules/hooks.md`.
 
 A `PreToolUse` Bash hook (`.claude/hooks/guard-commands.sh`) blocks a few commands (list: `.claude/rules/hooks.md`) and names the allowed one in its message. Do not work around it. A worktree-isolated session (background job, isolated subagent) also refuses any Bash call that mixes a VCS command with a `cd`, a `-C`, a `$(…)`, a loop or a heredoc, or that only names the VCS in a text argument: run each VCS command as its own plain call, pass SHAs literally, write scripts with Write.
 
 ## Issue Workflow
 
-GitHub issues are the work queue; lanes `needs-design` → `needs-spec` → `ready`, each optional (`on-hold-after-spec` = no Build). Skills (the maintainer's personal tooling, [agent-workflow](https://github.com/jaylouiz/agent-workflow), run with Orca; contributors follow CONTRIBUTING.md instead): `/design-gh-issue`, `/specify-gh-issue`, `/build-gh-issue`, `/orchestrate-gh-issues`; user, Claude or sub-agents may invoke them. kan-do facts they need: `.claude/issue-workflow.md`. Issue edits (body, labels, comments) need no user approval.
+GitHub issues are the work queue; lanes `needs-design` → `needs-spec` → `ready`, each optional (`on-hold-after-spec` = no Build). Skills (the maintainer's personal tooling, [agent-workflow](https://github.com/jaylouiz/agent-workflow), run with Orca; contributors follow CONTRIBUTING.md instead): `/design-gh-issue`, `/specify-gh-issue`, `/build-gh-issue`, `/orchestrate-gh-issues`; user, Claude or sub-agents may invoke them. kan-do facts they need: `.claude/issue-workflow.md` (long sections as partials in `.claude/issue-workflow/`, each read only when its pointer says). Issue edits (body, labels, comments) need no user approval.
 
 After merging a PR yourself, run `.claude/hooks/cleanup-merged.sh` right away (it also runs at session start and removes the worktrees and branches of merged PRs; `--dry-run` previews; what it skips: `.claude/rules/hooks.md`).
 
