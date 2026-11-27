@@ -34,3 +34,7 @@ Profile: `.claude/issue-workflow.md` "Pattern check".
 ## Doc block
 
 - Include `@component` / `@kind` (primitive, component, compound, block) / `@category` (one of the seven in `scripts/ui-manifest.mjs`) / `@description` / `@usage` / `@avoid` / `@responsibility` header doc block; the manifest behind `npm run ui:find` and `/ui` is derived from them on every run, nothing to regenerate or commit (`npm run ui:manifest` prints it); terms in `GLOSSARY.md`
+
+## Component names carry the folder (#481)
+
+Nuxt auto-imports a nested component with its folder as prefix: `components/setup/Foo.vue` is `SetupFoo`, not `Foo`. Import it explicitly (or use the prefixed name) when you create one in a subfolder.
