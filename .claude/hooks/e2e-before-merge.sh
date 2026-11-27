@@ -76,7 +76,7 @@ repo_flag=$(printf '%s' "$parsed" | sed -n 2p | tr -d "\"'")
 merge_args=$(printf '%s' "$parsed" | sed -n 3p)
 
 cd "${CLAUDE_PROJECT_DIR:-.}" || exit 0
-# One row per run for the workflow retro (agent-workflow `workflow-retro`, profile "Retro"): date, hook, ref, tier, specs, seconds, result, flaky.
+# One row per run for the workflow retro (agent-workflow `aw-retro`, profile "Retro"): date, hook, ref, tier, specs, seconds, result, flaky.
 log_check() {
   local f
   # KANDO_CHECKS_LEDGER overrides the file (tests must not write fake rows into the real retro metrics, kd#10).

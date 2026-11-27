@@ -27,7 +27,7 @@ if [ "$blocks" -ge 3 ]; then
   exit 0
 fi
 
-# One row per run for the workflow retro (agent-workflow `workflow-retro`, profile "Retro"): date, hook, ref, tier, specs, seconds, result, flaky, tree fingerprint.
+# One row per run for the workflow retro (agent-workflow `aw-retro`, profile "Retro"): date, hook, ref, tier, specs, seconds, result, flaky, tree fingerprint.
 log_check() {
   local f
   f="$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)/agent-ledgers/checks.tsv" || return 0
@@ -45,7 +45,7 @@ verify_root() {
   [ "$root" = "$main" ] || where=" in $root"
   branch=$(git branch --show-current 2>/dev/null)
 
-  # Prototype branches (proto/*, /design-gh-issue) are throwaway and never merged.
+  # Prototype branches (proto/*, /aw-ui-design) are throwaway and never merged.
   case "$branch" in proto/*) return 0 ;; esac
 
   # This turn changed nothing here (turn-start.sh snapshot): a chat-only reply, also in a dirty tree, is not verified.

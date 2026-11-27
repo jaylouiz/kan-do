@@ -170,7 +170,7 @@ UI work: UX direction is settled in the issue first. Throwaway prototypes live o
 - A pre-merge hook (`.claude/hooks/e2e-before-merge.sh`) runs the tiered E2E gate on `gh pr merge`, against a production build; it may take up to 1800 s and blocks the merge on a failure.
 - Prerequisites for the hooks: `jq` and `perl` on `PATH` (macOS ships perl; `brew install jq`), Chromium for Playwright (`npx playwright install chromium`), and `npx nuxt prepare` once per checkout or worktree (lint and typecheck read `.nuxt/`). Without `perl` the pre-merge hook refuses a merge command; without `jq` it cannot read the command at all, so install both.
 - The testing mode (`.claude/testing-mode`, `fast` or `quality`, untracked) is read per checkout; without the file everything runs in `quality`.
-- Workflow skills (`/build-gh-issue` and friends, [agent-workflow](https://github.com/jaylouiz/agent-workflow)), Orca and the FigCraft design canvas are the maintainer's personal tooling and not part of the repo; the method is described in this file, not required.
+- Workflow skills (`/aw-build` and friends, [agent-workflow](https://github.com/jaylouiz/agent-workflow)), Orca and the FigCraft design canvas are the maintainer's personal tooling and not part of the repo; the method is described in this file, not required.
 
 ## README screenshots
 
