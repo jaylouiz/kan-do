@@ -86,7 +86,7 @@ Deep detail per subsystem lives in path-scoped rule files in [.claude/rules/](.c
 |---|---|
 | [drag-and-drop.md](.claude/rules/drag-and-drop.md) | dnd-kit invariants, stacks, origin column |
 | [mobile-board.md](.claude/rules/mobile-board.md) | swipe between pages, edge-scroll |
-| [task-sources.md](.claude/rules/task-sources.md) | `boardConfig.sources`, add target, pending sync, mixed board |
+| [task-sources.md](.claude/rules/task-sources.md) | cross-file contracts of the task source layer |
 | [persistence.md](.claude/rules/persistence.md) | `appStorage`, `PERSISTED_KEYS`, data safety, `cargo test` |
 | [task-timers.md](.claude/rules/task-timers.md) | Jetzt timers |
 | [e2e.md](.claude/rules/e2e.md), [e2e-gate.md](.claude/rules/e2e-gate.md) | seeding, stub, drag simulation, the pre-merge E2E tiers |

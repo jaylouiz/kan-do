@@ -55,7 +55,7 @@ Path-scoped rules in `.claude/rules/` load when you read or edit a matching file
 
 - `drag-and-drop.md`: dnd-kit invariants, stacks, the origin column (#372), one root node per list item
 - `mobile-board.md`: swipe between pages and edge-scroll on mobile
-- `task-sources.md`: `boardConfig.sources`, add target (#321), pending sync (#319), move between sources (#322), mixed board (#323, #325), `mergeTasks`
+- `task-sources.md`: the source layer's cross-file contracts (identity, writes through `useTaskSync`, push loops, page creates); mechanisms live in the code's doc comments
 - `persistence.md`: `appStorage` and `PERSISTED_KEYS`, `afterHydrate` (#273), desktop data safety (ADR 011), export/import, data status payload, `cargo test`
 - `task-timers.md`: Jetzt timers (#352)
 - `e2e.md`: seeding detail, Notion stub, drag simulation, cold-server warm-up, fixtures
