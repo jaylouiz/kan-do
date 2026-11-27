@@ -63,8 +63,8 @@ Nuxt UI MCP (`get-component-metadata`, `search-components`) or `.nuxt/ui/<compon
 - tool: `playwright-cli` skill (no Chrome installed: a script with the repo's `playwright` chromium, CLAUDE.md "Testing"); seed first (`/tasks?seed=local`), then open the task sheet from the board or `goto /tasks/seed-open-1`; a detail URL without the seed step loses the seed
 - widths: 1280 and 390; light only
 - entry URL: `http://localhost:<port>/tasks?seed=local` (`?seed=dayclose` for the end-of-day dialog, `?seed=notion` with `npm run dev:e2e`; a seed switches the Jetzt focus overlay off, `&focus=1` shows it)
-- phone browser chrome, desktop-only pages, seeking animations, motion filmstrips, completion effects at 390px, WebKit, embedding shots:
-  Full text: .claude/issue-workflow/screenshots.md (read when: a shot beyond the board or task sheet: phone browser chrome, desktop-only pages, motion, completion effects, WebKit; embedding shots in a PR or issue comment)
+- phone browser chrome, desktop-only pages, seeking animations, motion filmstrips, completion effects at 390px, WebKit, embedding shots: the partial
+Full text: .claude/issue-workflow/screenshots.md (read when: a shot beyond the board or task sheet: phone browser chrome, desktop-only pages, motion, completion effects, WebKit; embedding shots in a PR or issue comment)
 
 ## Prototype
 
@@ -119,7 +119,7 @@ Full text: .claude/issue-workflow/verification.md (read when: Build step 5, Spec
 
 ## Pull requests
 
-- screenshots: `gh pr create --attach '<path>.png#alt'` with `![alt](<same path>)` in the body file, from a space-free absolute path (`/tmp/kd-<n>/`); never commit screenshots or link branch image URLs. Path pitfalls, later edits, issue comments with images: `.claude/issue-workflow/screenshots.md`
+- screenshots: `gh pr create --attach '<path>.png#alt'` with `![alt](<same path, without #alt>)` in the body file, from a space-free absolute path (`/tmp/kd-<n>/`); never commit screenshots or link branch image URLs. Path pitfalls, later edits, issue comments with images: `.claude/issue-workflow/screenshots.md`
 - write the body file complete before `gh pr create` (the guard reads the file, not a later `sed`); the `E2E-specs:` line holds bare names: `E2E-specs: smoke task-detail` (no `tests/e2e/`, no `.spec.ts`)
 - required in body (the guard hook checks `Closes`, attribution, `E2E-specs:` and the `Pattern:` lines): ACs as a checklist with evidence, the `E2E-specs: a b c` line, `Pattern:` lines when the diff touches UI source files ("Pattern check"), `## Review` (orchestrated runs: the lead template), the design review's findings (P0/P1 fixed or why not, P2/P3 listed) (UI), 1-3 result screenshots (UI), `inbox` issues filed, anything left out
 

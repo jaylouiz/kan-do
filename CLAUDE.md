@@ -100,7 +100,7 @@ Rules live in `DESIGN.md` (direction, tokens, named rules, recurring patterns; p
 
 ## Testing
 
-- **Unit tests** (stores, composables, server routes, i18n in tests): `.claude/rules/unit-tests.md`, loads with any `*.test.ts`.
+- **Unit tests** (stores, composables, server routes, i18n in tests): `.claude/rules/unit-tests.md`, loads with any Vitest file (`*.test.ts`, `tests/components/**/*.spec.ts`).
 - **E2E**: a Local board through the `tests/e2e/helpers/seed.ts` helpers unless the test is about an integration; rules load with the specs (`.claude/rules/e2e.md`). Stop your own E2E server only by its port's PID (`lsof -ti tcp:<port> -sTCP:LISTEN | xargs kill`).
 - **Agent-driven browser testing**: invoke the `playwright-cli` skill (not Playwright MCP tools). Promote to an external script only when `page.mouse` pointer control is needed (e.g. drag-and-drop), or when `playwright-cli` finds no Chrome (use the repo's `playwright` chromium). Seed first (`?seed=local`), then open the task sheet from the board or `goto /tasks/seed-open-1`; a detail URL without the seed step loses the seed.
 - Desktop pages and the sandboxed `tauri dev`: skill `desktop-verify` (never touches the production app or steals focus, #623). Real Notion without user clicks: skill `notion-sandbox`.

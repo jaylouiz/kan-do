@@ -1,6 +1,8 @@
 ---
 paths:
   - "tests/**/*.test.ts"
+  - "tests/components/**/*.spec.ts"
+  - "worker/**/*.test.ts"
   - "tests/setup/**"
   - "tests/helpers/**"
   - "server/api/__tests__/**"

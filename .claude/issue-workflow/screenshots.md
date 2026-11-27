@@ -1,6 +1,7 @@
 # Screenshots (issue-workflow profile partial)
 
-<!-- Full text of the profile section "Screenshots" (`.claude/issue-workflow.md`); read when: a shot beyond the board or task sheet: phone browser chrome, desktop-only pages, motion, completion effects, WebKit; embedding shots in a PR or issue comment. -->
+<!-- Full text of the profile section "Screenshots" (`.claude/issue-workflow.md`); read when: a shot beyond the board or task sheet: phone browser chrome, desktop-only pages, motion, completion effects, WebKit; embedding shots in a PR or issue comment.
+     "This file" and a section named in quotes ("Risk areas", "Decisions", "Copy", …) mean the profile and its sections. -->
 
 Tool, widths and entry URL: the profile. Special cases:
 - phone browser chrome (Safari's toolbar and status bar tint, safe areas): the iOS simulator runs the local dev server, `xcrun simctl boot <device>`, `xcrun simctl openurl <device> "http://localhost:<port>/…"`, `xcrun simctl io <device> screenshot <file>` (kd#207; Playwright shows no browser bars)

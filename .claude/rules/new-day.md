@@ -2,13 +2,15 @@
 paths:
   - "store/dayRecap.ts"
   - "store/tasks.ts"
+  - "store/board.ts"
   - "composables/useNewDay*.ts"
   - "composables/useTakeOffBoard.ts"
   - "composables/useDayClose*.ts"
   - "utils/recapDay.ts"
   - "lib/dayBegun.ts"
   - "tests/store/{dayRecap,boardNotPlannedOrder,tasks.afterMidnight}.test.ts"
-  - "tests/composables/useNewDay*.test.ts"
+  - "tests/composables/{useNewDay,useDayClose}*.test.ts"
+  - "tests/store/hydrationNoWrite.test.ts"
   - "tests/e2e/{new-day-recap,day-close}.spec.ts"
 ---
 # New day: persisted fields (#356, #387)
