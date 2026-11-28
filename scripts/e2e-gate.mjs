@@ -318,7 +318,7 @@ export function selectE2e({ files, body = '', config, existingSpecs, env = {}, m
   const full = (reason) => result('full', reason, [...exists].sort())
   // A truncated list is never judged docs-only; the env switch beats the docs-only skip.
   const truncated = resolved && files.length >= GH_FILE_LIMIT
-  if (resolved && !truncated && env.E2E_GATE !== 'full' && files.every(isDocsOnly)) return result('skip', 'docs-only')
+  if (resolved && !truncated && env.E2E_GATE !== 'full' && files.every(file => isDocsOnly(file) || UNIT_ONLY.test(file))) return result('skip', 'docs-only') // #902: unit tests too, only for skip (the style tier keeps them out)
 
   if (env.E2E_GATE === 'full') return full('E2E_GATE=full')
   if (!resolved) return full('file list unresolved')
