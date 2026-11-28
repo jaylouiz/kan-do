@@ -6,6 +6,9 @@
 WF_PORTS=3101-3105
 WF_MAX_WORKERS=5
 
+# GitHub's issue status carries the phase alone (#909, agent-workflow docs/phase-label-cutover.md): no phase:* labels.
+WF_PHASE_LABELS=off
+
 # Risk areas (issue-workflow.md "Risk areas"): PRs touching these get a separate reviewer worker.
 WF_RISK_GLOBS=(
   'store/**' composables/useTaskSync.ts 'integrations/**' 'server/**'
