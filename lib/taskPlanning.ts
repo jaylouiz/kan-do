@@ -78,7 +78,8 @@ export const MARKER_MODEL = 2
  * The first load of data stored before #793 (UX decision 6A, no rewrite): until then the marker counted on an Open
  * task only, so one left on a Jetzt, Wartet or Erledigt task had no effect. It is dropped there, whatever its value,
  * so the board and "Alle Aufgaben" look the same after the update. An Open task keeps its field as it is. Returns the
- * input array itself when no task changed.
+ * input array itself when no task changed. The task snapshots of `trash-store` are not cleaned. A seed that holds a
+ * waiting task off today must write the `MARKER_MODEL` stamp (`plugins/e2e-seed.client.ts`).
  */
 export function dropStaleMarkers<T>(tasks: T[]): T[] {
   let changed = false

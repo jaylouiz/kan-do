@@ -158,6 +158,11 @@ function normalizeClears(raw: unknown): PendingClear[] | undefined {
   return kept.length === raw.length ? (raw as PendingClear[]) : kept
 }
 
+/**
+ * A stored `pendingMove`, or `undefined` when it is not one. Every optional field is additive and a malformed value
+ * reads as none: `fromSourceNotPlanned` (#357) survives the read, `fromCreateUncertain` (#538) only while the origin
+ * page has no id, and `fromUpstreamDone` (#781, the origin's done state for the way back) reads as "not completed".
+ */
 function normalizePendingMove(raw: unknown): PendingMove | undefined {
   if (!isRecord(raw) || !isSourceId(raw.fromSource) || !isSourceId(raw.toSource)) return undefined
   const fromExternalId = typeof raw.fromExternalId === 'string' ? raw.fromExternalId : null
