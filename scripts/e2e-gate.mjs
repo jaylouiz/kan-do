@@ -3,7 +3,7 @@
  * Tier selection of the pre-merge E2E gate (#355, `.claude/hooks/e2e-before-merge.sh`).
  *
  * `selectE2e` is pure: given the PR's files and body it returns which specs the hook runs.
- * Rules in order: every file docs-only (docs, `.claude/**`, the Impeccable sidecar `.impeccable/design.json`, #494) -> `skip`; a forced `full` (env `E2E_GATE=full`, an unresolved or
+ * Rules in order: every file docs-only (docs, `.claude/**`, the Impeccable sidecar `.impeccable/design.json`, #494) or a unit-test file below `tests/` (not `tests/e2e/`, not `tests/fixtures/notion/`, #902) -> `skip`; a forced `full` (env `E2E_GATE=full`, an unresolved or
  * truncated file list) -> `full`; every file style-only (#375: `.css`, a `.vue` whose changed lines all lie in
  * `<style>` blocks or comments, docs, `tests/e2e/snapshots/**`) -> `style` = no E2E, or only the changed specs
  * when the PR also touches `tests/e2e/*.spec.ts`; otherwise `targeted` = the smoke set + the `map` specs of every
@@ -58,6 +58,8 @@ const RUNTIME_DOCS = /^docs\/copy\/terms[^/]*\.json$/
 const isDocsOnly = file => DOCS_ONLY.test(file) && !GATE_FILES.test(file) && !RUNTIME_DOCS.test(file)
 /** Files below `tests/` the E2E suite never reads: unit tests, their helpers and fixtures. `tests/e2e/` and the Notion stub fixtures are E2E inputs. */
 const UNIT_ONLY = /^tests\/(?!e2e\/|fixtures\/notion\/)/
+/** The skip tier's file test (#902): docs and unit-test files change nothing a spec drives. `isDocsOnly` itself stays docs-only for the style tier and the spec selection. */
+const isSkippable = file => isDocsOnly(file) || UNIT_ONLY.test(file)
 /** Style-only paths (#375): stylesheets and the visual-regression baselines; docs count too (`DOCS_ONLY`). */
 const STYLE_ONLY = /\.css$|^tests\/e2e\/snapshots\//
 /** A visual baseline names the spec that records it by folder: `tests/e2e/snapshots/<name>.spec.ts/<file>` (#684). */
@@ -318,7 +320,7 @@ export function selectE2e({ files, body = '', config, existingSpecs, env = {}, m
   const full = (reason) => result('full', reason, [...exists].sort())
   // A truncated list is never judged docs-only; the env switch beats the docs-only skip.
   const truncated = resolved && files.length >= GH_FILE_LIMIT
-  if (resolved && !truncated && env.E2E_GATE !== 'full' && files.every(isDocsOnly)) return result('skip', 'docs-only')
+  if (resolved && !truncated && env.E2E_GATE !== 'full' && files.every(isSkippable)) return result('skip', 'docs-only')
 
   if (env.E2E_GATE === 'full') return full('E2E_GATE=full')
   if (!resolved) return full('file list unresolved')

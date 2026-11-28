@@ -267,6 +267,20 @@ describe('selectE2e', () => {
       expect(select({ files: ['.impeccable/config.json'] }).tier).not.toBe('skip')
     })
 
+    it('skips a diff of only docs and unit-test files, not one with an E2E input (#902)', () => {
+      expect(select({ files: ['.claude/rules/task-sources.md', 'tests/config/x.test.ts'] })).toMatchObject({ tier: 'skip', reason: 'docs-only', specs: [] })
+      expect(select({ files: ['tests/stores/a.test.ts', 'tests/helpers/b.ts'] }).tier).toBe('skip')
+      expect(select({ files: ['docs/a.md', 'tests/e2e/helpers/seed.ts'] }).tier).not.toBe('skip')
+      expect(select({ files: ['docs/a.md', 'tests/fixtures/notion/new-file.json'] }).tier).not.toBe('skip')
+      expect(select({ files: ['docs/a.md', 'tests/config/x.test.ts', 'tests/e2e/smoke.spec.ts'] }).tier).not.toBe('skip')
+    })
+
+    it('does not skip a unit-test file together with the gate files or code (#902)', () => {
+      expect(select({ files: ['tests/config/x.test.ts', 'scripts/e2e-gate.mjs'] }).tier).toBe('targeted')
+      expect(select({ files: ['tests/config/x.test.ts', 'utils/middleEllipsis.ts'] }).tier).not.toBe('skip')
+      expect(select({ files: ['tests/config/x.test.ts'], env: { E2E_GATE: 'full' } }).tier).toBe('full')
+    })
+
     it('keeps the rest of .claude/ docs-only', () => {
       expect(select({ files: ['.claude/hooks/verify.sh', '.claude/rules/e2e.md', '.claude/issue-workflow.md'] }).tier).toBe('skip')
     })
